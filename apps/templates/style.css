@@ -1,12 +1,16 @@
-body { font-family: Arial, sans-serif; margin: 0; transition: background 0.3s, color 0.3s; }
+body { font-family: 'Segoe UI', sans-serif; margin: 0; transition: background 0.3s, color 0.3s; }
 body.light-mode { background-color: #f4f4f4; color: #333; }
-body.dark-mode { background-color: #1a1a1a; color: #ffffff; }
+body.dark-mode { background-color: #121212; color: #ffffff; }
 
-.sidebar { height: 100vh; width: 200px; background-color: #222; position: fixed; left: 0; top: 0; padding-top: 20px; }
-.sidebar a { padding: 15px; text-decoration: none; color: white; display: block; }
-.sidebar a:hover { background-color: #ff4500; }
+.sidebar { height: 100vh; width: 220px; background-color: #1f1f1f; position: fixed; padding-top: 20px; }
+.sidebar a { padding: 15px; color: #ddd; text-decoration: none; display: block; border-bottom: 1px solid #333; }
+.sidebar a:hover { background-color: #ff4500; color: white; }
 
-.main-content { margin-left: 220px; padding: 20px; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { border: 1px solid #444; padding: 10px; text-align: left; }
+.main-content { margin-left: 240px; padding: 30px; }
+table { width: 100%; border-collapse: collapse; background: #222; border-radius: 8px; overflow: hidden; }
+th, td { padding: 15px; border-bottom: 1px solid #333; }
+th { background: #333; }
+
+.card { background: #222; padding: 20px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+input { padding: 10px; width: 70%; border-radius: 5px; border: 1px solid #444; }
 button { padding: 10px 20px; background: #ff4500; color: white; border: none; border-radius: 5px; cursor: pointer; }
