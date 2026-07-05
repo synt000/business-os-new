@@ -1,10 +1,12 @@
-from fastapi import FastAPI, Form, HTTPException, Request
+from fastapi import FastAPI, Form, HTTPException
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
 import sqlite3
 
+# ဒီနေရာမှာ app ကို အရင် Define လုပ်ရမယ်
 app = FastAPI()
+
+# Static files mount လုပ်မယ်
 app.mount("/static", StaticFiles(directory="apps/templates"), name="static")
 
 def init_db():
