@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="my">
+<html>
 <head>
     <link rel="stylesheet" href="/static/style.css">
     <title>Business OS</title>
@@ -7,13 +7,12 @@
 <body class="dark-mode">
     <div class="sidebar">
         <a href="/">Home</a>
-        <a href="#">Dashboard</a>
+        <a href="/dashboard">Dashboard</a>
         <a href="#">Settings</a>
         <button onclick="toggleTheme()" style="margin-left: 15px;">Mode ပြောင်းရန်</button>
     </div>
     <div class="main-content">
         <h1>Business OS</h1>
-        <p>မင်းရဲ့ တောအုပ်ကြီးကို စတင်ဖို့ နာမည်ပေးလိုက်ပါ</p>
         <form action="/start" method="post">
             <input type="text" name="os_name" placeholder="Enter OS Name" required>
             <button type="submit">Start OS</button>
