@@ -2,17 +2,29 @@ body {
     background-color: #1a1a1a;
     color: #ffffff;
     font-family: Arial, sans-serif;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+    margin: 0;
 }
-.container {
-    background: #333;
+.sidebar {
+    height: 100vh;
+    width: 200px;
+    background-color: #222;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding-top: 20px;
+}
+.sidebar a {
+    padding: 15px;
+    text-decoration: none;
+    color: white;
+    display: block;
+}
+.sidebar a:hover {
+    background-color: #ff4500;
+}
+.main-content {
+    margin-left: 220px;
     padding: 20px;
-    border-radius: 10px;
-    text-align: center;
 }
 input {
     padding: 10px;
