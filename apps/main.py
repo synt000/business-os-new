@@ -1,7 +1,9 @@
 from fastapi import FastAPI, Form
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 import sqlite3
+import csv
+import io
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="apps/templates"), name="static")
@@ -38,6 +40,26 @@ async def delete_todo(todo_id: int):
     conn.close()
     return RedirectResponse(url="/dashboard", status_code=303)
 
+@app.get("/export")
+async def export_data():
+    conn = sqlite3.connect("business_os.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, task FROM todos")
+    data = cursor.fetchall()
+    conn.close()
+
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["ID", "Task"])
+    writer.writerows(data)
+    
+    output.seek(0)
+    return StreamingResponse(
+        io.BytesIO(output.getvalue().encode()),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=tasks.csv"}
+    )
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard():
     conn = sqlite3.connect("business_os.db")
@@ -50,7 +72,8 @@ async def dashboard():
     <body class='dark-mode'>
         <div class='main-content'>
             <h1>To-Do Dashboard</h1>
-            <div class='card'>
+            <a href='/export' style='color:green;'>Download Tasks (CSV)</a>
+            <div class='card' style='margin-top:20px;'>
                 <form action='/add-todo' method='post'>
                     <input type='text' name='task' placeholder='New Task...' required>
                     <button type='submit'>Add Task</button>
