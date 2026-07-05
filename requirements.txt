@@ -5,3 +5,4 @@ pydantic-settings
 psycopg
 redis
 aiosqlite
+python-multipart
