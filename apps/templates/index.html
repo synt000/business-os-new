@@ -1,14 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="my">
 <head>
     <link rel="stylesheet" href="/static/style.css">
     <title>Business OS</title>
 </head>
-<body>
+<body class="dark-mode">
     <div class="sidebar">
         <a href="/">Home</a>
         <a href="#">Dashboard</a>
         <a href="#">Settings</a>
+        <button onclick="toggleTheme()" style="margin-left: 15px;">Mode ပြောင်းရန်</button>
     </div>
     <div class="main-content">
         <h1>Business OS</h1>
@@ -18,5 +19,11 @@
             <button type="submit">Start OS</button>
         </form>
     </div>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            document.body.classList.toggle('dark-mode');
+        }
+    </script>
 </body>
 </html>
