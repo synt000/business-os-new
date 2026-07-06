@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends, HTTPException, status, Form
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from passlib.context import CryptContext
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
+from typing import List
 import sqlite3
 
 app = FastAPI(title="Business OS API")
@@ -17,6 +17,21 @@ def get_db():
     conn.row_factory = sqlite3.Row
     return conn
 
+# Role Checker
+class RoleChecker:
+    def __init__(self, allowed_roles: List[str]):
+        self.allowed_roles = allowed_roles
+
+    def __call__(self, token: str = Depends(oauth2_scheme)):
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+            role = payload.get("role")
+            if role not in self.allowed_roles:
+                raise HTTPException(status_code=403, detail="Operation not permitted")
+            return payload
+        except JWTError:
+            raise HTTPException(status_code=401, detail="Invalid token")
+
 @app.on_event("startup")
 async def startup():
     conn = get_db()
@@ -24,32 +39,29 @@ async def startup():
     conn.commit()
     conn.close()
 
-@app.get("/dashboard")
-async def dashboard():
-    return {"message": "Welcome to Business OS Dashboard"}
-
 @app.post("/register")
 async def register(username: str = Form(...), password: str = Form(...), role: str = Form("staff")):
     conn = get_db()
-    hashed_pwd = pwd_context.hash(password)
     try:
         conn.execute("INSERT INTO users (username, hashed_password, role) VALUES (?, ?, ?)", 
-                     (username, hashed_pwd, role))
+                     (username, pwd_context.hash(password), role))
         conn.commit()
     except sqlite3.IntegrityError:
-        raise HTTPException(status_code=400, detail="Username already exists")
+        raise HTTPException(status_code=400, detail="User already exists")
     finally:
         conn.close()
-    return {"message": "User created successfully"}
+    return {"message": "User created"}
 
 @app.post("/login")
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     conn = get_db()
     user = conn.execute("SELECT * FROM users WHERE username = ?", (form_data.username,)).fetchone()
     conn.close()
-    
     if not user or not pwd_context.verify(form_data.password, user["hashed_password"]):
         raise HTTPException(status_code=401, detail="Invalid credentials")
-    
     token = jwt.encode({"sub": user["username"], "role": user["role"]}, SECRET_KEY, algorithm=ALGORITHM)
     return {"access_token": token, "token_type": "bearer"}
+
+@app.get("/admin-only", dependencies=[Depends(RoleChecker(["admin"]))])
+async def admin_only():
+    return {"message": "Hello Admin!"}
