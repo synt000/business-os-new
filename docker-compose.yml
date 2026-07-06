@@ -1,29 +1,18 @@
+version: "3.9"
+
 services:
-  web:
+  api:
     build: .
+    container_name: business-os-api
     ports:
       - "8000:8000"
-    volumes:
-      - .:/app
-    environment:
-      - DATABASE_URL=postgresql+asyncpg://user:password@db:5432/business_db
-    depends_on:
-      db:
-        condition: service_healthy
+    env_file:
+      - .env
+    restart: always
 
-  db:
-    image: postgres:15
-    environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=business_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U user -d business_db"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-volumes:
-  postgres_data:
+  redis:
+    image: redis:7
+    container_name: business-os-redis
+    ports:
+      - "6379:6379"
+    restart: always

@@ -1,67 +1,30 @@
-from fastapi import FastAPI, Depends, HTTPException, status, Form
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from passlib.context import CryptContext
-from jose import JWTError, jwt
-from typing import List
-import sqlite3
+from fastapi import FastAPI
+
+from core.telemetry import telemetry_middleware
+from core.metrics_middleware import metrics_middleware
+from core.error_handler import global_exception_handler
+
+from apps.category_api import router as category_router
+from apps.product_api import router as product_router
+from apps.inventory_api import router as inventory_router
+from apps.metrics_api import router as metrics_router
 
 app = FastAPI(title="Business OS API")
 
-SECRET_KEY = "SUPER_SECRET_KEY_REPLACE_IN_PROD"
-ALGORITHM = "HS256"
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
+# 🔥 Observability stack (order matters)
+app.middleware("http")(metrics_middleware)
+app.middleware("http")(telemetry_middleware)
 
-def get_db():
-    conn = sqlite3.connect("business_os.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+# Routers
+app.include_router(category_router)
+app.include_router(product_router)
+app.include_router(inventory_router)
+app.include_router(metrics_router)
 
-# Role Checker
-class RoleChecker:
-    def __init__(self, allowed_roles: List[str]):
-        self.allowed_roles = allowed_roles
+# Global error handler
+app.add_exception_handler(Exception, global_exception_handler)
 
-    def __call__(self, token: str = Depends(oauth2_scheme)):
-        try:
-            payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-            role = payload.get("role")
-            if role not in self.allowed_roles:
-                raise HTTPException(status_code=403, detail="Operation not permitted")
-            return payload
-        except JWTError:
-            raise HTTPException(status_code=401, detail="Invalid token")
 
-@app.on_event("startup")
-async def startup():
-    conn = get_db()
-    conn.execute("CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT UNIQUE, hashed_password TEXT, role TEXT)")
-    conn.commit()
-    conn.close()
-
-@app.post("/register")
-async def register(username: str = Form(...), password: str = Form(...), role: str = Form("staff")):
-    conn = get_db()
-    try:
-        conn.execute("INSERT INTO users (username, hashed_password, role) VALUES (?, ?, ?)", 
-                     (username, pwd_context.hash(password), role))
-        conn.commit()
-    except sqlite3.IntegrityError:
-        raise HTTPException(status_code=400, detail="User already exists")
-    finally:
-        conn.close()
-    return {"message": "User created"}
-
-@app.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
-    conn = get_db()
-    user = conn.execute("SELECT * FROM users WHERE username = ?", (form_data.username,)).fetchone()
-    conn.close()
-    if not user or not pwd_context.verify(form_data.password, user["hashed_password"]):
-        raise HTTPException(status_code=401, detail="Invalid credentials")
-    token = jwt.encode({"sub": user["username"], "role": user["role"]}, SECRET_KEY, algorithm=ALGORITHM)
-    return {"access_token": token, "token_type": "bearer"}
-
-@app.get("/admin-only", dependencies=[Depends(RoleChecker(["admin"]))])
-async def admin_only():
-    return {"message": "Hello Admin!"}
+@app.get("/health")
+def health():
+    return {"status": "ok"}

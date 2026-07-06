@@ -1,21 +1,16 @@
-FROM python:3.13-slim
-
-# Create non-root user for security
-RUN addgroup --system app && adduser --system --group app
+FROM python:3.11-slim
 
 WORKDIR /app
 
-# Install build dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends     libpq-dev     gcc     && rm -rf /var/lib/apt/lists/*
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
 
 COPY requirements.txt .
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Set permissions
-RUN chown -R app:app /app
-USER app
+EXPOSE 8000
 
-# Correct entrypoint path based on apps folder structure
-CMD ["python", "-m", "uvicorn", "apps.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "apps.main:app", "--host", "0.0.0.0", "--port", "8000"]
