@@ -5,16 +5,16 @@ from core.config import settings
 engine = create_engine(
     settings.DATABASE_URL,
     pool_pre_ping=True,
-    future=True
+    pool_recycle=300
 )
 
 SessionLocal = sessionmaker(
-    bind=engine,
-    autoflush=False,
     autocommit=False,
-    expire_on_commit=False
+    autoflush=False,
+    bind=engine
 )
 
+# ✅ ADD THIS (missing part)
 def get_db():
     db = SessionLocal()
     try:

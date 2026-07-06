@@ -1,32 +1,15 @@
-from domains.product.inventory_model import Inventory
-from repositories.inventory_repository import InventoryRepository
+from sqlalchemy.orm import Session
+from repositories.movement_repository import MovementRepository
+from uuid import UUID
 
 class InventoryService:
-
     @staticmethod
-    def add_stock(db, product_id: str, quantity: float, tenant_id: str):
-
-        movement = Inventory(
-            product_id=product_id,
-            movement_type="IN",
-            quantity=quantity,
-            tenant_id=tenant_id
-        )
-
-        return InventoryRepository.add_movement(db, movement)
-
-    @staticmethod
-    def remove_stock(db, product_id: str, quantity: float, tenant_id: str):
-
-        movement = Inventory(
-            product_id=product_id,
-            movement_type="OUT",
-            quantity=quantity,
-            tenant_id=tenant_id
-        )
-
-        return InventoryRepository.add_movement(db, movement)
-
-    @staticmethod
-    def history(db, product_id: str, tenant_id: str):
-        return InventoryRepository.list_by_product(db, product_id, tenant_id)
+    def get_current_stock(db: Session, product_id: UUID, tenant_id: UUID):
+        movements = MovementRepository.get_product_movements(db, product_id, tenant_id)
+        stock = 0.0
+        for m in movements:
+            if m.movement_type == "IN":
+                stock += m.quantity
+            elif m.movement_type == "OUT":
+                stock -= m.quantity
+        return stock

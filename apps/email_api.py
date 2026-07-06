@@ -1,0 +1,23 @@
+from fastapi import APIRouter
+from pydantic import BaseModel
+from apps.tasks import send_email_task
+
+router = APIRouter()
+
+class EmailRequest(BaseModel):
+    to_email: str
+    subject: str
+    body: str
+
+@router.post("/send-email")
+def send_email(req: EmailRequest):
+    task = send_email_task.delay(
+        req.to_email,
+        req.subject,
+        req.body
+    )
+
+    return {
+        "message": "Email queued successfully",
+        "task_id": str(task.id)
+    }
