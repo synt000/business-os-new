@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, Request, HTTPException
 from sqlalchemy.orm import Session
 from uuid import UUID
 from infrastructure.db.session import get_db
-from repositories.product_repository import ProductRepository
+from src.repositories.product_repository import ProductRepository
 from domains.product.model import Product
 from pydantic import BaseModel
 

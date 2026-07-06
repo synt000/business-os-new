@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from repositories.movement_repository import MovementRepository
+from src.repositories.movement_repository import MovementRepository
 from uuid import UUID
 
 class InventoryService:

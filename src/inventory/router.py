@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from infrastructure.db.session import get_db
-from services.inventory_service import InventoryService
+from src.services.inventory_service import InventoryService
 from uuid import UUID
 
 router = APIRouter(prefix="/inventory", tags=["inventory"])
