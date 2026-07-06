@@ -8,6 +8,10 @@ app.mount("/static", StaticFiles(directory="apps/templates"), name="static")
 
 ADMIN_PASSWORD = "123"
 
+@app.get("/", response_class=HTMLResponse)
+async def login():
+    return "<html><body><h1>Business OS</h1><a href='/dashboard'>Login to Dashboard</a></body></html>"
+
 @app.get("/dashboard", response_class=HTMLResponse)
 async def dashboard(search: str = ""):
     conn = sqlite3.connect("business_os.db")
@@ -18,14 +22,13 @@ async def dashboard(search: str = ""):
         cursor.execute("SELECT id, task FROM todos")
     todos = cursor.fetchall()
     conn.close()
-    
+
     rows = "".join([f"<tr><td>{t[1]}</td><td><a href='/delete-todo/{t[0]}' class='delete-btn'>Delete</a></td></tr>" for t in todos])
-    
     return f"""<html><head><link rel='stylesheet' href='/static/style.css'></head>
-    <body><div class='container'>
-    <h1>Business OS Dashboard</h1>
-    <form action='/dashboard' method='get'><input type='text' name='search' placeholder='Search tasks...'><button type='submit'>Search</button></form>
-    <table><tr><th>Task</th><th>Action</th></tr>{rows}</table>
-    <a href='/export' class='export-link'>Download Data (CSV)</a>
-    <br><a href='/' style='color:#888;'>Logout</a>
-    </div></body></html>"""
+               <body><div class='container'>
+               <h1>Business OS Dashboard</h1>
+               <form action='/dashboard' method='get'><input type='text' name='search' placeholder='Search tasks...'><button type='submit'>Search</button></form>
+               <table><tr><th>Task</th><th>Action</th></tr>{rows}</table>
+               <a href='/export' class='export-link'>Download Data (CSV)</a>
+               <br><a href='/' style='color:#888;'>Logout</a>
+               </div></body></html>"""
