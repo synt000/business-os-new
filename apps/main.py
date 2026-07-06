@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Form, HTTPException
+from fastapi import FastAPI, Form, Request
 from fastapi.responses import HTMLResponse, RedirectResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 import sqlite3
@@ -8,7 +8,7 @@ import io
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="apps/templates"), name="static")
 
-ADMIN_PASSWORD = "123"  # မင်း ကြိုက်တဲ့ Password ပြောင်းလို့ရတယ်
+ADMIN_PASSWORD = "123"
 
 def init_db():
     conn = sqlite3.connect("business_os.db")
@@ -21,30 +21,29 @@ init_db()
 
 @app.get("/", response_class=HTMLResponse)
 async def root():
-    return """<html><body>
-    <h1>Login to Business OS</h1>
-    <form action='/login' method='post'>
-        <input type='password' name='password' placeholder='Enter Password' required>
-        <button type='submit'>Login</button>
-    </form>
-    </body></html>"""
+    return """<html><body><h1>Login</h1><form action='/login' method='post'><input type='password' name='password' required><button type='submit'>Login</button></form></body></html>"""
 
 @app.post("/login")
 async def login(password: str = Form(...)):
     if password == ADMIN_PASSWORD:
         return RedirectResponse(url="/dashboard", status_code=303)
-    return "<h1>Wrong Password!</h1><a href='/'>Try Again</a>"
+    return "<h1>Wrong!</h1><a href='/'>Back</a>"
 
 @app.get("/dashboard", response_class=HTMLResponse)
-async def dashboard():
-    # ဒီနေရာမှာ Security အတွက် တကယ်တော့ Session သုံးရမယ်၊ အခုတော့ အလွယ်နည်းနဲ့
+async def dashboard(search: str = ""):
     conn = sqlite3.connect("business_os.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT id, task FROM todos")
+    if search:
+        cursor.execute("SELECT id, task FROM todos WHERE task LIKE ?", ('%' + search + '%',))
+    else:
+        cursor.execute("SELECT id, task FROM todos")
     todos = cursor.fetchall()
     conn.close()
     rows = "".join([f"<tr><td>{t[1]}</td><td><a href='/delete-todo/{t[0]}'>Delete</a></td></tr>" for t in todos])
-    return f"<html><body><h1>Dashboard</h1><a href='/export'>Download CSV</a><table>{rows}</table><a href='/'>Logout</a></body></html>"
+    return f"""<html><body><h1>Dashboard</h1>
+    <form action='/dashboard' method='get'><input type='text' name='search' placeholder='Search task...'><button type='submit'>Search</button></form>
+    <a href='/export'>Download CSV</a>
+    <table>{rows}</table><br><a href='/'>Logout</a></body></html>"""
 
 @app.post("/add-todo")
 async def add_todo(task: str = Form(...)):
