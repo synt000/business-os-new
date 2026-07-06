@@ -24,6 +24,10 @@ async def startup():
     conn.commit()
     conn.close()
 
+@app.get("/dashboard")
+async def dashboard():
+    return {"message": "Welcome to Business OS Dashboard"}
+
 @app.post("/register")
 async def register(username: str = Form(...), password: str = Form(...), role: str = Form("staff")):
     conn = get_db()
