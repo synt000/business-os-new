@@ -3,230 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business OS - Business Operating System</title>
-    <!-- Standard Highly Resilient Tailwind Play Engine CDN -->
+    <title>Business OS - Premium SaaS ERP</title>
+    <!-- Stable Tailwind Utility CDN -->
     <script src="https://tailwindcss.com"></script>
-    <!-- FontAwesome Premium Icons Client Node -->
+    <!-- FontAwesome Core Icons CDN -->
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         @import url('https://googleapis.com');
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: #030712; 
-            color: #F3F4F6; 
+            background-color: #0B1120; 
+            color: #F9FAFB; 
         }
-        .glass-card { 
-            background: rgba(17, 24, 39, 0.7); 
-            backdrop-filter: blur(16px); 
-            -webkit-backdrop-filter: blur(16px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 25px 60px rgba(0,0,0,0.45);
-        }
-        .text-gradient { 
-            background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #8B5CF6 100%); 
-            -webkit-background-clip: text; 
-            -webkit-text-fill-color: transparent; 
-        }
+        .card-bg { background-color: #111827; }
+        .text-gray-spec { color: #94A3B8; }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col justify-between bg-[#030712] relative overflow-x-hidden selection:bg-blue-500/30">
+<body class="antialiased min-h-screen flex flex-col justify-between p-6 bg-[#0B1120]">
 
-    <!-- Ambient Grid Spotlights -->
-    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-blue-600/10 via-purple-600/5 to-transparent rounded-full blur-[120px] pointer-events-none z-0"></div>
-
-    <!-- 1. HEADER SECTION (FLEX JUSTIFY-BETWEEN BASELINE) -->
-    <nav class="glass-card rounded-2xl px-6 py-4 flex justify-between items-center max-w-5xl w-full mx-auto mt-4 relative z-50">
-        <div class="flex items-center space-x-2 font-bold text-white text-base group cursor-pointer">
-            <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white transform group-hover:scale-105 duration-300">
-                <i class="fa-solid fa-layer-group text-xs"></i>
-            </div>
-            <span class="tracking-tight uppercase">Business <span class="text-blue-500">OS</span></span>
-        </div>
-        <div class="flex items-center space-x-6">
-            <a href="/auth/login" class="text-xs font-semibold text-gray-300 hover:text-white transition-all duration-300 hover:scale-105">Login</a>
-            <a href="/auth/register" class="bg-blue-600 hover:bg-blue-500 px-5 py-2 rounded-xl text-xs text-white font-semibold transition-all duration-300 hover:scale-105 shadow-md shadow-blue-600/20">Register</a>
+    <!-- [PHASE 2] NAVBAR BACKBONE -->
+    <nav class="w-full max-w-5xl mx-auto flex justify-between items-center py-4 border-b border-white/5">
+        <div class="font-bold text-base uppercase"><i class="fa-solid fa-layer-group text-[#3B82F6] mr-2"></i>Business OS</div>
+        <div class="space-x-6 text-xs font-semibold">
+            <a href="/auth/login" class="text-gray-spec hover:text-white transition">Login</a>
+            <a href="/auth/register" class="bg-[#3B82F6] px-4 py-2 rounded-xl text-white font-semibold">Register</a>
         </div>
     </nav>
 
-    <!-- 2. HERO SECTION WITH ACCURATE MAX-W WIDTH & ALIGNMENT -->
-    <section class="max-w-4xl mx-auto px-6 text-center py-24 relative z-10 space-y-8">
-        <span class="inline-flex items-center gap-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full">
-            <i class="fa-solid fa-microchip-ai"></i> AI Powered ERP Platform Live
-        </span>
-        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.15] uppercase">
-            BUSINESS OPERATING SYSTEM <br>
-            <span class="text-gradient">Smarter, Faster & Secure</span>
-        </h1>
-        <p class="text-gray-400 max-w-2xl mx-auto text-xs md:text-sm leading-relaxed font-light">
-            An all-in-one corporate orchestration engine optimized for hyper-growth. Automate enterprise tracking, secure JWT protection, and deep business insights inside a single production ecosystem.
-        </p>
+    <!-- [PHASE 3 & 4] HERO SECTION & BUTTONS -->
+    <main class="max-w-4xl w-full mx-auto text-center my-16 space-y-6">
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight uppercase">BUSINESS OPERATING SYSTEM<br><span class="text-[#3B82F6]">Smarter, Faster & Secure</span></h1>
+        <p class="text-gray-spec max-w-2xl mx-auto text-sm">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Core multi-tenant engine optimized for hyper-growth corporate entities.</p>
+        <div class="flex flex-col sm:flex-row gap-4 mt-8 justify-center">
+            <a href="/auth/register" class="bg-[#3B82F6] px-8 py-4 rounded-xl font-semibold shadow-lg text-xs uppercase tracking-wider">Start Free Trial</a>
+            <a href="#dashboard" class="border border-gray-600 bg-gray-900/40 px-8 py-4 rounded-xl font-semibold text-xs uppercase tracking-wider">Live Demo</a>
+        </div>
+    </main>
 
-        <!-- BRO'S PREMIUM CTA BUTTONS (FLEX-COL SM:FLEX-ROW GAP-4) -->
-        <div class="flex flex-col sm:flex-row gap-4 justify-center pt-4 max-w-xs mx-auto sm:max-w-none">
-            <a href="/auth/register" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-bold text-xs text-white uppercase bg-gradient-to-r from-blue-600 to-cyan-500 hover:from-blue-500 hover:to-cyan-400 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 active:scale-95">
-                <i class="fa-solid fa-rocket mr-2"></i> Start Free
-            </a>
-            <a href="#preview" class="inline-flex items-center justify-center px-6 py-3.5 rounded-xl font-bold text-xs border border-gray-700 bg-gray-900/40 backdrop-blur text-gray-200 hover:bg-gray-800 hover:border-blue-500 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md">
-                <i class="fa-solid fa-play mr-2 text-blue-500"></i> Live Demo
-            </a>
+    <!-- [PHASE 5] STATS CARDS (GRID LAYOUT SKELETON) -->
+    <section class="max-w-5xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
+        <div class="card-bg rounded-2xl p-5 border border-white/5">
+            <h3 class="text-[10px] text-gray-spec font-bold uppercase tracking-wider">👥 Active Tenants</h3>
+            <p class="text-2xl font-bold mt-1">1,248+</p>
+        </div>
+        <div class="card-bg rounded-2xl p-5 border border-white/5">
+            <h3 class="text-[10px] text-gray-spec font-bold uppercase tracking-wider">💰 Gross Revenue</h3>
+            <p class="text-2xl font-bold mt-1 text-[#10B981]">$14.2M</p>
+        </div>
+        <div class="card-bg rounded-2xl p-5 border border-white/5">
+            <h3 class="text-[10px] text-gray-spec font-bold uppercase tracking-wider">🛒 Processed Orders</h3>
+            <p class="text-2xl font-bold mt-1">84.9K</p>
+        </div>
+        <div class="card-bg rounded-2xl p-5 border border-white/5">
+            <h3 class="text-[10px] text-gray-spec font-bold uppercase tracking-wider">📦 Tracked Products</h3>
+            <p class="text-2xl font-bold mt-1 text-[#3B82F6]">32.1K</p>
         </div>
     </section>
 
-    <!-- 3. KPI CARDS SECTION (GRID-COLS-2 LG:GRID-COLS-4 GAP-4) -->
-    <section id="preview" class="max-w-5xl mx-auto px-6 py-12 relative z-10">
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 hover:shadow-blue-500/10 transition-all duration-300 group">
-                <h3 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest"><i class="fa-solid fa-users text-blue-500 mr-1.5"></i> Active Tenants</h3>
-                <p class="text-2xl md:text-3xl font-extrabold text-white mt-2 font-sans tracking-tight">1,248+</p>
-            </div>
-            <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 hover:shadow-emerald-500/10 transition-all duration-300 group">
-                <h3 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest"><i class="fa-solid fa-money-bill-trend-up text-emerald-400 mr-1.5"></i> Gross Revenue</h3>
-                <p class="text-2xl md:text-3xl font-extrabold text-emerald-400 mt-2 font-sans tracking-tight">$14.2M</p>
-            </div>
-            <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 hover:shadow-purple-500/10 transition-all duration-300 group">
-                <h3 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest"><i class="fa-solid fa-cart-shopping text-purple-400 mr-1.5"></i> Processed Orders</h3>
-                <p class="text-2xl md:text-3xl font-extrabold text-white mt-2 font-sans tracking-tight">84.9K</p>
-            </div>
-            <div class="glass-card rounded-2xl p-5 hover:-translate-y-1 hover:shadow-cyan-500/10 transition-all duration-300 group">
-                <h3 class="text-[10px] text-gray-500 font-bold uppercase tracking-widest"><i class="fa-solid fa-box-open text-blue-400 mr-1.5"></i> Tracked Products</h3>
-                <p class="text-2xl md:text-3xl font-extrabold text-blue-500 mt-2 font-sans tracking-tight">32.1K</p>
-            </div>
+    <!-- [PHASE 6] FEATURES (ICON + TITLE + DESCRIPTION) -->
+    <section class="max-w-4xl w-full mx-auto space-y-6 pb-12">
+        <h2 class="text-sm font-bold text-center uppercase tracking-widest">Why Business OS ?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-light text-gray-spec">
+            <div class="p-5 rounded-xl card-bg border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ AI Analytics</h4>AI Powered Prediction velocities.</div>
+            <div class="p-5 rounded-xl card-bg border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ Security</h4>JWT + RBAC signature active hardening.</div>
+            <div class="p-5 rounded-xl card-bg border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ Inventory</h4>Real-time Tracking delta infrastructure.</div>
         </div>
     </section>
 
-    <!-- 4. ERP DASHBOARD MOCKUP PREVIEW (STRIPE/VERCEL STYLE MOCKUP) -->
-    <section class="max-w-5xl mx-auto px-6 pb-24 relative z-10">
-        <div class="glass-card rounded-2xl p-6 relative border border-white/10 shadow-2xl">
-            <!-- Top Mockup Window Header -->
-            <div class="border-b border-white/5 pb-4 mb-6 flex justify-between items-center">
-                <div class="flex items-center space-x-2">
-                    <div class="w-3 h-3 bg-red-500 rounded-full"></div>
-                    <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
-                    <div class="w-3 h-3 bg-green-500 rounded-full"></div>
-                    <span class="text-xs text-gray-500 font-mono ml-2 tracking-wide">control_center_node.io</span>
-                </div>
-                <div class="flex items-center space-x-3 text-xs text-gray-400">
-                    <span class="px-2 py-0.5 rounded bg-gray-900 border border-white/5 text-[10px] text-emerald-400 font-semibold"><i class="fa-solid fa-circle-check mr-1 animate-pulse"></i> Core Nodes Online</span>
-                </div>
-            </div>
+    <!-- [PHASE 7] DASHBOARD PREVIEW SCREENSHOT ZONE -->
+    <section id="dashboard" class="max-w-5xl w-full mx-auto card-bg rounded-2xl p-8 border border-white/5 shadow-2xl text-center mb-12">
+        <div class="border-b border-white/5 pb-2 mb-4 text-left text-xs font-bold text-gray-spec uppercase tracking-wide">██████ Dashboard Preview ██████</div>
+        <div class="py-12 bg-gray-950/40 rounded-xl border border-dashed border-gray-800 text-gray-600 text-xs font-mono font-bold">CORE APP SCREENSHOT MOCKUP PLACEHOLDER AREA</div>
+    </section>
 
-            <!-- Dashboard Staging Workspace Layout Grid -->
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Left Chart Area Mockup -->
-                <div class="lg:col-span-2 p-5 rounded-xl bg-gray-950/40 border border-white/5 space-y-4">
-                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-chart-line text-blue-500 mr-1.5"></i> Analytics Streams</div>
-                        <span class="text-[10px] text-gray-500">Live Forecast Data</span>
-                    </div>
-                    <!-- Chart Graph Simulation Shapes -->
-                    <div class="space-y-3 pt-2">
-                        <div class="text-[10px] text-gray-400 flex justify-between"><span>Revenue Analytics</span><span class="text-emerald-400 font-mono">+18.4% growth</span></div>
-                        <div class="w-full bg-gray-900 rounded-full h-2.5 overflow-hidden border border-white/5"><div class="bg-gradient-to-r from-blue-600 to-cyan-500 h-2.5 rounded-full" style="width: 82%"></div></div>
-                        <div class="text-[10px] text-gray-400 flex justify-between"><span>Sales Charts Velocity</span><span class="text-blue-400 font-mono">Stable</span></div>
-                        <div class="w-full bg-gray-900 rounded-full h-2.5 overflow-hidden border border-white/5"><div class="bg-gradient-to-r from-purple-600 to-indigo-500 h-2.5 rounded-full" style="width: 65%"></div></div>
-                        <div class="text-[10px] text-gray-400 flex justify-between"><span>Inventory Optimization</span><span class="text-amber-400 font-mono">Alert Risk Balanced</span></div>
-                        <div class="w-full bg-gray-900 rounded-full h-2.5 overflow-hidden border border-white/5"><div class="bg-gradient-to-r from-amber-600 to-orange-500 h-2.5 rounded-full" style="width: 91%"></div></div>
-                    </div>
-                </div>
-
-                <!-- Right Recent Activities Staging Logs Mockup -->
-                <div class="lg:col-span-1 p-5 rounded-xl bg-gray-950/40 border border-white/5 space-y-4">
-                    <div class="flex justify-between items-center border-b border-white/5 pb-2">
-                        <div class="text-xs font-bold text-gray-400 uppercase tracking-wider"><i class="fa-solid fa-fingerprint text-purple-400 mr-1.5"></i> Audit Trail Logs</div>
-                    </div>
-                    <div class="space-y-3 text-[10px] font-mono leading-none">
-                        <div class="flex items-start space-x-2 border-b border-white/5 pb-2"><i class="fa-solid fa-circle-arrow-down text-emerald-400 mt-0.5"></i> <div><span class="text-white font-bold">[IN ENGINE]</span> Stock procurement recorded dynamically.</div></div>
-                        <div class="flex items-start space-x-2 border-b border-white/5 pb-2"><i class="fa-solid fa-circle-arrow-up text-blue-400 mt-0.5"></i> <div><span class="text-white font-bold">[OUT ENGINE]</span> Social Webhook: Order checkout deducted.</div></div>
-                        <div class="flex items-start space-x-2"><i class="fa-solid fa-shield text-purple-400 mt-0.5"></i> <div><span class="text-white font-bold">[JWT AUTH]</span> Cryptographic isolation matrix active.</div></div>
-                    </div>
-                </div>
-            </div>
+    <!-- [PHASE 8] PRICING TIERS -->
+    <section class="max-w-4xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-12">
+        <div class="card-bg p-6 rounded-2xl border border-white/5">
+            <h4 class="text-xs font-bold text-gray-500 uppercase">Starter</h4>
+            <div class="text-2xl font-extrabold mt-2">$19</div>
+        </div>
+        <div class="card-bg p-6 rounded-2xl border border-blue-600">
+            <h4 class="text-xs font-bold text-white uppercase">Enterprise</h4>
+            <div class="text-2xl font-extrabold mt-2 text-[#8B5CF6]">$99</div>
         </div>
     </section>
 
-    <!-- 5. CORPORATE MODULES WITH ICONS (BOXES-SEAM, CART, ETC) -->
-    <section class="max-w-4xl mx-auto px-6 pb-24 relative z-10 text-center space-y-8">
-        <h2 class="text-xl font-bold text-white uppercase tracking-widest">Enterprise Core Modules</h2>
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4 text-xs font-semibold text-gray-400">
-            <div class="p-4 rounded-xl bg-gray-900/40 border border-white/5 hover:border-blue-500/40 hover:text-white transition duration-300"><i class="fa-solid fa-boxes-stacked block text-xl text-blue-500 mb-2"></i>📦 Inventory</div>
-            <div class="p-4 rounded-xl bg-gray-900/40 border border-white/5 hover:border-emerald-500/40 hover:text-white transition duration-300"><i class="fa-solid fa-cash-register block text-xl text-emerald-500 mb-2"></i>🛒 POS</div>
-            <div class="p-4 rounded-xl bg-gray-900/40 border border-white/5 hover:border-purple-500/40 hover:text-white transition duration-300"><i class="fa-solid fa-users-gear block text-xl text-purple-500 mb-2"></i>👥 CRM</div>
-            <div class="p-4 rounded-xl bg-gray-900/40 border border-white/5 hover:border-amber-500/40 hover:text-white transition duration-300"><i class="fa-solid fa-id-card block text-xl text-amber-500 mb-2"></i>💼 HR</div>
-            <div class="p-4 rounded-xl bg-gray-900/40 border border-white/5 hover:border-sky-500/40 hover:text-white transition duration-300"><i class="fa-solid fa-calculator block text-xl text-sky-500 mb-2"></i>📊 Accounting</div>
-            <div class="p-4 rounded-xl bg-gray-900/40 border border-white/5 hover:border-rose-500/40 hover:text-white transition duration-300"><i class="fa-solid fa-chart-pie block text-xl text-rose-500 mb-2"></i>📈 Analytics</div>
+    <!-- [PHASE 9] FOOTER -->
+    <footer class="max-w-5xl w-full mx-auto border-t border-white/5 pt-6 flex justify-between items-center text-[10px] text-gray-500">
+        <div>&copy; 2026 Business OS. All Rights Reserved.</div>
+        <div class="space-x-4">
+            <a href="/docs" class="hover:text-white">Docs</a>
+            <a href="#" class="hover:text-white">Privacy</a>
+            <a href="#" class="hover:text-white">Terms</a>
         </div>
-    </section>
-
-    <!-- 6. WHY BUSINESS OS? FEATURES BENCHMARK (LARGE WHITESPACE) -->
-    <section id="features" class="py-24 px-6 max-w-4xl mx-auto w-full z-10 relative space-y-12">
-        <div class="text-center space-y-2">
-            <h2 class="text-lg font-bold text-white uppercase tracking-widest">Why Business OS ?</h2>
-            <p class="text-xs text-gray-500 font-light">Architected to solve complex enterprise problems with minimal overhead.</p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-xs font-light text-gray-400">
-            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 hover:-translate-y-1 hover:border-gray-700 hover:shadow-blue-500/10 transition-all duration-300"><h4 class="font-bold text-white mb-1 uppercase tracking-wide">✓ AI Analytics</h4>Advanced velocities forecasting restock parameters.</div>
-            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 hover:-translate-y-1 hover:border-gray-700 hover:shadow-emerald-500/10 transition-all duration-300"><h4 class="font-bold text-white mb-1 uppercase tracking-wide">✓ Multi Tenant</h4>Cryptographically secure layer database isolations.</div>
-            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 hover:-translate-y-1 hover:border-gray-700 hover:shadow-purple-500/10 transition-all duration-300"><h4 class="font-bold text-white mb-1 uppercase tracking-wide">✓ JWT Security</h4>Hardened signature contexts saved in active nodes.</div>
-            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 hover:-translate-y-1 hover:border-gray-700 hover:shadow-amber-500/10 transition-all duration-300"><h4 class="font-bold text-white mb-1 uppercase tracking-wide">✓ Telegram Bot</h4>Asynchronous notification streams piped automatically.</div>
-            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 hover:-translate-y-1 hover:border-gray-700 hover:shadow-sky-500/10 transition-all duration-300"><h4 class="font-bold text-white mb-1 uppercase tracking-wide">✓ Franchise Ready</h4>Headquarter network tracking consolidated dashboards.</div>
-            <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 hover:-translate-y-1 hover:border-gray-700 hover:shadow-rose-500/10 transition-all duration-300"><h4 class="font-bold text-white mb-1 uppercase tracking-wide">✓ API First</h4>Decoupled endpoint engines for multi-channel syncs.</div>
-        </div>
-    </section>
-
-    <!-- 7. PRICING TIERS MATRIX (MINIMAL DESIGN SPEC) -->
-    <section id="pricing" class="py-12 px-6 max-w-4xl mx-auto w-full z-10 relative space-y-12">
-        <div class="text-center space-y-2">
-            <h2 class="text-xl font-extrabold text-white uppercase tracking-widest">SaaS Pricing Matrix</h2>
-        </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="glass-card p-6 rounded-2xl flex flex-col justify-between hover:-translate-y-1 duration-300">
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Starter</h4>
-                    <div class="text-xl font-extrabold text-white">$0 <span class="text-xs text-gray-600 font-normal">/ mo</span></div>
-                    <ul class="space-y-2 text-[10px] text-gray-400 border-t border-white/5 pt-4 font-light">
-                        <li><i class="fa-solid fa-check text-blue-500 mr-1.5"></i> Multi-Tenant Contexts</li>
-                        <li><i class="fa-solid fa-check text-blue-500 mr-1.5"></i> Inventory Modules</li>
-                    </ul>
-                </div>
-                <a href="/auth/login" class="block w-full text-center bg-gray-900 hover:bg-gray-800 text-[10px] font-bold py-3 rounded-xl transition mt-6 border border-white/5 uppercase">Sign In</a>
-            </div>
-            <div class="glass-card p-6 rounded-2xl flex flex-col justify-between border border-blue-600 relative hover:-translate-y-1 duration-300 shadow-xl shadow-blue-600/10">
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold text-white uppercase tracking-widest">Professional</h4>
-                    <div class="text-xl font-extrabold text-white">$29 <span class="text-xs text-gray-600 font-normal">/ mo</span></div>
-                    <ul class="space-y-2 text-[10px] text-gray-300 border-t border-white/5 pt-4 font-light">
-                        <li><i class="fa-solid fa-check text-blue-500 mr-1.5"></i> Everything in Starter</li>
-                        <li><i class="fa-solid fa-check text-blue-500 mr-1.5"></i> AI Restock Prediction</li>
-                    </ul>
-                </div>
-                <a href="/auth/register" class="block w-full text-center bg-blue-600 hover:bg-blue-500 text-[10px] text-white font-bold py-3 rounded-xl transition mt-6 uppercase shadow-md shadow-blue-600/20">Launch Pro</a>
-            </div>
-            <div class="glass-card p-6 rounded-2xl flex flex-col justify-between hover:-translate-y-1 duration-300">
-                <div class="space-y-3">
-                    <h4 class="text-xs font-bold text-gray-500 uppercase tracking-widest">Enterprise</h4>
-                    <div class="text-xl font-extrabold text-white">$149 <span class="text-xs text-gray-600 font-normal">/ mo</span></div>
-                    <ul class="space-y-2 text-[10px] text-gray-400 border-t border-white/5 pt-4 font-light">
-                        <li><i class="fa-solid fa-check text-blue-500 mr-1.5"></i> Dedicated Postgres Engine</li>
-                        <li><i class="fa-solid fa-check text-blue-500 mr-1.5"></i> Multi-branch Networks</li>
-                    </ul>
-                </div>
-                <a href="mailto:enterprise@businessos.io" class="block w-full text-center bg-gray-900 hover:bg-gray-800 text-[10px] font-bold py-3 rounded-xl transition mt-6 border border-white/5 uppercase">Contact OS</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- 8. FAQ GRID AREA -->
-    <section class="py-12 px-6 max-w-3xl mx-auto w-full z-10 relative space-y-4">
-        <h2 class="text-base font-bold text-white text-center uppercase tracking-widest mb-6">FAQ Contexts</h2>
-        <div class="p-5 rounded-xl bg-gray-900/40 border border-white/5 text-xs">
-            <h4 class="font-bold text-white uppercase tracking-wide mb-1">How is multi-tenant isolation enforced?</h4>
-            <p class="text-gray-400 font-light leading-relaxed">System layers inject cryptographic tenant_id tokens inside relational repository database structures automatically.</p>
-        </div>
-    </section>
-
-    <!-- 9. GLOBAL SYSTEM FOOTER -->
-    <footer class="max-w-5xl w-full mx-auto border-t border-white/5 pt-6 text-center text-[10px] text-gray-500 mt-12 relative z-10">
-        &copy; 2026 Business OS Architecture Inc. All Rights Reserved.
     </footer>
 
 </body>
