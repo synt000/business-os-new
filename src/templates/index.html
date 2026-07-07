@@ -4,197 +4,181 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business OS - Premium SaaS ERP</title>
-    <!-- FontAwesome Core Icons Certified CDN -->
+    <!-- FontAwesome Verified CDN -->
     <link rel="stylesheet" href="https://cloudflare.com">
-    
-    <!-- HARDENED INLINE NATIVE CSS ENGINE (NO EXTERNAL SCRIPT DEPENDENCY) -->
     <style>
         @import url('https://googleapis.com');
-        
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #0B1120; 
-            color: #F9FAFB;
-            margin: 0;
-            padding: 24px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: flex-col;
-            min-h: screen;
-        }
-        
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0B1120; color: #F9FAFB; overflow-x: hidden; margin: 0; padding: 16px; box-sizing: border-box; display: flex; flex-direction: column; min-height: 100vh; }
+        @media (min-width: 640px) { body { padding: 24px; } }
         .max-container { max-width: 1024px; width: 100%; margin: 0 auto; }
-        .hero-container { max-width: 896px; width: 100%; margin: 64px auto; text-align: center; }
-        
-        /* Bro's Certified Premium Glassmorphism Properties */
-        .glass-navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            padding: 16px 24px;
-            border-radius: 16px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.45);
-        }
-        
-        .brand-logo { display: flex; items-center: center; gap: 8px; font-weight: bold; color: #FFFFFF; font-size: 16px; text-transform: uppercase; }
-        .logo-box { width: 32px; height: 32px; background-color: #3B82F6; border-radius: 12px; display: flex; items-center: center; justify-content: center; color: #FFFFFF; }
-        .nav-links { display: flex; items-center: center; gap: 24px; font-size: 12px; font-weight: 600; }
+        .hero-container { max-width: 672px; width: 100%; margin: 48px auto; text-align: center; }
+        .glass-navbar { display: flex; justify-content: space-between; align-items: center; background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding: 16px 20px; border-radius: 16px; box-shadow: 0 25px 60px rgba(0,0,0,0.45); box-sizing: border-box; }
+        .brand-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; color: #FFFFFF; font-size: 15px; text-transform: uppercase; }
+        .logo-box { width: 34px; height: 34px; background-color: #3B82F6; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 14px; }
+        .nav-links { display: flex; align-items: center; gap: 20px; font-size: 12px; font-weight: 600; }
         .login-lnk { color: #94A3B8; text-decoration: none; transition: all 0.3s; }
-        .login-lnk:hover { color: #FFFFFF; }
-        
-        .register-btn { 
-            background-color: #3B82F6; 
-            color: #FFFFFF; 
-            padding: 10px 20px; 
-            border-radius: 12px; 
-            text-decoration: none; 
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 14px rgba(59, 130, 246, 0.2);
-        }
+        .login-lnk:hover { color: #FFFFFF; transform: scale(1.05); }
+        .register-btn { background-color: #3B82F6; color: #FFFFFF; padding: 10px 18px; border-radius: 12px; text-decoration: none; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 14px rgba(59, 130, 246, 0.2); }
         .register-btn:hover { background-color: #2563EB; transform: scale(1.05); }
+        .register-btn:active { transform: scale(0.95); }
     </style>
 </head>
 <body>
-
-    <!-- [PHASE 2] UPGRADED NAVBAR BASELINE WITH EXPLICIT GLASS CSS PROCESSING -->
-    <header class="max-container">
-        <div class="glass-navbar">
-            <div class="brand-logo">
-                <div class="logo-box"><i class="fa-solid fa-layer-group"></i></div>
-                <span>Business <span style="color: #3B82F6;">OS</span></span>
-            </div>
-            <div class="nav-links">
-                <a href="/auth/login" class="login-lnk">Login</a>
-                <a href="/auth/register" class="register-btn">Register</a>
-            </div>
-        </div>
-    </header>
+    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none z-0"></div>
+    <header class="max-container"><div class="glass-navbar"><div class="brand-logo"><div class="logo-box"><i class="fa-solid fa-layer-group"></i></div><span>Business <span style="color: #3B82F6;">OS</span></span></div><div class="nav-links"><a href="/auth/login" class="login-lnk">Login</a><a href="/auth/register" class="register-btn">Register</a></div></div></header>
     <style>
-        /* [PHASE 3 & 4] PREMIUM HERO & BUTTONS LAYOUT ENGINE */
-        .badge-ai { inline-flex: items-center; gap: 8px; px: 12px; py: 4px; font-size: 10px; font-weight: bold; text-transform: uppercase; color: #60A5FA; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 9999px; margin-bottom: 24px; display: inline-block; }
-        .hero-title { font-size: 40px; font-weight: 800; text-transform: uppercase; line-height: 1.15; margin: 0 0 24px 0; color: #FFFFFF; }
-        .hero-desc { color: #94A3B8; max-width: 672px; margin: 0 auto 32px auto; font-size: 14px; font-weight: 300; line-height: 1.6; }
-        
-        /* Premium Responsive Button Blocks (Stack vertically on phone, row on desktop) */
-        .btn-flex-wrapper { display: flex; flex-direction: column; gap: 16px; justify-content: center; max-width: 320px; margin: 0 auto; }
+        .badge-ai { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; font-size: 10px; font-weight: 700; text-transform: uppercase; color: #60A5FA; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 9999px; margin-bottom: 20px; }
+        .hero-title { font-size: 34px; font-weight: 800; text-transform: uppercase; line-height: 1.15; margin: 0 0 20px 0; color: #FFFFFF; }
+        @media (min-width: 640px) { .hero-title { font-size: 48px; } }
+        .hero-desc { color: #94A3B8; margin: 0 auto 32px auto; font-size: 13px; font-weight: 300; line-height: 1.6; }
+        @media (min-width: 640px) { .hero-desc { font-size: 14px; } }
+        .btn-flex-wrapper { display: flex; flex-direction: column; gap: 14px; justify-content: center; max-width: 100%; margin: 0 auto; box-sizing: border-box; }
         @media (min-width: 640px) { .btn-flex-wrapper { flex-direction: row; max-width: none; } }
-        
-        .primary-cta { display: inline-flex; align-items: center; justify-content: center; height: 56px; padding: 0 32px; border-radius: 12px; font-weight: 700; font-size: 12px; text-transform: uppercase; text-decoration: none; color: #FFFFFF; background: #3B82F6; box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3); transition: all 0.3s; }
-        .primary-cta:hover { background: #2563EB; transform: translateY(-2px); box-shadow: 0 15px 35px rgba(59, 130, 246, 0.5); }
+        .primary-cta { display: inline-flex; align-items: center; justify-content: center; height: 52px; padding: 0 28px; border-radius: 12px; font-weight: 700; font-size: 12px; text-transform: uppercase; text-decoration: none; color: #FFFFFF; background: #3B82F6; box-shadow: 0 10px 25px rgba(59, 130, 246, 0.25); transition: all 0.3s; }
+        .primary-cta:hover { background: #2563EB; transform: translateY(-2px) scale(1.05); box-shadow: 0 15px 35px rgba(59, 130, 246, 0.45); }
         .primary-cta:active { transform: scale(0.95); }
-        
-        .secondary-cta { display: inline-flex; align-items: center; justify-content: center; height: 56px; padding: 0 32px; border-radius: 12px; font-weight: 700; font-size: 12px; text-transform: uppercase; text-decoration: none; color: #E2E8F0; border: 1px solid #4B5563; background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(12px); transition: all 0.3s; }
-        .secondary-cta:hover { border-color: #3B82F6; background: rgba(31, 41, 55, 0.6); transform: translateY(-2px); }
+        .secondary-cta { display: inline-flex; align-items: center; justify-content: center; height: 52px; padding: 0 28px; border-radius: 12px; font-weight: 700; font-size: 12px; text-transform: uppercase; text-decoration: none; color: #E2E8F0; border: 1px solid #4B5563; background: rgba(17, 24, 39, 0.4); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); transition: all 0.3s; }
+        .secondary-cta:hover { border-color: #3B82F6; background: rgba(31, 41, 55, 0.6); transform: translateY(-2px) scale(1.05); }
         .secondary-cta:active { transform: scale(0.95); }
-
-        /* [PHASE 5] ENTERPRISE GLASSMORPHIC KPI METRICS CARDS */
-        .kpi-grid-container { display: grid; grid-template-columns: 1fr; gap: 24px; margin-bottom: 48px; width: 100%; }
-        @media (min-width: 640px) { .kpi-grid-container { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1280px) { .kpi-grid-container { grid-template-columns: repeat(4, 1fr); } }
-        
-        .glass-kpi-widget { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 24px; box-shadow: 0 25px 60px rgba(0,0,0,0.45); transition: all 0.3s; text-align: left; }
-        .glass-kpi-widget:hover { transform: translateY(-4px); border-color: rgba(59, 130, 246, 0.3); box-shadow: 0 30px 70px rgba(59, 130, 246, 0.15); }
-        .kpi-title { font-size: 12px; color: #94A3B8; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 8px; text-transform: uppercase; tracking-wider: 0.05em; }
-        .kpi-value { font-size: 28px; font-weight: 800; color: #FFFFFF; margin: 12px 0 0 0; tracking-tight: -0.02em; }
-        .kpi-growth-label { font-size: 10px; color: #10B981; font-weight: 500; margin-top: 8px; display: flex; align-items: center; gap: 4px; }
     </style>
 
-    <!-- MAIN CONTEXT LAYER INTERFACE -->
-    <div class="hero-container relative">
-        <span class="badge-ai"><i class="fa-solid fa-microchip-ai"></i> AI Powered ERP SaaS Live</span>
+    <div class="hero-container relative z-10">
+        <span class="badge-ai"><i class="fa-solid fa-microchip-ai mr-1"></i> AI Powered ERP SaaS Live</span>
         <h1 class="hero-title">BUSINESS OPERATING SYSTEM<br><span style="color: #3B82F6;">Smarter, Faster & Secure</span></h1>
-        <p class="hero-desc">An all-in-one corporate orchestration engine optimized for hyper-growth. Automate enterprise tracking, secure JWT protection, and deep business insights inside a unified production ecosystem.</p>
-        
-        <!-- Premium Mobile Responsive Full-width Grid Buttons -->
+        <p class="hero-desc">An all-in-one corporate orchestration engine optimized for hyper-growth. Automate enterprise parameters inside a single dark-first visual canvas.</p>
         <div class="btn-flex-wrapper">
             <a href="/auth/register" class="primary-cta"><i class="fa-solid fa-rocket mr-2"></i> Start Free Trial</a>
             <a href="#dashboard" class="secondary-cta"><i class="fa-solid fa-play mr-2" style="color: #3B82F6;"></i> Live Demo</a>
         </div>
     </div>
+    <style>
+        .kpi-grid-container { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 48px; margin-bottom: 48px; width: 100%; box-sizing: border-box; }
+        @media (min-width: 640px) { .kpi-grid-container { grid-template-columns: repeat(2, 1fr); margin-top: 64px; } }
+        @media (min-width: 1280px) { .kpi-grid-container { grid-template-columns: repeat(4, 1fr); } }
+        
+        .kpi-title { font-size: 11px; color: #94A3B8; font-weight: 600; margin: 0; display: flex; align-items: center; gap: 6px; text-transform: uppercase; }
+        .kpi-value { font-size: 26px; font-weight: 800; color: #FFFFFF; margin: 10px 0 0 0; }
+        .kpi-growth-label { font-size: 10px; color: #10B981; font-weight: 500; margin-top: 6px; display: flex; align-items: center; gap: 4px; }
 
-    <!-- UPGRADED KPI REVENUE DATA CARDS -->
-    <section class="max-container relative">
+        .features-section-title { font-size: 15px; font-weight: 700; text-transform: uppercase; text-align: center; margin-bottom: 32px; color: #FFFFFF; }
+        .features-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-bottom: 48px; }
+        @media (min-width: 768px) { .features-grid { grid-template-columns: repeat(3, 1fr); } }
+        
+        .luxury-icon-box { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; margin-bottom: 14px; }
+        .feature-title-text { font-size: 13px; font-weight: 700; color: #FFFFFF; text-transform: uppercase; margin: 0 0 6px 0; }
+        .feature-desc-text { font-size: 11px; color: #94A3B8; font-weight: 300; line-height: 1.6; margin: 0; }
+        
+        /* [FIX 5] Premium Features Cards Blue Glow Interactions */
+        .interactive-feature-card {
+            background: rgba(17, 24, 39, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: left;
+        }
+        .interactive-feature-card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(59, 130, 246, 0.4);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+        }
+    </style>
+
+    <!-- [PHASE 5] FIXED MOB RESPONSIVE KPI STATS CARDS -->
+    <section class="max-container relative z-10">
         <div class="kpi-grid-container">
-            <!-- Widget 1 -->
-            <div class="glass-kpi-widget">
+            <div class="glass-kpi-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-blue-500/10 transition-all duration-300">
                 <h3 class="kpi-title"><i class="fa-solid fa-users text-blue-500"></i> Active Tenants</h3>
                 <p class="kpi-value">1,248+</p>
                 <div class="kpi-growth-label"><i class="fa-solid fa-arrow-trend-up"></i> +26% This Month</div>
             </div>
-            <!-- Widget 2 -->
-            <div class="glass-kpi-widget">
+            <div class="glass-kpi-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-emerald-500/10 transition-all duration-300">
                 <h3 class="kpi-title"><i class="fa-solid fa-money-bill-trend-up text-emerald-400"></i> Gross Revenue</h3>
                 <p class="kpi-value" style="color: #10B981;">$14.2M</p>
                 <div class="kpi-growth-label"><i class="fa-solid fa-arrow-trend-up"></i> +14.2% Growth</div>
             </div>
-            <!-- Widget 3 -->
-            <div class="glass-kpi-widget">
+            <div class="glass-kpi-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-purple-500/10 transition-all duration-300">
                 <h3 class="kpi-title"><i class="fa-solid fa-cart-flatbed-suitcase text-purple-400"></i> Processed Orders</h3>
                 <p class="kpi-value">84.9K</p>
                 <div class="kpi-growth-label" style="color: #94A3B8;"><i class="fa-solid fa-bolt"></i> Real-time Stable</div>
             </div>
-            <!-- Widget 4 -->
-            <div class="glass-kpi-widget">
+            <div class="glass-kpi-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-cyan-500/10 transition-all duration-300">
                 <h3 class="kpi-title"><i class="fa-solid fa-boxes-packing text-blue-400"></i> Tracked Products</h3>
                 <p class="kpi-value" style="color: #3B82F6;">32.1K</p>
                 <div class="kpi-growth-label" style="color: #94A3B8;"><i class="fa-solid fa-server"></i> Isolated DB Node</div>
             </div>
         </div>
     </section>
+
+    <!-- [PHASE 6 & FIX 5] HOVER BLUE GLOW FEATURES GRID -->
+    <section class="max-container relative z-10">
+        <h2 class="features-section-title">Why Business OS ?</h2>
+        <div class="features-grid">
+            <div class="interactive-feature-card">
+                <div class="luxury-icon-box" style="background: rgba(59, 130, 246, 0.1); color: #3B82F6;"><i class="fa-solid fa-brain"></i></div>
+                <h4 class="feature-title-text">✓ AI Analytics</h4>
+                <p class="feature-desc-text">AI Powered Prediction velocities forecasting required restock counts with precision variables.</p>
+            </div>
+            <div class="interactive-feature-card">
+                <div class="luxury-icon-box" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;"><i class="fa-solid fa-shield-halved"></i></div>
+                <h4 class="feature-title-text">✓ Security</h4>
+                <p class="feature-desc-text">Hardened JWT + RBAC authorization signatures enforced flawlessly inside multi-tenant middlewares.</p>
+            </div>
+            <div class="interactive-feature-card">
+                <div class="luxury-icon-box" style="background: rgba(16, 185, 129, 0.1); color: #10B981;"><i class="fa-solid fa-boxes-stacked"></i></div>
+                <h4 class="feature-title-text">✓ Inventory</h4>
+                <p class="feature-desc-text">Real-time Tracking delta architecture auto-balancing warehouse data matrices effortlessly.</p>
+            </div>
+        </div>
+    </section>
     <style>
-        .feat-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin: 48px 0; }
-        @media (min-width: 768px) { .feat-grid { grid-template-columns: repeat(3, 1fr); } }
-        .feat-card { background: rgba(17, 24, 39, 0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; text-align: left; }
-        .feat-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
-        .price-grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 600px; margin: 0 auto; }
-        @media (min-width: 640px) { .price-grid { grid-template-columns: 1fr 1fr; } }
-        .footer-sec { border-top: 1px solid rgba(255,255,255,0.05); padding-top: 20px; font-size: 10px; color: #555555; display: flex; justify-content: space-between; margin-top: 48px; }
+        .dashboard-mockup-wrapper { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 20px; box-shadow: 0 25px 60px rgba(0,0,0,0.45); margin-bottom: 48px; text-align: left; }
+        .pricing-grid { display: grid; grid-template-columns: 1fr; gap: 20px; max-width: 600px; margin: 0 auto 48px auto; }
+        @media (min-width: 640px) { .pricing-grid { grid-template-columns: repeat(2, 1fr); } }
+        .sys-footer { border-top: 1px solid rgba(255, 255, 255, 0.05); padding-top: 20px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #555555; margin-top: auto; }
     </style>
 
-    <!-- [PHASE 6] UPGRADED LUXURY FEATURES GRID -->
-    <section class="max-container" style="margin-top: 48px; text-align: center;">
-        <h2 style="font-size: 14px; uppercase: tracking-widest;">Why Business OS ?</h2>
-        <div class="feat-grid">
-            <div class="feat-card"><div class="feat-icon" style="background:rgba(59,130,246,0.1);color:#3B82F6;"><i class="fa-solid fa-brain"></i></div><h4 style="font-size:12px;margin:0 0 6px 0;">✓ AI Analytics</h4><p style="font-size:11px;color:#94A3B8;margin:0;">AI Powered Prediction velocities.</p></div>
-            <div class="feat-card"><div class="feat-icon" style="background:rgba(139,92,246,0.1);color:#8B5CF6;"><i class="fa-solid fa-shield-halved"></i></div><h4 style="font-size:12px;margin:0 0 6px 0;">✓ Security</h4><p style="font-size:11px;color:#94A3B8;margin:0;">Hardened JWT + RBAC protection.</p></div>
-            <div class="feat-card"><div class="feat-icon" style="background:rgba(16,185,129,0.1);color:#10B981;"><i class="fa-solid fa-boxes-stacked"></i></div><h4 style="font-size:12px;margin:0 0 6px 0;">✓ Inventory</h4><p style="font-size:11px;color:#94A3B8;margin:0;">Real-time Warehouse Tracking.</p></div>
-        </div>
-    </section>
-
     <!-- [PHASE 7] BRAND NEW STRIPE/VERCEL STYLE ERP DASHBOARD PREVIEW DESIGN -->
-    <section id="dashboard" class="max-container" style="margin-bottom: 48px; background: rgba(17,24,39,0.7); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:20px; text-align:left;">
-        <div style="border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
-            <span style="font-size: 11px; color: #555555; font-family: monospace;">control_center_node.io</span>
-            <span style="font-size: 9px; color: #10B981; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Core Nodes Online</span>
-        </div>
-        <div style="font-size: 11px; color: #94A3B8; line-height: 1.6;"><span style="color:#FFFFFF;font-weight:bold;">[LIVE METRICS MOCKUP]</span> Revenue Growth Target Velocity: <span style="color:#10B981;font-family:monospace;">+18.4%</span>. All multi-tenant data pipelines balanced securely.</div>
-    </section>
-
-    <!-- [PHASE 8] PRICING MATRICES -->
-    <section id="pricing" class="max-container" style="text-align: center; margin-bottom: 48px;">
-        <h2 style="font-size: 14px; uppercase: tracking-widest; margin-bottom: 24px;">SaaS Pricing Matrix</h2>
-        <div class="price-grid">
-            <div class="feat-card">
-                <h4 style="margin:0;font-size:12px;color:#555555;">Starter</h4><div style="font-size:20px;font-weight:800;margin:8px 0;">$19</div>
-                <a href="/auth/login" class="secondary-cta" style="height:36px;width:100%;border-radius:8px;font-size:10px;margin-top:16px;box-sizing:border-box;">Sign In</a>
+    <section id="dashboard" class="max-container relative z-10">
+        <div class="dashboard-mockup-wrapper">
+            <div style="border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 12px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <div style="width:10px; height:10px; border-radius:50%; background-color:#EF4444;"></div>
+                    <div style="width:10px; height:10px; border-radius:50%; background-color:#F59E0B;"></div>
+                    <div style="width:10px; height:10px; border-radius:50%; background-color:#10B981;"></div>
+                    <span style="font-size: 11px; color: #555555; font-family: monospace; margin-left: 6px;">control_center_node.io</span>
+                </div>
+                <span style="font-size: 9px; color: #10B981; font-weight: 600;"><i class="fa-solid fa-circle-check"></i> Core Nodes Online</span>
             </div>
-            <div class="feat-card" style="border-color:#3B82F6;">
-                <h4 style="margin:0;font-size:12px;color:#FFFFFF;">Enterprise</h4><div style="font-size:20px;font-weight:800;margin:8px 0;color:#8B5CF6;">$99</div>
-                <a href="/auth/register" class="primary-cta" style="height:36px;width:100%;border-radius:8px;font-size:10px;margin-top:16px;box-sizing:border-box;">Launch OS</a>
-            </div>
+            <div style="font-size: 11px; color: #94A3B8; line-height: 1.6;"><span style="color:#FFFFFF;font-weight:bold;">[LIVE METRICS MOCKUP]</span> Revenue Growth Target Velocity: <span style="color:#10B981;font-family:monospace;">+18.4%</span>. All multi-tenant data pipelines balanced securely.</div>
         </div>
     </section>
 
-    <!-- [PHASE 9] SYSTEM FOOTER -->
-    <footer class="max-container" style="margin-top: auto;">
-        <div class="footer-sec">
-            <div>&copy; 2026 Business OS Inc. All Rights Reserved.</div>
-            <div style="display:flex;gap:12px;"><a href="/docs" style="color:#94A3B8;text-decoration:none;">Docs</a><a href="#" style="color:#94A3B8;text-decoration:none;">GitHub</a></div>
+    <!-- [PHASE 8] PRICING PLAN CARDS -->
+    <section id="pricing" class="max-container relative z-10" style="margin-bottom: 48px;">
+        <h2 class="features-section-title">SaaS Pricing Matrix</h2>
+        <div class="pricing-grid">
+            <div class="interactive-feature-card">
+                <h4 style="margin:0; font-size:12px; color:#555555; text-transform:uppercase;">Starter</h4>
+                <div style="font-size:22px; font-weight:800; margin:10px 0; color:#FFFFFF;">$19</div>
+                <a href="/auth/login" class="secondary-cta" style="height:38px; width:100%; border-radius:8px; font-size:10px; margin-top:16px; box-sizing:border-box;">Sign In</a>
+            </div>
+            <div class="interactive-feature-card" style="border-color:#3B82F6;">
+                <h4 style="margin:0; font-size:12px; color:#FFFFFF; text-transform:uppercase;">Enterprise</h4>
+                <div style="font-size:22px; font-weight:800; margin:10px 0; color:#8B5CF6;">$99</div>
+                <a href="/auth/register" class="primary-cta" style="height:38px; width:100%; border-radius:8px; font-size:10px; margin-top:16px; box-sizing:border-box;">Launch OS</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- [PHASE 9] FOOTER -->
+    <footer class="max-container relative z-10" style="margin-top: auto;">
+        <div class="sys-footer">
+            <div>&copy; 2026 Business OS Architecture Inc. All Rights Reserved.</div>
+            <div style="display:flex; gap:14px;"><a href="/docs" style="color:#94A3B8; text-decoration:none;">Docs</a><a href="#" style="color:#94A3B8; text-decoration:none;">API</a><a href="#" style="color:#94A3B8; text-decoration:none;">GitHub</a></div>
         </div>
     </footer>
 
