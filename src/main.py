@@ -1,7 +1,8 @@
 import httpx
 from fastapi import FastAPI, Header, HTTPException, status, Depends
-from src.models.saas_core import Tenant, SubscriptionTier, DynamicModulesRegistry, SocialIntegrationChannels
-from src.services.saas_ops import SaaSPlatformOperationsEngine
+# Relative Package Import Layer (Bypassing ModuleNotFoundError Globally)
+from .models.saas_core import Tenant, SubscriptionTier, DynamicModulesRegistry, SocialIntegrationChannels
+from .services.saas_ops import SaaSPlatformOperationsEngine
 
 app = FastAPI(
     title="Business OS - Hardened Multi-Tenant Core Kernel",
@@ -14,12 +15,10 @@ OPS_KERNEL = SaaSPlatformOperationsEngine()
 TENANT_MODULES = {}
 SOCIAL_ROUTERS = {}
 
-# 1. CONTEXT-AWARE AI INFERENCE ENGINE LAYER
 class AIAssistantAgentMatrix:
     """Dynamic context analysis parsing real-time business health telemetry."""
     @staticmethod
     async def request_business_insights(tenant_data: dict, prompt: str) -> dict:
-        # Core automated analysis predictive matrix pipeline setup
         return {
             "ai_agent_status": "COMPLETED",
             "predictive_restock_recommended": True,
@@ -27,18 +26,15 @@ class AIAssistantAgentMatrix:
             "recommended_action_nodes": ["Restock SKU-1248", "Optimize POS Inventory Flow"]
         }
 
-# 2. OMNI-CHANNEL SOCIAL INTEGRATION INTEGRATION DATA FLOWS
 class SocialWebhooksMultiplexer:
     """Dispatches asynchronous alerts to Facebook, Telegram, TikTok, and WhatsApp."""
     @staticmethod
     async def dispatch_social_alert(channel: str, auth_token: str, route_id: str, markdown_msg: str) -> dict:
-        # Mock asynchronous non-blocking background transport broker metrics
         return {"channel": channel.lower().strip(), "transmission_state": "DISPATCHED", "http_code": 202}
 
-# 3. KERNEL API ROUTES (API ROUTERS ENTRY GATEWAY)
 @app.get("/api/v4/health", tags=["Infrastructure Core Resilience Tracking"])
 async def check_infrastructure_health():
-    return {"status": "OPERATIONAL", "timestamp": "2026-07-08T03:23:00Z", "kernel_v": "4.0.0-MVP-Hardened"}
+    return {"status": "OPERATIONAL", "timestamp": "2026-07-08T03:31:00Z", "kernel_v": "4.0.0-MVP-Hardened"}
 
 @app.post("/api/v4/tenant/onboard", status_code=status.HTTP_201_CREATED, tags=["Tenant Core Account Pipelines"])
 async def onboard_enterprise_workspace(id: str, company_name: str, email: str, referrer_code: str = None):
@@ -47,7 +43,6 @@ async def onboard_enterprise_workspace(id: str, company_name: str, email: str, r
     TENANT_MODULES[id] = DynamicModulesRegistry(tenant_id=id)
     SOCIAL_ROUTERS[id] = SocialIntegrationChannels(tenant_id=id)
     
-    # Process referral rewards distribution checks dynamically
     if referrer_code:
         OPS_KERNEL.process_referral_attribution(id, referrer_code)
         
@@ -61,13 +56,10 @@ async def verify_tenant_workspace_access(
     x_device_name: str = Header(...),
     x_client_ip: str = Header(...)
 ):
-    """Protects cross-tenancy data leakages and validates software contracts."""
-    # Assert Free Trial Window cutoff criteria parameters
     access_check = OPS_KERNEL.verify_trial_access(tenant_id)
     if access_check["status"] != "ACTIVE":
         raise HTTPException(status_code=402, detail=access_check["reason"])
         
-    # Assert Device signature bounding configuration rules limits
     device_auth = OPS_KERNEL.authorize_device_session(x_license_key, x_hardware_uid, x_device_name, x_client_ip)
     if device_auth["status"] != "AUTHORIZED":
         raise HTTPException(status_code=429, detail=device_auth["reason"])
@@ -83,10 +75,8 @@ async def verify_tenant_workspace_access(
         "core_features_unlocked": ["Dashboard", "Workspace", "CRM", "Inventory", "Sales", "Accounting", "Reports"]
     }
 
-# 4. ADMINISTRATIVE MODULE ACTIVATION HOOK PANEL (ADMIN PANEL)
 @app.post("/api/v4/admin/modules/toggle", tags=["Enterprise Administrative Control Modules"])
 async def toggle_industry_module_flag(tenant_id: str, module_key: str, active_state: bool):
-    """Enables or disables 28 industry-specific feature modules instantly without system reboots."""
     modules_registry: DynamicModulesRegistry = TENANT_MODULES.get(tenant_id)
     if not modules_registry or module_key not in modules_registry.enabled_modules:
         raise HTTPException(status_code=404, detail="TARGET_MODULE_OR_TENANT_NOT_FOUND_IN_SYSTEM_INDEX")
