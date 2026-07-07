@@ -10,85 +10,62 @@
     <link rel="stylesheet" href="https://cloudflare.com">
     <style>
         @import url('https://googleapis.com');
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background-color: #0B1120; 
-            color: #F9FAFB; 
-        }
-        .card-bg { background-color: #111827; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0B1120; color: #F9FAFB; overflow-x: hidden; }
         .text-gray-spec { color: #94A3B8; }
-        .glass-navbar {
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        .glass-navbar { background: rgba(15, 23, 42, 0.75); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-kpi-card { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 25px 60px rgba(0,0,0,0.45); }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col justify-between p-6 bg-[#0B1120] relative overflow-x-hidden selection:bg-blue-500/30">
+<body class="antialiased min-h-screen flex flex-col justify-between p-6 bg-[#0B1120] relative selection:bg-blue-500/30">
 
-    <!-- [PHASE 3] AMBIENT GLOW CIRCLES (BLUE & PURPLE HIGHLIGHTS) -->
     <div class="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none z-0"></div>
-    <div class="absolute top-20 right-1/4 w-[500px] h-[500px] bg-purple-600/5 rounded-full blur-[150px] pointer-events-none z-0"></div>
 
     <!-- [PHASE 2] NAVBAR -->
-    <header class="sticky top-0 z-50 w-full max-w-5xl mx-auto rounded-2xl glass-navbar px-6 py-4 shadow-xl shadow-black/20 relative z-50">
+    <header class="sticky top-0 z-50 w-full max-w-5xl mx-auto rounded-2xl glass-navbar px-6 py-4 shadow-xl relative z-50">
         <div class="flex justify-between items-center">
             <div class="flex items-center space-x-2 font-bold text-white text-base group cursor-pointer">
-                <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white transform group-hover:scale-105 duration-300">
-                    <i class="fa-solid fa-layer-group text-xs"></i>
-                </div>
-                <span class="tracking-tight uppercase font-sans">Business <span class="text-blue-500">OS</span></span>
+                <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white transform group-hover:scale-105 duration-300"><i class="fa-solid fa-layer-group text-xs"></i></div>
+                <span class="tracking-tight uppercase">Business <span class="text-blue-500">OS</span></span>
             </div>
             <div class="flex items-center space-x-6 text-xs font-semibold">
-                <a href="/auth/login" class="text-gray-spec hover:text-white transition-all duration-300 hover:scale-105 active:scale-95">Login</a>
-                <a href="/auth/register" class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl text-white font-semibold transition-all duration-300 hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/10">Register</a>
+                <a href="/auth/login" class="text-gray-spec hover:text-white transition duration-300 hover:scale-105">Login</a>
+                <a href="/auth/register" class="bg-blue-600 hover:bg-blue-500 px-5 py-2.5 rounded-xl text-white font-semibold transition duration-300 hover:scale-105 shadow-lg shadow-blue-500/10">Register</a>
             </div>
         </div>
     </header>
 
-    <!-- [PHASE 3 & 4] UPGRADED HERO SECTION & PREMIUM RESPONSIVE BUTTONS -->
+    <!-- [PHASE 3 & 4] HERO SECTION & PREMIUM BUTTONS -->
     <section class="max-w-4xl mx-auto px-6 text-center py-24 relative z-10 space-y-6">
-        <span class="inline-flex items-center gap-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full">
-            <i class="fa-solid fa-microchip-ai mr-1"></i> AI Powered ERP SaaS Live
-        </span>
-        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight uppercase leading-[1.15]">
-            BUSINESS OPERATING SYSTEM<br><span class="text-blue-500">Smarter, Faster & Secure</span>
-        </h1>
-        <p class="text-gray-spec max-w-2xl mx-auto text-xs md:text-sm leading-relaxed font-light">
-            An all-in-one corporate orchestration engine optimized for hyper-growth. Automate enterprise parameters inside a single dark-first visual canvas.
-        </p>
-
-        <!-- BRO'S PREMIUM CALL TO ACTIONS (FLEX-COL SM:FLEX-ROW FULL WIDTH ON MOBILE) -->
+        <span class="inline-flex items-center gap-2 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 border border-blue-500/20 rounded-full"><i class="fa-solid fa-microchip-ai mr-1"></i> AI Powered ERP SaaS Live</span>
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-[1.15] uppercase">BUSINESS OPERATING SYSTEM<br><span class="text-blue-500">Smarter, Faster & Secure</span></h1>
+        <p class="text-gray-spec max-w-2xl mx-auto text-xs md:text-sm leading-relaxed font-light">An all-in-one corporate orchestration engine optimized for hyper-growth. Automate enterprise parameters inside a single dark-first visual canvas.</p>
         <div class="flex flex-col sm:flex-row gap-4 mt-8 justify-center max-w-sm mx-auto sm:max-w-none">
-            <!-- Primary Button -->
-            <a href="/auth/register" class="inline-flex items-center justify-center h-14 px-8 rounded-xl font-bold text-xs text-white uppercase bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/30 hover:shadow-blue-500/50 transition-all duration-300 hover:scale-105 active:scale-95">
-                <i class="fa-solid fa-rocket mr-2"></i> Start Free Trial
-            </a>
-            <!-- Secondary Button -->
-            <a href="#dashboard" class="inline-flex items-center justify-center h-14 px-8 rounded-xl font-bold text-xs border border-gray-600 bg-gray-900/40 text-gray-200 hover:bg-gray-800 hover:border-blue-500 transition-all duration-300 hover:scale-105 active:scale-95 shadow-md">
-                <i class="fa-solid fa-play mr-2 text-blue-500"></i> Live Demo
-            </a>
+            <a href="/auth/register" class="inline-flex items-center justify-center h-14 px-8 rounded-xl font-bold text-xs text-white uppercase bg-blue-600 hover:bg-blue-500 shadow-lg shadow-blue-500/30 transition-all duration-300 hover:scale-105 active:scale-95"><i class="fa-solid fa-rocket mr-2"></i> Start Free Trial</a>
+            <a href="#dashboard" class="inline-flex items-center justify-center h-14 px-8 rounded-xl font-bold text-xs border border-gray-700 bg-gray-900/40 text-gray-200 hover:bg-gray-800 hover:border-blue-500 transition-all duration-300 hover:scale-105 active:scale-95"><i class="fa-solid fa-play mr-2 text-blue-500"></i> Live Demo</a>
         </div>
     </section>
 
-    <!-- [PHASE 5] STATS CARDS -->
+    <!-- [PHASE 5] UPGRADED STATS CARDS (GRID WITH GLASSMORPHISM SPEC & GROWTH LABELS) -->
     <section class="max-w-5xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12 relative z-10">
-        <div class="card-bg rounded-2xl p-5 border border-white/5">
-            <h3 class="text-[10px] text-gray-spec font-bold uppercase tracking-wider">👥 Active Tenants</h3>
-            <p class="text-2xl font-bold mt-1">1,248+</p>
+        <div class="glass-kpi-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-blue-500/10 transition-all duration-300">
+            <h3 class="text-xs text-gray-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-users text-blue-500"></i> Active Tenants</h3>
+            <p class="text-3xl font-extrabold mt-3 tracking-tight text-white">1,248+</p>
+            <div class="text-[10px] text-emerald-400 font-medium mt-2"><i class="fa-solid fa-arrow-trend-up"></i> +26% This Month</div>
         </div>
-        <div class="card-bg rounded-2xl p-5 border border-white/5">
-            <h3 class="text-[10px] text-gray-spec font-bold uppercase tracking-wider">💰 Gross Revenue</h3>
-            <p class="text-2xl font-bold mt-1 text-[#10B981]">$14.2M</p>
+        <div class="glass-kpi-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-emerald-500/10 transition-all duration-300">
+            <h3 class="text-xs text-gray-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-money-bill-trend-up text-emerald-400"></i> Gross Revenue</h3>
+            <p class="text-3xl font-extrabold mt-3 tracking-tight text-emerald-400">$14.2M</p>
+            <div class="text-[10px] text-emerald-400 font-medium mt-2"><i class="fa-solid fa-arrow-trend-up"></i> +14.2% Growth Velocity</div>
         </div>
-        <div class="card-bg rounded-2xl p-5 border border-white/5">
-            <h3 class="text-[10px] text-gray-spec font-bold uppercase tracking-wider">🛒 Processed Orders</h3>
-            <p class="text-2xl font-bold mt-1">84.9K</p>
+        <div class="glass-kpi-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-purple-500/10 transition-all duration-300">
+            <h3 class="text-xs text-gray-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-cart-flatbed-suitcase text-purple-400"></i> Processed Orders</h3>
+            <p class="text-3xl font-extrabold mt-3 tracking-tight text-white">84.9K</p>
+            <div class="text-[10px] text-gray-500 font-medium mt-2"><i class="fa-solid fa-bolt"></i> Real-time Pipeline Stable</div>
         </div>
-        <div class="card-bg rounded-2xl p-5 border border-white/5">
-            <h3 class="text-[10px] text-gray-spec font-bold uppercase tracking-wider">📦 Tracked Products</h3>
-            <p class="text-2xl font-bold mt-1 text-[#3B82F6]">32.1K</p>
+        <div class="glass-kpi-card rounded-2xl p-6 hover:-translate-y-1 hover:shadow-cyan-500/10 transition-all duration-300">
+            <h3 class="text-xs text-gray-400 font-semibold flex items-center gap-2"><i class="fa-solid fa-boxes-packing text-blue-400"></i> Tracked Products</h3>
+            <p class="text-3xl font-extrabold mt-3 tracking-tight text-blue-500">32.1K</p>
+            <div class="text-[10px] text-gray-500 font-medium mt-2"><i class="fa-solid fa-server"></i> Isolated Relational DB</div>
         </div>
     </section>
 
@@ -96,38 +73,28 @@
     <section class="max-w-4xl w-full mx-auto space-y-6 pb-12 relative z-10">
         <h2 class="text-sm font-bold text-center uppercase tracking-widest">Why Business OS ?</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-light text-gray-spec">
-            <div class="p-5 rounded-xl card-bg border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ AI Analytics</h4>AI Powered Prediction velocities.</div>
-            <div class="p-5 rounded-xl card-bg border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ Security</h4>JWT + RBAC signature active hardening.</div>
-            <div class="p-5 rounded-xl card-bg border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ Inventory</h4>Real-time Tracking delta infrastructure.</div>
+            <div class="p-5 rounded-xl bg-gray-100/5 border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ AI Analytics</h4>AI Powered Prediction velocities.</div>
+            <div class="p-5 rounded-xl bg-gray-100/5 border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ Security</h4>JWT + RBAC signature active hardening.</div>
+            <div class="p-5 rounded-xl bg-gray-100/5 border border-white/5"><h4 class="font-bold text-white mb-1 uppercase">✓ Inventory</h4>Real-time Tracking delta infrastructure.</div>
         </div>
     </section>
 
     <!-- [PHASE 7] DASHBOARD PREVIEW SCREENSHOT ZONE -->
-    <section id="dashboard" class="max-w-5xl w-full mx-auto card-bg rounded-2xl p-8 border border-white/5 shadow-2xl text-center mb-12 relative z-10">
+    <section id="dashboard" class="max-w-5xl w-full mx-auto bg-gray-100/5 rounded-2xl p-8 border border-white/5 shadow-2xl text-center mb-12 relative z-10">
         <div class="border-b border-white/5 pb-2 mb-4 text-left text-xs font-bold text-gray-spec uppercase tracking-wide">██████ Dashboard Preview ██████</div>
         <div class="py-12 bg-gray-950/40 rounded-xl border border-dashed border-gray-800 text-gray-600 text-xs font-mono font-bold">CORE APP SCREENSHOT MOCKUP PLACEHOLDER AREA</div>
     </section>
 
     <!-- [PHASE 8] PRICING TIERS -->
     <section class="max-w-4xl w-full mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 pb-12 relative z-10">
-        <div class="card-bg p-6 rounded-2xl border border-white/5">
-            <h4 class="text-xs font-bold text-gray-500 uppercase">Starter</h4>
-            <div class="text-2xl font-extrabold mt-2">$19</div>
-        </div>
-        <div class="card-bg p-6 rounded-2xl border border-blue-600">
-            <h4 class="text-xs font-bold text-white uppercase">Enterprise</h4>
-            <div class="text-2xl font-extrabold mt-2 text-[#8B5CF6]">$99</div>
-        </div>
+        <div class="p-6 rounded-2xl bg-gray-100/5 border border-white/5"><h4 class="text-xs font-bold text-gray-500 uppercase">Starter</h4><div class="text-2xl font-extrabold mt-2">$19</div></div>
+        <div class="p-6 rounded-2xl bg-gray-100/5 border border-blue-600"><h4 class="text-xs font-bold text-white uppercase">Enterprise</h4><div class="text-2xl font-extrabold mt-2 text-[#8B5CF6]">$99</div></div>
     </section>
 
     <!-- [PHASE 9] FOOTER -->
     <footer class="max-w-5xl w-full mx-auto border-t border-white/5 pt-6 flex justify-between items-center text-[10px] text-gray-500 relative z-10">
         <div>&copy; 2026 Business OS. All Rights Reserved.</div>
-        <div class="space-x-4">
-            <a href="/docs" class="hover:text-white">Docs</a>
-            <a href="#" class="hover:text-white">Privacy</a>
-            <a href="#" class="hover:text-white">Terms</a>
-        </div>
+        <div class="space-x-4"><a href="/docs" class="hover:text-white">Docs</a><a href="#" class="hover:text-white">Privacy</a><a href="#" class="hover:text-white">Terms</a></div>
     </footer>
 
 </body>
