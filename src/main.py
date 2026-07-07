@@ -32,12 +32,12 @@ SOCIAL_ROUTERS = {}
 async def render_landing_page(request: Request):
     return templates.TemplateResponse(request=request, name="index.html")
 
-# FIXED: JINJA2 WORKSPACE REGISTER PIPELINE GATEWAY
+# JINJA2 WORKSPACE REGISTER PIPELINE GATEWAY
 @app.get("/auth/register", response_class=HTMLResponse, tags=["Authentication Infrastructure Core"])
 async def render_register_page(request: Request):
     return templates.TemplateResponse(request=request, name="register.html")
 
-# FIXED: JINJA2 WORKSPACE LOGIN PIPELINE GATEWAY
+# JINJA2 WORKSPACE LOGIN PIPELINE GATEWAY
 @app.get("/auth/login", response_class=HTMLResponse, tags=["Authentication Infrastructure Core"])
 async def render_login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
@@ -63,8 +63,17 @@ class SocialWebhooksMultiplexer:
 async def check_infrastructure_health():
     return {"status": "OPERATIONAL", "timestamp": "2026-07-08T03:31:00Z", "kernel_v": "4.0.0-MVP-Hardened"}
 
+# PRODUCTION HARDENED: TENANT ONBOARDING PIPELINE FOR FRONTEND AJAX FETCH HOOKS
 @app.post("/api/v4/tenant/onboard", status_code=status.HTTP_201_CREATED, tags=["Tenant Core Account Pipelines"])
 async def onboard_enterprise_workspace(id: str, company_name: str, email: str, referrer_code: str = None):
+    # Enforce basic metadata boundary validations
+    if not company_name.strip() or not email.strip():
+        raise HTTPException(status_code=422, detail="CRITICAL_FAULT: PARAMETERS_CANNOT_BE_EMPTY")
+
+    # Prevent dynamic registration identity overlap leaks
+    if id in OPS_KERNEL.tenants_db:
+        raise HTTPException(status_code=400, detail="IDENTITY_CLASH: TENANT_ID_ALREADY_EXISTS")
+
     new_tenant = Tenant(id=id, company_name=company_name, owner_email=email, referral_code_used=referrer_code)
     OPS_KERNEL.tenants_db[id] = new_tenant
     TENANT_MODULES[id] = DynamicModulesRegistry(tenant_id=id)
