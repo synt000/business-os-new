@@ -15,6 +15,13 @@ OPS_KERNEL = SaaSPlatformOperationsEngine()
 TENANT_MODULES = {}
 SOCIAL_ROUTERS = {}
 
+# FIXED: BASE ROOT GATEWAY ROUTE FOR CONVERSION REDIRECTION
+@app.get("/")
+def root():
+    return {
+        "message": "Business OS API is running successfully 🚀"
+    }
+
 class AIAssistantAgentMatrix:
     """Dynamic context analysis parsing real-time business health telemetry."""
     @staticmethod
