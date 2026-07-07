@@ -3,102 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business OS - Premium Enterprise SaaS</title>
+    <title>Business OS - World-Class Premium Enterprise SaaS</title>
     <link rel="stylesheet" href="https://jsdelivr.net">
     <style>
+        /* ==========================================================================
+           $100M STARTUP CORE DESIGN SYSTEM MATRIX
+           ========================================================================== */
+        :root {
+            --bg-base: #0B1020;
+            --primary: #4F8CFF;
+            --secondary: #8B5CF6;
+            --accent: #22C55E;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --glass-core: rgba(10, 16, 32, 0.75);
+            --border-glass: rgba(255, 255, 255, 0.07);
+        }
+
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { 
-            background: #060816; 
-            color: #F8FAFC; 
-            font-family: system-ui, -apple-system, sans-serif; 
+            background: var(--bg-base); 
+            color: var(--text-main); 
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
             min-height: 100vh; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            padding: 16px; 
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            display: flex;
+            flex-direction: column;
             align-items: center;
         }
-        
-        .hero-glow { 
-            position: absolute; width: 1000px; height: 1000px; border-radius: 50%; 
-            background: radial-gradient(circle, rgba(79,140,255,0.22) 0%, transparent 80%); 
-            filter: blur(80px); pointer-events: none; z-index: 0; top: -20%; left: 5%; 
+
+        /* 1. TOP ANNOUNCEMENT TICKER LAYOUT */
+        .ticker-wrap {
+            width: 100%;
+            background: rgba(11, 16, 32, 0.9);
+            border-bottom: 1px solid var(--border-glass);
+            overflow: hidden;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            position: relative;
+            z-index: 110;
         }
-        
-        .luxury-glass { 
-            background: rgba(12, 18, 34, 0.72); 
-            backdrop-filter: blur(18px); 
-            -webkit-backdrop-filter: blur(18px); 
-            border: 1px solid rgba(255, 255, 255, 0.08); 
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45); 
-            border-radius: 24px; 
+        .ticker-move {
+            display: inline-flex;
+            white-space: nowrap;
+            padding-right: 100%;
+            animation: tickerMarquee 35s linear infinite;
         }
-        
-        /* MOBILE WIDTH 100% CENTER CONTROLS */
-        .nav-box { display: flex; justify-content: space-between; align-items: center; width: 100%; max-width: 900px; margin: 0 auto; padding: 16px 24px; }
-        
-        .btn-p { 
-            height: 56px; padding: 0 32px; border-radius: 16px; font-size: 14px; font-weight: 700; 
-            background: linear-gradient(135deg, #4F8CFF 0%, #8B5CF6 100%); color: white; border: none; 
-            cursor: pointer; display: inline-flex; align-items: center; justify-content: center; 
-            text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-            box-shadow: 0 0 20px rgba(79, 140, 255, 0.25);
+        @keyframes tickerMarquee {
+            0% { transform: translate3d(0, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
         }
-        .btn-p:hover { transform: translateY(-2px) scale(1.03); box-shadow: 0 12px 30px rgba(79, 140, 255, 0.6); }
-        .btn-s { height: 56px; padding: 0 32px; border-radius: 16px; font-size: 14px; font-weight: 700; background: rgba(12, 18, 34, 0.72); color: white; border: 1px solid rgba(255, 255, 255, 0.15); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; }
-        .btn-s:hover { transform: translateY(-2px); background: rgba(255, 255, 255, 0.05); }
-        
-        /* MOBILE 2x2 GRID & DESKTOP ROW CONSTRAINTS */
-        .grid-layout { max-width: 900px; margin: 24px auto; width: 100%; display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; z-index: 10; }
-        @media(min-width: 750px) { .grid-layout { grid-template-columns: repeat(4, 1fr); gap: 20px; } }
-        
-        .grid-3 { max-width: 900px; margin: 32px auto; width: 100%; display: grid; grid-template-columns: 1fr; gap: 16px; }
-        @media(min-width: 550px) { .grid-3 { grid-template-columns: repeat(2, 1fr); } }
-        @media(min-width: 850px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
-        
-        .stat-card { padding: 20px; transition: all 0.3s ease; display: flex; flex-direction: column; justify-content: space-between; }
-        .stat-card:hover { transform: translateY(-6px); border-color: rgba(79, 140, 255, 0.3); }
-        .num { font-size: 26px; font-weight: 800; margin-top: 6px; tracking: -0.5px; }
-        @media(min-width: 550px) { .num { font-size: 32px; } }
-        .desc { font-size: 12px; color: #94A3B8; margin-top: 2px; font-weight: 600; }
-        .badge { font-size: 10px; font-weight: 700; color: #22C55E; background: rgba(34, 197, 94, 0.1); padding: 4px 6px; border-radius: 6px; width: fit-content; margin-top: 6px; }
-        
-        .monochrome-logo { color: rgba(148, 163, 184, 0.65); transition: all 0.3s ease; cursor: pointer; text-decoration: none; font-weight: 800; font-size: 15px; display: flex; align-items: center; gap: 6px; }
-        .monochrome-logo:hover { color: #4F8CFF; transform: scale(1.05); }
+        .ticker-item {
+            display: inline-flex;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            color: var(--text-main);
+        }
+        .pulse-badge {
+            background: rgba(239, 68, 68, 0.15);
+            color: #EF4444;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 9px;
+            font-weight: 800;
+            margin-right: 8px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            animation: structuralPulse 2s infinite;
+        }
+        @keyframes structuralPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(0.96); }
+        }
+
+        /* 2. STICKY GLASS NAVBAR */
+        .nav-container {
+            position: sticky;
+            top: 12px;
+            z-index: 100;
+            width: 100%;
+            max-width: 1140px;
+            padding: 0 16px;
+            margin-top: 8px;
+        }
+        .luxury-glass {
+            background: var(--glass-core);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border-glass);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
+        }
+        .nav-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 24px;
+            border-radius: 16px;
+        }
+        .nav-links { display: flex; gap: 24px; list-style: none; align-items: center; }
+        @media(max-width: 850px) { .nav-links { display: none; } }
+        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.3s; }
+        .nav-links a:hover { color: var(--text-main); }
+
+        /* HERO ACTION CONTROLS */
+        .btn-p {
+            height: 48px; padding: 0 24px; border-radius: 12px; font-size: 13px; font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: #FFF; border: none; cursor: pointer; display: inline-flex; align-items: center;
+            justify-content: center; text-decoration: none; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 0 20px rgba(79, 140, 255, 0.3);
+        }
+        .btn-p:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 30px rgba(79, 140, 255, 0.5); }
+        .btn-s { height: 48px; padding: 0 24px; border-radius: 12px; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.03); color: #FFF; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; }
+        .btn-s:hover { transform: translateY(-2px); background: rgba(255,255,255,0.07); }
+
+        .hero-section {
+            width: 100%; max-width: 1140px; margin: 80px auto 40px; text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 0 24px; position: relative;
+        }
+        .hero-badge {
+            background: rgba(79, 140, 255, 0.08); border: 1px solid rgba(79, 140, 255, 0.2);
+            color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase;
+            tracking: 1.5px; padding: 6px 14px; border-radius: 20px;
+        }
     </style>
 </head>
 <body>
-    <div class="hero-glow"></div>
-    
-    <!-- Navbar Component -->
-    <nav class="luxury-glass nav-box">
-        <div style="display: flex; align-items: center; gap: 12px;">
-            <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #4F8CFF 0%, #8B5CF6 100%); display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 20px rgba(79, 140, 255, 0.2);"><i class="bi bi-layers-half" style="font-size: 18px;"></i></div>
-            <span style="font-size: 14px; font-weight: 800; text-transform: uppercase; tracking: 1px;">Business <span style="color: #4F8CFF;">OS</span></span>
-        </div>
-        <div style="display: flex; align-items: center; gap: 16px;">
-            <a href="/auth/login" class="monochrome-logo" style="font-size: 12px;">Login</a>
-            <a href="/auth/register" class="btn-p" style="height: 40px; padding: 0 20px; border-radius: 12px; font-size: 12px;">Register</a>
-        </div>
-    </nav>
 
-    <!-- HERO CENTER ALIGNMENT & WIDTH 100% -->
-    <header style="max-width: 650px; width: 100%; margin: 48px auto 24px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 0 16px; z-index: 10;">
-        <span style="background: rgba(79, 140, 255, 0.1); border: 1px solid rgba(79, 140, 255, 0.2); color: #4F8CFF; font-size: 10px; font-weight: 700; text-transform: uppercase; tracking: 1.5px; padding: 6px 12px; border-radius: 20px; width: fit-content;">Production Cloud Infrastructure Active</span>
-        <h1 style="font-size: clamp(30px, 5vw, 46px); font-weight: 800; color: #F8FAFC; line-height: 1.1; tracking: -0.5px; width: 100%;">Business Operating System</h1>
-        <h2 style="font-size: clamp(18px, 3.5vw, 26px); font-weight: 700; color: #6EA8FF; margin-top: -6px; tracking: 0.5px;">Smarter. Faster. Secure.</h2>
-        <p style="font-size: 13px; color: #94A3B8; max-width: 440px; font-weight: 300; line-height: 1.6;">Minimal luxury enterprise orchestration platform inspired natively by Linear + Stripe structures.</p>
-        <div style="display: flex; gap: 12px; margin-top: 8px; width: 100%; justify-content: center; flex-wrap: wrap;">
-            <a href="/auth/register" class="btn-p" style="height: 48px; padding: 0 24px; border-radius: 12px; font-size: 13px;">Start Free Trial</a>
-            <a href="#preview-mockup" class="btn-s" style="height: 48px; padding: 0 24px; border-radius: 12px; font-size: 13px;"><i class="bi bi-play-circle" style="color: #4F8CFF;"></i> Live Demo</a>
+    <!-- LIVE MARQUEE ANNOUNCEMENT TICKER -->
+    <div class="ticker-wrap">
+        <div class="ticker-move">
+            <div class="ticker-item"><span class="pulse-badge">🔴 LIVE</span> Business OS v4 Enterprise Edition is now available • AI Accounting • POS Systems • Enterprise CRM • Real-time Inventory • HR Orchestration • Async Payroll • Smart Warehouse Management • Automated Manufacturing</div>
+            <div class="ticker-item"><span class="pulse-badge">🔴 LIVE</span> Business OS v4 Enterprise Edition is now available • AI Accounting • POS Systems • Enterprise CRM • Real-time Inventory • HR Orchestration • Async Payroll • Smart Warehouse Management • Automated Manufacturing</div>
+        </div>
+    </div>
+
+    <!-- STICKY APPLE-INSPIRED HEADER NAVIGATION -->
+    <div class="nav-container">
+        <nav class="luxury-glass nav-box">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; align-items: center; justify-content: center; color: white;"><i class="bi bi-layers-half" style="font-size:16px;"></i></div>
+                <span style="font-size: 15px; font-weight: 800; tracking: 0.5px;">BUSINESS <span style="color: var(--primary);">OS</span></span>
+            </div>
+            
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#solutions">Solutions</a></li>
+                <li><a href="#pricing">Pricing</a></li>
+                <li><a href="/api/v4/docs">Resources</a></li>
+            </ul>
+
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <a href="/auth/login" class="monochrome-logo" style="font-size: 12px; color: var(--text-muted);">Contact Sales</a>
+                <a href="/auth/register" class="btn-p" style="height: 36px; padding: 0 16px; border-radius: 8px; font-size: 12px;">Start Free</a>
+            </div>
+        </nav>
+    </div>
+
+    /* ==========================================================================
+       ADDITIONAL PART 2 STRUCTURAL STYLES
+       ========================================================================== */
+    <style>
+        .hero-title {
+            font-size: clamp(34px, 6vw, 56px);
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            line-height: 1.05;
+            color: #FFF;
+            max-width: 800px;
+        }
+        .hero-desc {
+            font-size: clamp(14px, 2.5vw, 16px);
+            color: var(--text-muted);
+            max-width: 540px;
+            font-weight: 300;
+            line-height: 1.6;
+        }
+        .trusted-row {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            margin-top: 12px;
+            width: 100%;
+        }
+        .dash-perspective {
+            perspective: 1200px;
+            width: 100%;
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 0 16px;
+        }
+        .dash-board-mock {
+            transform: rotateX(5deg) translateY(0);
+            box-shadow: 0 50px 100px rgba(0,0,0,0.7), 0 0 40px rgba(79, 140, 255, 0.15);
+            border-color: rgba(79, 140, 255, 0.25) !important;
+            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dash-board-mock:hover {
+            transform: rotateX(2deg) translateY(-4px);
+        }
+        .kpi-grid-2x2 {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            width: 100%;
+            max-width: 1140px;
+            margin: 48px auto;
+            padding: 0 16px;
+            z-index: 10;
+        }
+        @media(min-width: 768px) {
+            .kpi-grid-2x2 {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 24px;
+            }
+        }
+    </style>
+
+    <!-- PREMIUM HERO INTERFACE HEADINGS -->
+    <header class="hero-section">
+        <span class="hero-badge">Distributed Orchestration Pipeline</span>
+        <h1 class="hero-title">The Operating System for Modern Enterprise.</h1>
+        <p class="hero-desc">Streamline complex workflows, isolate multi-tenant operations, and automate cross-industry logic with absolute performance criteria.</p>
+        
+        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 8px;">
+            <a href="/auth/register" class="btn-p">Start Free Trial <i class="bi bi-arrow-right-short" style="font-size: 16px;"></i></a>
+            <a href="#preview-mockup" class="btn-s"><i class="bi bi-play-circle" style="color: var(--primary);"></i> Watch Demo</a>
         </div>
     </header>
 
-    <!-- 1. FLOW ORDER: TRUSTED LEADERS LOGOS ROW -->
-    <section style="max-width: 900px; width: 100%; margin: 16px auto; text-align: center; padding: 0 16px; z-index: 10;">
-        <p style="font-size: 9px; font-weight: 700; tracking: 1.5px; color: rgba(148, 163, 184, 0.3); text-transform: uppercase; margin-bottom: 16px;">Trusted by Industry Leaders</p>
-        <div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 28px; width: 100%;">
+    <!-- TRUSTED LEADERS BRAND REGISTRY -->
+    <section style="width: 100%; max-width: 1140px; margin: 24px auto; text-align: center; padding: 0 24px; z-index: 10;">
+        <p style="font-size: 10px; font-weight: 700; tracking: 2px; color: rgba(148, 163, 184, 0.25); text-transform: uppercase; margin-bottom: 20px;">Trusted by $100M+ Scaling Infrastructures</p>
+        <div class="trusted-row">
             <span class="monochrome-logo"><i class="bi bi-google"></i> Google</span>
             <span class="monochrome-logo"><i class="bi bi-microsoft"></i> Microsoft</span>
             <span class="monochrome-logo"><i class="bi bi-stripe"></i> Stripe</span>
@@ -106,175 +251,156 @@
         </div>
     </section>
 
-    <!-- 2. FLOW ORDER: 3D TILT DASHBOARD PREVIEW TERMINAL -->
-    <section id="preview-mockup" style="max-width: 900px; width: 100%; margin: 24px auto; padding: 0 16px; z-index: 10;">
-        <div class="luxury-glass" style="padding: 16px; box-shadow: 0 30px 70px rgba(0,0,0,0.6); width: 100%;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; padding-left: 4px;">
+    <!-- 3D FLUID PREMIUM DASHBOARD TERMINAL PREVIEW -->
+    <section class="dash-perspective">
+        <div class="luxury-glass dash-board-mock" style="padding: 20px; border-radius: 20px;">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-left: 4px;">
                 <div style="display: flex; gap: 6px;">
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: #EF4444;"></div>
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: #F59E0B;"></div>
                     <div style="width: 10px; height: 10px; border-radius: 50%; background: #22C55E;"></div>
                 </div>
-                <span style="font-size: 10px; color: rgba(148, 163, 184, 0.4); font-family: monospace;">dashboard.businessos.io/analytics-terminal</span>
+                <span style="font-size: 10px; color: rgba(148, 163, 184, 0.4); font-family: monospace;">workspace.businessos.io/analytics-terminal</span>
                 <div style="width: 32px;"></div>
             </div>
-            <div style="background: #090D1A; border-radius: 12px; border: 1px solid rgba(255,255,255,0.03); padding: 16px; display: flex; flex-direction: column; gap: 14px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 10px;">
+            
+            <div style="background: #070B18; border-radius: 12px; border: 1px solid rgba(255,255,255,0.02); padding: 24px; display: flex; flex-direction: column; gap: 20px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
                     <div>
-                        <div style="font-size: 9px; font-weight: 700; color: rgba(148, 163, 184, 0.5); text-transform: uppercase;">Enterprise Revenue Stream</div>
-                        <div style="font-size: 20px; font-weight: 800; color: white; margin-top: 2px;">$142,384.50 <span style="font-size: 10px; color: #22C55E;"><i class="bi bi-graph-up-arrow"></i> +12.4%</span></div>
+                        <div style="font-size: 9px; font-weight: 700; color: rgba(148, 163, 184, 0.4); text-transform: uppercase; tracking: 0.5px;">Global Transaction Velocity</div>
+                        <div style="font-size: 26px; font-weight: 800; color: white; margin-top: 4px;">$142,384.50 <span style="font-size: 12px; color: var(--accent); font-weight: 400;"><i class="bi bi-graph-up-arrow"></i> +12.4% stability</span></div>
                     </div>
-                    <span style="font-size: 9px; color: #4F8CFF; background: rgba(79, 140, 255, 0.1); padding: 4px 8px; border-radius: 6px; font-weight: 600;">SaaS Node</span>
+                    <span style="font-size: 10px; color: var(--primary); background: rgba(79, 140, 255, 0.1); padding: 4px 10px; border-radius: 6px; font-weight: 600;">SaaS Kernel Active</span>
                 </div>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px;">
-                    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 10px; border-radius: 8px;">
-                        <div style="font-size: 9px; color: #94A3B8; font-weight: 600;"><i class="bi bi-box-seam text-blue-400"></i> Inventory Table</div>
-                        <div style="font-size: 12px; font-weight: 700; color: white; margin-top: 4px;">1,248 Items</div>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
+                    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); padding: 14px; border-radius: 10px;">
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px;"><i class="bi bi-box-seam text-blue-400"></i> Inventory Matrix</div>
+                        <div style="font-size: 15px; font-weight: 700; color: white; margin-top: 6px;">1,248 Active SKUs</div>
                     </div>
-                    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.03); padding: 10px; border-radius: 8px;">
-                        <div style="font-size: 9px; color: #94A3B8; font-weight: 600;"><i class="bi bi-receipt text-purple-400"></i> Recent Orders</div>
-                        <div style="font-size: 12px; font-weight: 700; color: white; margin-top: 4px;">8,492 Actions</div>
+                    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); padding: 14px; border-radius: 10px;">
+                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px;"><i class="bi bi-receipt text-purple-400"></i> Async Ledger</div>
+                        <div style="font-size: 15px; font-weight: 700; color: white; margin-top: 6px;">8,492 Requests/sec</div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- 3. FLOW ORDER: KPI STATS SECTION (MOBILE 2 COLUMNS MATRIX ENFORCED) -->
-    <section id="preview" class="grid-layout">
-        <div class="luxury-glass stat-card">
+    <!-- 4-GRID CONTINUOUS HARDENED KPI CARDS -->
+    <section class="kpi-grid-2x2">
+        <div class="luxury-glass stat-card" style="border-radius: 16px;">
             <div>📊</div>
             <div class="num">1,248+</div>
-            <div class="desc">Active Businesses</div>
-            <div class="badge"><i class="bi bi-arrow-up-short"></i> +26%</div>
+            <div class="desc">Active Tenants</div>
+            <div class="badge"><i class="bi bi-arrow-up-short"></i> +26% mo/mo</div>
         </div>
-        <div class="luxury-glass stat-card">
+        <div class="luxury-glass stat-card" style="border-radius: 16px;">
             <div>📈</div>
             <div class="num">$14.2M</div>
-            <div class="desc">Gross Revenue</div>
-            <div class="badge"><i class="bi bi-arrow-up-short"></i> +14.2%</div>
+            <div class="desc">Gross Volume</div>
+            <div class="badge"><i class="bi bi-arrow-up-short"></i> +14.2% stability</div>
         </div>
-        <div class="luxury-glass stat-card">
+        <div class="luxury-glass stat-card" style="border-radius: 16px;">
             <div>📦</div>
             <div class="num">8,492</div>
-            <div class="desc">Processed Orders</div>
-            <div class="badge" style="color:#4F8CFF; background:rgba(79,140,255,0.1);"><i class="bi bi-box-seam"></i> Verified</div>
+            <div class="desc">Orders Processed</div>
+            <div class="badge" style="color: var(--primary); background: rgba(79, 140, 255, 0.1);"><i class="bi bi-box-seam"></i> Secure</div>
         </div>
-        <div class="luxury-glass stat-card">
+        <div class="luxury-glass stat-card" style="border-radius: 16px;">
             <div>🔐</div>
             <div class="num">99.98%</div>
-            <div class="desc">System Uptime</div>
-            <div class="badge" style="color:#4F8CFF; background:rgba(79,140,255,0.1);"><i class="bi bi-shield-lock"></i> SLA</div>
+            <div class="desc">Production Uptime</div>
+            <div class="badge" style="color: var(--primary); background: rgba(79, 140, 255, 0.1);"><i class="bi bi-shield-lock"></i> SLA</div>
         </div>
     </section>
 
-    <!-- 4. CONTENT JOURNEY: 6 OUTLINE FEATURES CARDS LAYER -->
-    <section id="features" class="grid-3" style="padding: 0 16px;">
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #4F8CFF;"><i class="bi bi-box-seam"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">📦 INVENTORY</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Realtime tracking and delta calculations ledger flow profiles.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #8B5CF6;"><i class="bi bi-cash-coin"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">💰 ACCOUNTING</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Automated balance matrix logging configuration setups.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #22C55E;"><i class="bi bi-people"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">👥 HR WORKPLACE</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Multi-tenant isolated workspace employee payroll parameters.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #6EA8FF;"><i class="bi bi-graph-up-arrow"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">📈 AI ANALYTICS</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Historic predictive procurement velocity analytical engines.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #F59E0B;"><i class="bi bi-cart3"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">🛒 SALES PIPELINE</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Social checkout webhook configurations active routing paths.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #EF4444;"><i class="bi bi-shield-lock"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">🔒 SECURITY VAULT</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Cryptographically secured session token protection guardrails.</div>
-        </div>
-    </section>
-
-    <!-- 5. CONTENT JOURNEY: PRICING, FAQ, AND CORPORATE FOOTER LINK PACKAGES -->
-    <section id="pricing" class="grid-3" style="max-width: 900px; padding: 0 16px; margin-top: 48px;">
-        <div class="luxury-glass stat-card" style="padding: 24px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Startup Tier</div>
-            <div style="font-size: 26px; font-weight: 800; color: white; margin-top: 4px;">$49<span style="font-size: 12px; color: #94A3B8; font-weight: 400;"> / mo</span></div>
-            <ul style="list-style: none; font-size: 11px; color: #F8FAFC; margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
-                <li><i class="bi bi-check2 text-blue-500"></i> 10 Active Tenants</li>
-                <li><i class="bi bi-check2 text-blue-500"></i> Standard JWT Vault</li>
-            </ul>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 24px; border-color: rgba(79, 140, 255, 0.4);">
-            <div style="font-size: 11px; font-weight: 700; color: #4F8CFF; text-transform: uppercase;">Growth Scale</div>
-            <div style="font-size: 26px; font-weight: 800; color: white; margin-top: 4px;">$149<span style="font-size: 12px; color: #94A3B8; font-weight: 400;"> / mo</span></div>
-
-            <div class="desc">System Uptime</div>
-            <div class="badge" style="color:#4F8CFF; background:rgba(79,140,255,0.1);"><i class="bi bi-shield-lock"></i> SLA</div>
+    <!-- 6 PLUGGABLE INDUSTRY DOMAINS AREA -->
+    <section id="features" style="width: 100%; max-width: 1140px; margin: 64px auto 32px; padding: 0 16px; z-index: 10;">
+        <p style="font-size: 10px; font-weight: 700; tracking: 2px; color: var(--primary); text-transform: uppercase; text-align: center; margin-bottom: 8px;">Modular Architecture</p>
+        <h3 style="font-size: 26px; font-weight: 800; text-align: center; color: white; margin-bottom: 32px; letter-spacing: -0.5px;">28 Industry Verticals. One Unified Kernel.</h3>
+        
+        <div class="grid-3">
+            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
+                <div style="font-size: 20px; color: var(--primary);"><i class="bi bi-box-seam"></i></div>
+                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">📦 INVENTORY LEDGER</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Real-time asset telemetry mapping and multi-warehouse delta synchronization logic pipelines.</div>
+            </div>
+            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
+                <div style="font-size: 20px; color: var(--secondary);"><i class="bi bi-cash-coin"></i></div>
+                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">💰 CORE ACCOUNTING</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Automated corporate general ledgers and balancing charts aligned to financial standards.</div>
+            </div>
+            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
+                <div style="font-size: 20px; color: var(--accent);"><i class="bi bi-people"></i></div>
+                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">👥 HR WORKPLACE</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Multi-tenant isolated employee rosters, salary configuration keys, and performance nodes.</div>
+            </div>
+            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
+                <div style="font-size: 20px; color: #60A5FA;"><i class="bi bi-graph-up-arrow"></i></div>
+                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">📈 PREDICTIVE ANALYTICS</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">AI-driven pipeline velocity tracing and historical inventory demand calculation graphs.</div>
+            </div>
+            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
+                <div style="font-size: 20px; color: #F59E0B;"><i class="bi bi-cart3"></i></div>
+                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">🛒 SALES WEBHOOKS</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Omni-channel checkout interceptors processing transaction tokens dynamically via streams.</div>
+            </div>
+            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
+                <div style="font-size: 20px; color: #EF4444;"><i class="bi bi-shield-lock"></i></div>
+                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">🔒 SECURITY VAULT</div>
+                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Cryptographically hard-sealed access tokens tracking session integrity verification metrics.</div>
+            </div>
         </div>
     </section>
 
-    <!-- 4. CONTENT JOURNEY: 6 OUTLINE FEATURES CARDS LAYER -->
-    <section id="features" class="grid-3" style="padding: 0 16px;">
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #4F8CFF;"><i class="bi bi-box-seam"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">📦 INVENTORY</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Realtime tracking and delta calculations ledger flow profiles.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #8B5CF6;"><i class="bi bi-cash-coin"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">💰 ACCOUNTING</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Automated balance matrix logging configuration setups.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #22C55E;"><i class="bi bi-people"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">👥 HR WORKPLACE</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Multi-tenant isolated workspace employee payroll parameters.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #6EA8FF;"><i class="bi bi-graph-up-arrow"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">📈 AI ANALYTICS</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Historic predictive procurement velocity analytical engines.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #F59E0B;"><i class="bi bi-cart3"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">🛒 SALES PIPELINE</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Social checkout webhook configurations active routing paths.</div>
-        </div>
-        <div class="luxury-glass stat-card" style="padding: 18px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 18px; color: #EF4444;"><i class="bi bi-shield-lock"></i></div>
-            <div style="font-size: 13px; font-weight: 700; color: white; margin-top: 8px;">🔒 SECURITY VAULT</div>
-            <div style="font-size: 11px; color: #94A3B8; margin-top: 4px; font-weight: 300; line-height: 1.6;">Cryptographically secured session token protection guardrails.</div>
+    <!-- SAAS PRICING TIERS -->
+    <section id="pricing" style="width: 100%; max-width: 1140px; margin: 64px auto; padding: 0 16px; z-index: 10;">
+        <div class="grid-3" style="max-width: 800px; margin: 0 auto;">
+            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 32px;">
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Startup Tier</div>
+                <div style="font-size: 32px; font-weight: 800; color: white; margin-top: 8px;">$49<span style="font-size: 14px; color: var(--text-muted); font-weight: 400;"> / mo</span></div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px; font-weight: 300; line-height: 1.5;">Ideal for scaling core businesses requiring low hardware limits.</p>
+                <a href="/auth/register" class="btn-s" style="width: 100%; height: 40px; font-size: 12px; border-radius: 8px; margin-top: 20px;">Deploy Basic Stack</a>
+            </div>
+            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 32px; border-color: var(--primary);">
+                <div style="font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase;">Growth Plan</div>
+                <div style="font-size: 32px; font-weight: 800; color: white; margin-top: 8px;">$149<span style="font-size: 14px; color: var(--text-muted); font-weight: 400;"> / mo</span></div>
+                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px; font-weight: 300; line-height: 1.5;">Unlimited pluggable modules, advanced AI agents, and 99.98% SLA bounds.</p>
+                <a href="/auth/register" class="btn-p" style="width: 100%; height: 40px; font-size: 12px; border-radius: 8px; margin-top: 20px; box-shadow: none;">Deploy Scale Trial</a>
+            </div>
         </div>
     </section>
 
-    <!-- 5. CONTENT JOURNEY: PRICING, FAQ, AND CORPORATE FOOTER LINK PACKAGES -->
-    <section id="pricing" class="grid-3" style="max-width: 900px; padding: 0 16px; margin-top: 48px;">
-        <div class="luxury-glass stat-card" style="padding: 24px; border-color: rgba(255,255,255,0.04);">
-            <div style="font-size: 11px; font-weight: 700; color: #94A3B8; text-transform: uppercase;">Startup Tier</div>
-            <div style="font-size: 26px; font-weight: 800; color: white; margin-top: 4px;">$49<span style="font-size: 12px; color: #94A3B8; font-weight: 400;"> / mo</span></div>
-            <ul style="list-style: none; font-size: 11px; color: #F8FAFC; margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
-                <li><i class="bi bi-check2 text-blue-500"></i> 10 Active Tenants</li>
-                <li><i class="bi bi-check2 text-blue-500"></i> Standard JWT Vault</li>
-            </ul>
+    <!-- CORPORATE DETAILED MULTI-LINK FOOTER -->
+    <footer style="width: 100%; max-width: 1140px; margin: 80px auto 0; padding: 40px 24px 24px; border-top: 1px solid var(--border-glass); z-index: 10;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 32px; text-align: left; margin-bottom: 40px;">
+            <div>
+                <h5 style="font-size: 12px; font-weight: 700; color: white; margin-bottom: 16px; text-transform: uppercase; tracking: 0.5px;">Product</h5>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 12px;">
+                    <li><a href="#features" style="color: var(--text-muted); text-decoration: none;">Industry Modules</a></li>
+                    <li><a href="/api/v4/docs" style="color: var(--text-muted); text-decoration: none;">Kernel Core API</a></li>
+                    <li><a href="#pricing" style="color: var(--text-muted); text-decoration: none;">SaaS Pricing Plans</a></li>
+                </ul>
+            </div>
+            <div>
+                <h5 style="font-size: 12px; font-weight: 700; color: white; margin-bottom: 16px; text-transform: uppercase; tracking: 0.5px;">Corporate</h5>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 12px;">
+                    <li><a href="/auth/login" style="color: var(--text-muted); text-decoration: none;">Contact Sales</a></li>
+                    <li><a href="/api/v4/docs" style="color: var(--text-muted); text-decoration: none;">Infrastructure Status</a></li>
+                    <li><a href="#stats" style="color: var(--text-muted); text-decoration: none;">Enterprise SLA Trust</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="luxury-glass stat-card" style="padding: 24px; border-color: rgba(79, 140, 255, 0.4);">
-            <div style="font-size: 11px; font-weight: 700; color: #4F8CFF; text-transform: uppercase;">Growth Scale</div>
-            <div style="font-size: 26px; font-weight: 800; color: white; margin-top: 4px;">$149<span style="font-size: 12px; color: #94A3B8; font-weight: 400;"> / mo</span></div>
-            <ul style="list-style: none; font-size: 11px; color: #F8FAFC; margin-top: 10px; display: flex; flex-direction: column; gap: 6px;">
-                <li><i class="bi bi-check2 text-blue-500"></i> Unlimited Shards</li>
-                <li><i class="bi bi-check2 text-blue-500"></i> 99.98% Dedicated SLA</li>
-            </ul>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 11px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.02); padding-top: 24px;">
+            <span>&copy; 2026 Business OS Architecture Inc. All Rights Reserved. Engineered for Global Infrastructure Scale.</span>
+            <div style="display: flex; gap: 16px;">
+                <span class="monochrome-logo" style="font-size: 13px;"><i class="bi bi-github"></i></span>
+                <span class="monochrome-logo" style="font-size: 13px;"><i class="bi bi-slack"></i></span>
+            </div>
         </div>
-    </section>
+    </footer>
 
-    <footer class="luxury-glass" style="max-width: 900px; margin: 48px auto 0; width: 100%; padding: 20px; text-align: center; font-size: 11px; color: #94A3B8; border-color: rgba(255,255,255,0.04);">&copy; 2026 Business OS Architecture Inc. All Rights Reserved.</footer>
 </body>
 </html>
