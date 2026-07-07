@@ -1,58 +1,79 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Business OS - Premium SaaS ERP</title>
-    <!-- Stable Tailwind CSS Play CDN -->
-    <script src="https://tailwindcss.com"></script>
-    <!-- FontAwesome Global Certified Icons -->
-    <link rel="stylesheet" href="https://cloudflare.com">
+    
+    <!-- Verified Stable Tailwind CSS Play CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Verified FontAwesome Global Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+    
     <style>
-        body { background-color: #0B0F19; color: #F3F4F6; font-family: sans-serif; }
-        .glass-card { background: rgba(17, 24, 39, 0.6); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0B0F19;
+            color: #F3F4F6;
+        }
+        
+        .glass-card {
+            background: rgba(17, 24, 39, .6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, .08);
+        }
+        
+        .text-gradient {
+            background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 50%, #8B5CF6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
     </style>
 </head>
-<body class="antialiased min-h-screen flex flex-col justify-between p-6">
+<body class="antialiased min-h-screen flex flex-col justify-between p-6 bg-[#0B0F19]">
 
-    <!-- Global Header -->
-    <nav class="glass-card rounded-2xl px-6 py-4 flex justify-between items-center max-w-5xl w-full mx-auto shadow-xl">
+    <!-- Premium Navigation Header Bar -->
+    <nav class="glass-card rounded-2xl px-6 py-4 flex justify-between items-center max-w-5xl w-full mx-auto shadow-2xl">
         <div class="flex items-center space-x-2 font-bold text-white text-lg">
-            <div class="bg-blue-600 p-2 rounded-lg text-sm"><i class="fa-solid fa-layer-group"></i></div>
+            <div class="bg-blue-600 p-2 rounded-xl text-sm shadow-lg shadow-blue-500/20"><i class="fa-solid fa-layer-group"></i></div>
             <span>Business <span class="text-blue-500">OS</span></span>
         </div>
         <div class="flex items-center space-x-4">
             <a href="/auth/login" class="text-sm text-gray-400 hover:text-white transition">Sign In</a>
-            <a href="/auth/register" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition">Get Started</a>
+            <a href="/auth/register" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow-md shadow-blue-500/10">Get Started</a>
         </div>
     </nav>
 
-    <!-- Main Hero Workspace Area -->
+    <!-- Main Dynamic Hero Presentation Layout Area -->
     <main class="max-w-4xl w-full mx-auto text-center my-12 space-y-6">
-        <span class="inline-block bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full">Commercial Next-Gen ERP SaaS v1.0 Live</span>
-        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">Manage Your Business Smarter with <span class="text-blue-500">Next-Gen ERP</span></h1>
+        <span class="inline-block bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full animate-pulse">Commercial Next-Gen ERP SaaS v1.0 Live</span>
+        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">Manage Your Business Smarter with <span class="text-gradient">Next-Gen ERP</span></h1>
         <p class="text-gray-400 max-w-2xl mx-auto text-sm md:text-base leading-relaxed">Multi-tenant isolation, real-time inventory tracking, secure JWT protection, and deep business analytics inside a unified production ecosystem.</p>
         <div class="flex justify-center gap-4 pt-4">
             <a href="/auth/register" class="bg-blue-600 hover:bg-blue-500 text-white text-sm font-bold px-6 py-3 rounded-xl transition shadow-lg shadow-blue-500/20">Start Free Trial</a>
-            <a href="/docs" class="glass-card text-gray-300 text-sm font-bold px-6 py-3 rounded-xl transition hover:bg-gray-800/40"><i class="fa-solid fa-book mr-1.5"></i> API Explorer</a>
+            <a href="/docs" class="glass-card text-gray-300 text-sm font-bold px-6 py-3 rounded-xl transition hover:bg-gray-800/40"><i class="fa-solid fa-book mr-1.5 text-blue-400"></i> API Explorer</a>
         </div>
     </main>
 
-    <!-- UI Snapshot Mockup Grid -->
+    <!-- Interactive Workspace Metrics Preview Matrix -->
     <section class="max-w-4xl w-full mx-auto glass-card rounded-2xl p-6 shadow-2xl space-y-4">
         <div class="border-b border-gray-800 pb-3 flex justify-between items-center">
-            <div class="text-xs font-bold text-gray-400 uppercase tracking-wide"><i class="fa-solid fa-chart-line text-blue-500 mr-1.5"></i> Workspace Active Monitor</div>
+            <div class="text-xs font-bold text-gray-400 uppercase tracking-wide"><i class="fa-solid fa-chart-line text-blue-400 mr-1.5"></i> Workspace Active Monitor</div>
             <span class="bg-emerald-500/10 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 rounded border border-emerald-500/20">Tenant Enforced</span>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <div class="p-4 rounded-xl bg-gray-900/60 border border-gray-800/60"><div class="text-gray-500 text-[10px] uppercase font-bold">Products Tracked</div><div class="text-lg font-bold text-white mt-1">1,248 items</div></div>
-            <div class="p-4 rounded-xl bg-gray-900/60 border border-gray-800/60"><div class="text-gray-500 text-[10px] uppercase font-bold">Stock Movements</div><div class="text-lg font-bold text-white mt-1">8,492 ledgers</div></div>
-            <div class="p-4 rounded-xl bg-gray-900/60 border border-gray-800/60"><div class="text-gray-500 text-[10px] uppercase font-bold">Security Logs</div><div class="text-lg font-bold text-white mt-1">32,104 events</div></div>
+            <div class="p-4 rounded-xl bg-gray-900/40 border border-gray-800/60"><div class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Products Tracked</div><div class="text-lg font-bold text-white mt-1">1,248 items</div></div>
+            <div class="p-4 rounded-xl bg-gray-900/40 border border-gray-800/60"><div class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Stock Movements</div><div class="text-lg font-bold text-white mt-1">8,492 ledgers</div></div>
+            <div class="p-4 rounded-xl bg-gray-900/40 border border-gray-800/60"><div class="text-gray-500 text-[10px] uppercase font-bold tracking-wider">Security Logs</div><div class="text-lg font-bold text-white mt-1">32,104 events</div></div>
         </div>
     </section>
 
-    <!-- Footer Core Layer -->
-    <footer class="max-w-5xl w-full mx-auto border-t border-gray-800/60 pt-6 text-center text-xs text-gray-500 mt-12">
+    <!-- System Core Footer Layer -->
+    <footer class="max-w-5xl w-full mx-auto border-t border-gray-800/40 pt-6 text-center text-xs text-gray-500 mt-12">
         &copy; 2026 Business OS Architecture Inc. All Rights Reserved.
     </footer>
 
