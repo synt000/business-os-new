@@ -15,19 +15,32 @@ app = FastAPI(
     docs_url="/api/v4/docs"
 )
 
-# FIXED: Standard Baseline Path Resolution Matrix
+# Standard Dynamic Baseline Path Resolution Configuration Layer
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+# Mount static asset layers securely
+app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
 # Core Local State Persistence Engine Matrices
 OPS_KERNEL = SaaSPlatformOperationsEngine()
 TENANT_MODULES = {}
 SOCIAL_ROUTERS = {}
 
-# PRODUCTION FIXED: COMPLIANT SYNTAX MATRIX FOR LATEST FASTAPI/STARLETTE BUILD
+# PUBLIC LANDING INTERFACE REDIRECTION PATHS
 @app.get("/", response_class=HTMLResponse, tags=["Public Landing Component"])
 async def render_landing_page(request: Request):
     return templates.TemplateResponse(request=request, name="index.html")
+
+# FIXED: JINJA2 WORKSPACE REGISTER PIPELINE GATEWAY
+@app.get("/auth/register", response_class=HTMLResponse, tags=["Authentication Infrastructure Core"])
+async def render_register_page(request: Request):
+    return templates.TemplateResponse(request=request, name="register.html")
+
+# FIXED: JINJA2 WORKSPACE LOGIN PIPELINE GATEWAY
+@app.get("/auth/login", response_class=HTMLResponse, tags=["Authentication Infrastructure Core"])
+async def render_login_page(request: Request):
+    return templates.TemplateResponse(request=request, name="login.html")
 
 class AIAssistantAgentMatrix:
     """Dynamic context analysis parsing real-time business health telemetry."""
