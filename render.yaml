@@ -1,5 +1,5 @@
 # ==========================================================================
-# BUSINESS OS - RENDER CLOUD BLUEPRINT SPECIFICATION (FREE TIER COMPLIANT)
+# BUSINESS OS - RENDER CLOUD BLUEPRINT SPECIFICATION (PURE DOCKER DESPLOY)
 # ==========================================================================
 services:
   - type: web
