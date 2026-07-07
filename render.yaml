@@ -1,5 +1,5 @@
 # ==========================================================================
-# BUSINESS OS - RENDER CLOUD BLUEPRINT SPECIFICATION (FIXED DEVOPS NODE)
+# BUSINESS OS - RENDER CLOUD BLUEPRINT SPECIFICATION (FREE TIER COMPLIANT)
 # ==========================================================================
 services:
   - type: web
@@ -14,7 +14,3 @@ services:
         value: b1z0s_g10b41_m3g4_saas_p14tf0rm_s3cr3t_k3y_2026
       - key: ALGORITHM
         value: HS256
-    disk:
-      name: erp-sqlite-data
-      mountPath: /app/data
-      sizeGB: 1
