@@ -1,18 +1,17 @@
 # ==========================================================================
-# BUSINESS OS - RENDER CLOUD BLUEPRINT SPECIFICATION (INFRASTRUCTURE AS CODE)
+# BUSINESS OS - RENDER CLOUD BLUEPRINT SPECIFICATION (FIXED DEVOPS NODE)
 # ==========================================================================
 services:
   - type: web
     name: business-os-erp
     env: docker
-    repo: https://github.com # Auto-linked via GitHub Git push
     plan: free
-    region: singapore # Optimized latency for SE Asia region
+    region: singapore
     envVars:
       - key: ENVIRONMENT
         value: production
       - key: SECRET_KEY
-        value: generate_a_secure_random_string_here_for_production
+        value: b1z0s_g10b41_m3g4_saas_p14tf0rm_s3cr3t_k3y_2026
       - key: ALGORITHM
         value: HS256
     disk:
