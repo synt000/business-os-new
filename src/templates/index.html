@@ -3,151 +3,220 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business OS - Premium Enterprise SaaS</title>
-    <!-- Stable Tailwind Utility CDN -->
+    <title>Business OS - Enterprise Platform</title>
+    <!-- Stable Utility Compiler Entry -->
     <script src="https://tailwindcss.com"></script>
-    <!-- Bootstrap Fonts Icons Link -->
     <link rel="stylesheet" href="https://jsdelivr.net">
-    <!-- AOS Scroll Animation Library -->
-    <link href="https://unpkg.com" rel="stylesheet">
     <style>
         @import url('https://googleapis.com');
-        body { background: #060816; color: #F8FAFC; font-family: 'Plus Jakarta Sans', sans-serif; overflow-x: hidden; }
         
-        /* 3. Animated Gradient Background Base */
-        .animated-bg {
-            background: linear-gradient(-45deg, #060816, #0F172A, #1E1B4B, #060816);
-            background-size: 400% 400%;
-            animation: gradientMove 15s ease infinite;
+        /* Core Luxury Color Palette & Typography Specifications */
+        body { 
+            background: #070B16; 
+            color: #F8FAFC; 
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            overflow-x: hidden;
         }
-        @keyframes gradientMove { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         
-        /* 1. Floating Glass Cards Spec */
-        .glass-card {
-            background: rgba(15, 23, 42, 0.45);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
+        /* 1. Backdrop Blur Navbar & Floating Cards Styling */
+        .luxury-glass {
+            background: rgba(12, 18, 34, 0.72);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.45);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
         }
         
-        /* 2. Mouse Glow Radial Element */
-        #mouse-glow {
-            position: fixed; top: 0; left: 0; width: 600px; height: 600px;
-            background: radial-gradient(circle, rgba(59,130,246,0.06) 0%, transparent 70%);
-            transform: translate(-50%, -50%); pointer-events: none; z-index: 1;
+        /* 7. Background Radial Glow & Noise Effect Keyframes */
+        .glowing-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(79, 140, 255, 0.12) 0%, transparent 75%);
+            filter: blur(40px);
+            pointer-events: none;
+            z-index: 0;
+        }
+        
+        /* 3 & 5. Premium Shimmer Button Animations */
+        .shimmer-btn {
+            background: linear-gradient(135deg, #4F8CFF 0%, #8B5CF6 100%);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .shimmer-btn:hover {
+            transform: translateY(-2px) scale(1.03);
+            box-shadow: 0 10px 25px rgba(79, 140, 255, 0.4);
         }
     </style>
 </head>
-<body class="animated-bg min-h-screen flex flex-col justify-between relative antialiased">
+<body class="min-h-screen flex flex-col justify-between relative antialiased bg-[#070B16]">
 
-    <!-- Mouse Glow Effect Node -->
-    <div id="mouse-glow"></div>
+    <!-- 7. Ambient Blur Circles Layout -->
+    <div class="glowing-circle top-[-10%] left-[20%] w-[800px] h-[800px]"></div>
+    <div class="glowing-circle top-[40%] right-[-10%] w-[600px] h-[600px] opacity-60" style="background: radial-gradient(circle, rgba(139, 92, 246, 0.1) 0%, transparent 70%);"></div>
 
-    <!-- 10. Sticky Glass Blur Navbar -->
-    <header class="sticky top-0 z-50 glass-card border-b border-white/5 px-6 py-4">
+    <!-- 1. STICKY LAPTOP GLASS BLUR NAVBAR -->
+    <nav class="sticky top-0 z-50 luxury-glass border-b border-white/5 px-6 py-4">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white"><i class="bi bi-layers-half"></i></div>
-                <span class="text-sm font-bold tracking-wider uppercase">Business <span class="text-blue-500">OS</span></span>
+            <!-- Logo 48x48 Base Shell -->
+            <div class="flex items-center space-x-3 group cursor-pointer">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#4F8CFF] to-[#8B5CF6] flex items-center justify-center text-white shadow-xl shadow-blue-500/10 transform group-hover:scale-105 duration-300">
+                    <i class="bi bi-layers-half text-xl"></i>
+                </div>
+                <span class="text-sm font-extrabold tracking-wider uppercase text-[#F8FAFC]">Business <span class="text-[#4F8CFF]">OS</span></span>
             </div>
-            <div class="flex items-center space-x-4">
-                <a href="/auth/login" class="text-xs font-semibold text-[#94A3B8] hover:text-white transition">Login</a>
-                <a href="/auth/register" class="bg-blue-600 hover:bg-blue-500 text-white text-xs font-bold px-4 py-2 rounded-xl transition duration-300 hover:scale-105 hover:shadow-[0_0_20px_rgba(59,130,246,0.4)]">Register</a>
+            
+            <!-- Navbar Actions -->
+            <div class="flex items-center space-x-6">
+                <a href="/auth/login" class="text-xs font-bold text-[#94A3B8] hover:text-[#F8FAFC] transition duration-200">Login</a>
+                <a href="/auth/register" class="shimmer-btn text-white text-xs font-bold px-5 py-2.5 rounded-2xl">Register</a>
             </div>
+        </div>
+    </nav>
+
+    <!-- 2. HEADING 72px HERO SECTION AREA -->
+    <header class="relative pt-32 pb-16 px-6 text-center z-10 max-w-5xl mx-auto w-full space-y-8">
+        <span class="inline-flex items-center gap-2 px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#4F8CFF] bg-[#4F8CFF]/10 border border-[#4F8CFF]/20 rounded-full">
+            <span class="w-1.5 h-1.5 bg-[#4F8CFF] rounded-full animate-pulse"></span> Production Cloud Infrastructure Connected
+        </span>
+        
+        <!-- Standard 72px Typography Line Breaks -->
+        <h1 class="text-4xl md:text-7xl font-extrabold tracking-tight text-white leading-[1.1] uppercase">
+            Business Operating System
+        </h1>
+        
+        <h2 class="text-2xl md:text-4xl font-bold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-[#ffffff] to-[#6EA8FF]">
+            Smarter. Faster. Secure.
+        </h2>
+        
+        <p class="text-sm md:text-base text-[#94A3B8] max-w-xl mx-auto font-light leading-relaxed">
+            Minimal luxury ERP orchestration engine inspired by Linear + Stripe. Scale corporate parameters flawlessly.
+        </p>
+
+        <!-- 3. CTA Glowing Buttons Matrix -->
+        <div class="flex flex-col sm:flex-row justify-center gap-4 pt-4">
+            <a href="/auth/register" class="shimmer-btn text-white text-xs font-bold px-8 py-4 rounded-2xl flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20">Start Free Trial <i class="bi bi-arrow-right text-xs"></i></a>
+            <a href="#preview" class="luxury-glass text-[#F8FAFC] text-xs font-bold px-8 py-4 rounded-2xl transition duration-300 hover:bg-white/5 border border-white/15 flex items-center justify-center gap-2"><i class="bi bi-play-circle text-[#4F8CFF]"></i> Live Demo</a>
         </div>
     </header>
 
-    <!-- Hero Content Presentation -->
-    <main class="max-w-4xl w-full mx-auto text-center pt-24 pb-12 px-6 space-y-6 z-10">
-        <span class="inline-block bg-blue-500/10 border border-blue-500/20 text-[#3B82F6] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">AI Powered Platform Live</span>
-        <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight text-white leading-tight uppercase">Business Operating System</h1>
-        <p class="text-[#94A3B8] max-w-xl mx-auto text-xs md:text-sm leading-relaxed">Linear + Stripe inspired ERP configuration setup optimized for high-growth scale parameters.</p>
+    <!-- 5. TRUSTED BY LEADERS (GRAYSCALE TO COLOR LOGOS) -->
+    <section class="max-w-4xl w-full mx-auto text-center py-8 z-10 px-6">
+        <p class="text-[10px] uppercase font-bold tracking-widest text-[#94A3B8]/60 mb-6">Trusted by Industry Leaders</p>
+        <div class="flex flex-wrap justify-center gap-10 text-lg font-extrabold text-[#94A3B8]/30">
+            <span class="hover:text-white transition-all duration-300 transform hover:scale-105 cursor-pointer flex items-center gap-2"><i class="bi bi-google"></i> Google</span>
+            <span class="hover:text-[#4F8CFF] transition-all duration-300 transform hover:scale-105 cursor-pointer flex items-center gap-2"><i class="bi bi-microsoft"></i> Microsoft</span>
+            <span class="hover:text-[#8B5CF6] transition-all duration-300 transform hover:scale-105 cursor-pointer flex items-center gap-2"><i class="bi bi-stripe"></i> Stripe</span>
+            <span class="hover:text-emerald-400 transition-all duration-300 transform hover:scale-105 cursor-pointer flex items-center gap-2"><i class="bi bi-nvidia"></i> NVIDIA</span>
+        </div>
+    </section>
+
+    <!-- 4. STATS CARDS UPGRADED LAYOUT (ICON + NUMBER + DESCRIPTION + GROWTH) -->
+    <section id="preview" class="max-w-4xl w-full mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-6 my-12 z-10">
+        <!-- Card 1 -->
+        <div class="luxury-glass p-6 rounded-[20px] hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(79,140,255,0.15)] transition-all duration-300 group">
+            <div class="text-2xl mb-2 group-hover:scale-110 duration-300 transition-transform w-fit">📊</div>
+            <div class="text-3xl font-extrabold text-[#F8FAFC] tracking-tight">1,248+</div>
+            <div class="text-xs font-semibold text-[#94A3B8] mt-1">Active Tenants</div>
+            <div class="text-[10px] text-[#22C55E] font-bold mt-2 bg-[#22C55E]/10 w-fit px-2 py-0.5 rounded-md"><i class="bi bi-arrow-up-short"></i> +26% This Month</div>
+        </div>
+        <!-- Card 2 -->
+        <div class="luxury-glass p-6 rounded-[20px] hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(139,92,246,0.15)] transition-all duration-300 group">
+            <div class="text-2xl mb-2 group-hover:scale-110 duration-300 transition-transform w-fit">📦</div>
+            <div class="text-3xl font-extrabold text-[#F8FAFC] tracking-tight">8,492</div>
+            <div class="text-xs font-semibold text-[#94A3B8] mt-1">Stock Movements</div>
+            <div class="text-[10px] text-[#22C55E] font-bold mt-2 bg-[#22C55E]/10 w-fit px-2 py-0.5 rounded-md"><i class="bi bi-arrow-up-short"></i> +14.2% Growth</div>
+        </div>
+        <!-- Card 3 -->
+        <div class="luxury-glass p-6 rounded-[20px] hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(79,140,255,0.15)] transition-all duration-300 group">
+            <div class="text-2xl mb-2 group-hover:scale-110 duration-300 transition-transform w-fit">🔑</div>
+            <div class="text-3xl font-extrabold text-[#F8FAFC] tracking-tight">32,104</div>
+            <div class="text-xs font-semibold text-[#94A3B8] mt-1">Security Audit Logs</div>
+            <div class="text-[10px] text-[#4F8CFF] font-bold mt-2 bg-[#4F8CFF]/10 w-fit px-2 py-0.5 rounded-md"><i class="bi bi-shield-check"></i> JWT Enforced</div>
+        </div>
+    </section>
+
+    <!-- 6. LUXURY FEATURE CARDS (64px ICON + LEARN MORE) -->
+    <section class="max-w-4xl w-full mx-auto px-6 space-y-8 my-16 z-10">
+        <div class="text-center space-y-2">
+            <h2 class="text-xl font-extrabold tracking-wider text-white uppercase">Platform Specifications</h2>
+            <p class="text-xs text-[#94A3B8]">Engineered globally to meet enterprise-grade compliance layers.</p>
+        </div>
         
-        <!-- 5. Better Interactive Action Buttons Layer -->
-        <div class="flex justify-center gap-4 pt-2">
-            <a href="/auth/register" class="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white text-xs font-bold px-6 py-3.5 rounded-xl transition duration-300 hover:scale-105 hover:shadow-[0_0_25px_rgba(139,92,246,0.4)]">Start Free Trial <i class="bi bi-arrow-right-short ml-1"></i></a>
-            <a href="#preview" class="glass-card text-[#F8FAFC] text-xs font-bold px-6 py-3.5 rounded-xl transition duration-300 hover:bg-white/5 hover:scale-105">Live Demo</a>
-        </div>
-    </main>
-
-    <!-- 7. Trusted Companies Grid Area -->
-    <section class="max-w-4xl w-full mx-auto text-center py-6 z-10 px-6">
-        <p class="text-[10px] uppercase font-bold tracking-widest text-[#94A3B8]/60 mb-4">Trusted by Industry Leaders</p>
-        <div class="flex flex-wrap justify-center gap-8 text-base font-bold text-[#94A3B8]/40">
-            <span class="hover:text-[#F8FAFC] transition duration-300 cursor-pointer"><i class="bi bi-google mr-1.5"></i>Google</span>
-            <span class="hover:text-[#F8FAFC] transition duration-300 cursor-pointer"><i class="bi bi-microsoft mr-1.5"></i>Microsoft</span>
-            <span class="hover:text-[#F8FAFC] transition duration-300 cursor-pointer"><i class="bi bi-stripe mr-1.5"></i>Stripe</span>
-            <span class="hover:text-[#F8FAFC] transition duration-300 cursor-pointer"><i class="bi bi-nvidia mr-1.5"></i>NVIDIA</span>
-        </div>
-    </section>
-
-    <!-- 1. Floating Glass Cards Layout with 9. Animated Numbers Hook -->
-    <section id="preview" class="max-w-4xl w-full mx-auto px-6 grid grid-cols-1 sm:grid-cols-3 gap-6 my-8 z-10">
-        <div class="glass-card p-6 rounded-2xl hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(59,130,246,0.15)] transition-all duration-300" data-aos="fade-up">
-            <div class="text-[#94A3B8] text-[10px] font-bold uppercase tracking-wider">Active Tenants</div>
-            <div class="text-2xl font-extrabold text-[#F8FAFC] mt-2 counter-node" data-target="1248">0</div>
-            <div class="text-[10px] text-[#22C55E] mt-1"><i class="bi bi-arrow-up-short"></i> +26% This Month</div>
-        </div>
-        <div class="glass-card p-6 rounded-2xl hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(139,92,246,0.15)] transition-all duration-300" data-aos="fade-up" data-aos-delay="100">
-            <div class="text-[#94A3B8] text-[10px] font-bold uppercase tracking-wider">Stock Movements</div>
-            <div class="text-2xl font-extrabold text-[#F8FAFC] mt-2 counter-node" data-target="8492">0</div>
-            <div class="text-[10px] text-[#22C55E] mt-1"><i class="bi bi-arrow-up-short"></i> +14.2% Stability</div>
-        </div>
-        <div class="glass-card p-6 rounded-2xl hover:-translate-y-2 hover:shadow-[0_20px_50px_rgba(59,130,246,0.15)] transition-all duration-300" data-aos="fade-up" data-aos-delay="200">
-            <div class="text-[#94A3B8] text-[10px] font-bold uppercase tracking-wider">Security Logs</div>
-            <div class="text-2xl font-extrabold text-[#F8FAFC] mt-2 counter-node" data-target="32104">0</div>
-            <div class="text-[10px] text-[#94A3B8] mt-1"><i class="bi bi-shield-lock-fill mr-1"></i> Active JWT Enforced</div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <!-- Feature Card 1 -->
+            <div class="luxury-glass p-8 rounded-[24px] hover:-translate-y-2 hover:border-[#4F8CFF]/40 hover:shadow-[0_20px_40px_rgba(79,140,255,0.1)] transition-all duration-300 group">
+                <div class="w-16 h-16 rounded-2xl bg-[#4F8CFF]/10 flex items-center justify-center text-3xl text-[#4F8CFF] mb-6 group-hover:scale-105 duration-300"><i class="bi bi-cpu"></i></div>
+                <h3 class="text-sm font-bold text-[#F8FAFC] uppercase tracking-wider mb-2">🧠 AI Analytics</h3>
+                <p class="text-[#94A3B8] text-xs leading-relaxed font-light mb-4">Forecast demand velocity, process stock deltas, and automate predictive restock workflows based on historical ledger patterns.</p>
+                <a href="/docs" class="text-xs font-bold text-[#4F8CFF] hover:text-white transition duration-200 inline-flex items-center gap-1">Learn More <i class="bi bi-arrow-right text-[10px] transition-transform group-hover:translate-x-1"></i></a>
+            </div>
+            <!-- Feature Card 2 -->
+            <div class="luxury-glass p-8 rounded-[24px] hover:-translate-y-2 hover:border-[#4F8CFF]/40 hover:shadow-[0_20px_40px_rgba(79,140,255,0.1)] transition-all duration-300 group">
+                <div class="w-16 h-16 rounded-2xl bg-[#8B5CF6]/10 flex items-center justify-center text-3xl text-[#8B5CF6] mb-6 group-hover:scale-105 duration-300"><i class="bi bi-globe"></i></div>
+                <h3 class="text-sm font-bold text-[#F8FAFC] uppercase tracking-wider mb-2">🌐 Multi-Tenant Vault</h3>
+                <p class="text-[#94A3B8] text-xs leading-relaxed font-light mb-4">Complete cryptographic database isolation barriers mapped natively inside active tenancy context routers with zero data cross-leakage risk.</p>
+                <a href="/docs" class="text-xs font-bold text-[#4F8CFF] hover:text-white transition duration-200 inline-flex items-center gap-1">Learn More <i class="bi bi-arrow-right text-[10px] transition-transform group-hover:translate-x-1"></i></a>
+            </div>
         </div>
     </section>
 
-    <!-- 6. Professional Feature Cards Layout Grid -->
-    <section class="max-w-4xl w-full mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 gap-6 my-12 z-10">
-        <div class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition duration-300" data-aos="fade-right">
-            <div class="text-xl mb-3">🧠</div>
-            <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-2">AI Analytics</h4>
-            <p class="text-[#94A3B8] text-[11px] leading-relaxed font-light">Forecasts, demand velocities, and dynamic restock recommendations executed securely via historical matrix queries.</p>
+    <!-- 10. ENTERPRISE FOOTER STRUCTURE (PRODUCT / COMPANY / RESOURCES / LEGAL) -->
+    <footer class="mt-20 border-t border-white/5 luxury-glass px-6 py-12 text-xs text-[#94A3B8] z-10 relative">
+        <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+            <!-- Col 1: Brand Shell -->
+            <div class="space-y-4 col-span-2 md:col-span-1">
+                <div class="flex items-center space-x-2 font-bold text-white">
+                    <div class="bg-blue-600 p-1.5 rounded-lg text-sm text-center flex items-center justify-center"><i class="bi bi-layers-half text-white"></i></div>
+                    <span class="text-xs uppercase tracking-wider">Business <span class="text-blue-500">OS</span></span>
+                </div>
+                <p class="text-[11px] text-[#94A3B8]/60 leading-relaxed font-light">Next-generation operating system engineered for real-time corporate resource orchestration.</p>
+            </div>
+            <!-- Col 2: Product Matrices -->
+            <div class="space-y-3">
+                <h4 class="text-[10px] font-bold uppercase tracking-widest text-white">Product</h4>
+                <ul class="space-y-2 text-[11px] font-light">
+                    <li><a href="#features" class="hover:text-[#4F8CFF] transition">AI Analytics</a></li>
+                    <li><a href="/docs" class="hover:text-[#4F8CFF] transition">API Routing</a></li>
+                    <li><a href="#preview" class="hover:text-[#4F8CFF] transition">Multi-Tenancy</a></li>
+                </ul>
+            </div>
+            <!-- Col 3: Company Contexts -->
+            <div class="space-y-3">
+                <h4 class="text-[10px] font-bold uppercase tracking-widest text-white">Resources</h4>
+                <ul class="space-y-2 text-[11px] font-light">
+                    <li><a href="/docs" class="hover:text-[#4F8CFF] transition">Documentation</a></li>
+                    <li><a href="#" class="hover:text-[#4F8CFF] transition">GitHub Registry</a></li>
+                    <li><a href="#" class="hover:text-[#4F8CFF] transition">Discord Node</a></li>
+                </ul>
+            </div>
+            <!-- Col 4: Legal Protocols -->
+            <div class="space-y-3">
+                <h4 class="text-[10px] font-bold uppercase tracking-widest text-white">Company</h4>
+                <ul class="space-y-2 text-[11px] font-light">
+                    <li><a href="#" class="hover:text-[#4F8CFF] transition">Privacy Shield</a></li>
+                    <li><a href="#" class="hover:text-[#4F8CFF] transition">Terms of Service</a></li>
+                    <li><a href="mailto:enterprise@businessos.io" class="hover:text-[#4F8CFF] transition">Contact Architecture</a></li>
+                </ul>
+            </div>
         </div>
-        <div class="glass-card p-6 rounded-2xl hover:-translate-y-1 transition duration-300" data-aos="fade-left">
-            <div class="text-xl mb-3">🌐</div>
-            <h4 class="text-xs font-bold text-white uppercase tracking-wider mb-2">Multi-Tenant Vault</h4>
-            <p class="text-[#94A3B8] text-[11px] leading-relaxed font-light">Complete repository data isolation enforced natively inside core multi-channel runtime application shells.</p>
+        
+        <!-- Bottom Bar Base -->
+        <div class="max-w-6xl mx-auto border-t border-white/5 pt-6 flex flex-col sm:flex-row justify-between items-center gap-4 text-[10px] text-[#94A3B8]/40">
+            <div>&copy; 2026 Business OS Architecture Inc. All Rights Reserved.</div>
+            <div class="flex space-x-4 text-sm text-[#94A3B8]/60">
+                <a href="#" class="hover:text-white transition"><i class="bi bi-telegram"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="bi bi-discord"></i></a>
+                <a href="#" class="hover:text-white transition"><i class="bi bi-github"></i></a>
+            </div>
         </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="max-w-5xl w-full mx-auto border-t border-white/5 pt-6 text-center text-[10px] text-[#94A3B8]/40 my-6 z-10">
-        &copy; 2026 Business OS Architecture Inc. All Rights Reserved.
     </footer>
 
-    <!-- 4. Scroll Animation and Dynamic Script Controllers Injections -->
-    <script src="https://unpkg.com"></script>
+    <!-- 2. CLIENT-SIDE MOUSE GLOW POSITION TRACKING LOOP -->
     <script>
-        // Initialize AOS Engine
-        AOS.init({ duration: 800, once: true });
-
-        // 2. Mouse Glow Cursor Tracking Loop Logic
         const glow = document.getElementById('mouse-glow');
         window.addEventListener('mousemove', (e) => {
             glow.style.left = e.clientX + 'px';
             glow.style.top = e.clientY + 'px';
-        });
-
-        // 9. Automated CountUp Script Action Loop
-        const counters = document.querySelectorAll('.counter-node');
-        counters.forEach(counter => {
-            const updateCount = () => {
-                const target = +counter.getAttribute('data-target');
-                const count = +counter.innerText;
-                const inc = target / 60;
-                if (count < target) {
-                    counter.innerText = Math.ceil(count + inc);
-                    setTimeout(updateCount, 20);
-                } else {
-                    counter.innerText = target.toLocaleString() + "+";
-                }
-            };
-            updateCount();
         });
     </script>
 </body>
