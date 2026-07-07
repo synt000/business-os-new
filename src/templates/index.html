@@ -18,11 +18,6 @@
             padding: 24px; 
             overflow-x: hidden; 
         }
-        .hero-glow { 
-            position: absolute; width: 850px; height: 850px; border-radius: 50%; 
-            background: radial-gradient(circle, rgba(79,140,255,0.20) 0%, transparent 75%); 
-            filter: blur(60px); pointer-events: none; z-index: 0; top: -15%; left: 10%; 
-        }
         .luxury-glass { 
             background: rgba(12, 18, 34, 0.72); 
             backdrop-filter: blur(18px); 
@@ -47,19 +42,16 @@
         @media(min-width: 850px) { .grid-3 { grid-template-columns: repeat(3, 1fr); } }
         .stat-card { padding: 24px; transition: all 0.3s ease; }
         .stat-card:hover { transform: translateY(-6px); border-color: rgba(79, 140, 255, 0.3); }
-        .smooth-animate { animation: fadeInUp 0.5s ease-out forwards; }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .num { font-size: 32px; font-weight: 800; margin-top: 8px; tracking: -0.5px; }
         .desc { font-size: 13px; color: #94A3B8; margin-top: 4px; font-weight: 600; }
         .badge { font-size: 11px; font-weight: 700; color: #22C55E; background: rgba(34, 197, 94, 0.1); padding: 4px 8px; border-radius: 6px; width: fit-content; margin-top: 8px; }
-        .monochrome-logo { color: rgba(148, 163, 184, 0.45); transition: all 0.3s ease; cursor: pointer; text-decoration: none; font-weight: 800; font-size: 15px; }
+        .monochrome-logo { color: rgba(148, 163, 184, 0.25); transition: all 0.3s ease; cursor: pointer; text-decoration: none; font-weight: 800; font-size: 15px; }
         .monochrome-logo:hover { color: #4F8CFF; transform: scale(1.05); }
     </style>
 </head>
-<body class="smooth-animate">
-    <div class="hero-glow"></div>
+<body>
     
-    <!-- Navbar Shell -->
+    <!-- Navbar Header -->
     <nav class="luxury-glass nav-box">
         <div style="display: flex; align-items: center; gap: 12px;">
             <div style="width: 40px; height: 40px; border-radius: 12px; background: linear-gradient(135deg, #4F8CFF 0%, #8B5CF6 100%); display: flex; align-items: center; justify-content: center; color: white; box-shadow: 0 8px 20px rgba(79, 140, 255, 0.2);"><i class="bi bi-layers-half" style="font-size: 18px;"></i></div>
@@ -71,8 +63,8 @@
         </div>
     </nav>
 
-    <!-- Hero Content -->
-    <header style="max-width: 650px; width: 100%; margin: 64px auto 32px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px; z-index: 10;">
+    <!-- Hero Titles Area -->
+    <header style="max-width: 650px; width: 100%; margin: 64px auto 32px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 20px;">
         <span style="background: rgba(79, 140, 255, 0.1); border: 1px solid rgba(79, 140, 255, 0.2); color: #4F8CFF; font-size: 10px; font-weight: 700; text-transform: uppercase; tracking: 1.5px; padding: 6px 12px; border-radius: 20px;">Production Cloud Infrastructure Active</span>
         <h1 style="font-size: clamp(32px, 5vw, 48px); font-weight: 800; color: #F8FAFC; line-height: 1.1; tracking: -0.5px;">Business Operating System</h1>
         <h2 style="font-size: clamp(20px, 3.5vw, 28px); font-weight: 700; color: #6EA8FF; margin-top: -8px; tracking: 0.5px;">Smarter. Faster. Secure.</h2>
