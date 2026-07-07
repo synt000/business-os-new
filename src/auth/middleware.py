@@ -1,52 +1,40 @@
-from fastapi import Request, HTTPException, status
+from fastapi import Request, HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
-from jose import jwt, JWTError
-from src.config import settings
+from starlette.responses import Response
+import jose
+from jose import jwt
 
 class AuthMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
+        path = request.url.path
 
+        # 1. DEFINE PUBLIC BYPASS PATHS (UI and Auth Endpoints)
         public_paths = [
-            "/",
-            "/auth/login",
-            "/auth/register",
-            "/health",
-            "/docs",
-            "/openapi.json",
-            "/redoc",
-            "/favicon.ico",
+            "/", 
+            "/auth/login", 
+            "/auth/register", 
+            "/docs", 
+            "/openapi.json", 
+            "/redoc"
         ]
-
-        # Public path ဖြစ်ရင် Token မစစ်တော့ဘဲ တန်းလွှတ်လိုက်မယ်
-        if request.url.path in public_paths:
+        
+        # Allow open access to public endpoints and static assets without token validation
+        if path in public_paths or path.startswith("/static"):
             return await call_next(request)
 
-        # Authorization Header ရှိမရှိ စစ်မယ်
+        # 2. ENFORCE STRICT JWT PROTECTION FOR CORE ERP DATA PIPELINES
         auth_header = request.headers.get("Authorization")
-
         if not auth_header or not auth_header.startswith("Bearer "):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Missing or invalid token"
-            )
-
-        # Token ကို ခွဲထုတ်ပြီး decode လုပ်မယ်
+            # Return standard error if credentials are missing on protected nodes
+            return Response(content='{"detail": "Not authenticated"}', status_code=401, media_type="application/json")
+            
         token = auth_header.split(" ")[1]
-
         try:
-            payload = jwt.decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=[settings.ALGORITHM]
-            )
-
-            request.state.user = payload.get("sub")
+            # Decode token dynamically to extract workspace scope details
+            payload = jwt.decode(token, "b1z0s_g10b41_m3g4_saas_p14tf0rm_s3cr3t_k3y_2026", algorithms=["HS256"])
             request.state.tenant_id = payload.get("tenant_id")
-
-        except JWTError:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid token"
-            )
+            request.state.user_id = payload.get("user_id")
+        except Exception:
+            return Response(content='{"detail": "Invalid or expired token security signature"}', status_code=401, media_type="application/json")
 
         return await call_next(request)
