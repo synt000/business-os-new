@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
@@ -13,7 +14,7 @@ from src.domains.movement.models import StockMovement
 from src.domains.order.models import Order, OrderItem
 from src.domains.audit.models import AuditLog
 
-# Import Mega Upgrade Tables to register inside metadata
+# Import Mega Upgrade Tables
 from src.database_mega_upgrade import SocialWebhookLog, TenantPartnership, PredictiveAnalytic, FranchiseNetwork
 
 from src.auth.middleware import AuthMiddleware
@@ -41,8 +42,8 @@ async def startup_event():
 app.mount("/static", StaticFiles(directory="src/static"), name="static")
 templates = Jinja2Templates(directory="src/templates")
 
-# Router Registrations
-app.include_router(auth_router)
+# API Routers with Explicit Prefixes to avoid 404 conflicts
+app.include_router(auth_router, prefix="/auth")
 app.include_router(product_router)
 app.include_router(movement_router)
 app.include_router(inventory_router)
@@ -51,8 +52,37 @@ app.include_router(export_router)
 app.include_router(social_router)
 app.include_router(partnership_router)
 app.include_router(analytics_router)
-app.include_router(franchise_router) # Integrated Franchise Multi-Branch Router
+app.include_router(franchise_router)
 
-@app.get("/")
+# --- WEB UI INTERFACE TEMPLATE ROUTES ---
+@app.get("/", response_class=HTMLResponse)
 def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/auth/login", response_class=HTMLResponse)
+def login_ui(request: Request):
+    return templates.TemplateResponse("login.html", {"request": request})
+
+@app.get("/auth/register", response_class=HTMLResponse)
+def register_ui(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
+
+@app.get("/dashboard", response_class=HTMLResponse)
+def dashboard_ui(request: Request):
+    return templates.TemplateResponse("dashboard.html", {"request": request})
+
+@app.get("/products/ui", response_class=HTMLResponse)
+def products_ui(request: Request):
+    return templates.TemplateResponse("products.html", {"request": request})
+
+@app.get("/inventory/ui", response_class=HTMLResponse)
+def inventory_ui(request: Request):
+    return templates.TemplateResponse("inventory.html", {"request": request})
+
+@app.get("/movements/ui", response_class=HTMLResponse)
+def movements_ui(request: Request):
+    return templates.TemplateResponse("movements.html", {"request": request})
+
+@app.get("/orders/ui", response_class=HTMLResponse)
+def orders_ui(request: Request):
+    return templates.TemplateResponse("orders.html", {"request": request})
