@@ -173,3 +173,64 @@ html, body, .swagger-ui,
     border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
     padding-bottom: 8px !important;
 }
+
+/* ==========================================================================
+   DEEP NESTED COMPONENT HARMONIZATION LAYER (PULLING STALE WHITES)
+   ========================================================================== */
+.swagger-ui .tab li button {
+    background: rgba(255, 255, 255, 0.03) !important;
+    color: var(--muted) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-radius: 6px !important;
+    padding: 4px 12px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+
+.swagger-ui .tab li.active button {
+    background: linear-gradient(135deg, #4F8CFF, #8B5CF6) !important;
+    color: #ffffff !important;
+    border-color: transparent !important;
+    box-shadow: 0 0 15px rgba(79, 140, 255, 0.25) !important;
+}
+
+/* ERADICATING THE REMAINING LIGHT INTERIOR TEXT CONTAINER BLOCKS */
+.swagger-ui pre.microlight,
+.swagger-ui .model-example pre,
+.swagger-ui .highlight-code pre {
+    background: #111827 !important;
+    background-color: #111827 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 8px !important;
+}
+
+/* PURGING LIGHT BACKGROUNDS INSIDE THE MODEL VALUES VALUE CONTAINERS */
+.swagger-ui .model,
+.swagger-ui .model-title,
+.swagger-ui .prop,
+.swagger-ui table.model,
+.swagger-ui .model-box .model {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--text) !important;
+}
+
+/* HARDENING RESPONSE CELLS GRID TEXT COLOR SIGNATURE */
+.swagger-ui .responses-table,
+.swagger-ui .response-col_status,
+.swagger-ui .response-col_description,
+.swagger-ui .response-col_links {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* HARMONIZING GLOBAL RENDERED DATA TEXT HIGHLIGHT FIELDS */
+.swagger-ui .microlight,
+.swagger-ui .highlight-code,
+.swagger-ui .highlight-code .microlight {
+    background: #111827 !important;
+    background-color: #111827 !important;
+    color: #ffffff !important;
+}
