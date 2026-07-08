@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum
+from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum, Text
 from sqlalchemy.orm import relationship
 import enum
 
@@ -11,11 +11,6 @@ class SubscriptionTier(enum.Enum):
     STARTUP = "STARTUP"
     BUSINESS = "BUSINESS"
     ENTERPRISE = "ENTERPRISE"
-
-class UserRole(enum.Enum):
-    ADMIN = "ADMIN"
-    MANAGER = "MANAGER"
-    MEMBER = "MEMBER"
 
 # 1. B2B SAAS WORKSPACE TENANT MATRIX
 class Tenant(Base):
@@ -34,6 +29,7 @@ class Tenant(Base):
     products = relationship("Product", back_populates="tenant", cascade="all, delete-orphan")
     categories = relationship("Category", back_populates="tenant", cascade="all, delete-orphan")
     orders = relationship("Order", back_populates="tenant", cascade="all, delete-orphan")
+    receipts = relationship("BillingReceipt", back_populates="tenant", cascade="all, delete-orphan")
 
 # 2. HARDENED ENTERPRISE SAAS MASTER USER SCHEMAS
 class User(Base):
@@ -78,19 +74,17 @@ class Product(Base):
     tenant = relationship("Tenant", back_populates="products")
     order_items = relationship("OrderItem", back_populates="product", cascade="all, delete-orphan")
 
-# ==========================================================================
-# NEXT SPRINT NEW MODEL: MULTI-TENANT OMNICHANNEL REALTIME ORDERS LOGS
-# ==========================================================================
+# 5. MULTI-TENANT OMNICHANNEL REALTIME ORDERS LOGS
 class Order(Base):
     __tablename__ = "orders"
 
     id = Column(String, primary_key=True, index=True)
-    order_number = Column(String, nullable=False, index=True)  # E.g., ORD-2026-0001
-    platform_channel = Column(String, nullable=False)         # Facebook, TikTok, WhatsApp, Telegram
+    order_number = Column(String, nullable=False, index=True)
+    platform_channel = Column(String, nullable=False)
     customer_name = Column(String, nullable=False)
     customer_phone = Column(String, nullable=True)
     total_amount = Column(Float, default=0.0)
-    order_status = Column(String, default="PENDING")          # PENDING, PROCESSING, DELIVERED, CANCELLED
+    order_status = Column(String, default="PENDING")
     created_at = Column(DateTime, default=datetime.utcnow)
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
@@ -102,10 +96,24 @@ class OrderItem(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     quantity = Column(Integer, default=1)
-    price_at_sale = Column(Float, nullable=False)  # Preserves physical receipt matrix histories
+    price_at_sale = Column(Float, nullable=False)
 
     order_id = Column(String, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
     order = relationship("Order", back_populates="items")
 
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     product = relationship("Product", back_populates="order_items")
+
+# ==========================================================================
+# PRODUCTION NEW MODEL: MULTI-TENANT BILLING RECEIPT STORAGE INGESTION
+# ==========================================================================
+class BillingReceipt(Base):
+    __tablename__ = "billing_receipts"
+
+    id = Column(String, primary_key=True, index=True)
+    slip_base64_data = Column(Text, nullable=False)         # Safe cross-platform binary storage stream
+    verification_status = Column(String, default="PENDING") # PENDING, APPROVED, REJECTED
+    submitted_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="receipts")

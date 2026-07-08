@@ -8,8 +8,8 @@ from sqlalchemy.orm import Session
 
 # Authoritative Connection Layer Mappings
 from ..database import get_db
-from ..models.saas_core import User, Tenant, SubscriptionTier
-from ..config.security import get_password_hash, verify_password, create_access_token, create_refresh_token, verify_access_token
+from ..models.saas_core import User, Tenant, SubscriptionTier, BillingReceipt
+from ..config.security import get_password_hash, verify_password, create_access_token, create_refresh_token, verify_access_token, get_current_user
 
 router = APIRouter(tags=["Authentication Gateway Matrix"])
 
@@ -25,9 +25,12 @@ class UserLoginInboundSchema(BaseModel):
     email: EmailStr
     password: str
 
-# PRODUCTION NEW: REFRESH TOKEN PAYLOAD SCHEMA Validation BOUND
 class TokenRefreshInboundSchema(BaseModel):
     refresh_token: str
+
+# PRODUCTION NEW: BILLING RECEIPT PAYLOAD INGESTION SCHEMA
+class BillingSlipSubmitInboundSchema(BaseModel):
+    slip_base64_data: str
 
 # 1. CORE HTML VIEW INTERFACES (ACCESSIBLE VIA /auth PATHWAYS)
 @router.get("/auth/register", response_class=HTMLResponse)
@@ -94,7 +97,6 @@ async def authenticate_user_session(payload: UserLoginInboundSchema, db: Session
         "role": target_user.role
     }
 
-    # Issue both Access Token and 7-Days Long-Lived Refresh Token
     access_token = create_access_token(data=token_claims)
     refresh_token = create_refresh_token(data=token_claims)
     
@@ -106,22 +108,17 @@ async def authenticate_user_session(payload: UserLoginInboundSchema, db: Session
         "role": target_user.role
     }
 
-# ==========================================================================
-# PRODUCTION NEW API: RE-ISSUE NEW ACCESS TOKEN VIA REFRESH VALIDATION
-# ==========================================================================
 @router.post("/api/v4/auth/refresh")
 async def rotate_expired_access_token(payload: TokenRefreshInboundSchema, db: Session = Depends(get_db)):
     """Validates 7-Days Refresh Token claims and issues a brand-new short-lived Access Token"""
     token_claims = verify_access_token(payload.refresh_token)
     
-    # Enforce strict signature type verification to block access token injection swap hacks
     if token_claims is None or token_claims.get("type") != "refresh":
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="INVALID_OR_EXPIRED_REFRESH_TOKEN")
         
     user_id = token_claims.get("user_id")
     tenant_id = token_claims.get("tenant_id")
     
-    # Re-verify tenant state dynamically inside persistence database layer
     active_user = db.query(User).filter(User.id == user_id, User.tenant_id == tenant_id).first()
     if not active_user or not active_user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCOUNT_SUSPENDED_OR_WORKSPACE_LOCKED")
@@ -137,4 +134,38 @@ async def rotate_expired_access_token(payload: TokenRefreshInboundSchema, db: Se
     return {
         "token_type": "bearer",
         "access_token": new_access_token
+    }
+
+# ==========================================================================
+# PRODUCTION NEW API: SUBMIT MANUAL BILLING RECEIPT WITH TENANT ISOLATION
+# ==========================================================================
+@router.post("/api/v4/auth/billing/submit", status_code=status.HTTP_201_CREATED)
+async def submit_manual_billing_slip(
+    payload: BillingSlipSubmitInboundSchema,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Receives and stores cross-platform payment receipt base64 logs bound safely to the tenant space."""
+    if not payload.slip_base64_data.strip():
+        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: SLIP_DATA_CANNOT_BE_EMPTY")
+        
+    receipt_id = f"rcpt_{int(datetime.utcnow().timestamp())}"
+    new_receipt = BillingReceipt(
+        id=receipt_id,
+        slip_base64_data=payload.slip_base64_data,
+        verification_status="PENDING",
+        tenant_id=current_user.tenant_id
+    )
+    db.add(new_receipt)
+    
+    try:
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"TRANSACTION_FAILED: {str(exc)}")
+        
+    return {
+        "status": "BILLING_RECEIPT_SUBMITTED_SUCCESSFULLY",
+        "receipt_id": receipt_id,
+        "verification_state": "PENDING"
     }
