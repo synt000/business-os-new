@@ -6,18 +6,17 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
-# Authoritative Imports Connection Layer
+# Authoritative Imports Context Mappings
 from ..database import get_db
 from ..models.saas_core import User, Tenant, SubscriptionTier
 from ..config.security import get_password_hash, verify_password, create_access_token
 
-router = APIRouter(prefix="/auth", tags=["Authentication Gateway"])
+router = APIRouter(tags=["Authentication Gateway Matrix"])
 
-# Resolve template resolution paths dynamically
+# Resolve dynamic configuration paths
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
-# Pydantic Structural Request Payload Validations
 class TenantRegisterInboundSchema(BaseModel):
     company_name: str
     email: EmailStr
@@ -27,19 +26,19 @@ class UserLoginInboundSchema(BaseModel):
     email: EmailStr
     password: str
 
-# PUBLIC VIEW ENDPOINTS RENDERERS
-@router.get("/register", response_class=HTMLResponse)
+# 1. INDEPENDENT VIEW INTERFACES: FULLY ACCESSIBLE BY CONSUMERS WITHOUT PREFIX LEAKS
+@router.get("/auth/register", response_class=HTMLResponse)
 async def render_register_page(request: Request):
     return templates.TemplateResponse(request=request, name="register.html")
 
-@router.get("/login", response_class=HTMLResponse)
+@router.get("/auth/login", response_class=HTMLResponse)
 async def render_login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
 
 # ==========================================================================
-# PHASE 1 PIPELINE: TENANT INGESTION ROUTER
+# PHASE 1 & 2 SECURE ENDPOINTS LAYER BOUND TO AUTHORITATIVE PREFIX PATHS
 # ==========================================================================
-@router.post("/tenant/onboard", status_code=status.HTTP_201_CREATED)
+@router.post("/api/v4/auth/tenant/onboard", status_code=status.HTTP_201_CREATED)
 async def onboard_enterprise_workspace(payload: TenantRegisterInboundSchema, db: Session = Depends(get_db)):
     if not payload.company_name.strip() or not payload.password.strip():
         raise HTTPException(status_code=422, detail="CRITICAL_FAULT: PARAMETERS_CANNOT_BE_EMPTY")
@@ -72,10 +71,7 @@ async def onboard_enterprise_workspace(payload: TenantRegisterInboundSchema, db:
 
     return {"status": "TENANT_SUCCESSFULLY_INITIALIZED", "tenant_id": tenant_id, "admin_user_id": user_id, "trial_tier_active": True}
 
-# ==========================================================================
-# PHASE 2 PIPELINE: JWT AUTHENTICATION DISPATCHER
-# ==========================================================================
-@router.post("/login")
+@router.post("/api/v4/auth/login")
 async def authenticate_user_session(payload: UserLoginInboundSchema, db: Session = Depends(get_db)):
     target_user = db.query(User).filter(User.email == payload.email).first()
     if not target_user or not target_user.is_active:
