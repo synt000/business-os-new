@@ -28,7 +28,6 @@ class UserLoginInboundSchema(BaseModel):
 class TokenRefreshInboundSchema(BaseModel):
     refresh_token: str
 
-# PRODUCTION NEW: BILLING RECEIPT PAYLOAD INGESTION SCHEMA
 class BillingSlipSubmitInboundSchema(BaseModel):
     slip_base64_data: str
 
@@ -136,25 +135,16 @@ async def rotate_expired_access_token(payload: TokenRefreshInboundSchema, db: Se
         "access_token": new_access_token
     }
 
-# ==========================================================================
-# PRODUCTION NEW API: SUBMIT MANUAL BILLING RECEIPT WITH TENANT ISOLATION
-# ==========================================================================
 @router.post("/api/v4/auth/billing/submit", status_code=status.HTTP_201_CREATED)
-async def submit_manual_billing_slip(
-    payload: BillingSlipSubmitInboundSchema,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
+async def submit_manual_billing_slip(payload: BillingSlipSubmitInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     """Receives and stores cross-platform payment receipt base64 logs bound safely to the tenant space."""
     if not payload.slip_base64_data.strip():
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: SLIP_DATA_CANNOT_BE_EMPTY")
         
     receipt_id = f"rcpt_{int(datetime.utcnow().timestamp())}"
     new_receipt = BillingReceipt(
-        id=receipt_id,
-        slip_base64_data=payload.slip_base64_data,
-        verification_status="PENDING",
-        tenant_id=current_user.tenant_id
+        id=receipt_id, slip_base64_data=payload.slip_base64_data,
+        verification_status="PENDING", tenant_id=current_user.tenant_id
     )
     db.add(new_receipt)
     
@@ -164,8 +154,46 @@ async def submit_manual_billing_slip(
         db.rollback()
         raise HTTPException(status_code=500, detail=f"TRANSACTION_FAILED: {str(exc)}")
         
+    return {"status": "BILLING_RECEIPT_SUBMITTED_SUCCESSFULLY", "receipt_id": receipt_id, "verification_state": "PENDING"}
+
+# ==========================================================================
+# PRODUCTION NEW SUITE: HARDENED SYSTEM SUPERADMIN CONTROL PANELS APIs
+# ==========================================================================
+@router.get("/api/v4/superadmin/receipts")
+async def superadmin_fetch_all_pending_receipts(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Allows only authenticated SUPERADMIN roles to fetch all inbound tenant billing screenshots."""
+    if current_user.role != "SUPERADMIN":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCESS_DENIED: SUPERADMIN_AUTHORITY_REQUIRED")
+        
+    pending_slips = db.query(BillingReceipt).filter(BillingReceipt.verification_status == "PENDING").all()
     return {
-        "status": "BILLING_RECEIPT_SUBMITTED_SUCCESSFULLY",
-        "receipt_id": receipt_id,
-        "verification_state": "PENDING"
+        "scope": "SUPERADMIN_PENDING_AUDIT_STREAM",
+        "total_pending": len(pending_slips),
+        "receipts": [{"id": r.id, "tenant_id": r.tenant_id, "submitted_at": r.submitted_at, "base64_blob": r.slip_base64_data} for r in pending_slips]
     }
+
+@router.post("/api/v4/superadmin/tenants/{tenant_id}/approve")
+async def superadmin_approve_and_unlock_tenant_workspace(tenant_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Approves a tenant billing receipt, resets the trial clock ceiling, and unlocks their business workspace."""
+    if current_user.role != "SUPERADMIN":
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCESS_DENIED: SUPERADMIN_AUTHORITY_REQUIRED")
+        
+    target_tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
+    if not target_tenant:
+        raise HTTPException(status_code=404, detail="TARGET_TENANT_NOT_FOUND")
+        
+    # PRODUCTION MATRIX: Reset trial clocks and elevate to paid tier natively
+    target_tenant.trial_expired = False
+    target_tenant.subscription_tier = SubscriptionTier.STARTUP  # Elevate from Free Trial to Startup Plan
+    target_tenant.created_at = datetime.utcnow()                # Refresh baseline timestamps clock for subscription periods
+    
+    # Mark corresponding receipts as APPROVED cleanly
+    db.query(BillingReceipt).filter(BillingReceipt.tenant_id == tenant_id, BillingReceipt.verification_status == "PENDING").update({"verification_status": "APPROVED"})
+    
+    try:
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"SUPERADMIN_TRANSACTION_FAILED: {str(exc)}")
+        
+    return {"status": "TENANT_WORKSPACE_SUCCESSFULLY_APPROVED_AND_UNLOCKED", "tenant_id": tenant_id, "active_tier": "STARTUP"}
