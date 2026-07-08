@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 # Authoritative Core Connections Matrix
 from ..database import get_db
-from ..models.saas_core import User, Product, Order, OrderItem
+from ..models.saas_core import User, Product, Order, OrderItem, Category
 from ..config.security import get_current_user
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
@@ -30,18 +30,80 @@ class ProductUpdateInboundSchema(BaseModel):
     purchase_price: Optional[float] = None
     retail_price: Optional[float] = None
 
+class CategoryCreateInboundSchema(BaseModel):
+    name: str
+
+# PRODUCTION NEW: CATEGORY UPDATE INBOUND PAYLOAD SCHEMA
+class CategoryUpdateInboundSchema(BaseModel):
+    name: str
+
 class OrderItemInboundSchema(BaseModel):
     product_id: str
     quantity: int
 
 class OrderCreateInboundSchema(BaseModel):
-    platform_channel: str  # Facebook, TikTok, WhatsApp, Telegram
+    platform_channel: str
     customer_name: str
     customer_phone: Optional[str] = None
     items: List[OrderItemInboundSchema]
 
 # ==========================================================================
-# 1. CORE PRODUCTS CRUD PIPELINES MATRIX
+# 1. CATEGORIES COMPLETE CRUD PIPELINES (WITH MULTI-TENANT ISOLATION)
+# ==========================================================================
+@router.post("/categories", status_code=status.HTTP_201_CREATED)
+async def create_isolated_category(payload: CategoryCreateInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Ingests a new structural stock category bound tightly to the active tenant space."""
+    if not payload.name.strip():
+        raise HTTPException(status_code=422, detail="Category name cannot be empty")
+    new_cat = Category(name=payload.name, tenant_id=current_user.tenant_id)
+    db.add(new_cat)
+    db.commit()
+    return {"status": "CATEGORY_CREATED", "tenant_id": current_user.tenant_id}
+
+@router.get("/categories")
+async def fetch_isolated_categories(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Fetches all categories mapped strictly underneath the verified tenant boundary partition."""
+    cats = db.query(Category).filter(Category.tenant_id == current_user.tenant_id).all()
+    return {"categories": [{"id": c.id, "name": c.name} for c in cats]}
+
+# PRODUCTION NEW API: UPDATE ACTION FOR CATEGORIES
+@router.put("/categories/{category_id}")
+async def update_isolated_category(
+    category_id: int,
+    payload: CategoryUpdateInboundSchema,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Modifies an existing stock category name safely isolated inside the active workspace boundaries."""
+    if not payload.name.strip():
+        raise HTTPException(status_code=422, detail="Category name cannot be empty")
+        
+    target_cat = db.query(Category).filter(Category.id == category_id, Category.tenant_id == current_user.tenant_id).first()
+    if not target_cat:
+        raise HTTPException(status_code=404, detail="CATEGORY_NOT_FOUND_IN_THIS_WORKSPACE")
+        
+    target_cat.name = payload.name
+    db.commit()
+    return {"status": "CATEGORY_SUCCESSFULLY_UPDATED", "category_id": category_id}
+
+# PRODUCTION NEW API: DELETE ACTION FOR CATEGORIES
+@router.delete("/categories/{category_id}")
+async def delete_isolated_category(
+    category_id: int,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Purges a specific category record safely from storage layers ensuring zero inter-tenant cross leaks."""
+    target_cat = db.query(Category).filter(Category.id == category_id, Category.tenant_id == current_user.tenant_id).first()
+    if not target_cat:
+        raise HTTPException(status_code=404, detail="CATEGORY_NOT_FOUND_IN_THIS_WORKSPACE")
+        
+    db.delete(target_cat)
+    db.commit()
+    return {"status": "CATEGORY_SUCCESSFULLY_DELETED", "category_id": category_id}
+
+# ==========================================================================
+# 2. CORE PRODUCTS CRUD PIPELINES MATRIX
 # ==========================================================================
 @router.post("/products", status_code=status.HTTP_201_CREATED)
 async def create_isolated_product_item(payload: ProductCreateInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -100,15 +162,10 @@ async def delete_isolated_product_item(product_id: str, current_user: User = Dep
     return {"status": "PRODUCT_SUCCESSFULLY_DELETED", "product_id": product_id}
 
 # ==========================================================================
-# 2. NEXT SPRINT NEW PIPELINE: PRODUCTION REALTIME ISOLATED ORDERS OPERATIONS
+# 3. PRODUCTION REALTIME ISOLATED ORDERS OPERATIONS
 # ==========================================================================
 @router.post("/orders", status_code=status.HTTP_201_CREATED)
-async def ingest_isolated_omnichannel_order(
-    payload: OrderCreateInboundSchema, 
-    current_user: User = Depends(get_current_user), 
-    db: Session = Depends(get_db)
-):
-    """Ingests a centralized multi-tenant order and automatically deducts corresponding stock pool velocity."""
+async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not payload.customer_name.strip() or not payload.items:
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: CUSTOMER_NAME_AND_ITEMS_ARE_REQUIRED")
 
@@ -121,46 +178,33 @@ async def ingest_isolated_omnichannel_order(
         total_amount=0.0, order_status="PENDING", tenant_id=current_user.tenant_id
     )
     db.add(new_order)
-    
     computed_total_pool = 0.0
     
-    # Relational Items Array Processing Layer
     for item in payload.items:
-        target_product = db.query(Product).filter(
-            Product.id == item.product_id, 
-            Product.tenant_id == current_user.tenant_id
-        ).first()
-        
+        target_product = db.query(Product).filter(Product.id == item.product_id, Product.tenant_id == current_user.tenant_id).first()
         if not target_product:
             raise HTTPException(status_code=404, detail=f"PRODUCT_ID_{item.product_id}_NOT_FOUND_IN_THIS_WORKSPACE")
-        
-        # Enforce inventory threshold guards to block negative stock pool drops
         if target_product.stock_qty < item.quantity:
             raise HTTPException(status_code=400, detail=f"INSUFFICIENT_STOCK: {target_product.name} has only {target_product.stock_qty} units left")
             
-        # Deduct structural inventory quantities reactively
         target_product.stock_qty -= item.quantity
-        
         sale_price = target_product.retail_price
         computed_total_pool += (sale_price * item.quantity)
         
-        new_item = OrderItem(
-            quantity=item.quantity, price_at_sale=sale_price,
-            order_id=order_id, product_id=target_product.id
-        )
+        new_item = OrderItem(quantity=item.quantity, price_at_sale=sale_price, order_id=order_id, product_id=target_product.id)
         db.add(new_item)
         
     new_order.total_amount = computed_total_pool
-    
     try:
         db.commit()
     except Exception as exc:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"TRANSACTION_FAILED: {str(exc)}")
-        
     return {"status": "ORDER_SUCCESSFULLY_SYNCED", "order_id": order_id, "order_number": order_num, "total_amount": computed_total_pool}
 
 @router.get("/orders")
+
+cat >> src/product/router.py << 'EOF'
 async def fetch_all_isolated_orders(
     current_user: User = Depends(get_current_user), 
     db: Session = Depends(get_db)
