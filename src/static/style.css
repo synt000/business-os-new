@@ -123,3 +123,57 @@
 .swagger-ui .opblock-description-wrapper p, .swagger-ui .renderedMarkdown {
     color: #94A3B8 !important;
 }
+
+/* ==========================================================================
+   NESTED LAYER CONTAINERS ACCELERATED OVERRIDES
+   ========================================================================== */
+html, body {
+    background: #050a14 !important;
+}
+.swagger-ui,
+.swagger-ui .wrapper,
+.swagger-ui .scheme-container,
+.swagger-ui .information-container,
+.swagger-ui .opblock-section,
+.swagger-ui .models,
+.swagger-ui .responses-wrapper {
+    background: #050a14 !important;
+}
+.swagger-ui .topbar {
+    display: none !important;
+}
+.swagger-ui .info {
+    background: transparent !important;
+    margin: 24px 0 !important;
+}
+.swagger-ui .info a {
+    color: #79A7FF !important;
+}
+.swagger-ui .scheme-container {
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+.swagger-ui input,
+.swagger-ui textarea,
+.swagger-ui select {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-radius: 8px !important;
+    padding: 8px 12px !important;
+}
+.swagger-ui table {
+    background: #111827 !important;
+    color: #ffffff !important;
+    border-radius: 12px;
+}
+.swagger-ui td,
+.swagger-ui th {
+    color: #ffffff !important;
+}
+.swagger-ui .model-box {
+    background: rgba(255, 255, 255, 0.01) !important;
+    border-radius: 8px;
+    padding: 12px;
+}
