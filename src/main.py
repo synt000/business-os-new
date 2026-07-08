@@ -10,7 +10,7 @@ from .auth.router import router as auth_router
 from .product.router import router as product_router
 from .dashboard.router import router as dashboard_router
 
-# SENIOR ARCHITECT FIX: DISABLE DEFAULT DOCS AND KEEP HARDENED OPENAPI SCHEMA PATHS
+# SENIOR ARCHITECT BOUNDARY: DISABLE DEFAULT SWAGGER ENGINE FOR CUSTOM INTERCEPTIONS
 app = FastAPI(
     title="Business OS - Production Hardened Router Kernel",
     version="4.0.0-MVP",
@@ -32,17 +32,16 @@ app.include_router(product_router)
 app.include_router(dashboard_router)
 
 # ==========================================================================
-# CUSTOM FASTAPI ENTERPRISE ARCHITECT LAYER: INJECT SWAGGER CUSTOM CSS URL
+# PRODUCTION FIXED: STABLE DYNAMIC SWAGGER CONSOLE INJECTOR WITH DEFAULT JS
 # ==========================================================================
 @app.get("/api/v4/docs", include_in_schema=False, tags=["Infrastructure Documentation"])
 async def custom_swagger_ui_html():
-    """Renders the custom dark-themed enterprise swagger console with dynamic stylesheet injects."""
+    """Renders the hardened dark-themed enterprise swagger UI using native bundle scripts."""
     return get_swagger_ui_html(
         openapi_url=app.openapi_url,
         title=app.title + " - API Control Panel",
         oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-        swagger_js_url="https://jsdelivr.net",
-        swagger_css_url="/static/style.css"  # Absolute Custom CSS Overrides Injection Node
+        swagger_css_url="/static/style.css"  # Enforces authoritative custom dark stylesheet layout overrides
     )
 
 @app.get("/api/v4/redoc", include_in_schema=False, tags=["Infrastructure Documentation"])
