@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from .database import get_db
 from .models.saas_core import User, Tenant, SubscriptionTier
 from .config.security import get_password_hash, verify_password, create_access_token, create_refresh_token
+from .config.dependencies import get_current_user
 
 app = FastAPI(
     title="Business OS - Hardened Multi-Tenant Core Kernel",
@@ -35,7 +36,7 @@ class UserLoginInboundSchema(BaseModel):
     email: EmailStr
     password: str
 
-# PUBLIC PAGES REDIRECTION GATEWAYS
+# PUBLIC LANDING PAGES REDIRECTION GATEWAYS
 @app.get("/", response_class=HTMLResponse)
 async def render_landing_page(request: Request):
     return templates.TemplateResponse(request=request, name="index.html")
@@ -47,6 +48,10 @@ async def render_register_page(request: Request):
 @app.get("/auth/login", response_class=HTMLResponse)
 async def render_login_page(request: Request):
     return templates.TemplateResponse(request=request, name="login.html")
+
+@app.get("/dashboard", response_class=HTMLResponse)
+async def render_secure_workspace_dashboard(request: Request):
+    return templates.TemplateResponse(request=request, name="workspace.html")
 
 @app.get("/api/v4/health")
 def check_infrastructure_health():
@@ -89,20 +94,17 @@ async def onboard_enterprise_workspace(payload: TenantRegisterInboundSchema, db:
     return {"status": "TENANT_SUCCESSFULLY_INITIALIZED", "tenant_id": tenant_id, "admin_user_id": user_id, "trial_tier_active": True}
 
 # ==========================================================================
-# PHASE 2 CORE 1: LOGIN API ENGINE (VERIFY BCRYPT -> GENERATE JWT TOKENS)
+# PHASE 1 & 2 SECURE ENDPOINT: VERIFY BCRYPT & GENERATE TOKENS
 # ==========================================================================
 @app.post("/api/v4/auth/login")
 async def authenticate_user_session(payload: UserLoginInboundSchema, db: Session = Depends(get_db)):
-    # 1. Look up targeted credentials inside standard repository tables
     target_user = db.query(User).filter(User.email == payload.email).first()
     if not target_user or not target_user.is_active:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="AUTHENTICATION_FAILED: INVALID_CREDENTIALS")
 
-    # 2. ENFORCE BCRYPT CHECKPOINT TO VALIDATE RAW PASSWORD AGAINST DATABASE HASH
     if not verify_password(payload.password, target_user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="AUTHENTICATION_FAILED: INVALID_CREDENTIALS")
 
-    # 3. CONTEXTUAL PAYLOAD COUPLING FOR INDUSTRIAL CRYPTOGRAPHIC TOKENS
     token_claims = {
         "sub": target_user.email,
         "user_id": target_user.id,
@@ -122,9 +124,50 @@ async def authenticate_user_session(payload: UserLoginInboundSchema, db: Session
     }
 
 # ==========================================================================
-# PHASE 2 CORE 2: SECURE WORKSPACE DASHBOARD REDIRECTION GATEWAY
+# PHASE 2 PROTECTED CORE SEGMENTS: MULTI-TENANT ISOLATED ENDPOINTS
 # ==========================================================================
-@app.get("/dashboard", response_class=HTMLResponse, tags=["Secure Enterprise Core"])
-async def render_secure_workspace_dashboard(request: Request):
-    # Renders the guarded frontend matrix shell (Session Validation Enforced via Client Tokens)
-    return templates.TemplateResponse(request=request, name="workspace.html")
+@app.get("/api/v4/dashboard/analytics", tags=["Guarded Business API Engine"])
+async def get_isolated_analytics_summary(current_user: User = Depends(get_current_user)):
+    return {
+        "context_scope": "TENANT_ISOLATED_DATA_GRID",
+        "tenant_id": current_user.tenant_id,
+        "authorized_user_id": current_user.id,
+        "role_signature": current_user.role,
+        "metrics_summary": {
+            "total_sales_volume_usd": 142384.50,
+            "processed_transaction_count": 8492,
+            "active_skus_count": 1248
+        }
+    }
+
+@app.get("/api/v4/inventory/items", tags=["Guarded Business API Engine"])
+async def get_isolated_inventory_ledger(current_user: User = Depends(get_current_user)):
+    return {
+        "tenant_id": current_user.tenant_id,
+        "module": "INVENTORY",
+        "storage_shards": ["Warehouse-A", "Warehouse-Central"],
+        "items": [
+            {"sku": "SKU-1248", "name": "Enterprise Core Shard", "qty": 850, "status": "STABLE"},
+            {"sku": "SKU-8492", "name": "Distributed Module Node", "qty": 398, "status": "OPTIMAL"}
+        ]
+    }
+
+@app.get("/api/v4/orders/processed", tags=["Guarded Business API Engine"])
+async def get_isolated_orders_stream(current_user: User = Depends(get_current_user)):
+    return {
+        "tenant_id": current_user.tenant_id,
+        "module": "SALES_PIPELINE",
+        "recent_streams_count": 8492,
+        "status": "OPERATIONAL"
+    }
+
+@app.get("/api/v4/reports/financial", tags=["Guarded Business API Engine"])
+async def get_isolated_financial_report(current_user: User = Depends(get_current_user)):
+    if current_user.role not in ["ADMIN", "MANAGER"]:
+        raise HTTPException(status_code=403, detail="ACCESS_DENIED: INSUFFICIENT_ROLE_PRIVILEGES")
+    return {
+        "tenant_id": current_user.tenant_id,
+        "module": "CORE_ACCOUNTING",
+        "gross_volume_usd": 14200000.00,
+        "audit_compliance": True
+    }
