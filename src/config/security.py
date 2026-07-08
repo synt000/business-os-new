@@ -9,16 +9,18 @@ from passlib.context import CryptContext
 PWD_CONTEXT = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 SECRET_KEY = os.getenv("SECRET_KEY", "prod-business-os-enterprise-9.9-jwt-key-2026")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-# FIXED: FULLY ALIGNED TO PRODUCTION APIRUTER PREFIX FOR SWAGGER INTERACTION SECURELY
+# CORE TOKENS LIFECYCLE SPECS MATRIX
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
+REFRESH_TOKEN_EXPIRE_DAYS = 7
+
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v4/auth/login", 
     auto_error=False
 )
 
 def get_password_hash(password: str) -> str:
-    """Transforms raw text password into pbkdf2_sha256 hashes cleanly."""
+    """Transforms raw text password into safe pbkdf2_sha256 database hashes."""
     return PWD_CONTEXT.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -29,7 +31,15 @@ def create_access_token(data: dict) -> str:
     """Generates standard secure short-lived multi-tenant access tokens."""
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
+    to_encode.update({"exp": expire, "type": "access"})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+# PRODUCTION NEW: 7-DAYS LONG-LIVED REFRESH TOKEN GENERATOR CORE
+def create_refresh_token(data: dict) -> str:
+    """Generates hardened long-lived multi-tenant token rotation elements."""
+    to_encode = data.copy()
+    expire = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
+    to_encode.update({"exp": expire, "type": "refresh"})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def verify_access_token(token: str) -> Optional[dict]:
@@ -40,14 +50,12 @@ def verify_access_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
 
-# PRODUCTION FIXED: COMPLETELY REMOVED THE DATABASE SESSION TYPE HINT FROM THE ARGUMENTS TO PREVENT OPENAPI INJECTION CRASHES
+# PURE FASTAPI DEPENDENCY INJECTION BOUND TO GENUINE DATABASE ORM USER OBJECTS
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> object:
     from ..database import get_db
     from ..models.saas_core import User
     
-    # Force context runtime evaluation to completely isolate Pydantic schema generation
     db = next(get_db())
-        
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="COULD_NOT_VALIDATE_SECURE_JWT_CREDENTIALS",
@@ -58,7 +66,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> object:
         raise credentials_exception
         
     payload = verify_access_token(token)
-    if payload is None:
+    if payload is None or payload.get("type") != "access":
         raise credentials_exception
         
     user_id: str = payload.get("user_id")
@@ -66,7 +74,6 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> object:
     if user_id is None or tenant_id is None:
         raise credentials_exception
         
-    # Enforce rigid database isolation lookup parameters tightly
     active_user = db.query(User).filter(User.id == user_id, User.tenant_id == tenant_id).first()
     if not active_user or not active_user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCOUNT_SUSPENDED_OR_INACTIVE")
