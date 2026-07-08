@@ -296,3 +296,54 @@ html, body, .swagger-ui,
     background: rgba(79, 140, 255, 0.2) !important;
     box-shadow: 0 0 15px rgba(79, 140, 255, 0.2) !important;
 }
+
+/* ==========================================================================
+   FINAL CONVERGENCE: SCHEMAS ENTIRE BLOCK BLACK-OUT MATRIX
+   ========================================================================== */
+.swagger-ui section.models,
+.swagger-ui section.models .model-container,
+.swagger-ui section.models h4,
+.swagger-ui section.models h4 span {
+    background: #050a14 !important;
+    background-color: #050a14 !important;
+    color: var(--text) !important;
+    border: none !important;
+}
+
+/* PURGING LIGHT BACKGROUNDS FROM NESTED MODEL BOX INSANCES */
+.swagger-ui section.models .model-box,
+.swagger-ui section.models .model-box *,
+.swagger-ui section.models .model-title,
+.swagger-ui section.models .model-toggle {
+    background: #111827 !important;
+    background-color: #111827 !important;
+    color: var(--text) !important;
+}
+
+/* FIXING MODEL TOGGLE ARROWS AND EXPAND ALL BUTTON SHARDS */
+.swagger-ui section.models .model-toggle::after,
+.swagger-ui section.models .opblock-control-arrow {
+    fill: var(--text) !important;
+}
+
+.swagger-ui section.models button,
+.swagger-ui section.models .model-box button {
+    background: rgba(255, 255, 255, 0.02) !important;
+    color: var(--muted) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-radius: 6px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 2px 8px !important;
+}
+
+/* HARMONIZING OBJECT PROPERTY KEYWORDS AND JAVASCRIPT TYPE LABELS */
+.swagger-ui section.models .property,
+.swagger-ui section.models .prop-type,
+.swagger-ui section.models .prop-format {
+    color: #79A7FF !important;
+}
+
+.swagger-ui section.models .prop-type {
+    color: var(--primary) !important;
+}
