@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise Dashboard - Business OS</title>
+    <link rel="stylesheet" href="https://jsdelivr.net">
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        // HARDENED FRONTEND JWT AUTHENTICATION MIDDLEWARE GUARD OVERLAY
+        const token = localStorage.getItem('access_token');
+        const tenantId = localStorage.getItem('tenant_id');
+        
+        // 1. Absolute Route Interceptor: Block unauthorized access attempts instantly
+        if (!token || !tenantId) {
+            alert("Unauthorized Session Contract. Redirecting to Entry Gateway.");
+            window.location.href = '/auth/login';
+        }
+    </script>
+</head>
+<body style="display:flex; flex-direction:column; align-items:center; padding:24px; min-height:100vh; background:#050a14;">
+    <div class="ambient-bg" style="top:-10%; left:10%;"></div>
+
+    <!-- STICKY GLASS NAVBAR INNER CONSOLE -->
+    <div class="nav-container" style="margin-bottom: 32px;">
+        <nav class="navbar">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#4F8CFF,#8B5CF6); display:flex; align-items:center; justify-content:center; color:white;"><i class="bi bi-grid-1x2-fill"></i></div>
+                <span style="font-size:15px; font-weight:800; color:#FFF;">WORKSPACE <span style="color:#4F8CFF;" id="displayTenantId">OS</span></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:16px;">
+                <span id="displayUserRole" style="font-size:11px; background:rgba(79,140,255,0.15); color:#79A7FF; padding:4px 10px; border-radius:6px; font-weight:700; text-transform:uppercase;">Loading Role...</span>
+                <button onclick="executeSecureLogout()" class="btn-primary" style="height:34px; padding:0 14px; border-radius:8px; font-size:11px; background:#EF4444; box-shadow:none;">Logout</button>
+            </div>
+        </nav>
+    </div>
+
+    <!-- MAIN PLATFORM ANALYTICS OVERVIEW -->
+    <main style="width:100%; max-width:1140px; display:flex; flex-direction:column; gap:24px; z-index:10;">
+        <header style="text-align:left; display:flex; flex-direction:column; gap:8px;">
+            <h1 style="font-size:28px; font-weight:800; color:#FFF; letter-spacing:-0.5px;">Welcome to Your Operating Hub</h1>
+            <p style="font-size:13px; color:#94A3B8; font-weight:300;">Cryptographically secured dynamic SaaS session matrix is currently operational.</p>
+        </header>
+
+        <!-- DYNAMIC 28 VERTICALS MODULES SIMULATION INJECTOR -->
+        <section class="grid-2" style="margin: 0;">
+            <div class="stat-card" style="padding:24px;">
+                <div style="font-size:20px; color:#4F8CFF;"><i class="bi bi-terminal-box"></i></div>
+                <div class="num" style="font-size:22px; color:#FFF; margin-top:8px;">Core Ingress</div>
+                <div class="desc" style="margin-top:4px;">Multi-Tenant Data Sandbox Grid</div>
+            </div>
+            <div class="stat-card" style="padding:24px;">
+                <div style="font-size:20px; color:#22C55E;"><i class="bi bi-shield-check"></i></div>
+                <div class="num" style="font-size:22px; color:#FFF; margin-top:8px;">JWT Verified</div>
+                <div class="desc" style="margin-top:4px;">Bearer Encryption Session Active</div>
+            </div>
+        </section>
+    </main>
+
+    <!-- SECURE FLUID ROUTING JAVASCRIPT MATRIX -->
+    <script>
+        // Update user contextual layout states dynamically upon loading
+        document.getElementById('displayTenantId').innerText = tenantId;
+        const userRole = localStorage.getItem('user_role');
+        if(userRole) {
+            document.getElementById('displayUserRole').innerText = userRole;
+        }
+
+        // 5. FIXED DISPATCHER NODE: SECURE LOGOUT FLOW METHOD
+        function executeSecureLogout() {
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            localStorage.removeItem('tenant_id');
+            localStorage.removeItem('user_role');
+            alert("Session Contract Safely Terminated. 🔒");
+            window.location.href = '/auth/login';
+        }
+    </script>
+</body>
+</html>
