@@ -1,34 +1,87 @@
-from fastapi import APIRouter, Depends, Request, status
+import os
+from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
-from src.database import SessionLocal
-from src.product.schemas import ProductCreate, ProductUpdate, ProductResponse
-from src.product.service import ProductService
-from typing import List
-from uuid import UUID
 
-def get_db():
-    db = SessionLocal()
-    try: yield db
-    finally: db.close()
+# Authoritative Connection Mappings
+from ..database import get_db
+from ..models.saas_core import User, Product
+from ..config.security import get_current_user
 
-router = APIRouter(prefix="/products", tags=["products"])
+router = APIRouter(prefix="/api/v4/products", tags=["Core Product Module"])
 
-@router.post("/", response_model=ProductResponse, status_code=status.HTTP_201_CREATED)
-def create_product(request: Request, product: ProductCreate, db: Session = Depends(get_db)):
-    return ProductService(db).create_product(request.state.tenant_id, product)
+# Pydantic Product Validation Schema Shards
+class ProductCreateInboundSchema(BaseModel):
+    name: str
+    sku: str
+    barcode: str = None
+    stock_qty: int = 0
+    purchase_price: float = 0.0
+    retail_price: float = 0.0
 
-@router.get("/", response_model=List[ProductResponse])
-def list_products(request: Request, db: Session = Depends(get_db)):
-    return ProductService(db).get_products(request.state.tenant_id)
+# ==========================================================================
+# PHASE 3: CREATE ISOLATED PRODUCT WITH STRICT TENANT_ID INTERCEPTOR
+# ==========================================================================
+@router.post("", status_code=status.HTTP_201_CREATED)
+async def create_isolated_product_item(
+    payload: ProductCreateInboundSchema, 
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    if not payload.name.strip() or not payload.sku.strip():
+        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: NAME_AND_SKU_ARE_REQUIRED")
 
-@router.get("/{product_id}", response_model=ProductResponse)
-def get_product(request: Request, product_id: UUID, db: Session = Depends(get_db)):
-    return ProductService(db).get_product(product_id, request.state.tenant_id)
+    # Prevent SKU duplications inside the SAME tenant space
+    duplicate_sku = db.query(Product).filter(
+        Product.sku == payload.sku, 
+        Product.tenant_id == current_user.tenant_id
+    ).first()
+    
+    if duplicate_sku:
+        raise HTTPException(status_code=400, detail="CONFLICT: SKU_ALREADY_EXISTS_IN_THIS_WORKSPACE")
 
-@router.put("/{product_id}", response_model=ProductResponse)
-def update_product(request: Request, product_id: UUID, product: ProductUpdate, db: Session = Depends(get_db)):
-    return ProductService(db).update_product(product_id, request.state.tenant_id, product)
+    product_id = f"prd_{int(datetime.utcnow().timestamp())}"
+    new_product = Product(
+        id=product_id,
+        name=payload.name,
+        sku=payload.sku,
+        barcode=payload.barcode,
+        stock_qty=payload.stock_qty,
+        purchase_price=payload.purchase_price,
+        retail_price=payload.retail_price,
+        tenant_id=current_user.tenant_id  # Enforce Absolute Data Privacy
+    )
+    db.add(new_product)
+    
+    try:
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"TRANSACTION_FAILED: {str(exc)}")
+        
+    return {"status": "PRODUCT_SUCCESSFULLY_CREATED", "product_id": product_id, "tenant_id": current_user.tenant_id}
 
-@router.delete("/{product_id}")
-def delete_product(request: Request, product_id: UUID, db: Session = Depends(get_db)):
-    return ProductService(db).delete_product(product_id, request.state.tenant_id)
+# ==========================================================================
+# PHASE 3: READ / FETCH ALL PRODUCTS ENFORCING RIGID TENANT ISOLATION
+# ==========================================================================
+@router.get("")
+async def fetch_all_isolated_products(
+    current_user: User = Depends(get_current_user), 
+    db: Session = Depends(get_db)
+):
+    # Tenant A can NEVER query Tenant B inventory logs
+    tenant_products = db.query(Product).filter(Product.tenant_id == current_user.tenant_id).all()
+    
+    return {
+        "tenant_id": current_user.tenant_id,
+        "scope": "TENANT_ISOLATED_DATA_ARRAY",
+        "total_items": len(tenant_products),
+        "products": [
+            {
+                "id": p.id, "name": p.name, "sku": p.sku, "barcode": p.barcode,
+                "stock_qty": p.stock_qty, "purchase_price": p.purchase_price, "retail_price": p.retail_price,
+                "created_at": p.created_at
+            } for p in tenant_products
+        ]
+    }

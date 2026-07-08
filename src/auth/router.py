@@ -1,33 +1,100 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+import os
+from datetime import datetime
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
-from src.auth.schemas import UserCreate, Token, UserLogin
-from src.auth.service import get_password_hash, verify_password, create_access_token
-from src.repositories.user_repository import UserRepository
-from src.domains.user.models import User
-from infrastructure.db.session import get_db
 
-router = APIRouter(prefix="/auth", tags=["auth"])
+# Authoritative Imports Connection Layer
+from ..database import get_db
+from ..models.saas_core import User, Tenant, SubscriptionTier
+from ..config.security import get_password_hash, verify_password, create_access_token
 
-@router.post("/register", response_model=dict)
-def register(user_data: UserCreate, db: Session = Depends(get_db)):
-    if UserRepository.username_exists(db, user_data.username):
-        raise HTTPException(status_code=400, detail="Username already registered")
-    
-    hashed_password = get_password_hash(user_data.password)
-    new_user = User(
-        username=user_data.username,
-        email=user_data.email,
-        password_hash=hashed_password,
-        tenant_id=user_data.tenant_id
+router = APIRouter(prefix="/auth", tags=["Authentication Gateway"])
+
+# Resolve template resolution paths dynamically
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
+
+# Pydantic Structural Request Payload Validations
+class TenantRegisterInboundSchema(BaseModel):
+    company_name: str
+    email: EmailStr
+    password: str
+
+class UserLoginInboundSchema(BaseModel):
+    email: EmailStr
+    password: str
+
+# PUBLIC VIEW ENDPOINTS RENDERERS
+@router.get("/register", response_class=HTMLResponse)
+async def render_register_page(request: Request):
+    return templates.TemplateResponse(request=request, name="register.html")
+
+@router.get("/login", response_class=HTMLResponse)
+async def render_login_page(request: Request):
+    return templates.TemplateResponse(request=request, name="login.html")
+
+# ==========================================================================
+# PHASE 1 PIPELINE: TENANT INGESTION ROUTER
+# ==========================================================================
+@router.post("/tenant/onboard", status_code=status.HTTP_201_CREATED)
+async def onboard_enterprise_workspace(payload: TenantRegisterInboundSchema, db: Session = Depends(get_db)):
+    if not payload.company_name.strip() or not payload.password.strip():
+        raise HTTPException(status_code=422, detail="CRITICAL_FAULT: PARAMETERS_CANNOT_BE_EMPTY")
+
+    existing_user = db.query(User).filter(User.email == payload.email).first()
+    if existing_user:
+        raise HTTPException(status_code=400, detail="IDENTITY_CLASH: WORK_EMAIL_ALREADY_REGISTERED")
+
+    tenant_id = f"tnt_{int(datetime.utcnow().timestamp())}"
+    new_tenant = Tenant(
+        id=tenant_id, company_name=payload.company_name, owner_email=payload.email,
+        subscription_tier=SubscriptionTier.FREE_TRIAL, is_billing_active=True, trial_expired=False
     )
-    UserRepository.create(db, new_user)
-    return {"message": "User registered successfully"}
+    db.add(new_tenant)
 
-@router.post("/login", response_model=Token)
-def login(user_login: UserLogin, db: Session = Depends(get_db)):
-    user = UserRepository.get_by_username(db, user_login.username)
-    if not user or not verify_password(user_login.password, user.password_hash):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+    user_id = f"usr_{int(datetime.utcnow().timestamp())}"
+    encrypted_secure_hash = get_password_hash(payload.password)
     
-    access_token = create_access_token(data={"sub": user.username, "tenant_id": str(user.tenant_id), "role": user.role})
-    return {"access_token": access_token, "token_type": "bearer"}
+    new_master_user = User(
+        id=user_id, email=payload.email, hashed_password=encrypted_secure_hash,
+        full_name=payload.company_name + " Admin", role="ADMIN", is_active=True, tenant_id=tenant_id
+    )
+    db.add(new_master_user)
+
+    try:
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"DATABASE_TRANSACTION_FAILED: {str(exc)}")
+
+    return {"status": "TENANT_SUCCESSFULLY_INITIALIZED", "tenant_id": tenant_id, "admin_user_id": user_id, "trial_tier_active": True}
+
+# ==========================================================================
+# PHASE 2 PIPELINE: JWT AUTHENTICATION DISPATCHER
+# ==========================================================================
+@router.post("/login")
+async def authenticate_user_session(payload: UserLoginInboundSchema, db: Session = Depends(get_db)):
+    target_user = db.query(User).filter(User.email == payload.email).first()
+    if not target_user or not target_user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="AUTHENTICATION_FAILED: INVALID_CREDENTIALS")
+
+    if not verify_password(payload.password, target_user.hashed_password):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="AUTHENTICATION_FAILED: INVALID_CREDENTIALS")
+
+    token_claims = {
+        "sub": target_user.email,
+        "user_id": target_user.id,
+        "tenant_id": target_user.tenant_id,
+        "role": target_user.role
+    }
+
+    access_token = create_access_token(data=token_claims)
+    return {
+        "token_type": "bearer",
+        "access_token": access_token,
+        "tenant_id": target_user.tenant_id,
+        "role": target_user.role
+    }
