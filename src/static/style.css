@@ -109,3 +109,67 @@ html, body, .swagger-ui,
 .swagger-ui ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 20px; }
 .swagger-ui ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.2); }
 .swagger-ui .opblock-description-wrapper p, .swagger-ui .renderedMarkdown { color: #94A3B8 !important; }
+
+/* ==========================================================================
+   HOMEPAGE MATCHING: AUTHORITATIVE SWAGGER UI HARMONIZATION LAYER
+   ========================================================================== */
+.swagger-ui .opblock-summary-path,
+.swagger-ui .opblock-summary-path__deprecated,
+.swagger-ui .opblock-summary-description,
+.swagger-ui .opblock-summary-method,
+.swagger-ui .opblock-summary {
+    background: transparent !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+}
+
+/* FIXING STALE WHITE BOXES INSIDE ENDPOINT WRAPPERS */
+.swagger-ui .opblock .opblock-summary-path a,
+.swagger-ui .opblock .opblock-summary-path span,
+.swagger-ui .opblock .opblock-summary-description {
+    color: var(--text) !important;
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* FIXING UNWANTED BLUE HYPERLINKS IN TAG HEADERS */
+.swagger-ui .opblock-tag a,
+.swagger-ui .opblock-tag span,
+.swagger-ui .opblock-tag {
+    color: #ffffff !important;
+    text-decoration: none !important;
+    font-size: 18px !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.3px;
+}
+
+/* PURGING REMAINING LIGHT BACKGROUNDS INSIDE APIS METHOD CONTAINERS */
+.swagger-ui .opblock.opblock-get .opblock-summary,
+.swagger-ui .opblock.opblock-post .opblock-summary,
+.swagger-ui .opblock .opblock-summary,
+.swagger-ui .opblock-summary-method-wrapper {
+    background: rgba(17, 24, 39, 0.2) !important;
+    background-color: rgba(17, 24, 39, 0.2) !important;
+    border-radius: 8px !important;
+}
+
+/* HARMONIZING THE INTERNAL INTERFACE TEXTS AND BUTTON HOVER STATES */
+.swagger-ui .opblock-summary-control,
+.swagger-ui .opblock-summary-control:focus,
+.swagger-ui button.opblock-summary-control {
+    outline: none !important;
+    background: transparent !important;
+}
+
+/* HARDENING THE LOCK SECURITY SIGNATURE WITH BRAND COLORS */
+.swagger-ui .auth-container span,
+.swagger-ui .auth-container svg {
+    color: var(--primary) !important;
+    fill: var(--primary) !important;
+}
+
+/* ALIGNING TAG HEADERS DYNAMIC BLUE UNDERLINES ELIMINATION */
+.swagger-ui .opblock-tag-section .opblock-tag {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding-bottom: 8px !important;
+}
