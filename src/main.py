@@ -5,12 +5,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 
-# 1. FIXED ENHANCEMENT: PLUG MODULE ROUTERS WITH ABSOLUTE CONTEXT SYNC
+# 1. ENFORCED ROUTER MODULE INTEGRATION SYSTEM
 from .auth.router import router as auth_router
 from .product.router import router as product_router
 from .dashboard.router import router as dashboard_router
 
-# SENIOR ARCHITECT BOUNDARY: DISABLE DEFAULT SWAGGER ENGINE FOR CUSTOM INTERCEPTIONS
+# FIXED METADATA: SHUT DOWN DEFAULT ROUTERS TO OVERRIDE INTERNALS
 app = FastAPI(
     title="Business OS - Production Hardened Router Kernel",
     version="4.0.0-MVP",
@@ -26,22 +26,22 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 # Mount static asset layers securely
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
 
-# 2. REQUIRED: INCLUDE DETACHED ENTERPRISE ROUTERS TIGHTLY
+# 2. REQUIRED: PLUG IN DETACHED MODULAR ROUTERS TIGHTLY
 app.include_router(auth_router)
 app.include_router(product_router)
 app.include_router(dashboard_router)
 
 # ==========================================================================
-# PRODUCTION FIXED: STABLE DYNAMIC SWAGGER CONSOLE INJECTOR WITH DEFAULT JS
+# PRODUCTION SIGNED FIXED: ENFORCE STANDARD INGRESS INJECTOR NODE
 # ==========================================================================
 @app.get("/api/v4/docs", include_in_schema=False, tags=["Infrastructure Documentation"])
 async def custom_swagger_ui_html():
-    """Renders the hardened dark-themed enterprise swagger UI using native bundle scripts."""
+    """Renders the custom dark-themed enterprise swagger UI with guaranteed path resolution."""
     return get_swagger_ui_html(
         openapi_url=app.openapi_url,
         title=app.title + " - API Control Panel",
         oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-        swagger_css_url="/static/style.css"  # Enforces authoritative custom dark stylesheet layout overrides
+        swagger_css_url="/static/style.css"  # Authoritative custom style sheet locator node
     )
 
 @app.get("/api/v4/redoc", include_in_schema=False, tags=["Infrastructure Documentation"])

@@ -7,23 +7,20 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from sqlalchemy.orm import Session
 
-# Authoritative Package Connections Matrix
-from ..database import get_db
-from ..models.saas_core import User
-
+# PRODUCTION FIXED: ENFORCE STANDARD PBKDF2_SHA256 TO PREVENT ENVIRONMENTAL CRASHES
 PWD_CONTEXT = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 SECRET_KEY = os.getenv("SECRET_KEY", "prod-business-os-enterprise-9.9-jwt-key-2026")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-# FIXED: FULLY ALIGNED TO PRODUCTION APIROUTER PREFIX FOR SWAGGER INTERACTION SECURELY
+# FIXED: FULLY ALIGNED TO OUR NEW ROUTER PREFIX SPECIFICATIONS FOR SWAGGER INTERACTION
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v4/auth/login", 
     auto_error=False
 )
 
 def get_password_hash(password: str) -> str:
-    """Transforms raw text password into pbkdf2_sha256 hashes cleanly."""
+    """Transforms raw text password into safe pbkdf2_sha256 database hashes."""
     return PWD_CONTEXT.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -45,11 +42,17 @@ def verify_access_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
 
-# PRODUCTION FIXED: PURE FASTAPI DEPENDENCY INJECTION BOUND TO GENUINE DATABASE ORM USER OBJECTS
+# PURE FASTAPI DEPENDENCY INJECTION BOUND TO GENUINE DATABASE ORM USER OBJECTS
 async def get_current_user(
     token: str = Depends(oauth2_scheme), 
-    db: Session = Depends(get_db)
-) -> User:
+    db: Session = Depends(None)  # Resolved at runtime context levels
+) -> object:
+    from ..database import get_db
+    from ..models.saas_core import User
+    
+    if db is None:
+        db = next(get_db())
+        
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="COULD_NOT_VALIDATE_SECURE_JWT_CREDENTIALS",
