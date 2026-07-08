@@ -1,1 +1,125 @@
 *{box-sizing:border-box;margin:0;padding:0;}body,.dark-mode body{background-color:#050a14;color:#ffffff;font-family:system-ui,-apple-system,BlinkMacSystemFont,sans-serif;min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased;display:flex;flex-direction:column;align-items:center;}.ticker-wrap{width:100%;background:rgba(5,10,20,0.95);border-bottom:1px solid rgba(255,255,255,0.08);overflow:hidden;height:36px;display:flex;align-items:center;}.ticker-move{display:inline-flex;white-space:nowrap;padding-right:100%;animation:tickerMarquee 35s linear infinite;}@keyframes tickerMarquee{0%{transform:translate3d(0,0,0);}100%{transform:translate3d(-100%,0,0);}}.ticker-item{display:inline-flex;align-items:center;padding:0 24px;font-size:11px;font-weight:600;}.pulse-badge{background:rgba(239,68,68,0.15);color:#EF4444;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:800;margin-right:8px;animation:p 2s infinite;}@keyframes p{0%,100%{opacity:1;}50%{opacity:0.6;}}.nav-container{position:sticky;top:12px;z-index:100;width:100%;max-width:1140px;padding:0 16px;}.navbar{background:rgba(17,24,39,0.75);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid rgba(255,255,255,0.08);box-shadow:0 25px 60px rgba(0,0,0,0.5);display:flex;justify-content:space-between;align-items:center;padding:12px 24px;border-radius:16px;}.btn-primary{height:48px;padding:0 24px;border-radius:12px;font-size:13px;font-weight:700;background:linear-gradient(135deg,#4F8CFF,#8B5CF6);color:#fff;border:none;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;text-decoration:none;box-shadow:0 0 30px rgba(79,140,255,0.35);}.btn-p-hover:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(79,140,255,0.55);}.hero-section{width:100%;max-width:1140px;margin:60px auto 40px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:20px;padding:0 24px;}.hero-badge{background:rgba(79,140,255,0.08);border:1px solid rgba(79,140,255,0.25);color:#79A7FF;font-size:11px;font-weight:700;text-transform:uppercase;tracking:1.5px;padding:6px 14px;border-radius:20px;}.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;width:100%;max-width:1140px;margin:32px auto;padding:0 16px;}@media(min-width:768px){.grid-2{grid-template-columns:repeat(4,1fr);}}.stat-card{padding:20px;background:rgba(17,24,39,0.5);border:1px solid rgba(255,255,255,0.05);border-radius:16px;display:flex;flex-direction:column;}.num{font-size:28px;font-weight:800;margin-top:6px;}.desc{font-size:12px;color:#94A3B8;margin-top:2px;}.monochrome-logo{color:rgba(148,163,184,0.6);text-decoration:none;font-weight:700;display:flex;align-items:center;gap:6px;}
+/* ==========================================================================
+   ENTERPRISE B2B SWAGGER UI HARDENING OVERRIDE LAYERS
+   ========================================================================== */
+.swagger-ui {
+    background-color: #050a14 !important;
+    color: #ffffff !important;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px;
+    font-size: 14px;
+}
+.swagger-ui .info .title, .swagger-ui .opblock-tag, .swagger-ui section h3 {
+    color: #ffffff !important;
+    font-family: system-ui, sans-serif;
+}
+.swagger-ui .info p, .swagger-ui .info li, .swagger-ui .info table {
+    color: #94A3B8 !important;
+}
+
+/* PRIORITY 1 & 4 — LAYOUT, 48PX TOUCH TARGETS & LUXURY MOTION */
+.swagger-ui .opblock {
+    margin-bottom: 16px !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
+    background: rgba(17, 24, 39, 0.4) !important;
+    backdrop-filter: blur(12px);
+    transition: all .3s cubic-bezier(.16,1,.3,1) !important;
+}
+.swagger-ui .opblock:hover {
+    transform: translateY(-2px) !important;
+}
+.swagger-ui .opblock-summary {
+    min-height: 48px !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+}
+
+/* PRIORITY 2 — STRATEGIC SECTION SPACING */
+.swagger-ui .opblock-tag-section {
+    margin-bottom: 32px !important;
+    background: rgba(11, 16, 32, 0.3) !important;
+    border-radius: 16px;
+    padding: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+.swagger-ui .opblock-tag {
+    margin-bottom: 24px !important;
+    padding: 0 !important;
+    border-bottom: none !important;
+}
+
+/* PRIORITY 3 — AUTHORIZE PRIMARY OUTLINE GLASS BUTTON */
+.swagger-ui .authorize {
+    background: rgba(79, 140, 255, 0.08) !important;
+    border: 1px solid rgba(79, 140, 255, 0.35) !important;
+    color: #79A7FF !important;
+    border-radius: 12px !important;
+    backdrop-filter: blur(18px) !important;
+    -webkit-backdrop-filter: blur(18px) !important;
+    padding: 10px 20px !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    transition: all .3s cubic-bezier(.16,1,.3,1) !important;
+}
+.swagger-ui .authorize svg {
+    fill: #79A7FF !important;
+}
+.swagger-ui .authorize:hover {
+    background: rgba(79, 140, 255, 0.15) !important;
+    border-color: rgba(79, 140, 255, 0.55) !important;
+    box-shadow: 0 0 24px rgba(79, 140, 255, 0.28) !important;
+    transform: translateY(-1px);
+}
+
+/* PRIORITY 3 — GET / POST BADGES SATURATION DOWN */
+.swagger-ui .opblock.opblock-get {
+    opacity: .75 !important;
+    border-left: 4px solid #4F8CFF !important;
+}
+.swagger-ui .opblock.opblock-post {
+    opacity: .82 !important;
+    border-left: 4px solid #22C55E !important;
+}
+.swagger-ui .opblock.opblock-get .opblock-summary-method {
+    background: rgba(79, 140, 255, 0.15) !important;
+    color: #79A7FF !important;
+    border-radius: 8px;
+}
+.swagger-ui .opblock.opblock-post .opblock-summary-method {
+    background: rgba(34, 197, 94, 0.15) !important;
+    color: #22C55E !important;
+    border-radius: 8px;
+}
+
+/* PRIORITY 4 — EXTRA LUXURY HOVER GLOWS MATRIX */
+.swagger-ui .opblock.opblock-post:hover {
+    box-shadow: 0 0 20px rgba(34, 197, 94, 0.15) !important;
+    border-color: rgba(34, 197, 94, 0.25) !important;
+}
+.swagger-ui .opblock.opblock-get:hover {
+    box-shadow: 0 0 20px rgba(79, 140, 255, 0.15) !important;
+    border-color: rgba(79, 140, 255, 0.25) !important;
+}
+
+/* INDUSTRIAL COMPLIANCE: PREMIUM DARK SCROLLBAR OVERLAYS */
+.swagger-ui ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+.swagger-ui ::-webkit-scrollbar-track {
+    background: #050a14;
+}
+.swagger-ui ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+}
+.swagger-ui ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+.swagger-ui .opblock-description-wrapper p, .swagger-ui .renderedMarkdown {
+    color: #94A3B8 !important;
+}
