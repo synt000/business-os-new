@@ -5,22 +5,20 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
-from sqlalchemy.orm import Session
 
-# PRODUCTION FIXED: ENFORCE STANDARD PBKDF2_SHA256 TO PREVENT ENVIRONMENTAL CRASHES
 PWD_CONTEXT = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
 SECRET_KEY = os.getenv("SECRET_KEY", "prod-business-os-enterprise-9.9-jwt-key-2026")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
-# FIXED: FULLY ALIGNED TO OUR NEW ROUTER PREFIX SPECIFICATIONS FOR SWAGGER INTERACTION
+# FIXED: FULLY ALIGNED TO PRODUCTION APIRUTER PREFIX FOR SWAGGER INTERACTION SECURELY
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v4/auth/login", 
     auto_error=False
 )
 
 def get_password_hash(password: str) -> str:
-    """Transforms raw text password into safe pbkdf2_sha256 database hashes."""
+    """Transforms raw text password into pbkdf2_sha256 hashes cleanly."""
     return PWD_CONTEXT.hash(password)
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
@@ -42,16 +40,13 @@ def verify_access_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
 
-# PURE FASTAPI DEPENDENCY INJECTION BOUND TO GENUINE DATABASE ORM USER OBJECTS
-async def get_current_user(
-    token: str = Depends(oauth2_scheme), 
-    db: Session = Depends(None)  # Resolved at runtime context levels
-) -> object:
+# PRODUCTION FIXED: COMPLETELY REMOVED THE DATABASE SESSION TYPE HINT FROM THE ARGUMENTS TO PREVENT OPENAPI INJECTION CRASHES
+async def get_current_user(token: str = Depends(oauth2_scheme)) -> object:
     from ..database import get_db
     from ..models.saas_core import User
     
-    if db is None:
-        db = next(get_db())
+    # Force context runtime evaluation to completely isolate Pydantic schema generation
+    db = next(get_db())
         
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
