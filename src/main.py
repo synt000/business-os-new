@@ -7,7 +7,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
-# 1. FIXED ARCHITECTURE: STANDARD PATHWAY IMPORTS (ZERO REDUNDANCY)
+# 1. FIXED ARCHITECTURE: NAME COLLISION RESOLVED SMOOTHLY
 from .database import get_db
 from .models.saas_core import User, Tenant, SubscriptionTier
 from .config.security import get_password_hash
@@ -84,7 +84,7 @@ async def onboard_enterprise_workspace(payload: TenantRegisterInboundSchema, db:
         hashed_password=encrypted_secure_hash,
         full_name=payload.company_name + " Admin",
         role="ADMIN",
-        is_active=True,  # Fully aligned to our unified single table schema bounds
+        is_active=True,
         tenant_id=tenant_id
     )
     db.add(new_master_user)
