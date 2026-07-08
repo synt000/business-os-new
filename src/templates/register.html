@@ -13,19 +13,18 @@
         <h1 style="font-size:24px;font-weight:800;margin-bottom:8px;">Create Account</h1>
         <p style="font-size:13px;color:#94A3B8;margin-bottom:24px;">Start your 3-day premium enterprise free trial.</p>
         
-        <!-- FIXED: FORM INTEGRATIONS WITH EXPLICIT IDs -->
         <form id="registerForm" style="display:flex;flex-direction:column;gap:16px;text-align:left;">
             <input type="text" id="companyName" placeholder="Company Name" required style="width:100%;height:46px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0 16px;color:#FFF;font-size:13px;">
             <input type="email" id="workEmail" placeholder="Work Email" required style="width:100%;height:46px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0 16px;color:#FFF;font-size:13px;">
             <input type="password" id="accountPassword" placeholder="Password" required style="width:100%;height:46px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0 16px;color:#FFF;font-size:13px;">
             
-            <button type="submit" class="btn-p" style="width:100%;height:46px;border-radius:10px;margin-top:8px;">Deploy Enterprise OS</button>
+            <button type="submit" class="btn-primary btn-p-hover" style="width:100%;height:46px;border-radius:10px;margin-top:8px;">Deploy Enterprise OS</button>
         </form>
         
         <p style="font-size:12px;color:#94A3B8;margin-top:20px;">Already have an account? <a href="/auth/login" style="color:#3B82F6;text-decoration:none;">Sign In</a></p>
     </div>
 
-    <!-- HIGH-PERFORMANCE ASYNCHRONOUS API DISPATCHER INTERCEPTOR -->
+    <!-- FIXED: HIGH-PERFORMANCE ASYNCHRONOUS PURE JSON BODY DISPATCHER -->
     <script>
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -33,30 +32,35 @@
             const companyName = document.getElementById('companyName').value;
             const email = document.getElementById('workEmail').value;
             const password = document.getElementById('accountPassword').value;
-            
-            // Client-side quick security verification validate checkpoint
-            if (!companyName || !email || !password) {
-                alert("Please fill in all production parameters context keys.");
-                return;
-            }
+
+            // 1. Construct Clear-Cut JSON Payload Matrix Body
+            const requestPayload = {
+                id: "tnt_" + Date.now(),
+                company_name: companyName,
+                email: email
+            };
 
             try {
-                // Post operational baseline data straight to FastAPI Tenant Onboard URL path
-                const response = await fetch(`/api/v4/tenant/onboard?id=tnt_${Date.now()}&company_name=${encodeURIComponent(companyName)}&email=${encodeURIComponent(email)}`, {
+                // 2. Post as Pure JSON Body Object (Resolving 405 Method Not Allowed)
+                const response = await fetch('/api/v4/tenant/onboard', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestPayload)
                 });
 
                 const data = await response.json();
 
                 if (response.ok) {
                     alert("Account Deployed Successfully! Workspace Active. 🚀");
-                    window.location.href = '/api/v4/docs'; // Dynamic redirect path routing placeholder
+                    window.location.href = '/'; // Redirect seamlessly back home
                 } else {
-                    alert("Deployment Rejected: " + (data.detail || "Validation Violation Fault"));
+                    alert("Deployment Rejected: " + (data.detail || "Validation Error"));
                 }
             } catch (err) {
-                alert("Network Core Delivery Interrupted: " + err.message);
+                alert("Network Ingress Interrupted: " + err.message);
             }
         });
     </script>
