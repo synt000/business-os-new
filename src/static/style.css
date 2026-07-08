@@ -234,3 +234,65 @@ html, body, .swagger-ui,
     background-color: #111827 !important;
     color: #ffffff !important;
 }
+
+/* ==========================================================================
+   FINAL OVERHAUL: PRODUCT MODULE INTERNAL CLEANING MATRIX
+   ========================================================================== */
+.swagger-ui .opblock .opblock-body pre,
+.swagger-ui .opblock .opblock-body table,
+.swagger-ui .opblock .opblock-body input,
+.swagger-ui .opblock-section-header,
+.swagger-ui .opblock-section-header h4 {
+    background: #050a14 !important;
+    background-color: #050a14 !important;
+    color: var(--text) !important;
+}
+
+/* FIXING RESIDUAL LIGHT SHARDS WITHIN BODY SECTIONS */
+.swagger-ui .opblock-body,
+.swagger-ui .opblock-body *,
+.swagger-ui .opblock-section-header-wrapper {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* HARDENING THE COMPONENT WRAPPER OVERLAYS */
+.swagger-ui .parameters-container,
+.swagger-ui .responses-container,
+.swagger-ui .execute-wrapper {
+    background: rgba(17, 24, 39, 0.3) !important;
+    border-radius: 8px;
+    padding: 12px;
+    margin-top: 8px;
+}
+
+/* PURGING LIGHT BACKGROUNDS INSIDE PARAMETERS AND RESPONSES FIELDS */
+.swagger-ui table.parameters td,
+.swagger-ui table.responses-table td,
+.swagger-ui table.parameters th,
+.swagger-ui table.responses-table th,
+.swagger-ui .parameter__name,
+.swagger-ui .parameter__type,
+.swagger-ui .parameter__in {
+    background: transparent !important;
+    background-color: transparent !important;
+    color: var(--text) !important;
+}
+
+/* HARMONIZING GLOBAL BODY CELL BORDERS AND SECTIONS ACCORDINGLY */
+.swagger-ui .opblock-body table tr {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* HARDENING THE TRY-OUT BUTTONS AND INTERNAL PANEL INPUT LOOKS */
+.swagger-ui .btn.try-out__btn,
+.swagger-ui button.btn.try-out__btn {
+    background: rgba(79, 140, 255, 0.1) !important;
+    border: 1px solid rgba(79, 140, 255, 0.3) !important;
+    color: #79A7FF !important;
+}
+
+.swagger-ui .btn.try-out__btn:hover {
+    background: rgba(79, 140, 255, 0.2) !important;
+    box-shadow: 0 0 15px rgba(79, 140, 255, 0.2) !important;
+}
