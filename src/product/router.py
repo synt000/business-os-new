@@ -1,5 +1,6 @@
 import os
 from datetime import datetime
+from typing import Optional  # FIXED: IMPORTED OPTIONAL TYPING NATIVELY TO RESOLVE NAMEERROR DEADLOCKS
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -11,7 +12,7 @@ from ..config.security import get_current_user
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
 
-# Pydantic Structural Validation Schemas
+# Pydantic Structural Request Payload Validations
 class ProductCreateInboundSchema(BaseModel):
     name: str
     sku: str
@@ -78,7 +79,7 @@ async def fetch_all_isolated_products(
         ]
     }
 
-# 3. UPDATE ACTION: MODIFY EXTISTING PRODUCT IN Sandbox
+# 3. UPDATE ACTION: MODIFY EXISTING PRODUCT IN SANDBOX
 @router.put("/products/{product_id}")
 async def update_isolated_product_item(
     product_id: str,
