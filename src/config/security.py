@@ -1,51 +1,76 @@
 import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
 from jose import JWTError, jwt
 from passlib.context import CryptContext
+from sqlalchemy.orm import Session
 
-PWD_CONTEXT = CryptContext(
-    schemes=["pbkdf2_sha256"],
-    deprecated="auto",
-)
+# Authoritative Package Connections Matrix
+from ..database import get_db
+from ..models.saas_core import User
 
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "prod-business-os-enterprise-9.9-jwt-key-2026",
-)
-
+PWD_CONTEXT = CryptContext(schemes=["pbkdf2_sha256"], deprecated="auto")
+SECRET_KEY = os.getenv("SECRET_KEY", "prod-business-os-enterprise-9.9-jwt-key-2026")
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
-REFRESH_TOKEN_EXPIRE_DAYS = 7
+ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
+# FIXED: FULLY ALIGNED TO PRODUCTION APIROUTER PREFIX FOR SWAGGER INTERACTION SECURELY
+oauth2_scheme = OAuth2PasswordBearer(
+    tokenUrl="/api/v4/auth/login", 
+    auto_error=False
+)
 
 def get_password_hash(password: str) -> str:
+    """Transforms raw text password into pbkdf2_sha256 hashes cleanly."""
     return PWD_CONTEXT.hash(password)
 
-
 def verify_password(plain_password: str, hashed_password: str) -> bool:
+    """Verifies plain password inputs against structural pbkdf2_sha256 database hashes."""
     return PWD_CONTEXT.verify(plain_password, hashed_password)
 
-
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict) -> str:
+    """Generates standard secure short-lived multi-tenant access tokens."""
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + (
-        expires_delta if expires_delta else timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    )
-    to_encode["exp"] = expire
+    expire = datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-
-def create_refresh_token(data: dict) -> str:
-    to_encode = data.copy()
-    to_encode["exp"] = datetime.now(timezone.utc) + timedelta(days=REFRESH_TOKEN_EXPIRE_DAYS)
-    to_encode["token_type"] = "refresh"
-    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-
-
-def verify_access_token(token: str):
+def verify_access_token(token: str) -> Optional[dict]:
+    """Validates structural JWT claims and parses tenant contextual properties."""
     try:
-        return jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        return payload
     except JWTError:
         return None
+
+# PRODUCTION FIXED: PURE FASTAPI DEPENDENCY INJECTION BOUND TO GENUINE DATABASE ORM USER OBJECTS
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), 
+    db: Session = Depends(get_db)
+) -> User:
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="COULD_NOT_VALIDATE_SECURE_JWT_CREDENTIALS",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    
+    if not token:
+        raise credentials_exception
+        
+    payload = verify_access_token(token)
+    if payload is None:
+        raise credentials_exception
+        
+    user_id: str = payload.get("user_id")
+    tenant_id: str = payload.get("tenant_id")
+    if user_id is None or tenant_id is None:
+        raise credentials_exception
+        
+    # Enforce rigid database isolation lookup parameters tightly
+    active_user = db.query(User).filter(User.id == user_id, User.tenant_id == tenant_id).first()
+    if not active_user or not active_user.is_active:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCOUNT_SUSPENDED_OR_INACTIVE")
+        
+    return active_user
