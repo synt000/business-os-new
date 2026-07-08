@@ -13,6 +13,7 @@ ALGORITHM = "HS256"
 # CORE TOKENS LIFECYCLE SPECS MATRIX
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_DAYS = 7
+TRIAL_DURATION_DAYS = 3  # PRODUCTION RULE: HARD CEILING FOR PREMIUM FREE WORKSPACES
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v4/auth/login", 
@@ -34,7 +35,6 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"exp": expire, "type": "access"})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-# PRODUCTION NEW: 7-DAYS LONG-LIVED REFRESH TOKEN GENERATOR CORE
 def create_refresh_token(data: dict) -> str:
     """Generates hardened long-lived multi-tenant token rotation elements."""
     to_encode = data.copy()
@@ -53,7 +53,7 @@ def verify_access_token(token: str) -> Optional[dict]:
 # PURE FASTAPI DEPENDENCY INJECTION BOUND TO GENUINE DATABASE ORM USER OBJECTS
 async def get_current_user(token: str = Depends(oauth2_scheme)) -> object:
     from ..database import get_db
-    from ..models.saas_core import User
+    from ..models.saas_core import User, Tenant, SubscriptionTier
     
     db = next(get_db())
     credentials_exception = HTTPException(
@@ -78,4 +78,25 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> object:
     if not active_user or not active_user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCOUNT_SUSPENDED_OR_INACTIVE")
         
+    # ==========================================================================
+    # PRODUCTION SYSTEM CLOCK: 3-DAY FREE TRIAL AUTO-CUTOFF ENFORCEMENT ENGINE
+    # ==========================================================================
+    tenant_profile = db.query(Tenant).filter(Tenant.id == active_user.tenant_id).first()
+    if tenant_profile:
+        # Check if the subscription tier is FREE_TRIAL to dynamically evaluate duration thresholds
+        if tenant_profile.subscription_tier == SubscriptionTier.FREE_TRIAL:
+            elapsed_timeline = datetime.utcnow() - tenant_profile.created_at
+            
+            # Enforce immediate cutoff if timeline exceeds 3-Day structural parameter
+            if elapsed_timeline.days >= TRIAL_DURATION_DAYS or tenant_profile.trial_expired:
+                # Automate database flag state synchronization to harden persistence boundaries
+                if not tenant_profile.trial_expired:
+                    tenant_profile.trial_expired = True
+                    db.commit()
+                    
+                raise HTTPException(
+                    status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                    detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED_RENEWAL_REQUIRED"
+                )
+                
     return active_user
