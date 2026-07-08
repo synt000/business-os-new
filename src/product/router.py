@@ -1,13 +1,12 @@
 import os
 from datetime import datetime
 from typing import Optional, List
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Request
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-# Authoritative Core Connections Matrix
 from ..database import get_db
-from ..models.saas_core import User, Product, Order, OrderItem, Category
+from ..models.saas_core import User, Product, Order, OrderItem, Category, AuditLog
 from ..config.security import get_current_user
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
@@ -43,15 +42,23 @@ class OrderCreateInboundSchema(BaseModel):
     customer_phone: Optional[str] = None
     items: List[OrderItemInboundSchema]
 
+def log_security_audit_action(db: Session, user_id: str, tenant_id: str, action: str, module: str, details: str, request: Request = None):
+    client_ip = "127.0.0.1"
+    if request and request.client:
+        client_ip = request.client.host
+    audit_entry = AuditLog(action_type=action, module_name=module, details_log=details, ip_address=client_ip, user_id=user_id, tenant_id=tenant_id)
+    db.add(audit_entry)
+
 # ==========================================================================
-# 1. CATEGORIES COMPLETE CRUD PIPELINES (WITH MULTI-TENANT ISOLATION)
+# 1. CATEGORIES COMPLETE CRUD PIPELINES (WITH INTEGRATED TELEMETRY)
 # ==========================================================================
 @router.post("/categories", status_code=status.HTTP_201_CREATED)
-async def create_isolated_category(payload: CategoryCreateInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_isolated_category(payload: CategoryCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not payload.name.strip():
         raise HTTPException(status_code=422, detail="Category name cannot be empty")
     new_cat = Category(name=payload.name, tenant_id=current_user.tenant_id)
     db.add(new_cat)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "CATEGORIES", f"Created category: {payload.name}", request)
     db.commit()
     return {"status": "CATEGORY_CREATED", "tenant_id": current_user.tenant_id}
 
@@ -61,30 +68,33 @@ async def fetch_isolated_categories(current_user: User = Depends(get_current_use
     return {"categories": [{"id": c.id, "name": c.name} for c in cats]}
 
 @router.put("/categories/{category_id}")
-async def update_isolated_category(category_id: int, payload: CategoryUpdateInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def update_isolated_category(category_id: int, payload: CategoryUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not payload.name.strip():
         raise HTTPException(status_code=422, detail="Category name cannot be empty")
     target_cat = db.query(Category).filter(Category.id == category_id, Category.tenant_id == current_user.tenant_id).first()
     if not target_cat:
         raise HTTPException(status_code=404, detail="CATEGORY_NOT_FOUND_IN_THIS_WORKSPACE")
+    old_name = target_cat.name
     target_cat.name = payload.name
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "CATEGORIES", f"Updated category ID {category_id} from '{old_name}' to '{payload.name}'", request)
     db.commit()
     return {"status": "CATEGORY_SUCCESSFULLY_UPDATED", "category_id": category_id}
 
 @router.delete("/categories/{category_id}")
-async def delete_isolated_category(category_id: int, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def delete_isolated_category(category_id: int, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     target_cat = db.query(Category).filter(Category.id == category_id, Category.tenant_id == current_user.tenant_id).first()
     if not target_cat:
         raise HTTPException(status_code=404, detail="CATEGORY_NOT_FOUND_IN_THIS_WORKSPACE")
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "DELETE", "CATEGORIES", f"Purged category: {target_cat.name} (ID: {category_id})", request)
     db.delete(target_cat)
     db.commit()
     return {"status": "CATEGORY_SUCCESSFULLY_DELETED", "category_id": category_id}
 
 # ==========================================================================
-# 2. CORE PRODUCTS CRUD PIPELINES MATRIX
+# 2. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH INTEGRATED TELEMETRY)
 # ==========================================================================
 @router.post("/products", status_code=status.HTTP_201_CREATED)
-async def create_isolated_product_item(payload: ProductCreateInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_isolated_product_item(payload: ProductCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not payload.name.strip() or not payload.sku.strip():
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: NAME_AND_SKU_ARE_REQUIRED")
     duplicate_sku = db.query(Product).filter(Product.sku == payload.sku, Product.tenant_id == current_user.tenant_id).first()
@@ -93,6 +103,7 @@ async def create_isolated_product_item(payload: ProductCreateInboundSchema, curr
     product_id = f"prd_{int(datetime.utcnow().timestamp())}"
     new_product = Product(id=product_id, name=payload.name, sku=payload.sku, barcode=payload.barcode, stock_qty=payload.stock_qty, purchase_price=payload.purchase_price, retail_price=payload.retail_price, tenant_id=current_user.tenant_id)
     db.add(new_product)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)
     db.commit()
     return {"status": "PRODUCT_SUCCESSFULLY_CREATED", "product_id": product_id}
 
@@ -102,21 +113,23 @@ async def fetch_all_isolated_products(current_user: User = Depends(get_current_u
     return {"tenant_id": current_user.tenant_id, "total_items": len(tenant_products), "products": [{"id": p.id, "name": p.name, "sku": p.sku, "barcode": p.barcode, "stock_qty": p.stock_qty, "purchase_price": p.purchase_price, "retail_price": p.retail_price} for p in tenant_products]}
 
 @router.put("/products/{product_id}")
-async def update_isolated_product_item(product_id: str, payload: ProductUpdateInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def update_isolated_product_item(product_id: str, payload: ProductUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     target_product = db.query(Product).filter(Product.id == product_id, Product.tenant_id == current_user.tenant_id).first()
     if not target_product:
         raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
     update_data = payload.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(target_product, key, value)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "PRODUCTS", f"Modified item fields for product ID {product_id}", request)
     db.commit()
     return {"status": "PRODUCT_SUCCESSFULLY_UPDATED", "product_id": product_id}
 
 @router.delete("/products/{product_id}")
-async def delete_isolated_product_item(product_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def delete_isolated_product_item(product_id: str, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     target_product = db.query(Product).filter(Product.id == product_id, Product.tenant_id == current_user.tenant_id).first()
     if not target_product:
         raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "DELETE", "PRODUCTS", f"Purged SKU record {target_product.sku}: {target_product.name}", request)
     db.delete(target_product)
     db.commit()
     return {"status": "PRODUCT_SUCCESSFULLY_DELETED", "product_id": product_id}
@@ -125,7 +138,7 @@ async def delete_isolated_product_item(product_id: str, current_user: User = Dep
 # 3. PRODUCTION REALTIME ISOLATED ORDERS OPERATIONS (INVENTORY DEDUCTION)
 # ==========================================================================
 @router.post("/orders", status_code=status.HTTP_201_CREATED)
-async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not payload.customer_name.strip() or not payload.items:
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: CUSTOMER_NAME_AND_ITEMS_ARE_REQUIRED")
         
@@ -156,6 +169,10 @@ async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, c
         db.add(new_item)
         
     new_order.total_amount = computed_total_pool
+    
+    # Write Audit Trail Telemetry
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "ORDERS", f"Processed invoice {order_num} via {payload.platform_channel} for {payload.customer_name}", request)
+    
     try:
         db.commit()
     except Exception as exc:

@@ -30,6 +30,7 @@ class Tenant(Base):
     categories = relationship("Category", back_populates="tenant", cascade="all, delete-orphan")
     orders = relationship("Order", back_populates="tenant", cascade="all, delete-orphan")
     receipts = relationship("BillingReceipt", back_populates="tenant", cascade="all, delete-orphan")
+    audit_logs = relationship("AuditLog", back_populates="tenant", cascade="all, delete-orphan")
 
 # 2. HARDENED ENTERPRISE SAAS MASTER USER SCHEMAS
 class User(Base):
@@ -45,6 +46,7 @@ class User(Base):
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="users")
+    audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
 
 # 3. MULTI-TENANT ISOLATED STOCK CATEGORY MATRIX
 class Category(Base):
@@ -104,16 +106,33 @@ class OrderItem(Base):
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     product = relationship("Product", back_populates="order_items")
 
-# ==========================================================================
-# PRODUCTION NEW MODEL: MULTI-TENANT BILLING RECEIPT STORAGE INGESTION
-# ==========================================================================
+# 6. MULTI-TENANT BILLING RECEIPT STORAGE INGESTION
 class BillingReceipt(Base):
     __tablename__ = "billing_receipts"
 
     id = Column(String, primary_key=True, index=True)
-    slip_base64_data = Column(Text, nullable=False)         # Safe cross-platform binary storage stream
-    verification_status = Column(String, default="PENDING") # PENDING, APPROVED, REJECTED
+    slip_base64_data = Column(Text, nullable=False)
+    verification_status = Column(String, default="PENDING")
     submitted_at = Column(DateTime, default=datetime.utcnow)
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="receipts")
+
+# ==========================================================================
+# FUTURE MODULE NEW: MULTI-TENANT SECURITY AUDIT TELEMETRY LOGGING
+# ==========================================================================
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    action_type = Column(String, nullable=False)            # CREATE, UPDATE, DELETE, LOGIN
+    module_name = Column(String, nullable=False)            # PRODUCTS, CATEGORIES, ORDERS, AUTH
+    details_log = Column(Text, nullable=False)              # JSON string or descriptive text record
+    ip_address = Column(String, default="127.0.0.1")
+    logged_at = Column(DateTime, default=datetime.utcnow)
+
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user = relationship("User", back_populates="audit_logs")
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="audit_logs")
