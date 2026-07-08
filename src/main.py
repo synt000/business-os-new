@@ -1,15 +1,16 @@
 import os
 from datetime import datetime
 from fastapi import FastAPI, Header, HTTPException, status, Request, Depends
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
-# Hardened Package Architecture Imports Context Mappings
-from .models.saas_core import Base, User, Tenant, SubscriptionTier
-from .config.security import get_password_hash, verify_password, create_access_token, create_refresh_token
+# 1. FIXED ARCHITECTURE: STANDARD PATHWAY IMPORTS (ZERO REDUNDANCY)
+from .database import get_db
+from .models.saas_core import User, Tenant, SubscriptionTier
+from .config.security import get_password_hash
 
 app = FastAPI(
     title="Business OS - Hardened Multi-Tenant Core Kernel",
@@ -23,18 +24,6 @@ templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
 
 # Mount static asset layers securely
 app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), name="static")
-
-# SQLite Database Session Bootstrapper Context Injector
-def get_db():
-    from sqlalchemy import create_index, create_engine
-    from sqlalchemy.orm import sessionmaker
-    engine = create_engine("sqlite:///./app.db", connect_args={"check_same_thread": False})
-    SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
 
 # Pydantic Inbound Schema Mapped onto Frontend Ingress Tiers
 class TenantRegisterInboundSchema(BaseModel):
@@ -60,31 +49,32 @@ def check_infrastructure_health():
     return {"status": "OPERATIONAL"}
 
 # ==========================================================================
-# PHASE 1 CORE: REGISTER -> PASSWORD HASH -> SAVE TO REAL DB PIPELINE
+# PHASE 1 SOLIDIFIED: REGISTER -> PASSWORD BCRYPT HASH -> REAL DB PIPELINE
 # ==========================================================================
 @app.post("/api/v4/tenant/onboard", status_code=status.HTTP_201_CREATED)
 async def onboard_enterprise_workspace(payload: TenantRegisterInboundSchema, db: Session = Depends(get_db)):
-    # 1. Enforce basic string validation constraints
+    # 1. Enforce basic string validation boundaries
     if not payload.company_name.strip() or not payload.password.strip():
         raise HTTPException(status_code=422, detail="CRITICAL_FAULT: PARAMETERS_CANNOT_BE_EMPTY")
 
-    # 2. Prevent active account registration identity overlap leaks
+    # 2. Prevent dynamic user identity overlap leaks cleanly
     existing_user = db.query(User).filter(User.email == payload.email).first()
     if existing_user:
         raise HTTPException(status_code=400, detail="IDENTITY_CLASH: WORK_EMAIL_ALREADY_REGISTERED")
 
-    # 3. Create Tenant Object (Dynamic Onboarding Execution Shard)
+    # 3. Initialize Corporate Tenant Model Structure
     tenant_id = f"tnt_{int(datetime.utcnow().timestamp())}"
     new_tenant = Tenant(
         id=tenant_id,
         company_name=payload.company_name,
         owner_email=payload.email,
         subscription_tier=SubscriptionTier.FREE_TRIAL,
-        is_billing_active=True
+        is_billing_active=True,
+        trial_expired=False
     )
     db.add(new_tenant)
 
-    # 4. HARDENED SECURITY CONTEXT: BCRYPT PASSWORD HASHING DIRECTLY BEFORE STORAGE
+    # 4. FIXED COLUMN BOUNDS: SECURE BCRYPT HASHING INSIDE AUTHENTICATED USER MODEL
     user_id = f"usr_{int(datetime.utcnow().timestamp())}"
     encrypted_secure_hash = get_password_hash(payload.password)
     
@@ -94,7 +84,7 @@ async def onboard_enterprise_workspace(payload: TenantRegisterInboundSchema, db:
         hashed_password=encrypted_secure_hash,
         full_name=payload.company_name + " Admin",
         role="ADMIN",
-        is_active=True,
+        is_active=True,  # Fully aligned to our unified single table schema bounds
         tenant_id=tenant_id
     )
     db.add(new_master_user)
