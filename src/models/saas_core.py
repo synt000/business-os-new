@@ -32,6 +32,9 @@ class Tenant(Base):
     receipts = relationship("BillingReceipt", back_populates="tenant", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="tenant", cascade="all, delete-orphan")
     account_ledgers = relationship("AccountLedger", back_populates="tenant", cascade="all, delete-orphan")
+    branches = relationship("Branch", back_populates="tenant", cascade="all, delete-orphan")
+    suppliers = relationship("Supplier", back_populates="tenant", cascade="all, delete-orphan")
+    procurements = relationship("ProcurementLedger", back_populates="tenant", cascade="all, delete-orphan")
 
 # 2. HARDENED ENTERPRISE SAAS MASTER USER SCHEMAS
 class User(Base):
@@ -76,6 +79,7 @@ class Product(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="products")
     order_items = relationship("OrderItem", back_populates="product", cascade="all, delete-orphan")
+    procurements = relationship("ProcurementLedger", back_populates="product", cascade="all, delete-orphan")
 
 # 5. MULTI-TENANT OMNICHANNEL REALTIME ORDERS LOGS
 class Order(Base):
@@ -136,17 +140,15 @@ class AuditLog(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="audit_logs")
 
-# ==========================================================================
-# MASTER PROMPT V5.0 NEW FEATURE: DEBIT/CREDIT ACCOUNTING DOUBLE-ENTRY LEDGER
-# ==========================================================================
+# 8. DEBIT/CREDIT ACCOUNTING DOUBLE-ENTRY LEDGER
 class AccountLedger(Base):
     __tablename__ = "account_ledgers"
 
     id = Column(String, primary_key=True, index=True)
-    entry_type = Column(String, nullable=False, index=True)  # DEBIT (Asset/Expense Increase) or CREDIT (Revenue/Liability Increase)
-    account_head = Column(String, nullable=False, index=True) # SALES_REVENUE, CASH_ASSET, COGS_EXPENSE
+    entry_type = Column(String, nullable=False, index=True)
+    account_head = Column(String, nullable=False, index=True)
     amount = Column(Float, default=0.0)
-    reference_id = Column(String, nullable=True, index=True)  # Links to Order ID or Receipt ID
+    reference_id = Column(String, nullable=True, index=True)
     description = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, index=True)
 
@@ -154,3 +156,48 @@ class AccountLedger(Base):
     tenant = relationship("Tenant", back_populates="account_ledgers")
 
     __table_args__ = (Index("idx_ledger_tenant_head", "account_head", "tenant_id"),)
+
+# ==========================================================================
+# MASTER PROMPT V5.0 NEW NODES: BRANCHES, SUPPLIERS & PROCUREMENT LEDGERS
+# ==========================================================================
+class Branch(Base):
+    __tablename__ = "branches"
+
+    id = Column(String, primary_key=True, index=True)
+    branch_name = Column(String, nullable=False, index=True)
+    location_address = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="branches")
+
+class Supplier(Base):
+    __tablename__ = "suppliers"
+
+    id = Column(String, primary_key=True, index=True)
+    supplier_name = Column(String, nullable=False, index=True)
+    contact_phone = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="suppliers")
+    procurements = relationship("ProcurementLedger", back_populates="supplier", cascade="all, delete-orphan")
+
+class ProcurementLedger(Base):
+    __tablename__ = "procurement_ledgers"
+
+    id = Column(String, primary_key=True, index=True)
+    procurement_number = Column(String, nullable=False, index=True) # E.g., PO-2026-001
+    qty_purchased = Column(Integer, default=1)
+    unit_cost = Column(Float, nullable=False)
+    total_cost = Column(Float, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    product = relationship("Product", back_populates="procurements")
+
+    supplier_id = Column(String, ForeignKey("suppliers.id", ondelete="CASCADE"), nullable=False)
+    supplier = relationship("Supplier", back_populates="procurements")
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="procurements")
