@@ -2,12 +2,13 @@ import os
 from datetime import datetime
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel
 from sqlalchemy.orm import Session
+from sqlalchemy import func
 
 # Authoritative Core Connections Matrix
 from ..database import get_db
-from ..models.saas_core import User, Product, Order, OrderItem, Category, AuditLog, InventoryLedger, Customer
+from ..models.saas_core import User, Product, Order, OrderItem, Category, AuditLog, AccountLedger
 from ..config.security import get_current_user
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
@@ -43,24 +44,6 @@ class OrderCreateInboundSchema(BaseModel):
     customer_phone: Optional[str] = None
     items: List[OrderItemInboundSchema]
 
-class StockAdjustmentInboundSchema(BaseModel):
-    product_id: str
-    transaction_type: str
-    quantity_changed: int
-    reason_note: Optional[str] = None
-
-class CustomerCreateInboundSchema(BaseModel):
-    name: str
-    phone: str
-    email: Optional[EmailStr] = None
-    address: Optional[str] = None
-
-class CustomerUpdateInboundSchema(BaseModel):
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    email: Optional[EmailStr] = None
-    address: Optional[str] = None
-
 def log_security_audit_action(db: Session, user_id: str, tenant_id: str, action: str, module: str, details: str, request: Request = None):
     client_ip = "127.0.0.1"
     if request and request.client:
@@ -68,64 +51,13 @@ def log_security_audit_action(db: Session, user_id: str, tenant_id: str, action:
     audit_entry = AuditLog(action_type=action, module_name=module, details_log=details, ip_address=client_ip, user_id=user_id, tenant_id=tenant_id)
     db.add(audit_entry)
 
-def write_inventory_ledger_transaction(db: Session, user_id: str, tenant_id: str, product_id: str, tx_type: str, qty_changed: int, prev_stock: int, curr_stock: int, note: str = None):
-    ledger_entry = InventoryLedger(transaction_type=tx_type, quantity_changed=qty_changed, previous_stock=prev_stock, current_stock=curr_stock, reason_note=note, product_id=product_id, user_id=user_id, tenant_id=tenant_id)
+def record_double_entry_accounting(db: Session, tenant_id: str, entry_type: str, account_head: str, amount: float, reference_id: str, description: str):
+    ledger_id = f"ldg_{entry_type[:3].lower()}_{int(datetime.utcnow().timestamp())}_{reference_id[-4:]}"
+    ledger_entry = AccountLedger(id=ledger_id, entry_type=entry_type, account_head=account_head, amount=amount, reference_id=reference_id, description=description, tenant_id=tenant_id)
     db.add(ledger_entry)
 
 # ==========================================================================
-# 1. CUSTOMERS CRM COMPLETE CRUD PIPELINES (PRODUCTION NEW VERTICAL)
-# ==========================================================================
-@router.post("/customers", status_code=status.HTTP_201_CREATED)
-async def create_isolated_crm_customer(payload: CustomerCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not payload.name.strip() or not payload.phone.strip():
-        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: CUSTOMER_NAME_AND_PHONE_ARE_REQUIRED")
-    
-    customer_id = f"cst_{int(datetime.utcnow().timestamp())}"
-    new_customer = Customer(
-        id=customer_id, name=payload.name, phone=payload.phone, email=payload.email,
-        address=payload.address, total_spent=0.0, tenant_id=current_user.tenant_id
-    )
-    db.add(new_customer)
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "CUSTOMERS_CRM", f"Registered new CRM Customer profile: {payload.name} ({payload.phone})", request)
-    db.commit()
-    return {"status": "CUSTOMER_SUCCESSFULLY_REGISTERED", "customer_id": customer_id}
-
-@router.get("/customers")
-async def fetch_all_isolated_crm_customers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    tenant_customers = db.query(Customer).filter(Customer.tenant_id == current_user.tenant_id).order_by(Customer.created_at.desc()).all()
-    return {
-        "tenant_id": current_user.tenant_id,
-        "total_customers": len(tenant_customers),
-        "customers": [{"id": c.id, "name": c.name, "phone": c.phone, "email": c.email, "address": c.address, "total_spent_usd": c.total_spent} for c in tenant_customers]
-    }
-
-@router.put("/customers/{customer_id}")
-async def update_isolated_crm_customer(customer_id: str, payload: CustomerUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    target_customer = db.query(Customer).filter(Customer.id == customer_id, Customer.tenant_id == current_user.tenant_id).first()
-    if not target_customer:
-        raise HTTPException(status_code=404, detail="CUSTOMER_PROFILE_NOT_FOUND_IN_THIS_WORKSPACE")
-    
-    update_data = payload.dict(exclude_unset=True)
-    for key, value in update_data.items():
-        setattr(target_customer, key, value)
-        
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "CUSTOMERS_CRM", f"Modified CRM profile data layers for customer ID {customer_id}", request)
-    db.commit()
-    return {"status": "CUSTOMER_PROFILE_SUCCESSFULLY_UPDATED", "customer_id": customer_id}
-
-@router.delete("/customers/{customer_id}")
-async def delete_isolated_crm_customer(customer_id: str, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    target_customer = db.query(Customer).filter(Customer.id == customer_id, Customer.tenant_id == current_user.tenant_id).first()
-    if not target_customer:
-        raise HTTPException(status_code=404, detail="CUSTOMER_PROFILE_NOT_FOUND_IN_THIS_WORKSPACE")
-        
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "DELETE", "CUSTOMERS_CRM", f"Purged CRM profile partition record {target_customer.name} (ID: {customer_id})", request)
-    db.delete(target_customer)
-    db.commit()
-    return {"status": "CUSTOMER_PROFILE_SUCCESSFULLY_DELETED", "customer_id": customer_id}
-
-# ==========================================================================
-# 2. CATEGORIES COMPLETE CRUD PIPELINES (WITH INTEGRATED TELEMETRY)
+# 1. CATEGORIES COMPLETE CRUD PIPELINES (WITH INTEGRATED TELEMETRY)
 # ==========================================================================
 @router.post("/categories", status_code=status.HTTP_201_CREATED)
 async def create_isolated_category(payload: CategoryCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -166,7 +98,7 @@ async def delete_isolated_category(category_id: int, request: Request, current_u
     return {"status": "CATEGORY_SUCCESSFULLY_DELETED", "category_id": category_id}
 
 # ==========================================================================
-# 3. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH INTEGRATED TELEMETRY)
+# 2. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH INTEGRATED TELEMETRY)
 # ==========================================================================
 @router.post("/products", status_code=status.HTTP_201_CREATED)
 async def create_isolated_product_item(payload: ProductCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -179,7 +111,6 @@ async def create_isolated_product_item(payload: ProductCreateInboundSchema, requ
     new_product = Product(id=product_id, name=payload.name, sku=payload.sku, barcode=payload.barcode, stock_qty=payload.stock_qty, purchase_price=payload.purchase_price, retail_price=payload.retail_price, tenant_id=current_user.tenant_id)
     db.add(new_product)
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)
-    write_inventory_ledger_transaction(db, current_user.id, current_user.tenant_id, product_id, "STOCK_IN", payload.stock_qty, 0, payload.stock_qty, "Initial Sandbox Inventory Ingestion")
     db.commit()
     return {"status": "PRODUCT_SUCCESSFULLY_CREATED", "product_id": product_id}
 
@@ -211,7 +142,7 @@ async def delete_isolated_product_item(product_id: str, request: Request, curren
     return {"status": "PRODUCT_SUCCESSFULLY_DELETED", "product_id": product_id}
 
 # ==========================================================================
-# 4. PRODUCTION REALTIME ISOLATED ORDERS OPERATIONS (INVENTORY DEDUCTION)
+# 3. PRODUCTION AUTOMATED ACCOUNTING DOUBLE-ENTRY ORDERS INGESTION
 # ==========================================================================
 @router.post("/orders", status_code=status.HTTP_201_CREATED)
 async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -228,6 +159,7 @@ async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, r
     )
     db.add(new_order)
     computed_total_pool = 0.0
+    computed_cogs_pool = 0.0
     
     for item in payload.items:
         target_product = db.query(Product).filter(Product.id == item.product_id, Product.tenant_id == current_user.tenant_id).first()
@@ -236,20 +168,29 @@ async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, r
         if target_product.stock_qty < item.quantity:
             raise HTTPException(status_code=400, detail=f"INSUFFICIENT_STOCK: {target_product.name} has only {target_product.stock_qty} units left")
             
-        prev_stock = target_product.stock_qty
         target_product.stock_qty -= item.quantity
-        curr_stock = target_product.stock_qty
         sale_price = target_product.retail_price
+        cogs_price = target_product.purchase_price
+        
         computed_total_pool += (sale_price * item.quantity)
+        computed_cogs_pool += (cogs_price * item.quantity)
         
         new_item = OrderItem(quantity=item.quantity, price_at_sale=sale_price, order_id=order_id, product_id=target_product.id)
         db.add(new_item)
         
-        # Write Automated Transactional Inventory Ledger
-        write_inventory_ledger_transaction(db, current_user.id, current_user.tenant_id, target_product.id, "ORDER_SALE", -item.quantity, prev_stock, curr_stock, f"Omnichannel Order Ingress Sale: {order_num}")
-        
     new_order.total_amount = computed_total_pool
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "ORDERS", f"Processed invoice {order_num} via {payload.platform_channel} for {payload.customer_name}", request)
+    
+    # 1. Increase Cash/Receivable Asset (DEBIT) and Increase Sales Revenue (CREDIT)
+    record_double_entry_accounting(db, current_user.tenant_id, "DEBIT", "CASH_ASSET", computed_total_pool, order_id, f"Inbound cash received from sales invoice {order_num}")
+    record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "SALES_REVENUE", computed_total_pool, order_id, f"Recognized revenue earned from order {order_num}")
+    
+    # 2. Increase Cost of Goods Sold Expense (DEBIT) and Decrease Inventory Asset (CREDIT)
+    record_double_entry_accounting(db, current_user.tenant_id, "DEBIT", "COGS_EXPENSE", computed_cogs_pool, order_id, f"Cost of goods sold recorded for invoice {order_num}")
+    record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "INVENTORY_ASSET", computed_cogs_pool, order_id, f"Asset inventory reduction mapped from sales checkout {order_num}")
+    
+    # Write Audit Trail Telemetry
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "ORDERS", f"Processed invoice {order_num} and triggered automated accounting matrixes", request)
+    
     try:
         db.commit()
     except Exception as exc:
@@ -260,43 +201,40 @@ async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, r
 @router.get("/orders")
 async def fetch_all_isolated_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     tenant_orders = db.query(Order).filter(Order.tenant_id == current_user.tenant_id).order_by(Order.created_at.desc()).all()
-    return {"tenant_id": current_user.tenant_id, "total_orders": len(tenant_orders), "orders": [{"id": o.id, "order_number": o.order_number, "platform": o.platform_channel, "customer": o.customer_name, "phone": o.customer_phone, "total_usd": o.total_amount, "status": o.order_status, "created_at": o.created_at} for o in tenant_orders]}
+    return {
+        "tenant_id": current_user.tenant_id,
+        "total_orders": len(tenant_orders),
+        "orders": [
+            {
+                "id": o.id, "order_number": o.order_number, "platform": o.platform_channel,
+                "customer": o.customer_name, "phone": o.customer_phone, "total_usd": o.total_amount,
+                "status": o.order_status, "created_at": o.created_at
+            } for o in tenant_orders
+        ]
+    }
 
 # ==========================================================================
-# 5. PRODUCTION ADVANCED INVENTORY LEDGER STOCK ADJUSTMENTS APIs
+# MASTER PROMPT V5.0 NEW API: ISOLATED P&L PROFIT & LOSS STATEMENT REPORT
 # ==========================================================================
-@router.post("/inventory/stock-adjustment")
-async def execute_warehouse_stock_adjustment(payload: StockAdjustmentInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if payload.transaction_type not in ["STOCK_IN", "STOCK_OUT", "ADJUSTMENT", "DAMAGED"]:
-        raise HTTPException(status_code=400, detail="INVALID_TRANSACTION_TYPE_SPECIFICATION")
-    if payload.quantity_changed <= 0:
-         raise HTTPException(status_code=422, detail="QUANTITY_CHANGED_MUST_BE_A_POSITIVE_INTEGER")
-         
-    target_product = db.query(Product).filter(Product.id == payload.product_id, Product.tenant_id == current_user.tenant_id).first()
-    if not target_product:
-        raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
-        
-    prev_stock = target_product.stock_qty
-    if payload.transaction_type in ["STOCK_IN"]:
-        target_product.stock_qty += payload.quantity_changed
-        net_qty = payload.quantity_changed
-    else:
-        if target_product.stock_qty < payload.quantity_changed:
-            raise HTTPException(status_code=400, detail=f"INSUFFICIENT_STOCK: Workspace contains only {target_product.stock_qty} units")
-        target_product.stock_qty -= payload.quantity_changed
-        net_qty = -payload.quantity_changed
-        
-    curr_stock = target_product.stock_qty
-    write_inventory_ledger_transaction(db, current_user.id, current_user.tenant_id, target_product.id, payload.transaction_type, net_qty, prev_stock, curr_stock, payload.reason_note)
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "INVENTORY", f"Executed warehouse {payload.transaction_type} adjustments for SKU {target_product.sku}", request)
-    try:
-        db.commit()
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"INVENTORY_TRANSACTION_FAILED: {str(exc)}")
-    return {"status": "INVENTORY_LEDGER_ADJUSTMENT_SUCCESSFUL", "product_id": payload.product_id, "previous_stock": prev_stock, "current_stock": curr_stock}
-
-@router.get("/inventory/ledgers")
-async def fetch_tenant_inventory_ledger_history(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    ledger_logs = db.query(InventoryLedger).filter(InventoryLedger.tenant_id == current_user.tenant_id).order_by(InventoryLedger.created_at.desc()).all()
-    return {"tenant_id": current_user.tenant_id, "total_log_records": len(ledger_logs), "ledgers": [{"id": l.id, "product_id": l.product_id, "tx_type": l.transaction_type, "quantity_changed": l.quantity_changed, "previous_stock": l.previous_stock, "current_stock": l.current_stock, "note": l.reason_note, "timestamp": l.created_at} for l in ledger_logs]}
+@router.get("/accounting/profit-loss")
+async def generate_isolated_profit_loss_statement(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Computes pure accrual accounting outputs extracting isolated revenues, expenses, and net profit margins."""
+    total_revenue = db.query(func.sum(AccountLedger.amount)).filter(AccountLedger.tenant_id == current_user.tenant_id, AccountLedger.account_head == "SALES_REVENUE").scalar() or 0.0
+    total_cogs = db.query(func.sum(AccountLedger.amount)).filter(AccountLedger.tenant_id == current_user.tenant_id, AccountLedger.account_head == "COGS_EXPENSE").scalar() or 0.0
+    
+    gross_profit = total_revenue - total_cogs
+    net_profit = gross_profit
+    profit_margin_pct = (net_profit / total_revenue * 100) if total_revenue > 0 else 0.0
+    
+    return {
+        "tenant_id": current_user.tenant_id,
+        "report_type": "ACCRUAL_PROFIT_AND_LOSS_STATEMENT",
+        "generated_at": datetime.utcnow(),
+        "financial_summary": {
+            "total_gross_revenue": total_revenue,
+            "total_cost_of_goods_sold": total_cogs,
+            "gross_profit_margin": gross_profit,
+            "net_operational_profit": net_profit,
+            "net_profit_margin_percentage": f"{profit_margin_pct:.2f}%"
+        }
+    }
