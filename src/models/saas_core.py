@@ -31,6 +31,7 @@ class Tenant(Base):
     orders = relationship("Order", back_populates="tenant", cascade="all, delete-orphan")
     receipts = relationship("BillingReceipt", back_populates="tenant", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="tenant", cascade="all, delete-orphan")
+    inventory_ledgers = relationship("InventoryLedger", back_populates="tenant", cascade="all, delete-orphan")
 
 # 2. HARDENED ENTERPRISE SAAS MASTER USER SCHEMAS
 class User(Base):
@@ -47,6 +48,7 @@ class User(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="users")
     audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
+    inventory_ledgers = relationship("InventoryLedger", back_populates="user", cascade="all, delete-orphan")
 
 # 3. MULTI-TENANT ISOLATED STOCK CATEGORY MATRIX
 class Category(Base):
@@ -75,6 +77,7 @@ class Product(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="products")
     order_items = relationship("OrderItem", back_populates="product", cascade="all, delete-orphan")
+    inventory_ledgers = relationship("InventoryLedger", back_populates="product", cascade="all, delete-orphan")
 
 # 5. MULTI-TENANT OMNICHANNEL REALTIME ORDERS LOGS
 class Order(Base):
@@ -118,16 +121,14 @@ class BillingReceipt(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="receipts")
 
-# ==========================================================================
-# FUTURE MODULE NEW: MULTI-TENANT SECURITY AUDIT TELEMETRY LOGGING
-# ==========================================================================
+# 7. MULTI-TENANT SECURITY AUDIT TELEMETRY LOGGING
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    action_type = Column(String, nullable=False)            # CREATE, UPDATE, DELETE, LOGIN
-    module_name = Column(String, nullable=False)            # PRODUCTS, CATEGORIES, ORDERS, AUTH
-    details_log = Column(Text, nullable=False)              # JSON string or descriptive text record
+    action_type = Column(String, nullable=False)
+    module_name = Column(String, nullable=False)
+    details_log = Column(Text, nullable=False)
     ip_address = Column(String, default="127.0.0.1")
     logged_at = Column(DateTime, default=datetime.utcnow)
 
@@ -136,3 +137,26 @@ class AuditLog(Base):
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="audit_logs")
+
+# ==========================================================================
+# PRODUCTION NEW MODEL: ADVANCED INVENTORY TRANSACTIONAL LEDGERS
+# ==========================================================================
+class InventoryLedger(Base):
+    __tablename__ = "inventory_ledgers"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    transaction_type = Column(String, nullable=False)       # STOCK_IN, STOCK_OUT, ADJUSTMENT, DAMAGED, ORDER_SALE
+    quantity_changed = Column(Integer, nullable=False)      # Positive for entry, negative for exit drops
+    previous_stock = Column(Integer, nullable=False)
+    current_stock = Column(Integer, nullable=False)
+    reason_note = Column(String, nullable=True)             # Restock, Damaged Item, Manual Correction
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
+    product = relationship("Product", back_populates="inventory_ledgers")
+
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user = relationship("User", back_populates="inventory_ledgers")
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="inventory_ledgers")
