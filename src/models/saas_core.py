@@ -12,7 +12,7 @@ class SubscriptionTier(enum.Enum):
     BUSINESS = "BUSINESS"
     ENTERPRISE = "ENTERPRISE"
 
-# 1. B2B SAAS WORKSPACE TENANT MATRIX
+# 1. B2B SAAS WORKSPACE TENANT MATRIX (WITH PLANS METER QUOTAS)
 class Tenant(Base):
     __tablename__ = "tenants"
 
@@ -23,6 +23,12 @@ class Tenant(Base):
     is_billing_active = Column(Boolean, default=True)
     trial_expired = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
+
+    # Dynamic Subscription Usage Guard Limits
+    max_sku_limit = Column(Integer, default=50)       # Free=50, Startup=500, Business=5000, Enterprise=99999
+    max_order_limit = Column(Integer, default=100)    # Free=100, Startup=1000, Business=10000, Enterprise=99999
+    enable_pos_feature = Column(Boolean, default=True)
+    enable_ai_forecast = Column(Boolean, default=False) # Premium Tier Boundary Lock
 
     # Core Backlink Relationships
     users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")
@@ -157,9 +163,7 @@ class AccountLedger(Base):
 
     __table_args__ = (Index("idx_ledger_tenant_head", "account_head", "tenant_id"),)
 
-# ==========================================================================
-# MASTER PROMPT V5.0 NEW NODES: BRANCHES, SUPPLIERS & PROCUREMENT LEDGERS
-# ==========================================================================
+# 9. BRANCHES, SUPPLIERS & PROCUREMENT LEDGERS
 class Branch(Base):
     __tablename__ = "branches"
 
@@ -187,7 +191,7 @@ class ProcurementLedger(Base):
     __tablename__ = "procurement_ledgers"
 
     id = Column(String, primary_key=True, index=True)
-    procurement_number = Column(String, nullable=False, index=True) # E.g., PO-2026-001
+    procurement_number = Column(String, nullable=False, index=True)
     qty_purchased = Column(Integer, default=1)
     unit_cost = Column(Float, nullable=False)
     total_cost = Column(Float, nullable=False)
