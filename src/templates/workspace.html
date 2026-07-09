@@ -3,81 +3,197 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise Dashboard - Business OS</title>
+    <title>Enterprise Console - Business OS</title>
     <link rel="stylesheet" href="https://jsdelivr.net">
     <link rel="stylesheet" href="/static/style.css">
     <script>
-        // HARDENED FRONTEND JWT AUTHENTICATION MIDDLEWARE GUARD OVERLAY
         const token = localStorage.getItem('access_token');
         const tenantId = localStorage.getItem('tenant_id');
-        
-        // 1. Absolute Route Interceptor: Block unauthorized access attempts instantly
-        if (!token || !tenantId) {
-            alert("Unauthorized Session Contract. Redirecting to Entry Gateway.");
-            window.location.href = '/auth/login';
-        }
+        const userRole = localStorage.getItem('user_role');
+        if (!token || !tenantId) { window.location.href = '/auth/login'; }
     </script>
 </head>
-<body style="display:flex; flex-direction:column; align-items:center; padding:24px; min-height:100vh; background:#050a14;">
+<body style="display:flex; flex-direction:column; align-items:center; padding:24px; min-height:100vh; background:#050a14; color:#fff; font-family:system-ui,sans-serif;">
     <div class="ambient-bg" style="top:-10%; left:10%;"></div>
 
     <!-- STICKY GLASS NAVBAR INNER CONSOLE -->
-    <div class="nav-container" style="margin-bottom: 32px;">
-        <nav class="navbar">
+    <div class="nav-container" style="margin-bottom:32px; width:100%; max-width:1140px;">
+        <nav class="navbar" style="display:flex; justify-content:space-between; align-items:center; padding:12px 24px; background:rgba(17,24,39,0.75); backdrop-filter:blur(18px); border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
             <div style="display:flex; align-items:center; gap:10px;">
                 <div style="width:34px; height:34px; border-radius:10px; background:linear-gradient(135deg,#4F8CFF,#8B5CF6); display:flex; align-items:center; justify-content:center; color:white;"><i class="bi bi-grid-1x2-fill"></i></div>
-                <span style="font-size:15px; font-weight:800; color:#FFF;">WORKSPACE <span style="color:#4F8CFF;" id="displayTenantId">OS</span></span>
+                <span style="font-size:15px; font-weight:800; color:#FFF;">BUSINESS OS: <span style="color:#4F8CFF;" id="displayTenantId">Loading...</span></span>
             </div>
             <div style="display:flex; align-items:center; gap:16px;">
                 <span id="displayUserRole" style="font-size:11px; background:rgba(79,140,255,0.15); color:#79A7FF; padding:4px 10px; border-radius:6px; font-weight:700; text-transform:uppercase;">Loading Role...</span>
-                <button onclick="executeSecureLogout()" class="btn-primary" style="height:34px; padding:0 14px; border-radius:8px; font-size:11px; background:#EF4444; box-shadow:none;">Logout</button>
+                <button onclick="executeSecureLogout()" class="btn-primary" style="height:34px; padding:0 14px; border-radius:8px; font-size:11px; background:#EF4444; border:none; color:#fff; cursor:pointer; font-weight:700;">Logout</button>
             </div>
         </nav>
     </div>
 
-    <!-- MAIN PLATFORM ANALYTICS OVERVIEW -->
-    <main style="width:100%; max-width:1140px; display:flex; flex-direction:column; gap:24px; z-index:10;">
-        <header style="text-align:left; display:flex; flex-direction:column; gap:8px;">
-            <h1 style="font-size:28px; font-weight:800; color:#FFF; letter-spacing:-0.5px;">Welcome to Your Operating Hub</h1>
-            <p style="font-size:13px; color:#94A3B8; font-weight:300;">Cryptographically secured dynamic SaaS session matrix is currently operational.</p>
-        </header>
+    <!-- OMNICHANNEL CONTROL LAYOUT DUAL COLUMNS -->
+    <main style="width:100%; max-width:1140px; display:grid; grid-template-columns:220px 1fr; gap:24px; z-index:10; text-align:left;">
+        <aside style="display:flex; flex-direction:column; gap:10px;">
+            <button onclick="switchTab('inventory')" class="btn-primary" id="tab-inventory" style="width:100%; height:44px; border-radius:8px; border:none; text-align:left; padding:0 16px; font-size:13px; font-weight:600; cursor:pointer; background:linear-gradient(135deg,#4F8CFF,#8B5CF6); color:#fff;"><i class="bi bi-box-seam" style="margin-right:8px;"></i> Stock Ledger</button>
+            <button onclick="switchTab('orders')" class="btn-primary" id="tab-orders" style="width:100%; height:44px; border-radius:8px; border:none; text-align:left; padding:0 16px; font-size:13px; font-weight:600; cursor:pointer; background:rgba(255,255,255,0.02); color:#fff; box-shadow:none;"><i class="bi bi-cart3" style="margin-right:8px;"></i> Omni Orders</button>
+            <button onclick="switchTab('billing')" class="btn-primary" id="tab-billing" style="width:100%; height:44px; border-radius:8px; border:none; text-align:left; padding:0 16px; font-size:13px; font-weight:600; cursor:pointer; background:rgba(255,255,255,0.02); box-shadow:none; border:1px dashed rgba(239,68,68,0.3); color:#FFA5A5;"><i class="bi bi-shield-lock" style="margin-right:8px;"></i> Workspace Lock</button>
+        </aside>
+        <!-- DYNAMIC CORE PANEL VIEWS -->
+        <div style="display:flex; flex-direction:column; gap:24px; width:100%;">
+            <!-- INVENTORY LEDGER TAB SHARD -->
+            <div id="view-inventory" style="display:flex; flex-direction:column; gap:24px; width:100%;">
+                <section style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:0;">
+                    <div style="background:rgba(17,24,39,0.4); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:20px;">
+                        <div style="font-size:18px; color:#4F8CFF;"><i class="bi bi-box"></i></div>
+                        <div class="num" id="totalItemsCount" style="font-size:28px; font-weight:800; color:#FFF; margin-top:4px;">0</div>
+                        <div style="color:#94A3B8; font-size:12px; margin-top:2px;">Active SKUs Shards</div>
+                    </div>
+                    <div style="background:rgba(17,24,39,0.4); border:1px solid rgba(255,255,255,0.05); border-radius:12px; padding:20px;">
+                        <div style="font-size:18px; color:#22C55E;"><i class="bi bi-activity"></i></div>
+                        <div class="num" id="totalStockQty" style="font-size:28px; font-weight:800; color:#FFF; margin-top:4px;">0</div>
+                        <div style="color:#94A3B8; font-size:12px; margin-top:2px;">Live Stock Velocity</div>
+                    </div>
+                </section>
+                
+                <div class="luxury-glass" style="padding:24px; border-radius:12px; background:rgba(17,24,39,0.4); border:1px solid rgba(255,255,255,0.05);">
+                    <h3 style="font-size:15px; margin-bottom:14px; color:#FFF;"><i class="bi bi-plus-circle" style="color:#4F8CFF;"></i> Ingest Core Product Shard</h3>
+                    <form id="productForm" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; align-items:end;">
+                        <input type="text" id="prdName" required placeholder="Item Name" style="height:38px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:0 10px; color:#FFF; font-size:12px;">
+                        <input type="text" id="prdSku" required placeholder="SKU ID" style="height:38px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:0 10px; color:#FFF; font-size:12px;">
+                        <input type="number" id="prdStock" required value="50" style="height:38px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:0 10px; color:#FFF; font-size:12px;">
+                        <input type="number" step="0.01" id="prdPurchase" required value="450.00" style="height:38px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:0 10px; color:#FFF; font-size:12px;">
+                        <input type="number" step="0.01" id="prdRetail" required value="599.00" style="height:38px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.08); border-radius:6px; padding:0 10px; color:#FFF; font-size:12px;">
+                        <button type="submit" class="btn-primary" style="height:38px; border-radius:6px; cursor:pointer; font-size:12px; border:none; color:white; font-weight:700; background:linear-gradient(135deg,#4F8CFF,#8B5CF6);">Stream Item</button>
+                    </form>
+                </div>
+                
+                <div class="luxury-glass" style="padding:24px; border-radius:12px; background:rgba(17,24,39,0.3); border:1px solid rgba(255,255,255,0.05); overflow-x:auto;">
+                    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                        <thead>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.06); color:#94A3B8; height:32px;">
+                                <th style="padding:6px 12px;">NAME</th>
+                                <th style="padding:6px 12px;">SKU</th>
+                                <th style="padding:6px 12px;">STOCK</th>
+                                <th style="padding:6px 12px;">PURCHASE</th>
+                                <th style="padding:6px 12px;">RETAIL</th>
+                                <th style="padding:6px 12px; text-align:center;">ACTIONS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
 
-        <!-- DYNAMIC 28 VERTICALS MODULES SIMULATION INJECTOR -->
-        <section class="grid-2" style="margin: 0;">
-            <div class="stat-card" style="padding:24px;">
-                <div style="font-size:20px; color:#4F8CFF;"><i class="bi bi-terminal-box"></i></div>
-                <div class="num" style="font-size:22px; color:#FFF; margin-top:8px;">Core Ingress</div>
-                <div class="desc" style="margin-top:4px;">Multi-Tenant Data Sandbox Grid</div>
+            <!-- OMNICHANNEL ORDERS STREAM VIEW TAB -->
+            <div id="view-orders" style="display:none; flex-direction:column; gap:24px; width:100%;">
+                <div class="luxury-glass" style="padding:24px; border-radius:12px; background:rgba(17,24,39,0.3); border:1px solid rgba(255,255,255,0.05); overflow-x:auto;">
+                    <h3 style="font-size:15px; margin-bottom:14px; color:#FFF;"><i class="bi bi-hdd-network" style="color:#22C55E;"></i> Omnichannel Real-time Orders Synchronization Pipeline</h3>
+                    <table style="width:100%; border-collapse:collapse; font-size:13px; text-align:left;">
+                        <thead>
+                            <tr style="border-bottom:1px solid rgba(255,255,255,0.06); color:#94A3B8; height:32px;">
+                                <th style="padding:6px 12px;">ORDER ID</th>
+                                <th style="padding:6px 12px;">PLATFORM CHANNEL</th>
+                                <th style="padding:6px 12px;">CUSTOMER NAME</th>
+                                <th style="padding:6px 12px;">TOTAL VALUE</th>
+                                <th style="padding:6px 12px;">STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody"></tbody>
+                    </table>
+                </div>
             </div>
-            <div class="stat-card" style="padding:24px;">
-                <div style="font-size:20px; color:#22C55E;"><i class="bi bi-shield-check"></i></div>
-                <div class="num" style="font-size:22px; color:#FFF; margin-top:8px;">JWT Verified</div>
-                <div class="desc" style="margin-top:4px;">Bearer Encryption Session Active</div>
+
+            <!-- MANUAL BILLING PROMPT SCREEN (CHIEF WORKSPACE LOCK) -->
+            <div id="view-billing" style="display:none; flex-direction:column; gap:24px; width:100%; text-align:center; align-items:center;">
+                <div class="luxury-glass" style="padding:40px; border-radius:16px; background:rgba(17,24,39,0.5); max-width:480px; width:100%; border:1px solid rgba(239,68,68,0.2);">
+                    <div style="font-size:42px; color:#EF4444; margin-bottom:12px;"><i class="bi bi-qr-code-scan"></i></div>
+                    <h2 style="font-size:20px; font-weight:800; margin-bottom:6px;">Workspace Contract Unlocked Setup</h2>
+                    <p style="font-size:12px; color:#94A3B8; margin-bottom:20px;">Your 3-day dynamic platform free trial has expired or requires renewal activation.</p>
+                    <div style="background:#fff; padding:16px; border-radius:12px; display:inline-block; margin-bottom:20px;"><img src="https://qrserver.com" style="width:150px; height:150px; display:block;"></div>
+                    <div style="font-size:13px; background:rgba(34,197,94,0.1); color:#4ADE80; padding:10px 14px; border-radius:8px; font-weight:700; margin-bottom:16px;">SaaS Plan Rate: 50,000 MMK / Monthly Flat</div>
+                    <form id="billingForm" style="display:flex; flex-direction:column; gap:12px; text-align:left;">
+                        <label style="font-size:11px; color:#94A3B8;">Upload Payment Slip Screenshot</label>
+                        <input type="file" required style="font-size:11px;">
+                        <button type="submit" class="btn-primary" style="height:40px; border:none; border-radius:6px; font-weight:700; cursor:pointer; background:linear-gradient(135deg,#4F8CFF,#8B5CF6); color:#fff;">Submit Slip to SuperAdmin Node</button>
+                    </form>
+                </div>
             </div>
-        </section>
+        </div>
     </main>
 
-    <!-- SECURE FLUID ROUTING JAVASCRIPT MATRIX -->
+    <!-- SECURE FLUID DIRECT FETCHING & CRUD REACTION LOGIC PIPELINE -->
     <script>
-        // Update user contextual layout states dynamically upon loading
         document.getElementById('displayTenantId').innerText = tenantId;
-        const userRole = localStorage.getItem('user_role');
-        if(userRole) {
-            document.getElementById('displayUserRole').innerText = userRole;
+        if(userRole) document.getElementById('displayUserRole').innerText = userRole;
+
+        function switchTab(targetTab) {
+            ['inventory', 'orders', 'billing'].forEach(t => {
+                document.getElementById('view-' + t).style.display = (t === targetTab) ? 'flex' : 'none';
+                document.getElementById('tab-' + t).style.background = (t === targetTab) ? 'linear-gradient(135deg,#4F8CFF,#8B5CF6)' : 'rgba(255,255,255,0.02)';
+                document.getElementById('tab-' + t).style.boxShadow = (t === targetTab) ? '0 0 30px rgba(79,140,255,0.35)' : 'none';
+            });
+            if(targetTab === 'inventory') fetchTenantProducts();
+            if(targetTab === 'orders') fetchTenantOrders();
         }
 
-        // 5. FIXED DISPATCHER NODE: SECURE LOGOUT FLOW METHOD
-        function executeSecureLogout() {
-            localStorage.removeItem('access_token');
-            localStorage.removeItem('refresh_token');
-            localStorage.removeItem('tenant_id');
-            localStorage.removeItem('user_role');
-            alert("Session Contract Safely Terminated. 🔒");
-            window.location.href = '/auth/login';
+        async function fetchTenantProducts() {
+            try {
+                const res = await fetch('/api/v4/business/products', { headers: { 'Authorization': 'Bearer ' + token } });
+                const data = await res.json();
+                if (res.ok) {
+                    const tbody = document.getElementById('productTableBody'); tbody.innerHTML = '';
+                    document.getElementById('totalItemsCount').innerText = data.total_items;
+                    let stockSum = 0;
+                    if(data.products.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" style="padding:12px; text-align:center; color:#94A3B8;">Empty sandbox stock matrix channels.</td></tr>`;
+                    } else {
+                        data.products.forEach(p => {
+                            stockSum += p.stock_qty;
+                            tbody.innerHTML += `
+                                <tr style="height:44px; border-bottom:1px solid rgba(255,255,255,0.02);">
+                                    <td style="padding:8px 12px; font-weight:700;"><i class="bi bi-box" style="color:#8B5CF6; margin-right:6px;"></i> ${p.name}</td>
+                                    <td style="font-family:monospace; color:#79A7FF; padding:8px 12px;">${p.sku}</td>
+                                    <td style="padding:8px 12px; font-weight:700; color:#22C55E">${p.stock_qty} units</td>
+                                    <td style="padding:8px 12px; color:#94A3B8;">$${p.purchase_price.toFixed(2)}</td>
+                                    <td style="padding:8px 12px; font-weight:700;">$${p.retail_price.toFixed(2)}</td>
+                                    <td style="padding:8px 12px; text-align:center; display:flex; gap:8px; justify-content:center;">
+                                        <button onclick="inlineUpdateStock('${p.id}', ${p.stock_qty})" style="background:rgba(79,140,255,0.15); color:#79A7FF; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:600;"><i class="bi bi-pencil-square"></i> Stock</button>
+                                        <button onclick="inlineDeleteProduct('${p.id}')" style="background:rgba(239,68,68,0.15); color:#FFA5A5; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer; font-weight:600;"><i class="bi bi-trash3"></i> Delete</button>
+                                    </td>
+                                </tr>`;
+                        });
+                    }
+                    document.getElementById('totalStockQty').innerText = stockSum;
+                }
+            } catch (err) { console.error(err.message); }
         }
-    </script>
-</body>
-</html>
+
+        async function inlineUpdateStock(productId, currentStock) {
+            const newStock = prompt("Enter new Stock Quantity allocation:", currentStock);
+            if (newStock === null || newStock.trim() === "") return;
+            
+            try {
+                const res = await fetch(`/api/v4/business/products/${productId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ stock_qty: parseInt(newStock) })
+                });
+                if(res.ok) { alert("Stock Asset Re-allocated successfully! 🟢"); fetchTenantProducts(); }
+                else { alert("Allocation Refused."); }
+            } catch (err) { alert(err.message); }
+        }
+
+        async function inlineDeleteProduct(productId) {
+            if(!confirm("Are you absolutely sure you want to purge this SKU record from sandbox layers? ⚠️")) return;
+            try {
+                const res = await fetch(`/api/v4/business/products/${productId}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                if(res.ok) { alert("SKU Record Purged from Sandbox Shards. 🛑"); fetchTenantProducts(); }
+                else { alert("Purge Denied."); }
+            } catch (err) { alert(err.message); }
+        }
+
         async function fetchTenantOrders() {
             try {
                 const res = await fetch('/api/v4/business/orders', { headers: { 'Authorization': 'Bearer ' + token } });
@@ -85,7 +201,7 @@
                 if(res.ok) {
                     const tbody = document.getElementById('ordersTableBody'); tbody.innerHTML = '';
                     data.orders.forEach(o => {
-                        tbody.innerHTML += `<tr style="height:44px; border-bottom:1px solid rgba(255,255,255,0.02);"><td style="padding:8px 12px; font-weight:700; color:#79A7FF;">${o.order_id}</td><td style="padding:8px 12px;"><i class="bi bi-chat-left-dots-fill" style="margin-right:6px; color:#4F8CFF;"></i> ${o.platform}</td><td style="padding:8px 12px; font-weight:600;">${o.customer}</td><td style="padding:8px 12px; font-weight:700; color:#4ADE80;">$${o.total_usd.toFixed(2)}</td><td style="padding:8px 12px;"><span style="font-size:11px; background:rgba(34,197,94,0.15); color:#22C55E; padding:3px 8px; border-radius:4px; font-weight:700;">${o.status}</span></td></tr>`;
+                        tbody.innerHTML += `<tr style="height:44px; border-bottom:1px solid rgba(255,255,255,0.02);"><td style="padding:8px 12px; font-weight:700; color:#79A7FF;">${o.order_number}</td><td style="padding:8px 12px;"><i class="bi bi-chat-left-dots-fill" style="margin-right:6px; color:#4F8CFF;"></i> ${o.platform}</td><td style="padding:8px 12px; font-weight:600;">${o.customer}</td><td style="padding:8px 12px; font-weight:700; color:#4ADE80;">$${o.total_usd.toFixed(2)}</td><td style="padding:8px 12px;"><span style="font-size:11px; background:rgba(34,197,94,0.15); color:#22C55E; padding:3px 8px; border-radius:4px; font-weight:700;">${o.status}</span></td></tr>`;
                     });
                 }
             } catch (err) { console.error(err.message); }
@@ -105,44 +221,10 @@
             else { alert("Ingest Denied: Policy Violation"); }
         });
 
-        document.getElementById('billingForm').addEventListener('submit', (e) => {
-            e.preventDefault(); alert("Payment Slip Transmitted to Core Kernel Vault. Standby for Activation Approval. 🔐"); switchTab('inventory');
-        });
-
-        window.onload = fetchTenantProducts;
-        function executeSecureLogout() { localStorage.clear(); window.location.href = '/auth/login'; }
-    </script>
-</body>
-</html>
-        async function fetchTenantOrders() {
-            try {
-                const res = await fetch('/api/v4/business/orders', { headers: { 'Authorization': 'Bearer ' + token } });
-                const data = await res.json();
-                if(res.ok) {
-                    const tbody = document.getElementById('ordersTableBody'); tbody.innerHTML = '';
-                    data.orders.forEach(o => {
-                        tbody.innerHTML += `<tr style="height:44px; border-bottom:1px solid rgba(255,255,255,0.02);"><td style="padding:8px 12px; font-weight:700; color:#79A7FF;">${o.order_id}</td><td style="padding:8px 12px;"><i class="bi bi-chat-left-dots-fill" style="margin-right:6px; color:#4F8CFF;"></i> ${o.platform}</td><td style="padding:8px 12px; font-weight:600;">${o.customer}</td><td style="padding:8px 12px; font-weight:700; color:#4ADE80;">$${o.total_usd.toFixed(2)}</td><td style="padding:8px 12px;"><span style="font-size:11px; background:rgba(34,197,94,0.15); color:#22C55E; padding:3px 8px; border-radius:4px; font-weight:700;">${o.status}</span></td></tr>`;
-                    });
-                }
-            } catch (err) { console.error(err.message); }
-        }
-
-        document.getElementById('productForm').addEventListener('submit', async (e) => {
+        document.getElementById('billingForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const payload = {
-                name: document.getElementById('prdName').value, sku: document.getElementById('prdSku').value,
-                stock_qty: parseInt(document.getElementById('prdStock').value), purchase_price: parseFloat(document.getElementById('prdPurchase').value), retail_price: parseFloat(document.getElementById('prdRetail').value)
-            };
-            const response = await fetch('/api/v4/business/products', {
-                method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-                body: JSON.stringify(payload)
-            });
-            if (response.ok) { alert("Product Stream Registered and Hardened inside Sandbox. 📦"); document.getElementById('productForm').reset(); fetchTenantProducts(); }
-            else { alert("Ingest Denied: Policy Violation"); }
-        });
-
-        document.getElementById('billingForm').addEventListener('submit', (e) => {
-            e.preventDefault(); alert("Payment Slip Transmitted to Core Kernel Vault. Standby for Activation Approval. 🔐"); switchTab('inventory');
+            alert("Payment Slip Transmitted to Core Kernel Vault. Standby for Activation Approval. 🔐");
+            switchTab('inventory');
         });
 
         window.onload = fetchTenantProducts;
