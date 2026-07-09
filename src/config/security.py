@@ -13,7 +13,13 @@ ALGORITHM = "HS256"
 # CORE TOKENS LIFECYCLE SPECS MATRIX
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 REFRESH_TOKEN_EXPIRE_DAYS = 7
-TRIAL_DURATION_DAYS = 3  # PRODUCTION RULE: HARD CEILING FOR PREMIUM FREE WORKSPACES
+TRIAL_DURATION_DAYS = 3
+
+# ==========================================================================
+# PRODUCTION FIXED: AUTHORITATIVE OWNER DIRECT CONTACT MATRIX METRICS
+# ==========================================================================
+OWNER_TELEGRAM_LINK = os.getenv("OWNER_TELEGRAM_LINK", "https://t.me")
+OWNER_SUPPORT_PHONE = os.getenv("OWNER_SUPPORT_PHONE", "+959450000000") # Protocol: tel:+95945...
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v4/auth/login", 
@@ -78,22 +84,14 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> object:
     if not active_user or not active_user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCOUNT_SUSPENDED_OR_INACTIVE")
         
-    # ==========================================================================
-    # PRODUCTION SYSTEM CLOCK: 3-DAY FREE TRIAL AUTO-CUTOFF ENFORCEMENT ENGINE
-    # ==========================================================================
     tenant_profile = db.query(Tenant).filter(Tenant.id == active_user.tenant_id).first()
     if tenant_profile:
-        # Check if the subscription tier is FREE_TRIAL to dynamically evaluate duration thresholds
         if tenant_profile.subscription_tier == SubscriptionTier.FREE_TRIAL:
             elapsed_timeline = datetime.utcnow() - tenant_profile.created_at
-            
-            # Enforce immediate cutoff if timeline exceeds 3-Day structural parameter
             if elapsed_timeline.days >= TRIAL_DURATION_DAYS or tenant_profile.trial_expired:
-                # Automate database flag state synchronization to harden persistence boundaries
                 if not tenant_profile.trial_expired:
                     tenant_profile.trial_expired = True
                     db.commit()
-                    
                 raise HTTPException(
                     status_code=status.HTTP_402_PAYMENT_REQUIRED,
                     detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED_RENEWAL_REQUIRED"

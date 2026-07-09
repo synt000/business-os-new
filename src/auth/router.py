@@ -9,7 +9,11 @@ from sqlalchemy.orm import Session
 # Authoritative Connection Layer Mappings
 from ..database import get_db
 from ..models.saas_core import User, Tenant, SubscriptionTier, BillingReceipt
-from ..config.security import get_password_hash, verify_password, create_access_token, create_refresh_token, verify_access_token, get_current_user
+from ..config.security import (
+    get_password_hash, verify_password, create_access_token, 
+    create_refresh_token, verify_access_token, get_current_user,
+    OWNER_TELEGRAM_LINK, OWNER_SUPPORT_PHONE
+)
 
 router = APIRouter(tags=["Authentication Gateway Matrix"])
 
@@ -157,11 +161,18 @@ async def submit_manual_billing_slip(payload: BillingSlipSubmitInboundSchema, cu
     return {"status": "BILLING_RECEIPT_SUBMITTED_SUCCESSFULLY", "receipt_id": receipt_id, "verification_state": "PENDING"}
 
 # ==========================================================================
-# PRODUCTION NEW SUITE: HARDENED SYSTEM SUPERADMIN CONTROL PANELS APIs
+# 3. PRODUCTION NEW APIs: SUPERADMIN ENGINE & SYSTEM SUPPORT CONFIG INGRESS
 # ==========================================================================
+@router.get("/api/v4/auth/owner-contact-matrix")
+async def fetch_owner_direct_contact_configs(current_user: User = Depends(get_current_user)):
+    """Serves the centralized owner support access node dynamically to authenticated workspace sessions."""
+    return {
+        "owner_telegram_support_link": OWNER_TELEGRAM_LINK,
+        "owner_support_phone_hotline": OWNER_SUPPORT_PHONE
+    }
+
 @router.get("/api/v4/superadmin/receipts")
 async def superadmin_fetch_all_pending_receipts(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Allows only authenticated SUPERADMIN roles to fetch all inbound tenant billing screenshots."""
     if current_user.role != "SUPERADMIN":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCESS_DENIED: SUPERADMIN_AUTHORITY_REQUIRED")
         
@@ -174,7 +185,6 @@ async def superadmin_fetch_all_pending_receipts(current_user: User = Depends(get
 
 @router.post("/api/v4/superadmin/tenants/{tenant_id}/approve")
 async def superadmin_approve_and_unlock_tenant_workspace(tenant_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Approves a tenant billing receipt, resets the trial clock ceiling, and unlocks their business workspace."""
     if current_user.role != "SUPERADMIN":
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCESS_DENIED: SUPERADMIN_AUTHORITY_REQUIRED")
         
@@ -182,12 +192,10 @@ async def superadmin_approve_and_unlock_tenant_workspace(tenant_id: str, current
     if not target_tenant:
         raise HTTPException(status_code=404, detail="TARGET_TENANT_NOT_FOUND")
         
-    # PRODUCTION MATRIX: Reset trial clocks and elevate to paid tier natively
     target_tenant.trial_expired = False
-    target_tenant.subscription_tier = SubscriptionTier.STARTUP  # Elevate from Free Trial to Startup Plan
-    target_tenant.created_at = datetime.utcnow()                # Refresh baseline timestamps clock for subscription periods
+    target_tenant.subscription_tier = SubscriptionTier.STARTUP
+    target_tenant.created_at = datetime.utcnow()
     
-    # Mark corresponding receipts as APPROVED cleanly
     db.query(BillingReceipt).filter(BillingReceipt.tenant_id == tenant_id, BillingReceipt.verification_status == "PENDING").update({"verification_status": "APPROVED"})
     
     try:
