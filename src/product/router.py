@@ -8,7 +8,7 @@ from sqlalchemy import func
 
 # Authoritative Core Connections Matrix
 from ..database import get_db
-from ..models.saas_core import User, Product, Order, OrderItem, Category, AuditLog, AccountLedger, Branch, Supplier, ProcurementLedger
+from ..models.saas_core import User, Product, Order, OrderItem, Category, AuditLog, AccountLedger, Branch, Supplier, ProcurementLedger, Customer, WorkspaceInvitation
 from ..config.security import get_current_user
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
@@ -60,6 +60,15 @@ class ProcurementCreateInboundSchema(BaseModel):
     supplier_id: str
     qty_purchased: int
     unit_cost: float
+
+class CustomerCreateInboundSchema(BaseModel):
+    customer_name: str
+    customer_email: Optional[str] = None
+    customer_phone: Optional[str] = None
+
+class WorkspaceInviteInboundSchema(BaseModel):
+    invite_email: str
+    target_role: str = "MEMBER"
 
 # ==========================================================================
 # HELPER CORE: AUTOMATED SYSTEMS LOGGING & DOUBLE-ENTRY LEDGER PIPELINES
@@ -118,15 +127,22 @@ async def delete_isolated_category(category_id: int, request: Request, current_u
     return {"status": "CATEGORY_SUCCESSFULLY_DELETED", "category_id": category_id}
 
 # ==========================================================================
-# 2. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH INTEGRATED TELEMETRY)
+# 2. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH HARDENED SUBSCRIPTION GUARDS)
 # ==========================================================================
 @router.post("/products", status_code=status.HTTP_201_CREATED)
 async def create_isolated_product_item(payload: ProductCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not payload.name.strip() or not payload.sku.strip():
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: NAME_AND_SKU_ARE_REQUIRED")
+        
+    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    current_skus = db.query(func.count(Product.id)).filter(Product.tenant_id == current_user.tenant_id).scalar() or 0
+    if tenant and current_skus >= tenant.max_sku_limit:
+        raise HTTPException(status_code=403, detail=f"SUBSCRIPTION_LIMIT_EXCEEDED: Your current tier allows maximum {tenant.max_sku_limit} SKUs. Upgrade required.")
+        
     duplicate_sku = db.query(Product).filter(Product.sku == payload.sku, Product.tenant_id == current_user.tenant_id).first()
     if duplicate_sku:
         raise HTTPException(status_code=400, detail="CONFLICT: SKU_ALREADY_EXISTS_IN_THIS_WORKSPACE")
+        
     product_id = f"prd_{int(datetime.utcnow().timestamp())}"
     new_product = Product(id=product_id, name=payload.name, sku=payload.sku, barcode=payload.barcode, stock_qty=payload.stock_qty, purchase_price=payload.purchase_price, retail_price=payload.retail_price, tenant_id=current_user.tenant_id)
     db.add(new_product)
@@ -168,6 +184,12 @@ async def delete_isolated_product_item(product_id: str, request: Request, curren
 async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not payload.customer_name.strip() or not payload.items:
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: CUSTOMER_NAME_AND_ITEMS_ARE_REQUIRED")
+        
+    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    current_orders = db.query(func.count(Order.id)).filter(Order.tenant_id == current_user.tenant_id).scalar() or 0
+    if tenant and current_orders >= tenant.max_order_limit:
+        raise HTTPException(status_code=403, detail=f"SUBSCRIPTION_LIMIT_EXCEEDED: Your current tier allows maximum {tenant.max_order_limit} Orders. Upgrade required.")
+        
     order_id = f"ord_{int(datetime.utcnow().timestamp())}"
     order_num = f"ORD-{datetime.utcnow().strftime('%Y%m%d')}-{int(datetime.utcnow().timestamp()) % 10000:04d}"
     new_order = Order(id=order_id, order_number=order_num, platform_channel=payload.platform_channel, customer_name=payload.customer_name, customer_phone=payload.customer_phone, total_amount=0.0, order_status="PENDING", tenant_id=current_user.tenant_id)
@@ -213,8 +235,24 @@ async def generate_isolated_profit_loss_statement(current_user: User = Depends(g
     profit_margin_pct = (gross_profit / total_revenue * 100) if total_revenue > 0 else 0.0
     return {"tenant_id": current_user.tenant_id, "report_type": "ACCRUAL_PROFIT_AND_LOSS_STATEMENT", "generated_at": datetime.utcnow(), "financial_summary": {"total_gross_revenue": total_revenue, "total_cost_of_goods_sold": total_cogs, "gross_profit_margin": gross_profit, "net_operational_profit": gross_profit, "net_profit_margin_percentage": f"{profit_margin_pct:.2f}%"}}
 
+@router.get("/billing/usage-meters")
+async def fetch_tenant_subscription_usage_meters(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    if not tenant: raise HTTPException(status_code=404, detail="WORKSPACE_PROFILE_NOT_FOUND")
+    current_skus = db.query(func.count(Product.id)).filter(Product.tenant_id == current_user.tenant_id).scalar() or 0
+    current_orders = db.query(func.count(Order.id)).filter(Order.tenant_id == current_user.tenant_id).scalar() or 0
+    return {
+        "workspace_id": current_user.tenant_id,
+        "subscription_tier": tenant.subscription_tier.name if hasattr(tenant.subscription_tier, 'name') else str(tenant.subscription_tier),
+        "usage_meters": {
+            "inventory_skus": {"current": current_skus, "max_limit": tenant.max_sku_limit, "quota_reached": current_skus >= tenant.max_sku_limit},
+            "sales_orders": {"current": current_orders, "max_limit": tenant.max_order_limit, "quota_reached": current_orders >= tenant.max_order_limit}
+        },
+        "feature_flags": {"multi_branch_pos_enabled": tenant.enable_pos_feature, "ai_predictive_forecast_enabled": tenant.enable_ai_forecast}
+    }
+
 # ==========================================================================
-# 4. MASTER PROMPT V5.0 NEW NODE: MULTI-BRANCH, SUPPLIER & PROCUREMENT PIPELINES
+# 4. MASTER PROMPT V5.0 NEW NODE: MULTI-BRANCH, SUPPLIER & PROCUREMENT
 # ==========================================================================
 @router.post("/branches", status_code=status.HTTP_201_CREATED)
 async def create_isolated_branch(payload: BranchCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -266,127 +304,33 @@ async def create_procurement_purchase_entry(payload: ProcurementCreateInboundSch
     return {"status": "PROCUREMENT_PURCHASE_SUCCESSFULLY_LOGGED", "procurement_id": proc_id, "po_number": po_number, "total_cost": total_cost_pool}
 
 # ==========================================================================
-# MASTER PROMPT V5.0 NEW NODE: BILLING METER QUOTAS & FEATURE FLAGS INGRESS
+# 5. MASTER PROMPT V5.0 NEW NODE: CRM CUSTOMERS & SECURE USER INVITATIONS
 # ==========================================================================
-@router.get("/billing/usage-meters")
-async def fetch_tenant_subscription_usage_meters(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Meters dynamic tenant workspace usages against active plan quotas live."""
-    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
-    if not tenant:
-        raise HTTPException(status_code=404, detail="WORKSPACE_PROFILE_NOT_FOUND")
-        
-    current_skus = db.query(func.count(Product.id)).filter(Product.tenant_id == current_user.tenant_id).scalar() or 0
-    current_orders = db.query(func.count(Order.id)).filter(Order.tenant_id == current_user.tenant_id).scalar() or 0
-    
-    return {
-        "workspace_id": current_user.tenant_id,
-        "subscription_tier": tenant.subscription_tier.name if hasattr(tenant.subscription_tier, 'name') else str(tenant.subscription_tier),
-        "usage_meters": {
-            "inventory_skus": {"current": current_skus, "max_limit": tenant.max_sku_limit, "quota_reached": current_skus >= tenant.max_sku_limit},
-            "sales_orders": {"current": current_orders, "max_limit": tenant.max_order_limit, "quota_reached": current_orders >= tenant.max_order_limit}
-        },
-        "feature_flags": {
-            "multi_branch_pos_enabled": tenant.enable_pos_feature,
-            "ai_predictive_forecast_enabled": tenant.enable_ai_forecast
-        }
-    }
-
-# ==========================================================================
-# MASTER PROMPT V5.0: HARDENED PRODUCT INGRESS WITH QUOTA GUARD ENFORCEMENT
-# ==========================================================================
-@router.post("/products", status_code=status.HTTP_201_CREATED)
-async def create_isolated_product_item(payload: ProductCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not payload.name.strip() or not payload.sku.strip():
-        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: NAME_AND_SKU_ARE_REQUIRED")
-        
-    # Enforce strict Subscription Usage Limits Checks prior to database mutations
-    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
-    current_skus = db.query(func.count(Product.id)).filter(Product.tenant_id == current_user.tenant_id).scalar() or 0
-    if tenant and current_skus >= tenant.max_sku_limit:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail=f"SUBSCRIPTION_LIMIT_EXCEEDED: Your current tier allows maximum {tenant.max_sku_limit} SKUs. Upgrade required."
-        )
-        
-    duplicate_sku = db.query(Product).filter(Product.sku == payload.sku, Product.tenant_id == current_user.tenant_id).first()
-    if duplicate_sku:
-        raise HTTPException(status_code=400, detail="CONFLICT: SKU_ALREADY_EXISTS_IN_THIS_WORKSPACE")
-        
-    product_id = f"prd_{int(datetime.utcnow().timestamp())}"
-    new_product = Product(id=product_id, name=payload.name, sku=payload.sku, barcode=payload.barcode, stock_qty=payload.stock_qty, purchase_price=payload.purchase_price, retail_price=payload.retail_price, tenant_id=current_user.tenant_id)
-    db.add(new_product)
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)
+@router.post("/customers", status_code=status.HTTP_201_CREATED)
+async def create_isolated_crm_customer(payload: CustomerCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.customer_name.strip(): raise HTTPException(status_code=422, detail="Customer name cannot be empty")
+    customer_id = f"cst_{int(datetime.utcnow().timestamp())}"
+    new_customer = Customer(id=customer_id, customer_name=payload.customer_name, customer_email=payload.customer_email, customer_phone=payload.customer_phone, tenant_id=current_user.tenant_id)
+    db.add(new_customer)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "CRM_CUSTOMERS", f"Registered CRM Client: {payload.customer_name}", request)
     db.commit()
-    return {"status": "PRODUCT_SUCCESSFULLY_CREATED", "product_id": product_id}
+    return {"status": "CUSTOMER_SUCCESSFULLY_REGISTERED", "customer_id": customer_id}
 
-# ==========================================================================
-# MASTER PROMPT V5.0: HARDENED ORDERS INGRESS WITH SUBSCRIPTION ORDER GUARD
-# ==========================================================================
-@router.post("/orders", status_code=status.HTTP_201_CREATED)
-async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if not payload.customer_name.strip() or not payload.items:
-        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: CUSTOMER_NAME_AND_ITEMS_ARE_REQUIRED")
-        
-    # Enforce strict Subscription Usage Limits Checks prior to database mutations
-    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
-    current_orders = db.query(func.count(Order.id)).filter(Order.tenant_id == current_user.tenant_id).scalar() or 0
-    if tenant and current_orders >= tenant.max_order_limit:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, 
-            detail=f"SUBSCRIPTION_LIMIT_EXCEEDED: Your current tier allows maximum {tenant.max_order_limit} Orders. Upgrade required."
-        )
-        
-    order_id = f"ord_{int(datetime.utcnow().timestamp())}"
-    order_num = f"ORD-{datetime.utcnow().strftime('%Y%m%d')}-{int(datetime.utcnow().timestamp()) % 10000:04d}"
-    new_order = Order(id=order_id, order_number=order_num, platform_channel=payload.platform_channel, customer_name=payload.customer_name, customer_phone=payload.customer_phone, total_amount=0.0, order_status="PENDING", tenant_id=current_user.tenant_id)
-    db.add(new_order)
-    computed_total_pool = 0.0
-    computed_cogs_pool = 0.0
-    for item in payload.items:
-        target_product = db.query(Product).filter(Product.id == item.product_id, Product.tenant_id == current_user.tenant_id).first()
-        if not target_product:
-            raise HTTPException(status_code=404, detail=f"PRODUCT_ID_{item.product_id}_NOT_FOUND_IN_THIS_WORKSPACE")
-        if target_product.stock_qty < item.quantity:
-            raise HTTPException(status_code=400, detail=f"INSUFFICIENT_STOCK: {target_product.name} has only {target_product.stock_qty} units left")
-        target_product.stock_qty -= item.quantity
-        sale_price = target_product.retail_price
-        cogs_price = target_product.purchase_price
-        computed_total_pool += (sale_price * item.quantity)
-        computed_cogs_pool += (cogs_price * item.quantity)
-        new_item = OrderItem(quantity=item.quantity, price_at_sale=sale_price, order_id=order_id, product_id=target_product.id)
-        db.add(new_item)
-    new_order.total_amount = computed_total_pool
-    record_double_entry_accounting(db, current_user.tenant_id, "DEBIT", "CASH_ASSET", computed_total_pool, order_id, f"Inbound cash received from sales invoice {order_num}")
-    record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "SALES_REVENUE", computed_total_pool, order_id, f"Recognized revenue earned from order {order_num}")
-    record_double_entry_accounting(db, current_user.tenant_id, "DEBIT", "COGS_EXPENSE", computed_cogs_pool, order_id, f"Cost of goods sold recorded for invoice {order_num}")
-    record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "INVENTORY_ASSET", computed_cogs_pool, order_id, f"Asset inventory reduction mapped from sales checkout {order_num}")
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "ORDERS", f"Processed invoice {order_num} and triggered automated accounting matrixes", request)
-    try:
-        db.commit()
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"TRANSACTION_FAILED: {str(exc)}")
-    return {"status": "ORDER_SUCCESSFULLY_SYNCED", "order_id": order_id, "order_number": order_num, "total_amount": computed_total_pool}
+@router.get("/customers")
+async def fetch_isolated_crm_customers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    clients = db.query(Customer).filter(Customer.tenant_id == current_user.tenant_id).all()
+    return {"customers": [{"id": c.id, "name": c.customer_name, "email": c.customer_email, "phone": c.customer_phone, "total_spent_usd": c.total_spent} for c in clients]}
 
-# ==========================================================================
-# MASTER PROMPT V5.0: PREMIUM FEATURE FLAG BOUNDARY INTERCEPTOR (AI LOCK)
-# ==========================================================================
-@router.get("/ai-agent/predictive-forecast")
-async def fetch_premium_ai_sales_forecast(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Protects premium architectural modules via strict subscription feature flag gating hooks."""
-    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
-    if not tenant or not tenant.enable_ai_forecast:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="FEATURE_RESTRICTED: AI_PREDICTIVE_FORECAST_REQUIRES_PREMIUM_BUSINESS_OR_ENTERPRISE_TIER"
-        )
-    return {
-        "status": "SUCCESS",
-        "tenant_id": current_user.tenant_id,
-        "engine": "COGNITIVE_AI_FORECASTER_V5",
-        "predictions": {
-            "next_month_projected_sales_usd": 75000.00,
-            "top_velocity_sku_demand": "XIAOMI-NOTE13-BLK",
-            "recommended_replenishment_qty": 250
-        }
-    }
+@router.post("/workspace/invite-user", status_code=status.HTTP_201_CREATED)
+async def create_secure_workspace_invitation(payload: WorkspaceInviteInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role != "ADMIN": raise HTTPException(status_code=403, detail="ROLE_RESTRICTED: ONLY_WORKSPACE_ADMINS_CAN_INVITE_USERS")
+    import secrets
+    secure_token = secrets.token_urlsafe(32)
+    invite_id = f"inv_{int(datetime.utcnow().timestamp())}"
+    from datetime import timedelta
+    expiry_time = datetime.utcnow() + timedelta(days=2) # 48 Hours Expiry Frame
+    new_invite = WorkspaceInvitation(id=invite_id, invite_email=payload.invite_email, target_role=payload.target_role, invitation_token=secure_token, expires_at=expiry_time, tenant_id=current_user.tenant_id)
+    db.add(new_invite)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "INVITE", "RBAC_SECURITY", f"Sent secure invitation link to {payload.invite_email} with role {payload.target_role}", request)
+    db.commit()
+    return {"status": "INVITATION_LINK_GENERATED_SUCCESSFULLY", "invitation_id": invite_id, "secure_hash_token": secure_token, "onboard_gateway_url": f"http://localhost:8000/api/v4/auth/invite/accept?token={secure_token}"}

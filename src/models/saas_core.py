@@ -12,7 +12,6 @@ class SubscriptionTier(enum.Enum):
     BUSINESS = "BUSINESS"
     ENTERPRISE = "ENTERPRISE"
 
-# 1. B2B SAAS WORKSPACE TENANT MATRIX (WITH PLANS METER QUOTAS)
 class Tenant(Base):
     __tablename__ = "tenants"
 
@@ -24,13 +23,11 @@ class Tenant(Base):
     trial_expired = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.utcnow)
 
-    # Dynamic Subscription Usage Guard Limits
-    max_sku_limit = Column(Integer, default=50)       # Free=50, Startup=500, Business=5000, Enterprise=99999
-    max_order_limit = Column(Integer, default=100)    # Free=100, Startup=1000, Business=10000, Enterprise=99999
+    max_sku_limit = Column(Integer, default=50)
+    max_order_limit = Column(Integer, default=100)
     enable_pos_feature = Column(Boolean, default=True)
-    enable_ai_forecast = Column(Boolean, default=False) # Premium Tier Boundary Lock
+    enable_ai_forecast = Column(Boolean, default=False)
 
-    # Core Backlink Relationships
     users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")
     products = relationship("Product", back_populates="tenant", cascade="all, delete-orphan")
     categories = relationship("Category", back_populates="tenant", cascade="all, delete-orphan")
@@ -41,8 +38,9 @@ class Tenant(Base):
     branches = relationship("Branch", back_populates="tenant", cascade="all, delete-orphan")
     suppliers = relationship("Supplier", back_populates="tenant", cascade="all, delete-orphan")
     procurements = relationship("ProcurementLedger", back_populates="tenant", cascade="all, delete-orphan")
+    customers = relationship("Customer", back_populates="tenant", cascade="all, delete-orphan")
+    invitations = relationship("WorkspaceInvitation", back_populates="tenant", cascade="all, delete-orphan")
 
-# 2. HARDENED ENTERPRISE SAAS MASTER USER SCHEMAS
 class User(Base):
     __tablename__ = "users"
 
@@ -58,7 +56,6 @@ class User(Base):
     tenant = relationship("Tenant", back_populates="users")
     audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
 
-# 3. MULTI-TENANT ISOLATED STOCK CATEGORY MATRIX
 class Category(Base):
     __tablename__ = "categories"
 
@@ -69,7 +66,6 @@ class Category(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="categories")
 
-# 4. AUTHORITATIVE CENTRAL B2B INVENTORY CORE PRODUCT
 class Product(Base):
     __tablename__ = "products"
 
@@ -87,7 +83,6 @@ class Product(Base):
     order_items = relationship("OrderItem", back_populates="product", cascade="all, delete-orphan")
     procurements = relationship("ProcurementLedger", back_populates="product", cascade="all, delete-orphan")
 
-# 5. MULTI-TENANT OMNICHANNEL REALTIME ORDERS LOGS
 class Order(Base):
     __tablename__ = "orders"
 
@@ -113,11 +108,9 @@ class OrderItem(Base):
 
     order_id = Column(String, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
     order = relationship("Order", back_populates="items")
-
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     product = relationship("Product", back_populates="order_items")
 
-# 6. MULTI-TENANT BILLING RECEIPT STORAGE INGESTION
 class BillingReceipt(Base):
     __tablename__ = "billing_receipts"
 
@@ -129,7 +122,6 @@ class BillingReceipt(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="receipts")
 
-# 7. MULTI-TENANT SECURITY AUDIT TELEMETRY LOGGING
 class AuditLog(Base):
     __tablename__ = "audit_logs"
 
@@ -142,11 +134,9 @@ class AuditLog(Base):
 
     user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     user = relationship("User", back_populates="audit_logs")
-
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="audit_logs")
 
-# 8. DEBIT/CREDIT ACCOUNTING DOUBLE-ENTRY LEDGER
 class AccountLedger(Base):
     __tablename__ = "account_ledgers"
 
@@ -163,7 +153,6 @@ class AccountLedger(Base):
 
     __table_args__ = (Index("idx_ledger_tenant_head", "account_head", "tenant_id"),)
 
-# 9. BRANCHES, SUPPLIERS & PROCUREMENT LEDGERS
 class Branch(Base):
     __tablename__ = "branches"
 
@@ -199,9 +188,34 @@ class ProcurementLedger(Base):
 
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
     product = relationship("Product", back_populates="procurements")
-
     supplier_id = Column(String, ForeignKey("suppliers.id", ondelete="CASCADE"), nullable=False)
     supplier = relationship("Supplier", back_populates="procurements")
-
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="procurements")
+
+class Customer(Base):
+    __tablename__ = "customers"
+
+    id = Column(String, primary_key=True, index=True)
+    customer_name = Column(String, nullable=False, index=True)
+    customer_email = Column(String, nullable=True, index=True)
+    customer_phone = Column(String, nullable=True, index=True)
+    total_spent = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="customers")
+
+class WorkspaceInvitation(Base):
+    __tablename__ = "workspace_invitations"
+
+    id = Column(String, primary_key=True, index=True)
+    invite_email = Column(String, nullable=False, index=True)
+    target_role = Column(String, default="MEMBER")
+    invitation_token = Column(String, unique=True, index=True)
+    is_accepted = Column(Boolean, default=False)
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="invitations")
