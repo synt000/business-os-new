@@ -32,6 +32,7 @@ class Tenant(Base):
     receipts = relationship("BillingReceipt", back_populates="tenant", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="tenant", cascade="all, delete-orphan")
     inventory_ledgers = relationship("InventoryLedger", back_populates="tenant", cascade="all, delete-orphan")
+    customers = relationship("Customer", back_populates="tenant", cascade="all, delete-orphan")
 
 # 2. HARDENED ENTERPRISE SAAS MASTER USER SCHEMAS
 class User(Base):
@@ -138,18 +139,16 @@ class AuditLog(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="audit_logs")
 
-# ==========================================================================
-# PRODUCTION NEW MODEL: ADVANCED INVENTORY TRANSACTIONAL LEDGERS
-# ==========================================================================
+# 8. MULTI-TENANT ADVANCED INVENTORY TRANSACTIONAL LEDGERS
 class InventoryLedger(Base):
     __tablename__ = "inventory_ledgers"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    transaction_type = Column(String, nullable=False)       # STOCK_IN, STOCK_OUT, ADJUSTMENT, DAMAGED, ORDER_SALE
-    quantity_changed = Column(Integer, nullable=False)      # Positive for entry, negative for exit drops
+    transaction_type = Column(String, nullable=False)
+    quantity_changed = Column(Integer, nullable=False)
     previous_stock = Column(Integer, nullable=False)
     current_stock = Column(Integer, nullable=False)
-    reason_note = Column(String, nullable=True)             # Restock, Damaged Item, Manual Correction
+    reason_note = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
@@ -160,3 +159,20 @@ class InventoryLedger(Base):
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="inventory_ledgers")
+
+# ==========================================================================
+# PRODUCTION NEW MODEL: MULTI-TENANT CUSTOMERS CRM CORE PROFILE
+# ==========================================================================
+class Customer(Base):
+    __tablename__ = "customers"
+
+    id = Column(String, primary_key=True, index=True)
+    name = Column(String, nullable=False, index=True)
+    phone = Column(String, nullable=False, index=True)
+    email = Column(String, nullable=True)
+    address = Column(Text, nullable=True)
+    total_spent = Column(Float, default=0.0)                 # Automatically aggregatable metric
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="customers")

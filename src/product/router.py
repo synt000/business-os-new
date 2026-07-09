@@ -2,12 +2,12 @@ import os
 from datetime import datetime
 from typing import Optional, List
 from fastapi import APIRouter, Depends, HTTPException, status, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
 # Authoritative Core Connections Matrix
 from ..database import get_db
-from ..models.saas_core import User, Product, Order, OrderItem, Category, AuditLog, InventoryLedger
+from ..models.saas_core import User, Product, Order, OrderItem, Category, AuditLog, InventoryLedger, Customer
 from ..config.security import get_current_user
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
@@ -49,6 +49,18 @@ class StockAdjustmentInboundSchema(BaseModel):
     quantity_changed: int
     reason_note: Optional[str] = None
 
+class CustomerCreateInboundSchema(BaseModel):
+    name: str
+    phone: str
+    email: Optional[EmailStr] = None
+    address: Optional[str] = None
+
+class CustomerUpdateInboundSchema(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    email: Optional[EmailStr] = None
+    address: Optional[str] = None
+
 def log_security_audit_action(db: Session, user_id: str, tenant_id: str, action: str, module: str, details: str, request: Request = None):
     client_ip = "127.0.0.1"
     if request and request.client:
@@ -61,7 +73,59 @@ def write_inventory_ledger_transaction(db: Session, user_id: str, tenant_id: str
     db.add(ledger_entry)
 
 # ==========================================================================
-# 1. CATEGORIES COMPLETE CRUD PIPELINES (WITH INTEGRATED TELEMETRY)
+# 1. CUSTOMERS CRM COMPLETE CRUD PIPELINES (PRODUCTION NEW VERTICAL)
+# ==========================================================================
+@router.post("/customers", status_code=status.HTTP_201_CREATED)
+async def create_isolated_crm_customer(payload: CustomerCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.name.strip() or not payload.phone.strip():
+        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: CUSTOMER_NAME_AND_PHONE_ARE_REQUIRED")
+    
+    customer_id = f"cst_{int(datetime.utcnow().timestamp())}"
+    new_customer = Customer(
+        id=customer_id, name=payload.name, phone=payload.phone, email=payload.email,
+        address=payload.address, total_spent=0.0, tenant_id=current_user.tenant_id
+    )
+    db.add(new_customer)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "CUSTOMERS_CRM", f"Registered new CRM Customer profile: {payload.name} ({payload.phone})", request)
+    db.commit()
+    return {"status": "CUSTOMER_SUCCESSFULLY_REGISTERED", "customer_id": customer_id}
+
+@router.get("/customers")
+async def fetch_all_isolated_crm_customers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    tenant_customers = db.query(Customer).filter(Customer.tenant_id == current_user.tenant_id).order_by(Customer.created_at.desc()).all()
+    return {
+        "tenant_id": current_user.tenant_id,
+        "total_customers": len(tenant_customers),
+        "customers": [{"id": c.id, "name": c.name, "phone": c.phone, "email": c.email, "address": c.address, "total_spent_usd": c.total_spent} for c in tenant_customers]
+    }
+
+@router.put("/customers/{customer_id}")
+async def update_isolated_crm_customer(customer_id: str, payload: CustomerUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    target_customer = db.query(Customer).filter(Customer.id == customer_id, Customer.tenant_id == current_user.tenant_id).first()
+    if not target_customer:
+        raise HTTPException(status_code=404, detail="CUSTOMER_PROFILE_NOT_FOUND_IN_THIS_WORKSPACE")
+    
+    update_data = payload.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(target_customer, key, value)
+        
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "CUSTOMERS_CRM", f"Modified CRM profile data layers for customer ID {customer_id}", request)
+    db.commit()
+    return {"status": "CUSTOMER_PROFILE_SUCCESSFULLY_UPDATED", "customer_id": customer_id}
+
+@router.delete("/customers/{customer_id}")
+async def delete_isolated_crm_customer(customer_id: str, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    target_customer = db.query(Customer).filter(Customer.id == customer_id, Customer.tenant_id == current_user.tenant_id).first()
+    if not target_customer:
+        raise HTTPException(status_code=404, detail="CUSTOMER_PROFILE_NOT_FOUND_IN_THIS_WORKSPACE")
+        
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "DELETE", "CUSTOMERS_CRM", f"Purged CRM profile partition record {target_customer.name} (ID: {customer_id})", request)
+    db.delete(target_customer)
+    db.commit()
+    return {"status": "CUSTOMER_PROFILE_SUCCESSFULLY_DELETED", "customer_id": customer_id}
+
+# ==========================================================================
+# 2. CATEGORIES COMPLETE CRUD PIPELINES (WITH INTEGRATED TELEMETRY)
 # ==========================================================================
 @router.post("/categories", status_code=status.HTTP_201_CREATED)
 async def create_isolated_category(payload: CategoryCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -102,7 +166,7 @@ async def delete_isolated_category(category_id: int, request: Request, current_u
     return {"status": "CATEGORY_SUCCESSFULLY_DELETED", "category_id": category_id}
 
 # ==========================================================================
-# 2. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH INTEGRATED TELEMETRY)
+# 3. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH INTEGRATED TELEMETRY)
 # ==========================================================================
 @router.post("/products", status_code=status.HTTP_201_CREATED)
 async def create_isolated_product_item(payload: ProductCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -122,7 +186,7 @@ async def create_isolated_product_item(payload: ProductCreateInboundSchema, requ
 @router.get("/products")
 async def fetch_all_isolated_products(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     tenant_products = db.query(Product).filter(Product.tenant_id == current_user.tenant_id).all()
-    return {"tenant_id": current_user.tenant_id, "total_items": len(tenant_products), "products": [Brief_prd for p in tenant_products for Brief_prd in [{"id": p.id, "name": p.name, "sku": p.sku, "barcode": p.barcode, "stock_qty": p.stock_qty, "purchase_price": p.purchase_price, "retail_price": p.retail_price}]]}
+    return {"tenant_id": current_user.tenant_id, "total_items": len(tenant_products), "products": [{"id": p.id, "name": p.name, "sku": p.sku, "barcode": p.barcode, "stock_qty": p.stock_qty, "purchase_price": p.purchase_price, "retail_price": p.retail_price} for p in tenant_products]}
 
 @router.put("/products/{product_id}")
 async def update_isolated_product_item(product_id: str, payload: ProductUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -147,7 +211,7 @@ async def delete_isolated_product_item(product_id: str, request: Request, curren
     return {"status": "PRODUCT_SUCCESSFULLY_DELETED", "product_id": product_id}
 
 # ==========================================================================
-# 3. PRODUCTION REALTIME ISOLATED ORDERS OPERATIONS (INVENTORY DEDUCTION)
+# 4. PRODUCTION REALTIME ISOLATED ORDERS OPERATIONS (INVENTORY DEDUCTION)
 # ==========================================================================
 @router.post("/orders", status_code=status.HTTP_201_CREATED)
 async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -199,7 +263,7 @@ async def fetch_all_isolated_orders(current_user: User = Depends(get_current_use
     return {"tenant_id": current_user.tenant_id, "total_orders": len(tenant_orders), "orders": [{"id": o.id, "order_number": o.order_number, "platform": o.platform_channel, "customer": o.customer_name, "phone": o.customer_phone, "total_usd": o.total_amount, "status": o.order_status, "created_at": o.created_at} for o in tenant_orders]}
 
 # ==========================================================================
-# 4. PRODUCTION NEW API: ADVANCED INVENTORY LEDGER STOCK ADJUSTMENT & LOGS
+# 5. PRODUCTION ADVANCED INVENTORY LEDGER STOCK ADJUSTMENTS APIs
 # ==========================================================================
 @router.post("/inventory/stock-adjustment")
 async def execute_warehouse_stock_adjustment(payload: StockAdjustmentInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
@@ -213,7 +277,6 @@ async def execute_warehouse_stock_adjustment(payload: StockAdjustmentInboundSche
         raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
         
     prev_stock = target_product.stock_qty
-    
     if payload.transaction_type in ["STOCK_IN"]:
         target_product.stock_qty += payload.quantity_changed
         net_qty = payload.quantity_changed
@@ -224,16 +287,13 @@ async def execute_warehouse_stock_adjustment(payload: StockAdjustmentInboundSche
         net_qty = -payload.quantity_changed
         
     curr_stock = target_product.stock_qty
-    
     write_inventory_ledger_transaction(db, current_user.id, current_user.tenant_id, target_product.id, payload.transaction_type, net_qty, prev_stock, curr_stock, payload.reason_note)
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "INVENTORY", f"Executed warehouse {payload.transaction_type} adjustments for SKU {target_product.sku}", request)
-    
     try:
         db.commit()
     except Exception as exc:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"INVENTORY_TRANSACTION_FAILED: {str(exc)}")
-        
     return {"status": "INVENTORY_LEDGER_ADJUSTMENT_SUCCESSFUL", "product_id": payload.product_id, "previous_stock": prev_stock, "current_stock": curr_stock}
 
 @router.get("/inventory/ledgers")
