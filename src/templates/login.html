@@ -1,50 +1,67 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Business OS</title>
-    <link rel="stylesheet" href="/static/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Business OS Login</title>
+
+<link rel="stylesheet" href="/static/style.css">
 </head>
-<body style="display:flex;justify-content:center;align-items:center;padding:24px;">
-    <div class="ambient-bg" style="top:20%;left:20%;"></div>
-    <div class="luxury-glass" style="max-width:420px;width:100%;padding:40px 32px;text-align:center;">
-        <h1 style="font-size:24px;font-weight:800;margin-bottom:8px;">Welcome Back</h1>
-        <p style="font-size:13px;color:#94A3B8;margin-bottom:24px;">Access your active multi-tenant dynamic stack.</p>
-        <form id="loginForm" style="display:flex;flex-direction:column;gap:16px;text-align:left;">
-            <input type="email" id="loginEmail" placeholder="Work Email" required style="width:100%;height:46px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0 16px;color:#FFF;font-size:13px;">
-            <input type="password" id="loginPassword" placeholder="Password" required style="width:100%;height:46px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0 16px;color:#FFF;font-size:13px;">
-            <button type="submit" class="btn-primary btn-p-hover" style="width:100%;height:46px;border-radius:10px;margin-top:8px;border:none;color:white;font-weight:700;cursor:pointer;">Authenticate Stack</button>
-        </form>
-        <p style="font-size:12px;color:#94A3B8;margin-top:20px;">Don&apos;t have an account? <a href="/auth/register" style="color:#3B82F6;text-decoration:none;">Create One</a></p>
-    </div>
-    <script>
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const requestPayload = {
-                email: document.getElementById('loginEmail').value,
-                password: document.getElementById('loginPassword').value
-            };
-            try {
-                const response = await fetch('/api/v4/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-                    body: JSON.stringify(requestPayload)
-                });
-                const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem('access_token', data.access_token);
-                    localStorage.setItem('tenant_id', data.tenant_id);
-                    localStorage.setItem('user_role', data.role);
-                    alert("Authentication Granted! Initializing Workspace Core. 🔐");
-                    window.location.href = '/dashboard';
-                } else {
-                    alert("Authentication Refused: " + (data.detail || "Invalid Credentials"));
-                }
-            } catch (err) {
-                alert("Network Core Error: " + err.message);
-            }
-        });
-    </script>
+
+<body>
+
+<div class="login-card">
+
+<h1>Business OS</h1>
+
+<p>Enterprise Workspace Login</p>
+
+<form id="loginForm">
+
+<input
+id="email"
+type="email"
+placeholder="Email"
+required>
+
+<input
+id="password"
+type="password"
+placeholder="Password"
+required>
+
+<button type="submit">
+
+Sign In
+
+</button>
+
+</form>
+
+</div>
+
+<script src="/static/app.js"></script>
+
+<script>
+
+document
+.getElementById("loginForm")
+.addEventListener("submit",async function(e){
+
+e.preventDefault();
+
+await login(
+
+document.getElementById("email").value,
+
+document.getElementById("password").value
+
+);
+
+});
+
+</script>
+
 </body>
+
 </html>

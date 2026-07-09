@@ -1,51 +1,71 @@
-/* ==========================================================================
-   BUSINESS OS - INTERACTIVE FRONTEND JS CONTROLLER (LIGHTWEIGHT ARCHITECTURE)
-   ========================================================================== */
+const API = "/api/v4";
 
-document.addEventListener("DOMContentLoaded", () => {
-    // 1. Mobile Menu Toggle Controller
-    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-    const mobileMenu = document.getElementById("mobile-menu");
+function token() {
+    return localStorage.getItem("access_token");
+}
 
-    if (mobileMenuBtn && mobileMenu) {
-        mobileMenuBtn.addEventListener("click", () => {
-            mobileMenu.classList.toggle("hidden");
-            
-            // Toggle icon classes between bars and times if using icons
-            const icon = mobileMenuBtn.querySelector("i");
-            if (icon) {
-                if (mobileMenu.classList.contains("hidden")) {
-                    icon.className = "fa-solid fa-bars text-xl";
-                } else {
-                    icon.className = "fa-solid fa-xmark text-xl";
-                }
-            }
-        });
-        
-        // Auto-close menu when a link inside is clicked
-        const mobileLinks = mobileMenu.querySelectorAll("a");
-        mobileLinks.forEach(link => {
-            link.addEventListener("click", () => {
-                mobileMenu.classList.add("hidden");
-                const icon = mobileMenuBtn.querySelector("i");
-                if (icon) icon.className = "fa-solid fa-bars text-xl";
-            });
-        });
+function authHeaders() {
+    return {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + token()
+    };
+}
+
+async function api(url, method = "GET", body = null) {
+    const options = {
+        method: method,
+        headers: authHeaders()
+    };
+
+    if (body) {
+        options.body = JSON.stringify(body);
     }
 
-    // 2. Dynamic Navbar Scroll Hardening Blur Effect
-    const navbar = document.querySelector("nav");
-    if (navbar) {
-        window.addEventListener("scroll", () => {
-            if (window.scrollY > 20) {
-                navbar.style.paddingTop = "12px";
-                navbar.style.paddingBottom = "12px";
-                navbar.style.background = "rgba(11, 15, 25, 0.85)";
-            } else {
-                navbar.style.paddingTop = "16px";
-                navbar.style.paddingBottom = "16px";
-                navbar.style.background = "rgba(17, 24, 39, 0.55)";
-            }
-        });
+    const response = await fetch(API + url, options);
+
+    if (response.status === 401) {
+        localStorage.clear();
+        window.location = "/login";
+        return;
     }
-});
+
+    return await response.json();
+}
+
+async function login(email, password) {
+    const response = await fetch(API + "/auth/login", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            email: email,
+            password: password
+        })
+    });
+
+    const data = await response.json();
+
+    if (response.ok && data.access_token) {
+        localStorage.setItem("access_token", data.access_token);
+        localStorage.setItem("role", data.role_profile);
+        localStorage.setItem("workspace_id", data.workspace_id);
+
+        window.location = "/dashboard";
+    } else {
+        alert(data.detail || "Login Failed");
+    }
+}
+
+function logout() {
+    localStorage.clear();
+    window.location = "/login";
+}
+
+async function loadProducts() {
+    const data = await api("/business/products");
+
+    console.log("Products:", data);
+
+    return data;
+}

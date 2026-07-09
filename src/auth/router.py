@@ -1,207 +1,75 @@
-import os
-from datetime import datetime
-from fastapi import APIRouter, Depends, HTTPException, status, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from datetime import datetime, timezone
+from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 
-# Authoritative Connection Layer Mappings
-from ..database import get_db
-from ..models.saas_core import User, Tenant, SubscriptionTier, BillingReceipt
-from ..config.security import (
-    get_password_hash, verify_password, create_access_token, 
-    create_refresh_token, verify_access_token, get_current_user,
-    OWNER_TELEGRAM_LINK, OWNER_SUPPORT_PHONE
-)
+from src.core.database import get_db
+from src.core.security import verify_password, create_access_token, create_refresh_token
+from src.models.saas_core import User, Tenant
 
-router = APIRouter(tags=["Authentication Gateway Matrix"])
+router = APIRouter(prefix="/api/v4/auth", tags=["Identity & Access Management"])
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-templates = Jinja2Templates(directory=os.path.join(BASE_DIR, "templates"))
-
-class TenantRegisterInboundSchema(BaseModel):
-    company_name: str
+# ==========================================================================
+# PYDANTIC INBOUND SCHEMAS SPECIFICATION V5.5
+# ==========================================================================
+class JSONLoginInboundPayload(BaseModel):
     email: EmailStr
     password: str
 
-class UserLoginInboundSchema(BaseModel):
-    email: EmailStr
-    password: str
-
-class TokenRefreshInboundSchema(BaseModel):
+class TokenResponseOutboundPayload(BaseModel):
+    access_token: str
     refresh_token: str
-
-class BillingSlipSubmitInboundSchema(BaseModel):
-    slip_base64_data: str
-
-# 1. CORE HTML VIEW INTERFACES (ACCESSIBLE VIA /auth PATHWAYS)
-@router.get("/auth/register", response_class=HTMLResponse)
-async def render_register_page(request: Request):
-    """Render Register Page UI Node"""
-    return templates.TemplateResponse(request=request, name="register.html")
-
-@router.get("/auth/login", response_class=HTMLResponse)
-async def render_login_page(request: Request):
-    """Render Login Page UI Node"""
-    return templates.TemplateResponse(request=request, name="login.html")
+    token_type: str = "bearer"
+    workspace_id: str
+    role_profile: str
 
 # ==========================================================================
-# 2. STANDARDIZED API PIPELINES BOUND TO SYSTEM PREFIXES (/api/v4/auth)
+# GATEWAY NODE 1: SWAGGER UI OAUTH2 COMPLIANT FORM-DATA TOKEN INGRESS
 # ==========================================================================
-@router.post("/api/v4/auth/tenant/onboard", status_code=status.HTTP_201_CREATED)
-async def onboard_enterprise_workspace(payload: TenantRegisterInboundSchema, db: Session = Depends(get_db)):
-    """Onboard Enterprise Workspace Engine"""
-    if not payload.company_name.strip() or not payload.password.strip():
-        raise HTTPException(status_code=422, detail="CRITICAL_FAULT: PARAMETERS_CANNOT_BE_EMPTY")
-
-    existing_user = db.query(User).filter(User.email == payload.email).first()
-    if existing_user:
-        raise HTTPException(status_code=400, detail="IDENTITY_CLASH: WORK_EMAIL_ALREADY_REGISTERED")
-
-    tenant_id = f"tnt_{int(datetime.utcnow().timestamp())}"
-    new_tenant = Tenant(
-        id=tenant_id, company_name=payload.company_name, owner_email=payload.email,
-        subscription_tier=SubscriptionTier.FREE_TRIAL, is_billing_active=True, trial_expired=False
-    )
-    db.add(new_tenant)
-
-    user_id = f"usr_{int(datetime.utcnow().timestamp())}"
-    encrypted_secure_hash = get_password_hash(payload.password)
-    
-    new_master_user = User(
-        id=user_id, email=payload.email, hashed_password=encrypted_secure_hash,
-        full_name=payload.company_name + " Admin", role="ADMIN", is_active=True, tenant_id=tenant_id
-    )
-    db.add(new_master_user)
-
-    try:
-        db.commit()
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"DATABASE_TRANSACTION_FAILED: {str(exc)}")
-
-    return {"status": "TENANT_SUCCESSFULLY_INITIALIZED", "tenant_id": tenant_id, "admin_user_id": user_id, "trial_tier_active": True}
-
-@router.post("/api/v4/auth/login")
-async def authenticate_user_session(payload: UserLoginInboundSchema, db: Session = Depends(get_db)):
-    """Authenticate User Session & Issue Dual JWT Claims Layer"""
-    target_user = db.query(User).filter(User.email == payload.email).first()
-    if not target_user or not target_user.is_active:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="AUTHENTICATION_FAILED: INVALID_CREDENTIALS")
-
-    if not verify_password(payload.password, target_user.hashed_password):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="AUTHENTICATION_FAILED: INVALID_CREDENTIALS")
-
-    token_claims = {
-        "sub": target_user.email,
-        "user_id": target_user.id,
-        "tenant_id": target_user.tenant_id,
-        "role": target_user.role
-    }
-
-    access_token = create_access_token(data=token_claims)
-    refresh_token = create_refresh_token(data=token_claims)
-    
+@router.post("/token", response_model=TokenResponseOutboundPayload)
+async def authenticate_via_oauth2_form_flow(
+    form_data: OAuth2PasswordRequestForm = Depends(), 
+    db: Session = Depends(get_db)
+):
+    """Handles core Form-Data specifications emitted by Swagger UI Authorize controllers natively."""
+    user = db.query(User).filter(User.email == form_data.username).first()
+    if not user or not verify_password(form_data.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="INVALID_WORKSPACE_CREDENTIALS_COMBINATION")
+        
+    tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
+    if tenant and tenant.trial_expired:
+        raise HTTPException(status_code=402, detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED")
+        
+    token_claims = {"user_id": user.id, "tenant_id": user.tenant_id, "role": user.role}
     return {
-        "token_type": "bearer",
-        "access_token": access_token,
-        "refresh_token": refresh_token,
-        "tenant_id": target_user.tenant_id,
-        "role": target_user.role
+        "access_token": create_access_token(token_claims),
+        "refresh_token": create_refresh_token(token_claims),
+        "workspace_id": user.tenant_id,
+        "role_profile": user.role
     }
-
-@router.post("/api/v4/auth/refresh")
-async def rotate_expired_access_token(payload: TokenRefreshInboundSchema, db: Session = Depends(get_db)):
-    """Validates 7-Days Refresh Token claims and issues a brand-new short-lived Access Token"""
-    token_claims = verify_access_token(payload.refresh_token)
-    
-    if token_claims is None or token_claims.get("type") != "refresh":
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="INVALID_OR_EXPIRED_REFRESH_TOKEN")
-        
-    user_id = token_claims.get("user_id")
-    tenant_id = token_claims.get("tenant_id")
-    
-    active_user = db.query(User).filter(User.id == user_id, User.tenant_id == tenant_id).first()
-    if not active_user or not active_user.is_active:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCOUNT_SUSPENDED_OR_WORKSPACE_LOCKED")
-        
-    new_claims = {
-        "sub": active_user.email,
-        "user_id": active_user.id,
-        "tenant_id": active_user.tenant_id,
-        "role": active_user.role
-    }
-    
-    new_access_token = create_access_token(data=new_claims)
-    return {
-        "token_type": "bearer",
-        "access_token": new_access_token
-    }
-
-@router.post("/api/v4/auth/billing/submit", status_code=status.HTTP_201_CREATED)
-async def submit_manual_billing_slip(payload: BillingSlipSubmitInboundSchema, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    """Receives and stores cross-platform payment receipt base64 logs bound safely to the tenant space."""
-    if not payload.slip_base64_data.strip():
-        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: SLIP_DATA_CANNOT_BE_EMPTY")
-        
-    receipt_id = f"rcpt_{int(datetime.utcnow().timestamp())}"
-    new_receipt = BillingReceipt(
-        id=receipt_id, slip_base64_data=payload.slip_base64_data,
-        verification_status="PENDING", tenant_id=current_user.tenant_id
-    )
-    db.add(new_receipt)
-    
-    try:
-        db.commit()
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"TRANSACTION_FAILED: {str(exc)}")
-        
-    return {"status": "BILLING_RECEIPT_SUBMITTED_SUCCESSFULLY", "receipt_id": receipt_id, "verification_state": "PENDING"}
 
 # ==========================================================================
-# 3. PRODUCTION NEW APIs: SUPERADMIN ENGINE & SYSTEM SUPPORT CONFIG INGRESS
+# GATEWAY NODE 2: ENTERPRISE MOBILE/WEB APP CLIENTS PURE JSON INGRESS
 # ==========================================================================
-@router.get("/api/v4/auth/owner-contact-matrix")
-async def fetch_owner_direct_contact_configs(current_user: User = Depends(get_current_user)):
-    """Serves the centralized owner support access node dynamically to authenticated workspace sessions."""
+@router.post("/login", response_model=TokenResponseOutboundPayload)
+async def authenticate_via_pure_json_payload(
+    payload: JSONLoginInboundPayload, 
+    db: Session = Depends(get_db)
+):
+    """Processes standardized raw application/json login vectors from upstream UI clients cleanly."""
+    user = db.query(User).filter(User.email == payload.email).first()
+    if not user or not verify_password(payload.password, user.hashed_password):
+        raise HTTPException(status_code=401, detail="INVALID_WORKSPACE_CREDENTIALS_COMBINATION")
+        
+    tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
+    if tenant and tenant.trial_expired:
+        raise HTTPException(status_code=402, detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED")
+        
+    token_claims = {"user_id": user.id, "tenant_id": user.tenant_id, "role": user.role}
     return {
-        "owner_telegram_support_link": OWNER_TELEGRAM_LINK,
-        "owner_support_phone_hotline": OWNER_SUPPORT_PHONE
+        "access_token": create_access_token(token_claims),
+        "refresh_token": create_refresh_token(token_claims),
+        "workspace_id": user.tenant_id,
+        "role_profile": user.role
     }
-
-@router.get("/api/v4/superadmin/receipts")
-async def superadmin_fetch_all_pending_receipts(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if current_user.role != "SUPERADMIN":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCESS_DENIED: SUPERADMIN_AUTHORITY_REQUIRED")
-        
-    pending_slips = db.query(BillingReceipt).filter(BillingReceipt.verification_status == "PENDING").all()
-    return {
-        "scope": "SUPERADMIN_PENDING_AUDIT_STREAM",
-        "total_pending": len(pending_slips),
-        "receipts": [{"id": r.id, "tenant_id": r.tenant_id, "submitted_at": r.submitted_at, "base64_blob": r.slip_base64_data} for r in pending_slips]
-    }
-
-@router.post("/api/v4/superadmin/tenants/{tenant_id}/approve")
-async def superadmin_approve_and_unlock_tenant_workspace(tenant_id: str, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    if current_user.role != "SUPERADMIN":
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCESS_DENIED: SUPERADMIN_AUTHORITY_REQUIRED")
-        
-    target_tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
-    if not target_tenant:
-        raise HTTPException(status_code=404, detail="TARGET_TENANT_NOT_FOUND")
-        
-    target_tenant.trial_expired = False
-    target_tenant.subscription_tier = SubscriptionTier.STARTUP
-    target_tenant.created_at = datetime.utcnow()
-    
-    db.query(BillingReceipt).filter(BillingReceipt.tenant_id == tenant_id, BillingReceipt.verification_status == "PENDING").update({"verification_status": "APPROVED"})
-    
-    try:
-        db.commit()
-    except Exception as exc:
-        db.rollback()
-        raise HTTPException(status_code=500, detail=f"SUPERADMIN_TRANSACTION_FAILED: {str(exc)}")
-        
-    return {"status": "TENANT_WORKSPACE_SUCCESSFULLY_APPROVED_AND_UNLOCKED", "tenant_id": tenant_id, "active_tier": "STARTUP"}

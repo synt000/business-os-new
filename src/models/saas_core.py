@@ -1,10 +1,12 @@
-import os
+import enum
+import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum, Text, Index
 from sqlalchemy.orm import relationship
-import enum
+from src.core.database import Base
 
-from ..database import Base
+def generate_uuid() -> str:
+    return str(uuid.uuid4())
 
 class SubscriptionTier(enum.Enum):
     FREE_TRIAL = "FREE_TRIAL"
@@ -15,7 +17,7 @@ class SubscriptionTier(enum.Enum):
 class Tenant(Base):
     __tablename__ = "tenants"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     company_name = Column(String, nullable=False)
     owner_email = Column(String, nullable=False)
     subscription_tier = Column(Enum(SubscriptionTier), default=SubscriptionTier.FREE_TRIAL)
@@ -44,7 +46,7 @@ class Tenant(Base):
 class User(Base):
     __tablename__ = "users"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     full_name = Column(String, nullable=True)
@@ -69,7 +71,7 @@ class Category(Base):
 class Product(Base):
     __tablename__ = "products"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     name = Column(String, nullable=False)
     sku = Column(String, nullable=False, index=True)
     barcode = Column(String, nullable=True)
@@ -86,7 +88,7 @@ class Product(Base):
 class Order(Base):
     __tablename__ = "orders"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     order_number = Column(String, nullable=False, index=True)
     platform_channel = Column(String, nullable=False)
     customer_name = Column(String, nullable=False)
@@ -114,7 +116,7 @@ class OrderItem(Base):
 class BillingReceipt(Base):
     __tablename__ = "billing_receipts"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     slip_base64_data = Column(Text, nullable=False)
     verification_status = Column(String, default="PENDING")
     submitted_at = Column(DateTime, default=datetime.utcnow)
@@ -140,7 +142,7 @@ class AuditLog(Base):
 class AccountLedger(Base):
     __tablename__ = "account_ledgers"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     entry_type = Column(String, nullable=False, index=True)
     account_head = Column(String, nullable=False, index=True)
     amount = Column(Float, default=0.0)
@@ -156,7 +158,7 @@ class AccountLedger(Base):
 class Branch(Base):
     __tablename__ = "branches"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     branch_name = Column(String, nullable=False, index=True)
     location_address = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -167,7 +169,7 @@ class Branch(Base):
 class Supplier(Base):
     __tablename__ = "suppliers"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     supplier_name = Column(String, nullable=False, index=True)
     contact_phone = Column(String, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -179,7 +181,7 @@ class Supplier(Base):
 class ProcurementLedger(Base):
     __tablename__ = "procurement_ledgers"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     procurement_number = Column(String, nullable=False, index=True)
     qty_purchased = Column(Integer, default=1)
     unit_cost = Column(Float, nullable=False)
@@ -196,7 +198,7 @@ class ProcurementLedger(Base):
 class Customer(Base):
     __tablename__ = "customers"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     customer_name = Column(String, nullable=False, index=True)
     customer_email = Column(String, nullable=True, index=True)
     customer_phone = Column(String, nullable=True, index=True)
@@ -209,7 +211,7 @@ class Customer(Base):
 class WorkspaceInvitation(Base):
     __tablename__ = "workspace_invitations"
 
-    id = Column(String, primary_key=True, index=True)
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
     invite_email = Column(String, nullable=False, index=True)
     target_role = Column(String, default="MEMBER")
     invitation_token = Column(String, unique=True, index=True)
