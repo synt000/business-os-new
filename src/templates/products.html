@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Products - Business OS ERP</title>
     <!-- Tailwind CSS CDN -->
-    <script src="https://jsdelivr.net"></script>
+<script src="https://cdn.tailwindcss.com"></script>
     <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cloudflare.com">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         @import url('https://googleapis.com');
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #090D16; }
@@ -113,6 +113,8 @@
     <!-- CORE CRUD DATA INTERACTION LOGIC ENGINE -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            window.onerror = function(e){ alert("JS ERROR: " + e); };
+            console.log("SCRIPT START");
             const token = localStorage.getItem("access_token"); alert("TOKEN=" + token);
 
             async function loadCategories() {
@@ -129,6 +131,7 @@
 
                     console.log("CATEGORY STATUS:", response.status);
                     console.log("CATEGORY DATA:", data);
+                    alert("CATEGORY DATA: " + JSON.stringify(data));
 
                     select.innerHTML = "";
 
@@ -238,5 +241,4 @@ const products = result.products || [];
             fetchProducts();
         });
     </script>
-</body>
 </html>

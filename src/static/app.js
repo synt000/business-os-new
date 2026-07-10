@@ -4,11 +4,21 @@ async function loadDashboard(){
 
     const token = localStorage.getItem("access_token");
 
+    if(!token){
+        location="/login";
+        return;
+    }
+
     const r = await fetch(API + "/dashboard/summary", {
         headers:{
             "Authorization":"Bearer " + token
         }
     });
+
+    if(!r.ok){
+        console.log(await r.text());
+        return;
+    }
 
     const d = await r.json();
 
@@ -16,107 +26,67 @@ async function loadDashboard(){
 
     const cards = document.querySelectorAll(".text-xl.font-bold.text-white");
 
-    if(cards.length >= 3){
-
-        cards[0].innerText = "$" + d.total_revenue_usd;
-        cards[1].innerText = d.active_tenants;
-        cards[2].innerText = d.operational_nodes_health;
-
+    if(cards.length >= 4){
+        cards[0].innerText = d.products ?? 0;
+        cards[1].innerText = d.orders ?? 0;
+        cards[2].innerText = d.customers ?? 0;
+        cards[3].innerText = d.suppliers ?? 0;
     }
-
 }
 
 async function login(email, password){
-    alert("login() called");
 
     try{
+
         const r = await fetch(API + "/auth/login", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json"
             },
-            body: JSON.stringify({
-                email,
-                password
+            body:JSON.stringify({
+                email:email,
+                password:password
             })
         });
 
-        alert("HTTP Status: " + r.status);
-
         const d = await r.json();
 
-        alert(JSON.stringify(d));
-        if(r.ok){
-
-            localStorage.setItem(
-                "access_token",
-                d.access_token
-            );
-
-            if(d.workspace_id){
-                localStorage.setItem(
-                    "tenant_id",
-                    d.workspace_id
-                );
-            }
-
-            if(d.role_profile){
-                localStorage.setItem(
-                    "role_profile",
-                    d.role_profile
-                );
-            }
-
-            location="/dashboard";
-
+        if(!r.ok){
+            alert(d.detail || "Login Failed");
+            return;
         }
+
+        localStorage.setItem("access_token", d.access_token);
+        localStorage.setItem("tenant_id", d.workspace_id);
+        localStorage.setItem("role_profile", d.role_profile);
+
+        location="/dashboard";
 
     }catch(err){
-
-        alert("FETCH ERROR: " + err);
+        alert(err);
         console.error(err);
-
     }
 }
-
 
 function logout(){
-
     localStorage.clear();
     location="/login";
-
 }
 
+if(window.location.pathname === "/dashboard"){
+    loadDashboard();
+}
 
+if(window.location.pathname === "/login"){
 
+    const btn = document.getElementById("loginBtn");
 
-window.onload = function(){
-    alert('PATH: ' + window.location.pathname);
-
-    if(window.location.pathname === "/dashboard"){
-
-        loadDashboard();
-
+    if(btn){
+        btn.onclick = function(){
+            login(
+                document.getElementById("email").value,
+                document.getElementById("password").value
+            );
+        };
     }
-
-
-    if(window.location.pathname === "/login"){
-
-        const btn = document.getElementById("loginBtn");
-
-        if(btn){
-
-            btn.onclick = async function(){
-
-                await login(
-                    document.getElementById("email").value,
-                    document.getElementById("password").value
-                );
-
-            };
-
-        }
-
-    }
-
-};
+}

@@ -8,3 +8,23 @@ env/
 .DS_Store
 db.sqlite3
 business.db
+
+# Python Cache
+__pycache__/
+*.py[cod]
+
+# Environment
+.env
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+
+# Backup files
+*.backup
+*.debug
+

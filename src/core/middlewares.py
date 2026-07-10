@@ -29,7 +29,14 @@ class SecurityInfrastructureMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-Content-Type-Options"] = "nosniff"
         response.headers["X-XSS-Protection"] = "1; mode=block"
-        response.headers["Content-Security-Policy"] = "default-src 'self'; frame-ancestors 'none';"
+        response.headers["Content-Security-Policy"] = (
+    "default-src 'self' https:; "
+    "script-src 'self' 'unsafe-inline' https:; "
+    "style-src 'self' 'unsafe-inline' https:; "
+    "font-src 'self' https: data:; "
+    "img-src 'self' data: https:; "
+    "frame-ancestors 'none';"
+)
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
         return response
 
