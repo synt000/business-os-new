@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Business OS Login</title>
-
 <link rel="stylesheet" href="/static/style.css">
 </head>
 
@@ -12,56 +11,35 @@
 
 <div class="login-card">
 
-<h1>Business OS</h1>
-
+<h1>Business OS TEST123</h1>
 <p>Enterprise Workspace Login</p>
 
 <form id="loginForm">
 
-<input
-id="email"
-type="email"
-placeholder="Email"
-required>
+<input id="email" type="email" placeholder="Email">
 
-<input
-id="password"
-type="password"
-placeholder="Password"
-required>
+<input id="password" type="password" placeholder="Password">
 
-<button type="submit">
-
+<button type="button" id="loginBtn">
 Sign In
-
 </button>
 
 </form>
 
 </div>
 
-<script src="/static/app.js"></script>
+<script src="/static/app.js?v=6"></script>
 
 <script>
+document.getElementById("loginBtn").onclick = function(){
 
-document
-.getElementById("loginForm")
-.addEventListener("submit",async function(e){
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
 
-e.preventDefault();
+    login(email,password);
 
-await login(
-
-document.getElementById("email").value,
-
-document.getElementById("password").value
-
-);
-
-});
-
+};
 </script>
 
 </body>
-
 </html>

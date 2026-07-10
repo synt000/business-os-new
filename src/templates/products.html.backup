@@ -113,7 +113,7 @@
     <!-- CORE CRUD DATA INTERACTION LOGIC ENGINE -->
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            const token = localStorage.getItem("access_token"); alert("TOKEN=" + token);
+            const token = localStorage.getItem("access_token");
 
             async function loadCategories() {
                 const select = document.getElementById("category_id");
@@ -126,9 +126,6 @@
                     });
 
                     const data = await response.json();
-
-                    console.log("CATEGORY STATUS:", response.status);
-                    console.log("CATEGORY DATA:", data);
 
                     select.innerHTML = "";
 
@@ -146,20 +143,13 @@
                 }
             }
 
+            loadCategories();
+
             const tenantId = localStorage.getItem("tenant_id");
             const toast = document.getElementById("form-toast");
 
-            if (!token) {
-                alert("NO TOKEN");
-                return;
-            }
-
-            alert("LOAD CATEGORY RUN");
-            loadCategories();
-
-            if (tenantId) {
-                document.getElementById("sidebar-tenant-id").innerText = tenantId;
-            }
+            if (!token) { window.location.href = "/auth/login"; return; }
+            if (tenantId) { document.getElementById("sidebar-tenant-id").innerText = tenantId; }
 
             // Fetch list execution routine from secure endpoint context
             async function fetchProducts() {
