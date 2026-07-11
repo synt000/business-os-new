@@ -1,0 +1,708 @@
+import secrets
+from datetime import datetime, timedelta
+from typing import Optional, List
+from fastapi import APIRouter, Depends, HTTPException, status, Request
+from pydantic import BaseModel
+from sqlalchemy.orm import Session
+from sqlalchemy import func
+
+from src.core.database import get_db
+from src.core.config import settings
+from src.core.security import get_current_user
+from src.models.saas_core import User, Product, Order, OrderItem, Category, AuditLog, AccountLedger, Branch, Supplier, ProcurementLedger, Tenant, Customer, WorkspaceInvitation
+
+router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
+
+# ==========================================================================
+# PYDANTIC STRUCTURAL REQUEST PAYLOAD VALIDATION SCHEMAS
+# ==========================================================================
+class ProductCreateInboundSchema(BaseModel):
+    name: str
+    sku: str
+    barcode: Optional[str] = None
+    stock_qty: int = 0
+    purchase_price: float = 0.0
+    retail_price: float = 0.0
+
+class ProductUpdateInboundSchema(BaseModel):
+    name: Optional[str] = None
+    barcode: Optional[str] = None
+    stock_qty: Optional[int] = None
+    purchase_price: Optional[float] = None
+    retail_price: Optional[float] = None
+
+class CategoryCreateInboundSchema(BaseModel):
+    name: str
+
+class CategoryUpdateInboundSchema(BaseModel):
+    name: str
+
+class OrderItemInboundSchema(BaseModel):
+    product_id: str
+    quantity: int
+
+class OrderCreateInboundSchema(BaseModel):
+    platform_channel: str
+    customer_name: str
+    customer_phone: Optional[str] = None
+    items: List[OrderItemInboundSchema]
+
+class BranchCreateInboundSchema(BaseModel):
+    branch_name: str
+    location_address: Optional[str] = None
+
+class SupplierCreateInboundSchema(BaseModel):
+    supplier_name: str
+    contact_phone: Optional[str] = None
+
+class ProcurementCreateInboundSchema(BaseModel):
+    product_id: str
+    supplier_id: str
+    qty_purchased: int
+    unit_cost: float
+
+class CustomerCreateInboundSchema(BaseModel):
+    customer_name: str
+    customer_email: Optional[str] = None
+    customer_phone: Optional[str] = None
+class CustomerUpdateInboundSchema(BaseModel):
+    customer_name: Optional[str] = None
+    customer_email: Optional[str] = None
+    customer_phone: Optional[str] = None
+
+class WorkspaceInviteInboundSchema(BaseModel):
+    invite_email: str
+    target_role: str = "MEMBER"
+# ==========================================================================
+# CENTRAL LOGGING & DOUBLE-ENTRY ACCOUNTING LEDGER SYSTEM DIRECTORS
+# ==========================================================================
+def log_security_audit_action(db: Session, user_id: str, tenant_id: str, action: str, module: str, details: str, request: Request = None):
+    client_ip = "127.0.0.1"
+    if request and request.client:
+        client_ip = request.client.host
+    audit_entry = AuditLog(action_type=action, module_name=module, details_log=details, ip_address=client_ip, user_id=user_id, tenant_id=tenant_id)
+    db.add(audit_entry)
+
+def record_double_entry_accounting(db: Session, tenant_id: str, entry_type: str, account_head: str, amount: float, reference_id: str, description: str):
+    ledger_id = f"ldg_{entry_type[:3].lower()}_{secrets.token_hex(8)}"
+    ledger_entry = AccountLedger(id=ledger_id, entry_type=entry_type, account_head=account_head, amount=amount, reference_id=reference_id, description=description, tenant_id=tenant_id)
+    db.add(ledger_entry)
+
+# ==========================================================================
+# 1. CATEGORIES COMPLETE CRUD PIPELINES (WITH INTEGRATED TELEMETRY)
+# ==========================================================================
+@router.post("/categories", status_code=status.HTTP_201_CREATED)
+async def create_isolated_category(payload: CategoryCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.name.strip():
+        raise HTTPException(status_code=422, detail="Category name cannot be empty")
+    new_cat = Category(name=payload.name, tenant_id=current_user.tenant_id)
+    db.add(new_cat)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "CATEGORIES", f"Created category: {payload.name}", request)
+    db.commit()
+    return {"status": "CATEGORY_CREATED", "tenant_id": current_user.tenant_id}
+
+@router.get("/categories")
+async def fetch_isolated_categories(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    cats = db.query(Category).filter(Category.tenant_id == current_user.tenant_id).all()
+    return {"categories": [{"id": c.id, "name": c.name} for c in cats]}
+
+@router.put("/categories/{category_id}")
+async def update_isolated_category(category_id: int, payload: CategoryUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.name.strip():
+        raise HTTPException(status_code=422, detail="Category name cannot be empty")
+    target_cat = db.query(Category).filter(Category.id == category_id, Category.tenant_id == current_user.tenant_id).first()
+    if not target_cat:
+        raise HTTPException(status_code=404, detail="CATEGORY_NOT_FOUND_IN_THIS_WORKSPACE")
+    old_name = target_cat.name
+    target_cat.name = payload.name
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "CATEGORIES", f"Updated category ID {category_id} from '{old_name}' to '{payload.name}'", request)
+    db.commit()
+    return {"status": "CATEGORY_SUCCESSFULLY_UPDATED", "category_id": category_id}
+
+@router.delete("/categories/{category_id}")
+async def delete_isolated_category(category_id: int, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    target_cat = db.query(Category).filter(Category.id == category_id, Category.tenant_id == current_user.tenant_id).first()
+    if not target_cat:
+        raise HTTPException(status_code=404, detail="CATEGORY_NOT_FOUND_IN_THIS_WORKSPACE")
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "DELETE", "CATEGORIES", f"Purged category: {target_cat.name} (ID: {category_id})", request)
+    db.delete(target_cat)
+    db.commit()
+    return {"status": "CATEGORY_SUCCESSFULLY_DELETED", "category_id": category_id}
+
+# ==========================================================================
+# 2. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH HARDENED SUBSCRIPTION GUARDS)
+# ==========================================================================
+@router.post("/products", status_code=status.HTTP_201_CREATED)
+async def create_isolated_product_item(payload: ProductCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.name.strip() or not payload.sku.strip():
+        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: NAME_AND_SKU_ARE_REQUIRED")
+        
+    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    current_skus = db.query(func.count(Product.id)).filter(Product.tenant_id == current_user.tenant_id).scalar() or 0
+    if tenant and current_skus >= tenant.max_sku_limit:
+        raise HTTPException(status_code=403, detail=f"SUBSCRIPTION_LIMIT_EXCEEDED: Your current tier allows maximum {tenant.max_sku_limit} SKUs. Upgrade required.")
+        
+    duplicate_sku = db.query(Product).filter(Product.sku == payload.sku, Product.tenant_id == current_user.tenant_id).first()
+    if duplicate_sku:
+        raise HTTPException(status_code=400, detail="CONFLICT: SKU_ALREADY_EXISTS_IN_THIS_WORKSPACE")
+        
+    new_product = Product(name=payload.name, sku=payload.sku, barcode=payload.barcode, stock_qty=payload.stock_qty, purchase_price=payload.purchase_price, retail_price=payload.retail_price, tenant_id=current_user.tenant_id)
+    db.add(new_product)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)
+    db.commit()
+    return {"status": "PRODUCT_SUCCESSFULLY_CREATED", "product_id": new_product.id}
+
+@router.get("/products")
+async def fetch_all_isolated_products(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    tenant_products = db.query(Product).filter(Product.tenant_id == current_user.tenant_id).all()
+    return {"tenant_id": current_user.tenant_id, "total_items": len(tenant_products), "products": [{"id": p.id, "name": p.name, "sku": p.sku, "barcode": p.barcode, "stock_qty": p.stock_qty, "purchase_price": p.purchase_price, "retail_price": p.retail_price} for p in tenant_products]}
+
+@router.put("/products/{product_id}")
+async def update_isolated_product_item(product_id: str, payload: ProductUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    target_product = db.query(Product).filter(Product.id == product_id, Product.tenant_id == current_user.tenant_id).first()
+    if not target_product:
+        raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
+    update_data = payload.dict(exclude_unset=True)
+    for key, value in update_data.items():
+        setattr(target_product, key, value)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "PRODUCTS", f"Modified item fields for product ID {product_id}", request)
+    db.commit()
+    return {"status": "PRODUCT_SUCCESSFULLY_UPDATED", "product_id": product_id}
+
+@router.delete("/products/{product_id}")
+async def delete_isolated_product_item(product_id: str, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    target_product = db.query(Product).filter(Product.id == product_id, Product.tenant_id == current_user.tenant_id).first()
+    if not target_product:
+        raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "DELETE", "PRODUCTS", f"Purged SKU record {target_product.sku}: {target_product.name}", request)
+    db.delete(target_product)
+    db.commit()
+    return {"status": "PRODUCT_SUCCESSFULLY_DELETED", "product_id": product_id}
+
+# ==========================================================================
+# 3. PRODUCTION AUTOMATED ACCOUNTING DOUBLE-ENTRY ORDERS INGESTION (POS)
+# ==========================================================================
+@router.post("/orders", status_code=status.HTTP_201_CREATED)
+async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.customer_name.strip() or not payload.items:
+        raise HTTPException(status_code=422, detail="VALIDATION_ERROR: CUSTOMER_NAME_AND_ITEMS_ARE_REQUIRED")
+        
+    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    current_orders = db.query(func.count(Order.id)).filter(Order.tenant_id == current_user.tenant_id).scalar() or 0
+    if tenant and current_orders >= tenant.max_order_limit:
+        raise HTTPException(status_code=403, detail=f"SUBSCRIPTION_LIMIT_EXCEEDED: Your current tier allows maximum {tenant.max_order_limit} Orders. Upgrade required.")
+        
+    order_num = f"ORD-{datetime.utcnow().strftime('%Y%m%d')}-{int(datetime.utcnow().timestamp()) % 10000:04d}"
+    new_order = Order(order_number=order_num, platform_channel=payload.platform_channel, customer_name=payload.customer_name, customer_phone=payload.customer_phone, total_amount=0.0, order_status="PENDING", tenant_id=current_user.tenant_id)
+    db.add(new_order)
+    db.flush() # Secure new_order.id dynamically generated by UUIDv4 Shard
+    
+    computed_total_pool = 0.0
+    computed_cogs_pool = 0.0
+    for item in payload.items:
+        target_product = db.query(Product).filter(Product.id == item.product_id, Product.tenant_id == current_user.tenant_id).first()
+        if not target_product:
+            raise HTTPException(status_code=404, detail=f"PRODUCT_ID_{item.product_id}_NOT_FOUND_IN_THIS_WORKSPACE")
+        if target_product.stock_qty < item.quantity:
+            raise HTTPException(status_code=400, detail=f"INSUFFICIENT_STOCK: {target_product.name} has only {target_product.stock_qty} units left")
+        
+        target_product.stock_qty -= item.quantity
+        sale_price = target_product.retail_price
+        cogs_price = target_product.purchase_price
+        computed_total_pool += (sale_price * item.quantity)
+        computed_cogs_pool += (cogs_price * item.quantity)
+        
+        new_item = OrderItem(quantity=item.quantity, price_at_sale=sale_price, order_id=new_order.id, product_id=target_product.id)
+        db.add(new_item)
+        
+    new_order.total_amount = computed_total_pool
+    
+    # GAAP Double-Entry Alignment Protocols
+    record_double_entry_accounting(db, current_user.tenant_id, "DEBIT", "CASH_ASSET", computed_total_pool, new_order.id, f"Inbound cash received from sales invoice {order_num}")
+    record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "SALES_REVENUE", computed_total_pool, new_order.id, f"Recognized revenue earned from order {order_num}")
+    record_double_entry_accounting(db, current_user.tenant_id, "DEBIT", "COGS_EXPENSE", computed_cogs_pool, new_order.id, f"Cost of goods sold recorded for invoice {order_num}")
+    record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "INVENTORY_ASSET", computed_cogs_pool, new_order.id, f"Asset inventory reduction mapped from sales checkout {order_num}")
+    
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "ORDERS", f"Processed invoice {order_num} and triggered automated accounting matrixes", request)
+    try:
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"TRANSACTION_FAILED: {str(exc)}")
+    return {"status": "ORDER_SUCCESSFULLY_SYNCED", "order_id": new_order.id, "order_number": order_num, "total_amount": computed_total_pool}
+
+@router.get("/orders")
+async def fetch_all_isolated_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    tenant_orders = db.query(Order).filter(Order.tenant_id == current_user.tenant_id).order_by(Order.created_at.desc()).all()
+    return {"tenant_id": current_user.tenant_id, "total_orders": len(tenant_orders), "orders": [{"id": o.id, "order_number": o.order_number, "platform": o.platform_channel, "customer": o.customer_name, "phone": o.customer_phone, "total_usd": o.total_amount, "status": o.order_status, "created_at": o.created_at} for o in tenant_orders]}
+
+
+@router.patch("/orders/{order_id}/status")
+async def update_order_status(
+    order_id: str,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    order = db.query(Order).filter(
+        Order.id == order_id,
+        Order.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="ORDER_NOT_FOUND"
+        )
+
+    new_status = payload.get("status")
+
+    allowed = [
+        "PENDING",
+        "CONFIRMED",
+        "PAID",
+        "COMPLETED",
+        "CANCELLED"
+    ]
+
+    if new_status not in allowed:
+        raise HTTPException(
+            status_code=400,
+            detail="INVALID_ORDER_STATUS"
+        )
+
+    order.order_status = new_status
+
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "status": "ORDER_STATUS_UPDATED",
+        "order_id": order.id,
+        "order_number": order.order_number,
+        "new_status": order.order_status
+    }
+
+
+@router.get("/accounting/profit-loss")
+async def generate_isolated_profit_loss_statement(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    total_revenue = db.query(func.sum(AccountLedger.amount)).filter(AccountLedger.tenant_id == current_user.tenant_id, AccountLedger.account_head == "SALES_REVENUE").scalar() or 0.0
+    total_cogs = db.query(func.sum(AccountLedger.amount)).filter(AccountLedger.tenant_id == current_user.tenant_id, AccountLedger.account_head == "COGS_EXPENSE").scalar() or 0.0
+    gross_profit = total_revenue - total_cogs
+    profit_margin_pct = (gross_profit / total_revenue * 100) if total_revenue > 0 else 0.0
+    return {"tenant_id": current_user.tenant_id, "report_type": "ACCRUAL_PROFIT_AND_LOSS_STATEMENT", "generated_at": datetime.utcnow(), "financial_summary": {"total_gross_revenue": total_revenue, "total_cost_of_goods_sold": total_cogs, "gross_profit_margin": gross_profit, "net_operational_profit": gross_profit, "net_profit_margin_percentage": f"{profit_margin_pct:.2f}%"}}
+
+@router.get("/billing/usage-meters")
+async def fetch_tenant_subscription_usage_meters(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    """Meters dynamic tenant workspace usages against active plan quotas live."""
+    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    if not tenant: 
+        raise HTTPException(status_code=404, detail="WORKSPACE_PROFILE_NOT_FOUND")
+    current_skus = db.query(func.count(Product.id)).filter(Product.tenant_id == current_user.tenant_id).scalar() or 0
+    current_orders = db.query(func.count(Order.id)).filter(Order.tenant_id == current_user.tenant_id).scalar() or 0
+    return {
+        "workspace_id": current_user.tenant_id,
+        "subscription_tier": tenant.subscription_tier.name if hasattr(tenant.subscription_tier, 'name') else str(tenant.subscription_tier),
+        "usage_meters": {
+            "inventory_skus": {"current": current_skus, "max_limit": tenant.max_sku_limit, "quota_reached": current_skus >= tenant.max_sku_limit},
+            "sales_orders": {"current": current_orders, "max_limit": tenant.max_order_limit, "quota_reached": current_orders >= tenant.max_order_limit}
+        },
+        "feature_flags": {"multi_branch_pos_enabled": tenant.enable_pos_feature, "ai_predictive_forecast_enabled": tenant.enable_ai_forecast}
+    }
+
+# ==========================================================================
+# 4. MASTER PROMPT V5.5 NEW NODE: MULTI-BRANCH, SUPPLIER & PROCUREMENT
+# ==========================================================================
+@router.post("/branches", status_code=status.HTTP_201_CREATED)
+async def create_isolated_branch(payload: BranchCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.branch_name.strip(): 
+        raise HTTPException(status_code=422, detail="Branch name cannot be empty")
+    new_branch = Branch(branch_name=payload.branch_name, location_address=payload.location_address, tenant_id=current_user.tenant_id)
+    db.add(new_branch)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "BRANCHES", f"Created branch: {payload.branch_name}", request)
+    db.commit()
+    return {"status": "BRANCH_SUCCESSFULLY_CREATED", "branch_id": new_branch.id}
+
+@router.get("/branches")
+async def fetch_isolated_branches(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    branches = db.query(Branch).filter(Branch.tenant_id == current_user.tenant_id).all()
+    return {"branches": [{"id": b.id, "branch_name": b.branch_name, "location": b.location_address} for b in branches]}
+
+@router.post("/suppliers", status_code=status.HTTP_201_CREATED)
+async def create_isolated_supplier(payload: SupplierCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.supplier_name.strip(): 
+        raise HTTPException(status_code=422, detail="Supplier name cannot be empty")
+    new_supplier = Supplier(supplier_name=payload.supplier_name, contact_phone=payload.contact_phone, tenant_id=current_user.tenant_id)
+    db.add(new_supplier)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "SUPPLIERS", f"Registered supplier: {payload.supplier_name}", request)
+    db.commit()
+    return {"status": "SUPPLIER_SUCCESSFULLY_REGISTERED", "supplier_id": new_supplier.id}
+
+@router.get("/suppliers")
+async def fetch_isolated_suppliers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    suppliers = db.query(Supplier).filter(Supplier.tenant_id == current_user.tenant_id).all()
+    return {"suppliers": [{"id": s.id, "supplier_name": s.supplier_name, "phone": s.contact_phone} for s in suppliers]}
+
+@router.post("/procurements", status_code=status.HTTP_201_CREATED)
+async def create_procurement_purchase_entry(payload: ProcurementCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    target_product = db.query(Product).filter(Product.id == payload.product_id, Product.tenant_id == current_user.tenant_id).first()
+    target_supplier = db.query(Supplier).filter(Supplier.id == payload.supplier_id, Supplier.tenant_id == current_user.tenant_id).first()
+    if not target_product or not target_supplier: 
+        raise HTTPException(status_code=404, detail="PRODUCT_OR_SUPPLIER_NOT_FOUND_IN_THIS_WORKSPACE")
+        
+    po_number = f"PO-{datetime.utcnow().strftime('%Y%m%d')}-{int(datetime.utcnow().timestamp()) % 10000:04d}"
+    total_cost_pool = payload.qty_purchased * payload.unit_cost
+    target_product.stock_qty += payload.qty_purchased
+    target_product.purchase_price = payload.unit_cost
+    
+    new_po = ProcurementLedger(procurement_number=po_number, qty_purchased=payload.qty_purchased, unit_cost=payload.unit_cost, total_cost=total_cost_pool, product_id=payload.product_id, supplier_id=payload.supplier_id, tenant_id=current_user.tenant_id)
+    db.add(new_po)
+    db.flush()
+    
+    record_double_entry_accounting(db, current_user.tenant_id, "DEBIT", "INVENTORY_ASSET", total_cost_pool, new_po.id, f"Purchased inventory asset inflow via {po_number}")
+    record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "CASH_ASSET", total_cost_pool, new_po.id, f"Cash outflow payment remitted for purchase invoice {po_number}")
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PROCUREMENT", f"Logged purchase entry {po_number} for product {target_product.name}", request)
+    try: 
+        db.commit()
+    except Exception as exc: 
+        db.rollback()
+        raise HTTPException(status_code=500, detail=f"PROCUREMENT_TRANSACTION_FAILED: {str(exc)}")
+    return {"status": "PROCUREMENT_PURCHASE_SUCCESSFULLY_LOGGED", "procurement_id": new_po.id, "po_number": po_number, "total_cost": total_cost_pool}
+
+# ==========================================================================
+# 5. MASTER PROMPT V5.5 NEW NODE: CRM CUSTOMERS & SECURE USER INVITATIONS
+# ==========================================================================
+@router.post("/customers", status_code=status.HTTP_201_CREATED)
+async def create_isolated_crm_customer(payload: CustomerCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if not payload.customer_name.strip(): 
+        raise HTTPException(status_code=422, detail="Customer name cannot be empty")
+    new_customer = Customer(customer_name=payload.customer_name, customer_email=payload.customer_email, customer_phone=payload.customer_phone, tenant_id=current_user.tenant_id)
+    db.add(new_customer)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "CRM_CUSTOMERS", f"Registered CRM Client: {payload.customer_name}", request)
+    db.commit()
+    return {"status": "CUSTOMER_SUCCESSFULLY_REGISTERED", "customer_id": new_customer.id}
+
+@router.get("/customers")
+async def fetch_isolated_crm_customers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    clients = db.query(Customer).filter(Customer.tenant_id == current_user.tenant_id).all()
+    return {"customers": [{"id": c.id, "name": c.customer_name, "email": c.customer_email, "phone": c.customer_phone, "total_spent_usd": c.total_spent} for c in clients]}
+
+@router.post("/workspace/invite-user", status_code=status.HTTP_201_CREATED)
+async def create_secure_workspace_invitation(payload: WorkspaceInviteInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+    if current_user.role != "ADMIN": 
+        raise HTTPException(status_code=403, detail="ROLE_RESTRICTED: ONLY_WORKSPACE_ADMINS_CAN_INVITE_USERS")
+    import secrets
+    secure_token = secrets.token_urlsafe(32)
+    expiry_time = datetime.utcnow() + timedelta(days=2)
+    new_invite = WorkspaceInvitation(invite_email=payload.invite_email, target_role=payload.target_role, invitation_token=secure_token, expires_at=expiry_time, tenant_id=current_user.tenant_id)
+    db.add(new_invite)
+    log_security_audit_action(db, current_user.id, current_user.tenant_id, "INVITE", "RBAC_SECURITY", f"Sent secure invitation link to {payload.invite_email} with role {payload.target_role}", request)
+    db.commit()
+    return {"status": "INVITATION_LINK_GENERATED_SUCCESSFULLY", "invitation_id": new_invite.id, "secure_hash_token": secure_token, "onboard_gateway_url": f"http://localhost:8000/api/v4/auth/invite/accept?token={secure_token}"}
+
+@router.put("/customers/{customer_id}")
+async def update_isolated_crm_customer(
+    customer_id: str,
+    payload: CustomerUpdateInboundSchema,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    customer = db.query(Customer).filter(
+        Customer.id == customer_id,
+        Customer.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail="CUSTOMER_NOT_FOUND"
+        )
+
+    update_data = payload.dict(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(customer, key, value)
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "UPDATE",
+        "CRM_CUSTOMERS",
+        f"Updated customer {customer.customer_name}",
+        request
+    )
+
+    db.commit()
+
+    return {
+        "status": "CUSTOMER_UPDATED",
+        "customer_id": customer.id
+    }
+
+
+
+
+@router.delete("/customers/{customer_id}")
+async def delete_isolated_crm_customer(
+    customer_id: str,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    customer = db.query(Customer).filter(
+        Customer.id == customer_id,
+        Customer.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail="CUSTOMER_NOT_FOUND"
+        )
+
+    customer_name = customer.customer_name
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "DELETE",
+        "CRM_CUSTOMERS",
+        f"Deleted customer {customer_name}",
+        request
+    )
+
+    db.delete(customer)
+    db.commit()
+
+    return {
+        "status": "CUSTOMER_DELETED",
+        "customer_id": customer_id
+    }
+
+@router.post("/suppliers", status_code=status.HTTP_201_CREATED)
+async def create_isolated_supplier(
+    payload: SupplierCreateInboundSchema,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not payload.supplier_name.strip():
+        raise HTTPException(
+            status_code=422,
+            detail="SUPPLIER_NAME_REQUIRED"
+        )
+
+    new_supplier = Supplier(
+        supplier_name=payload.supplier_name,
+        contact_phone=payload.contact_phone,
+        tenant_id=current_user.tenant_id
+    )
+
+    db.add(new_supplier)
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "CREATE",
+        "SUPPLIERS",
+        f"Registered supplier {payload.supplier_name}",
+        request
+    )
+
+    db.commit()
+    db.refresh(new_supplier)
+
+    return {
+        "status": "SUPPLIER_CREATED",
+        "supplier_id": new_supplier.id
+    }
+
+
+@router.get("/suppliers")
+async def fetch_isolated_suppliers(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    suppliers = db.query(Supplier).filter(
+        Supplier.tenant_id == current_user.tenant_id
+    ).all()
+
+    return {
+        "total_suppliers": len(suppliers),
+        "suppliers": [
+            {
+                "id": s.id,
+                "name": s.supplier_name,
+                "phone": s.contact_phone
+            }
+            for s in suppliers
+        ]
+    }
+
+
+@router.put("/suppliers/{supplier_id}")
+async def update_isolated_supplier(
+    supplier_id: str,
+    payload: SupplierCreateInboundSchema,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    supplier = db.query(Supplier).filter(
+        Supplier.id == supplier_id,
+        Supplier.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not supplier:
+        raise HTTPException(
+            status_code=404,
+            detail="SUPPLIER_NOT_FOUND"
+        )
+
+    supplier.s
+cat >> src/product/router.py <<'EOF'
+
+@router.post("/suppliers", status_code=status.HTTP_201_CREATED)
+async def create_isolated_supplier(
+    payload: SupplierCreateInboundSchema,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not payload.supplier_name.strip():
+        raise HTTPException(
+            status_code=422,
+            detail="SUPPLIER_NAME_REQUIRED"
+        )
+
+    supplier = Supplier(
+        supplier_name=payload.supplier_name,
+        contact_phone=payload.contact_phone,
+        tenant_id=current_user.tenant_id
+    )
+
+    db.add(supplier)
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "CREATE",
+        "SUPPLIERS",
+        f"Registered supplier {payload.supplier_name}",
+        request
+    )
+
+    db.commit()
+    db.refresh(supplier)
+
+    return {
+        "status": "SUPPLIER_CREATED",
+        "supplier_id": supplier.id
+    }
+
+
+@router.get("/suppliers")
+async def fetch_isolated_suppliers(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    suppliers = db.query(Supplier).filter(
+        Supplier.tenant_id == current_user.tenant_id
+    ).all()
+
+    return {
+        "total_suppliers": len(suppliers),
+        "suppliers": [
+            {
+                "id": s.id,
+                "name": s.supplier_name,
+                "phone": s.contact_phone
+            }
+            for s in suppliers
+        ]
+    }
+
+
+@router.put("/suppliers/{supplier_id}")
+async def update_isolated_supplier(
+    supplier_id: str,
+    payload: SupplierCreateInboundSchema,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    supplier = db.query(Supplier).filter(
+        Supplier.id == supplier_id,
+        Supplier.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not supplier:
+        raise HTTPException(
+            status_code=404,
+            detail="SUPPLIER_NOT_FOUND"
+        )
+
+    supplier.supplier_name = payload.supplier_name
+    supplier.contact_phone = payload.contact_phone
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "UPDATE",
+        "SUPPLIERS",
+        f"Updated supplier {supplier.supplier_name}",
+        request
+    )
+
+    db.commit()
+
+    return {
+        "status": "SUPPLIER_UPDATED",
+        "supplier_id": supplier.id
+    }
+
+
+@router.delete("/suppliers/{supplier_id}")
+async def delete_isolated_supplier(
+    supplier_id: str,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    supplier = db.query(Supplier).filter(
+        Supplier.id == supplier_id,
+        Supplier.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not supplier:
+        raise HTTPException(
+            status_code=404,
+            detail="SUPPLIER_NOT_FOUND"
+        )
+
+    supplier_name = supplier.supplier_name
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "DELETE",
+        "SUPPLIERS",
+        f"Deleted supplier {supplier_name}",
+        request
+    )
+
+    db.delete(supplier)
+    db.commit()
+
+    return {
+        "status": "SUPPLIER_DELETED",
+        "supplier_id": supplier_id
+    }
+

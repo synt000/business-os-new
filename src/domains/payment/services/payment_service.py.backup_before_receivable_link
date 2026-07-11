@@ -1,0 +1,57 @@
+from sqlalchemy.orm import Session
+
+from src.models.saas_core import (
+    Payment,
+    Invoice,
+    AccountLedger,
+)
+
+
+def create_payment(
+    db: Session,
+    tenant_id: str,
+    data,
+):
+    invoice = (
+        db.query(Invoice)
+        .filter(
+            Invoice.id == data.invoice_id,
+            Invoice.tenant_id == tenant_id,
+        )
+        .first()
+    )
+
+    if not invoice:
+        raise Exception("INVOICE_NOT_FOUND")
+
+
+    payment = Payment(
+        payment_number=data.payment_number,
+        amount=data.amount,
+        payment_method=data.payment_method,
+        status="COMPLETED",
+        invoice_id=invoice.id,
+        tenant_id=tenant_id,
+    )
+
+
+    invoice.status = "PAID"
+
+
+    ledger = AccountLedger(
+        entry_type="INCOME",
+        account_head="SALES_PAYMENT",
+        amount=data.amount,
+        reference_id=invoice.id,
+        description=f"Payment received {data.payment_number}",
+        tenant_id=tenant_id,
+    )
+
+
+    db.add(payment)
+    db.add(ledger)
+
+    db.commit()
+    db.refresh(payment)
+
+    return payment

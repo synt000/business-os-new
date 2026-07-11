@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum, Text, Index
 from sqlalchemy.orm import relationship
 from src.core.database import Base
+from src.domains.inventory import models as inventory_models
 
 def generate_uuid() -> str:
     return str(uuid.uuid4())
@@ -52,6 +53,12 @@ class User(Base):
     full_name = Column(String, nullable=True)
     role = Column(String, default="MEMBER")
     is_active = Column(Boolean, default=True)
+
+    # Login Security Guard Fields
+    failed_login_attempts = Column(Integer, default=0)
+    locked_until = Column(DateTime, nullable=True)
+    last_login_at = Column(DateTime, nullable=True)
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
@@ -76,6 +83,7 @@ class Product(Base):
     sku = Column(String, nullable=False, index=True)
     barcode = Column(String, nullable=True)
     stock_qty = Column(Integer, default=0)
+    low_stock_threshold = Column(Integer, default=10)
     purchase_price = Column(Float, default=0.0)
     retail_price = Column(Float, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -85,6 +93,19 @@ class Product(Base):
     order_items = relationship("OrderItem", back_populates="product", cascade="all, delete-orphan")
     procurements = relationship("ProcurementLedger", back_populates="product", cascade="all, delete-orphan")
 
+    inventory = relationship(
+        "Inventory",
+        back_populates="product",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+
+    inventory = relationship(
+        "Inventory",
+        back_populates="product",
+        uselist=False
+    )
+
 class Order(Base):
     __tablename__ = "orders"
 
@@ -93,12 +114,26 @@ class Order(Base):
     platform_channel = Column(String, nullable=False)
     customer_name = Column(String, nullable=False)
     customer_phone = Column(String, nullable=True)
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True
+    )
+
     total_amount = Column(Float, default=0.0)
     order_status = Column(String, default="PENDING")
     created_at = Column(DateTime, default=datetime.utcnow)
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="orders")
+
+    customer = relationship(
+        "Customer",
+        back_populates="orders"
+    )
+
     items = relationship("OrderItem", back_populates="order", cascade="all, delete-orphan")
 
 class OrderItem(Base):
@@ -208,6 +243,53 @@ class Customer(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="customers")
 
+    orders = relationship(
+        "Order",
+        back_populates="customer"
+    )
+
+
+class CustomerCreditWallet(Base):
+    __tablename__ = "customer_credit_wallets"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    credit_amount = Column(
+        Float,
+        default=0.0
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    customer = relationship(
+        "Customer"
+    )
+
+    tenant = relationship(
+        "Tenant"
+    )
+
+
 class WorkspaceInvitation(Base):
     __tablename__ = "workspace_invitations"
 
@@ -221,3 +303,182 @@ class WorkspaceInvitation(Base):
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="invitations")
+
+
+class Invoice(Base):
+    __tablename__ = "invoices"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    invoice_number = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+    amount = Column(
+        Float,
+        default=0.0
+    )
+
+    status = Column(
+        String,
+        default="UNPAID"
+    )
+
+
+    order_id = Column(
+        String,
+        ForeignKey("orders.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    order = relationship(
+        "Order"
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    tenant = relationship(
+        "Tenant"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+class Payment(Base):
+    __tablename__ = "payments"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    payment_number = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+    amount = Column(
+        Float,
+        nullable=False
+    )
+
+    payment_method = Column(
+        String,
+        nullable=False
+    )
+
+    status = Column(
+        String,
+        default="COMPLETED"
+    )
+
+    invoice_id = Column(
+        String,
+        ForeignKey("invoices.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    invoice = relationship(
+        "Invoice"
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    tenant = relationship(
+        "Tenant"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+class Receivable(Base):
+    __tablename__ = "receivables"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    invoice_id = Column(
+        String,
+        ForeignKey("invoices.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    total_amount = Column(
+        Float,
+        nullable=False,
+        default=0.0
+    )
+
+    paid_amount = Column(
+        Float,
+        default=0.0
+    )
+
+    balance_amount = Column(
+        Float,
+        default=0.0
+    )
+
+    status = Column(
+        String,
+        default="OPEN"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    customer = relationship(
+        "Customer"
+    )
+
+    invoice = relationship(
+        "Invoice"
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    tenant = relationship(
+        "Tenant"
+    )

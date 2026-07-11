@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales & Orders - Business OS ERP</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://jsdelivr.net"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cloudflare.com">
+    <style>
+        @import url('https://googleapis.com');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #090D16; }
+        .glass-sidebar { background: rgba(17, 24, 39, 0.7); backdrop-filter: blur(16px); border-right: 1px solid rgba(255, 255, 255, 0.05); }
+        .glass-navbar { background: rgba(17, 24, 39, 0.5); backdrop-filter: blur(12px); border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .active-menu { background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(29, 78, 216, 0.05) 100%); border-left: 3px solid #3B82F6; color: #FFFFFF; }
+    </style>
+</head>
+<body class="text-gray-100 antialiased min-h-screen flex">
+
+    <!-- LEFT SIDEBAR BACKBONE -->
+    <aside class="w-64 glass-sidebar hidden md:flex flex-col fixed inset-y-0 left-0 z-30">
+        <div class="px-6 py-5 flex items-center space-x-3 border-b border-gray-800/60">
+            <div class="bg-blue-600 p-2 rounded-xl text-white shadow-md"><i class="fa-solid fa-layer-group"></i></div>
+            <span class="text-lg font-bold text-white tracking-tight">Business <span class="text-blue-500">OS</span></span>
+        </div>
+        <div class="px-4 py-3 m-3 rounded-xl bg-gray-900/60 border border-gray-800 text-center">
+            <div class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Active Workspace</div>
+            <div id="sidebar-tenant-id" class="text-xs text-blue-400 font-medium mt-0.5 truncate">loading...</div>
+        </div>
+        <nav class="flex-1 px-3 space-y-1">
+            <a href="/dashboard" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-chart-pie mr-3.5 text-base w-5 text-center"></i> Overview Dashboard
+            </a>
+            <a href="/products/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-box mr-3.5 text-base w-5 text-center"></i> Product Management
+            </a>
+            <a href="/inventory/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-boxes-stacked mr-3.5 text-base w-5 text-center"></i> Live Inventory
+            </a>
+            <a href="/movements/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+                <i class="fa-solid fa-truck-ramp-box mr-3.5 text-base w-5 text-center"></i> Stock Ledgers
+            </a>
+            <a href="/api/v4/business/ordersui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition active-menu">
+                <i class="fa-solid fa-cart-shopping mr-3.5 text-base w-5 text-center"></i> Sales & Orders
+            </a>
+        </nav>
+    </aside>
+
+    <!-- RIGHT CONTENT INTERFACE -->
+    <div class="flex-1 md:pl-64 flex flex-col min-h-screen">
+        <header class="sticky top-0 z-20 glass-navbar px-6 py-4 flex justify-between items-center">
+            <h1 class="text-lg font-bold text-white tracking-tight">Sales Order Node</h1>
+            <div class="w-9 h-9 rounded-xl bg-gray-800 border border-gray-700/60 flex items-center justify-center text-emerald-400 font-bold"><i class="fa-solid fa-cart-shopping"></i></div>
+        </header>
+
+        <main class="flex-1 p-6 space-y-6">
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6 items-start">
+                
+                <!-- 1. Place Order Form Card -->
+                <div class="xl:col-span-1 p-6 rounded-2xl bg-gray-900/40 border border-gray-800/80 shadow-md">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400 mb-4"><i class="fa-solid fa-cart-plus text-emerald-400 mr-1.5"></i> Place Sales Order</h3>
+                    <form id="order-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Customer Identity Reference</label>
+                            <input type="text" id="customer_id" required placeholder="e.g. Walk-in Customer" class="w-full px-3 py-2 bg-gray-900/60 border border-gray-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Target Product ID</label>
+                            <input type="text" id="product_id" required placeholder="Product UUID string" class="w-full px-3 py-2 bg-gray-900/60 border border-gray-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Quantity</label>
+                                <input type="number" id="quantity" required placeholder="1" class="w-full px-3 py-2 bg-gray-900/60 border border-gray-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-400 mb-1.5 uppercase tracking-wide">Price Each ($)</label>
+                                <input type="number" step="0.01" id="price" required placeholder="0.00" class="w-full px-3 py-2 bg-gray-900/60 border border-gray-800 rounded-xl text-sm text-white focus:outline-none focus:border-emerald-500">
+                            </div>
+                        </div>
+                        <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold py-2.5 rounded-xl transition shadow-md shadow-emerald-600/10">Process Order Invoice</button>
+                    </form>
+                    <div id="form-toast" class="mt-3 p-3 rounded-xl text-xs font-medium text-center hidden border"></div>
+                </div>
+
+                <!-- 2. Dynamic ERP Sales Orders Data Table List -->
+                <div class="xl:col-span-2 p-6 rounded-2xl bg-gray-900/40 border border-gray-800/80 shadow-md">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="text-sm font-bold uppercase tracking-wider text-gray-400"><i class="fa-solid fa-receipt text-emerald-400 mr-1.5"></i> Corporate Invoice Journal</h3>
+                        <button id="refresh-btn" class="px-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-semibold transition flex items-center gap-1.5"><i class="fa-solid fa-rotate text-[10px]"></i> Sync Journal</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs">
+                            <thead>
+                                <tr class="border-b border-gray-800 text-gray-500 uppercase tracking-wider font-semibold">
+                                    <th class="pb-3 font-medium">Customer Ref</th>
+                                    <th class="pb-3 font-medium">Product Reference</th>
+                                    <th class="pb-3 font-medium text-right">Qty</th>
+                                    <th class="pb-3 font-medium text-right">Total ($)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table-body" class="text-gray-300 divide-y divide-gray-800/50">
+                                <!-- Dynamic Rows Injected via JS Execution Engine -->
+                                <tr>
+                                    <td colspan="4" class="py-8 text-center text-gray-600 font-medium">Initializing live sales datastream pipeline...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CORE ORDERS INTERACTION LOGIC ENGINE -->
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const token = localStorage.getItem("access_token");
+            const tenantId = localStorage.getItem("tenant_id");
+            const toast = document.getElementById("form-toast");
+
+            if (!token) { window.location.href = "/auth/login"; return; }
+            if (tenantId) { document.getElementById("sidebar-tenant-id").innerText = tenantId; }
+
+            // Fetch list execution routine from secure endpoint context
+            async function fetchOrders() {
+                const tbody = document.getElementById("orders-table-body");
+                try {
+                    const response = await fetch("/api/v4/business/orders", {
+                        headers: { "Authorization": `Bearer ${token}` }
+                    });
+                    const orderItems = await response.json();
+                    
+                    if (!response.ok) throw new Error(orderItems.detail || "Connection failure.");
+                    
+                    tbody.innerHTML = "";
+                    if (orderItems.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="4" class="py-8 text-center text-gray-600">Zero active sales orders found inside this workspace.</td></tr>`;
+                        return;
+                    }
+
+                    orderItems.forEach(o => {
+                        const quantity = parseInt(o.quantity || 1);
+                        const priceEach = parseFloat(o.price || 0);
+                        const totalCost = quantity * priceEach;
+
+                        tbody.innerHTML += `
+                            <tr class="hover:bg-gray-800/20 transition-colors">
+                                <td class="py-3 text-white font-medium">${o.customer_id || "Anonymous"}</td>
+                                <td class="py-3 font-mono text-emerald-400 font-medium">${o.product_id}</td>
+                                <td class="py-3 text-right font-semibold text-gray-400">${quantity} units</td>
+                                <td class="py-3 text-right font-bold text-emerald-400">$${totalCost.toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+                } catch (err) {
+                    tbody.innerHTML = `<tr><td colspan="4" class="py-6 text-center text-red-400 font-medium"><i class="fa-solid fa-circle-exclamation mr-1"></i> Sales pipeline offline: ${err.message}</td></tr>`;
+                }
+            }
+
+            // Save Entry API POST Transaction Handler
+            document.getElementById("order-form").addEventListener("submit", async (e) => {
+                e.preventDefault();
+                toast.classList.add("hidden");
+
+                const payload = {
+                    customer_id: document.getElementById("customer_id").value,
+                    product_id: document.getElementById("product_id").value,
+                    quantity: parseInt(document.getElementById("quantity").value),
+                    price: parseFloat(document.getElementById("price").value)
+                };
+
+                try {
+                    const response = await fetch("/api/v4/business/orders", {
+                        method: "POST",
+                        headers: { 
+                            "Content-Type": "application/json",
+                            "Authorization": `Bearer ${token}`
+                        },
+                        body: JSON.stringify(payload)
+                    });
+
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.detail || "Order processing failure or structural fault.");
+
+                    toast.className = "mt-3 p-3 rounded-xl text-xs font-medium text-center border border-emerald-500/30 text-emerald-400 bg-emerald-500/5 animate-fade";
+                    toast.innerText = "✓ Invoice processed and ledger balances balanced perfectly inside DB instance.";
+                    toast.classList.remove("hidden");
+                    document.getElementById("order-form").reset();
+                    fetchOrders();
+                } catch (err) {
+                    toast.className = "mt-3 p-3 rounded-xl text-xs font-medium text-center border border-red-500/30 text-red-400 bg-red-500/5 animate-fade";
+                    toast.innerText = `✗ Fault Detected: ${err.message}`;
+                    toast.classList.remove("hidden");
+                }
+            });
+
+            document.getElementById("refresh-btn").addEventListener("click", fetchOrders);
+            fetchOrders();
+        });
+    </script>
+</body>
+</html>

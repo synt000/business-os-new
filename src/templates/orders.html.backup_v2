@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Sales Orders - Business OS ERP</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+<style>
+body{
+font-family:Arial,sans-serif;
+background:#090D16;
+}
+
+.card{
+background:rgba(17,24,39,.7);
+border:1px solid rgba(255,255,255,.08);
+backdrop-filter:blur(12px);
+}
+</style>
+
+</head>
+
+
+<body class="text-gray-100 min-h-screen">
+
+
+<div class="p-6">
+
+<h1 class="text-2xl font-bold mb-6">
+🛒 Sales Order Node
+</h1>
+
+
+<div class="grid md:grid-cols-3 gap-6">
+
+
+<div class="card rounded-2xl p-6">
+
+
+<h2 class="text-sm font-bold text-gray-400 mb-5">
+<i class="fa-solid fa-cart-plus"></i>
+Place Sales Order
+</h2>
+
+
+
+<form id="order-form">
+
+
+<label class="text-xs text-gray-400">
+Customer
+</label>
+
+<select id="customer_id"
+class="w-full mt-2 mb-4 bg-gray-900 border border-gray-700 rounded-xl p-3">
+
+<option>
+Loading customers...
+</option>
+
+</select>
+
+
+
+<label class="text-xs text-gray-400">
+Product
+</label>
+
+<select id="product_id"
+class="w-full mt-2 mb-2 bg-gray-900 border border-gray-700 rounded-xl p-3">
+
+<option>
+Loading products...
+</option>
+
+</select>
+
+
+
+<div id="stock-info"
+class="text-xs text-blue-400 mb-4">
+Stock: -
+</div>
+
+
+
+
+<label class="text-xs text-gray-400">
+Quantity
+</label>
+
+<input
+id="quantity"
+type="number"
+value="1"
+min="1"
+class="w-full mt-2 mb-4 bg-gray-900 border border-gray-700 rounded-xl p-3">
+
+
+
+<label class="text-xs text-gray-400">
+Unit Price
+</label>
+
+<input
+id="price"
+readonly
+class="w-full mt-2 mb-4 bg-gray-900 border border-gray-700 rounded-xl p-3">
+
+
+
+<button
+class="w-full bg-emerald-600 hover:bg-emerald-500 rounded-xl py-3 font-bold">
+
+Process Order Invoice
+
+</button>
+
+
+</form>
+
+
+<div id="toast"
+class="mt-4 hidden p-3 rounded-xl text-sm">
+</div>
+
+
+</div>
+
+
+
+<div class="md:col-span-2 card rounded-2xl p-6">
+
+
+<div class="flex justify-between mb-5">
+
+<h2 class="text-sm font-bold text-gray-400">
+<i class="fa-solid fa-file-invoice"></i>
+Corporate Invoice Journal
+</h2>
+
+
+<button id="refresh-btn"
+class="bg-gray-800 px-4 py-2 rounded-xl text-xs">
+
+Sync Journal
+
+</button>
+
+
+</div>
+
+
+
+<table class="w-full text-sm">
+
+<thead class="text-gray-500">
+
+<tr>
+
+<th class="text-left">
+Order
+</th>
+
+<th>
+Customer
+</th>
+
+<th>
+Amount
+</th>
+
+<th>
+Status
+</th>
+
+</tr>
+
+</thead>
+
+
+<tbody id="orders-table">
+
+</tbody>
+
+
+</table>
+
+
+</div>
+
+
+</div>
+
+
+</div>

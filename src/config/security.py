@@ -28,7 +28,7 @@ OWNER_TELEGRAM_LINK = os.getenv("OWNER_TELEGRAM_LINK", "")
 OWNER_SUPPORT_PHONE = os.getenv("OWNER_SUPPORT_PHONE", "")
 
 oauth2_scheme = OAuth2PasswordBearer(
-    tokenUrl="/api/v4/auth/login",
+    tokenUrl="/api/v4/auth/token",
     auto_error=False,
 )
 

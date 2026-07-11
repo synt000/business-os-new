@@ -65,11 +65,14 @@ class CustomerCreateInboundSchema(BaseModel):
     customer_name: str
     customer_email: Optional[str] = None
     customer_phone: Optional[str] = None
+class CustomerUpdateInboundSchema(BaseModel):
+    customer_name: Optional[str] = None
+    customer_email: Optional[str] = None
+    customer_phone: Optional[str] = None
 
 class WorkspaceInviteInboundSchema(BaseModel):
     invite_email: str
     target_role: str = "MEMBER"
-
 # ==========================================================================
 # CENTRAL LOGGING & DOUBLE-ENTRY ACCOUNTING LEDGER SYSTEM DIRECTORS
 # ==========================================================================
@@ -81,7 +84,7 @@ def log_security_audit_action(db: Session, user_id: str, tenant_id: str, action:
     db.add(audit_entry)
 
 def record_double_entry_accounting(db: Session, tenant_id: str, entry_type: str, account_head: str, amount: float, reference_id: str, description: str):
-    ledger_id = f"ldg_{entry_type[:3].lower()}_{int(datetime.utcnow().timestamp())}_{reference_id[-4:]}"
+    ledger_id = f"ldg_{entry_type[:3].lower()}_{secrets.token_hex(8)}"
     ledger_entry = AccountLedger(id=ledger_id, entry_type=entry_type, account_head=account_head, amount=amount, reference_id=reference_id, description=description, tenant_id=tenant_id)
     db.add(ledger_entry)
 
@@ -233,6 +236,54 @@ async def fetch_all_isolated_orders(current_user: User = Depends(get_current_use
     tenant_orders = db.query(Order).filter(Order.tenant_id == current_user.tenant_id).order_by(Order.created_at.desc()).all()
     return {"tenant_id": current_user.tenant_id, "total_orders": len(tenant_orders), "orders": [{"id": o.id, "order_number": o.order_number, "platform": o.platform_channel, "customer": o.customer_name, "phone": o.customer_phone, "total_usd": o.total_amount, "status": o.order_status, "created_at": o.created_at} for o in tenant_orders]}
 
+
+@router.patch("/orders/{order_id}/status")
+async def update_order_status(
+    order_id: str,
+    payload: dict,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    order = db.query(Order).filter(
+        Order.id == order_id,
+        Order.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="ORDER_NOT_FOUND"
+        )
+
+    new_status = payload.get("status")
+
+    allowed = [
+        "PENDING",
+        "CONFIRMED",
+        "PAID",
+        "COMPLETED",
+        "CANCELLED"
+    ]
+
+    if new_status not in allowed:
+        raise HTTPException(
+            status_code=400,
+            detail="INVALID_ORDER_STATUS"
+        )
+
+    order.order_status = new_status
+
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "status": "ORDER_STATUS_UPDATED",
+        "order_id": order.id,
+        "order_number": order.order_number,
+        "new_status": order.order_status
+    }
+
+
 @router.get("/accounting/profit-loss")
 async def generate_isolated_profit_loss_statement(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     total_revenue = db.query(func.sum(AccountLedger.amount)).filter(AccountLedger.tenant_id == current_user.tenant_id, AccountLedger.account_head == "SALES_REVENUE").scalar() or 0.0
@@ -348,3 +399,167 @@ async def create_secure_workspace_invitation(payload: WorkspaceInviteInboundSche
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "INVITE", "RBAC_SECURITY", f"Sent secure invitation link to {payload.invite_email} with role {payload.target_role}", request)
     db.commit()
     return {"status": "INVITATION_LINK_GENERATED_SUCCESSFULLY", "invitation_id": new_invite.id, "secure_hash_token": secure_token, "onboard_gateway_url": f"http://localhost:8000/api/v4/auth/invite/accept?token={secure_token}"}
+
+@router.put("/customers/{customer_id}")
+async def update_isolated_crm_customer(
+    customer_id: str,
+    payload: CustomerUpdateInboundSchema,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    customer = db.query(Customer).filter(
+        Customer.id == customer_id,
+        Customer.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail="CUSTOMER_NOT_FOUND"
+        )
+
+    update_data = payload.dict(exclude_unset=True)
+
+    for key, value in update_data.items():
+        setattr(customer, key, value)
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "UPDATE",
+        "CRM_CUSTOMERS",
+        f"Updated customer {customer.customer_name}",
+        request
+    )
+
+    db.commit()
+
+    return {
+        "status": "CUSTOMER_UPDATED",
+        "customer_id": customer.id
+    }
+
+
+
+
+@router.delete("/customers/{customer_id}")
+async def delete_isolated_crm_customer(
+    customer_id: str,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    customer = db.query(Customer).filter(
+        Customer.id == customer_id,
+        Customer.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not customer:
+        raise HTTPException(
+            status_code=404,
+            detail="CUSTOMER_NOT_FOUND"
+        )
+
+    customer_name = customer.customer_name
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "DELETE",
+        "CRM_CUSTOMERS",
+        f"Deleted customer {customer_name}",
+        request
+    )
+
+    db.delete(customer)
+    db.commit()
+
+    return {
+        "status": "CUSTOMER_DELETED",
+        "customer_id": customer_id
+    }
+
+@router.post("/suppliers", status_code=status.HTTP_201_CREATED)
+async def create_isolated_supplier(
+    payload: SupplierCreateInboundSchema,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    if not payload.supplier_name.strip():
+        raise HTTPException(
+            status_code=422,
+            detail="SUPPLIER_NAME_REQUIRED"
+        )
+
+    new_supplier = Supplier(
+        supplier_name=payload.supplier_name,
+        contact_phone=payload.contact_phone,
+        tenant_id=current_user.tenant_id
+    )
+
+    db.add(new_supplier)
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "CREATE",
+        "SUPPLIERS",
+        f"Registered supplier {payload.supplier_name}",
+        request
+    )
+
+    db.commit()
+    db.refresh(new_supplier)
+
+    return {
+        "status": "SUPPLIER_CREATED",
+        "supplier_id": new_supplier.id
+    }
+
+
+@router.get("/suppliers")
+async def fetch_isolated_suppliers(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    suppliers = db.query(Supplier).filter(
+        Supplier.tenant_id == current_user.tenant_id
+    ).all()
+
+    return {
+        "total_suppliers": len(suppliers),
+        "suppliers": [
+            {
+                "id": s.id,
+                "name": s.supplier_name,
+                "phone": s.contact_phone
+            }
+            for s in suppliers
+        ]
+    }
+
+
+@router.put("/suppliers/{supplier_id}")
+async def update_isolated_supplier(
+    supplier_id: str,
+    payload: SupplierCreateInboundSchema,
+    request: Request,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    supplier = db.query(Supplier).filter(
+        Supplier.id == supplier_id,
+        Supplier.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not supplier:
+        raise HTTPException(
+            status_code=404,
+            detail="SUPPLIER_NOT_FOUND"
+        )
+

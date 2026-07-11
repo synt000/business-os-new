@@ -1,0 +1,88 @@
+from sqlalchemy.orm import Session
+
+from src.domains.product.models import Product
+from src.domains.order.models import Order
+from src.domains.inventory.models import Inventory
+
+from src.models.saas_core import (
+    Customer,
+    Supplier,
+)
+
+
+class DashboardService:
+    """
+    Enterprise Dashboard Analytics Engine
+
+    Tenant isolated metrics provider.
+    """
+
+    @staticmethod
+    def get_summary(
+        db: Session,
+        tenant_id: str
+    ):
+
+        products = (
+            db.query(Product)
+            .filter(
+                Product.tenant_id == tenant_id
+            )
+            .count()
+        )
+
+
+        orders = (
+            db.query(Order)
+            .filter(
+                Order.tenant_id == tenant_id
+            )
+            .count()
+        )
+
+
+        customers = (
+            db.query(Customer)
+            .filter(
+                Customer.tenant_id == tenant_id
+            )
+            .count()
+        )
+
+
+        suppliers = (
+            db.query(Supplier)
+            .filter(
+                Supplier.tenant_id == tenant_id
+            )
+            .count()
+        )
+
+
+        inventory_items = (
+            db.query(Inventory)
+            .filter(
+                Inventory.tenant_id == tenant_id
+            )
+            .count()
+        )
+
+
+        low_stock = (
+            db.query(Inventory)
+            .filter(
+                Inventory.tenant_id == tenant_id,
+                Inventory.quantity <= Inventory.low_stock_threshold
+            )
+            .count()
+        )
+
+
+        return {
+            "products": products,
+            "orders": orders,
+            "customers": customers,
+            "suppliers": suppliers,
+            "inventory": inventory_items,
+            "low_stock": low_stock
+        }

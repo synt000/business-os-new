@@ -1,0 +1,24 @@
+from pydantic import BaseModel
+from typing import List
+from uuid import UUID
+
+
+class OrderItemCreate(BaseModel):
+    product_id: UUID
+    quantity: int
+    price: float
+
+
+class OrderCreate(BaseModel):
+    order_number: str
+    items: List[OrderItemCreate]
+
+
+class OrderResponse(BaseModel):
+    id: UUID
+    order_number: str
+    total_amount: float
+    status: str
+
+    class Config:
+        from_attributes = True

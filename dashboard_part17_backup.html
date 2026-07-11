@@ -1,0 +1,2290 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Business OS Dashboard</title>
+
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+
+body{
+
+    font-family:'Inter',sans-serif;
+
+    background:#080b14;
+
+    color:white;
+
+    min-height:100vh;
+
+}
+
+
+.app{
+
+    width:100%;
+
+    max-width:480px;
+
+    margin:auto;
+
+    min-height:100vh;
+
+    padding-bottom:90px;
+
+}
+
+
+
+/* =====================
+   PREMIUM TOP BAR
+===================== */
+
+
+.top-bar{
+
+    height:78px;
+
+    padding:15px 20px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:
+    linear-gradient(
+    135deg,
+    rgba(0,229,255,0.12),
+    rgba(255,255,255,0.03)
+    );
+
+    backdrop-filter:blur(25px);
+
+    border-bottom:
+    1px solid rgba(255,255,255,0.12);
+
+}
+
+
+.brand-area{
+
+    display:flex;
+
+    flex-direction:column;
+
+}
+
+
+.brand-name{
+
+    font-size:20px;
+
+    font-weight:800;
+
+}
+
+
+.status{
+
+    font-size:11px;
+
+    color:#00ff99;
+
+}
+
+
+.status::before{
+
+    content:"";
+
+    display:inline-block;
+
+    width:7px;
+
+    height:7px;
+
+    background:#00ff99;
+
+    border-radius:50%;
+
+    margin-right:5px;
+
+}
+
+
+.top-actions{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+}
+
+
+.notification{
+
+    width:38px;
+
+    height:38px;
+
+    border-radius:14px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:rgba(255,255,255,0.08);
+
+}
+
+
+.vip{
+
+    font-size:10px;
+
+    padding:5px 8px;
+
+    border-radius:20px;
+
+    background:linear-gradient(135deg,#ffd700,#ff8c00);
+
+    color:#111;
+
+    font-weight:800;
+
+}
+
+
+.logo{
+
+    font-size:20px;
+
+    font-weight:800;
+
+    letter-spacing:.5px;
+
+}
+
+
+.logo span{
+
+    color:#00e5ff;
+
+}
+
+
+
+.profile-btn{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:50%;
+
+    background:
+
+    linear-gradient(
+    135deg,
+    #00e5ff,
+    #0066ff
+    );
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-weight:700;
+
+}
+
+
+
+/* CONTENT AREA */
+
+
+.content{
+
+    padding:20px;
+
+}
+
+
+
+
+
+/* =====================
+   HERO READY CONTAINER
+===================== */
+
+
+.hero-section{
+
+    margin-top:20px;
+
+    padding:22px;
+
+    border-radius:28px;
+
+    background:
+
+    linear-gradient(
+    135deg,
+    rgba(0,229,255,0.18),
+    rgba(0,102,255,0.18)
+    );
+
+    border:
+
+    1px solid rgba(255,255,255,0.12);
+
+    overflow:hidden;
+
+    position:relative;
+
+}
+
+
+.hero-section::before{
+
+    content:"";
+
+    position:absolute;
+
+    width:160px;
+
+    height:160px;
+
+    right:-50px;
+
+    top:-50px;
+
+    background:
+
+    radial-gradient(
+    circle,
+    rgba(0,229,255,.5),
+    transparent 70%
+    );
+
+}
+
+
+.hero-title{
+
+    font-size:24px;
+
+    font-weight:800;
+
+    position:relative;
+
+}
+
+
+.hero-subtitle{
+
+    margin-top:8px;
+
+    font-size:13px;
+
+    color:#b8c7d9;
+
+    position:relative;
+
+}
+
+
+
+
+
+.hero-content{
+
+    position:relative;
+
+    z-index:2;
+
+}
+
+
+.hero-tag{
+
+    display:inline-block;
+
+    padding:6px 12px;
+
+    border-radius:20px;
+
+    background:rgba(255,255,255,.12);
+
+    font-size:11px;
+
+    margin-bottom:15px;
+
+}
+
+
+.hero-title span{
+
+    color:#00e5ff;
+
+}
+
+
+.hero-desc{
+
+    margin-top:12px;
+
+    line-height:1.5;
+
+    font-size:14px;
+
+    color:#c5d2e3;
+
+}
+
+
+.hero-btn{
+
+    margin-top:20px;
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:8px;
+
+    padding:12px 20px;
+
+    border-radius:18px;
+
+    background:
+
+    linear-gradient(
+    135deg,
+    #00e5ff,
+    #0066ff
+    );
+
+    color:white;
+
+    font-weight:700;
+
+    font-size:14px;
+
+}
+
+
+
+
+.hero-metrics{
+
+    margin-top:22px;
+
+    display:flex;
+
+    gap:10px;
+
+}
+
+
+.metric-mini{
+
+    flex:1;
+
+    padding:12px;
+
+    border-radius:18px;
+
+    background:
+
+    rgba(255,255,255,0.08);
+
+    border:
+
+    1px solid rgba(255,255,255,.1);
+
+    backdrop-filter:blur(15px);
+
+}
+
+
+.metric-mini h3{
+
+    font-size:18px;
+
+    font-weight:800;
+
+}
+
+
+.metric-mini p{
+
+    margin-top:4px;
+
+    font-size:11px;
+
+    color:#b8c7d9;
+
+}
+
+
+.float-card{
+
+    position:absolute;
+
+    right:18px;
+
+    bottom:18px;
+
+    width:80px;
+
+    height:80px;
+
+    border-radius:25px;
+
+    background:
+
+    rgba(255,255,255,.12);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    font-size:35px;
+
+    backdrop-filter:blur(20px);
+
+}
+
+
+
+
+.hero-section{
+
+    animation:fadeUp .6s ease;
+
+}
+
+
+.hero-btn{
+
+    cursor:pointer;
+
+    transition:.3s;
+
+}
+
+
+.hero-btn:active{
+
+    transform:scale(.95);
+
+}
+
+
+.metric-mini{
+
+    transition:.3s;
+
+}
+
+
+.metric-mini:active{
+
+    transform:translateY(-4px);
+
+}
+
+
+@keyframes fadeUp{
+
+    from{
+
+        opacity:0;
+
+        transform:translateY(20px);
+
+    }
+
+    to{
+
+        opacity:1;
+
+        transform:translateY(0);
+
+    }
+
+}
+
+
+
+/* =====================
+   STATISTICS READY
+===================== */
+
+
+.stats-section{
+
+    margin-top:25px;
+
+}
+
+
+.section-title{
+
+    font-size:18px;
+
+    font-weight:800;
+
+    margin-bottom:15px;
+
+}
+
+
+
+
+
+
+.stats-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(2,1fr);
+
+    gap:14px;
+
+}
+
+
+.stat-card{
+
+    padding:18px;
+
+    border-radius:24px;
+
+    background:
+
+    linear-gradient(
+    145deg,
+    rgba(255,255,255,.10),
+    rgba(255,255,255,.03)
+    );
+
+
+    border:
+
+    1px solid rgba(255,255,255,.12);
+
+
+    backdrop-filter:blur(20px);
+
+
+    transition:.3s;
+
+}
+
+
+.stat-card:active{
+
+    transform:scale(.96);
+
+}
+
+
+.stat-icon{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:15px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:
+
+    rgba(255,255,255,.12);
+
+    font-size:20px;
+
+}
+
+
+.stat-number{
+
+    margin-top:15px;
+
+    font-size:24px;
+
+    font-weight:800;
+
+}
+
+
+.stat-label{
+
+    margin-top:5px;
+
+    font-size:12px;
+
+    color:#b8c7d9;
+
+}
+
+
+.stat-growth{
+
+    margin-top:10px;
+
+    font-size:12px;
+
+    color:#00ff99;
+
+}
+
+
+
+
+
+.live-dot{
+
+    width:8px;
+
+    height:8px;
+
+    background:#00ff99;
+
+    border-radius:50%;
+
+    display:inline-block;
+
+    margin-right:6px;
+
+    animation:pulse 1.5s infinite;
+
+}
+
+
+.live-status{
+
+    font-size:11px;
+
+    color:#00ff99;
+
+    margin-bottom:15px;
+
+}
+
+
+
+.chart-box{
+
+    margin-top:15px;
+
+    height:45px;
+
+    display:flex;
+
+    align-items:flex-end;
+
+    gap:5px;
+
+}
+
+
+.bar{
+
+    flex:1;
+
+    height:20%;
+
+    border-radius:8px;
+
+    background:
+
+    linear-gradient(
+    top,
+    #00e5ff,
+    #0066ff
+    );
+
+}
+
+
+.bar:nth-child(2){
+
+    height:45%;
+
+}
+
+
+.bar:nth-child(3){
+
+    height:70%;
+
+}
+
+
+.bar:nth-child(4){
+
+    height:55%;
+
+}
+
+
+.bar:nth-child(5){
+
+    height:90%;
+
+}
+
+
+
+@keyframes pulse{
+
+    50%{
+
+        opacity:.3;
+
+    }
+
+}
+
+
+
+
+
+.section-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:15px;
+
+}
+
+
+.view-btn{
+
+    font-size:12px;
+
+    padding:8px 14px;
+
+    border-radius:16px;
+
+    background:
+
+    rgba(255,255,255,.08);
+
+    color:#00e5ff;
+
+    border:
+
+    1px solid rgba(255,255,255,.12);
+
+}
+
+
+.stat-card[data-loading="true"]{
+
+    opacity:.5;
+
+}
+
+
+.api-value{
+
+    transition:.4s;
+
+}
+
+
+
+
+
+.quick-section{
+
+    margin-top:28px;
+
+}
+
+
+.action-grid{
+
+    display:grid;
+
+    grid-template-columns:repeat(4,1fr);
+
+    gap:12px;
+
+}
+
+
+.action-card{
+
+    padding:14px 8px;
+
+    border-radius:20px;
+
+    text-align:center;
+
+    background:
+
+    linear-gradient(
+    145deg,
+    rgba(255,255,255,.10),
+    rgba(255,255,255,.03)
+    );
+
+
+    border:
+
+    1px solid rgba(255,255,255,.12);
+
+    backdrop-filter:blur(15px);
+
+    transition:.3s;
+
+}
+
+
+.action-card:active{
+
+    transform:scale(.92);
+
+}
+
+
+.action-icon{
+
+    width:42px;
+
+    height:42px;
+
+    margin:auto;
+
+    border-radius:15px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    background:
+
+    rgba(255,255,255,.12);
+
+    font-size:20px;
+
+}
+
+
+.action-name{
+
+    margin-top:8px;
+
+    font-size:11px;
+
+    color:#d8e5f5;
+
+}
+
+
+
+
+
+.action-card{
+
+    position:relative;
+
+    cursor:pointer;
+
+}
+
+
+.action-card[data-role="admin"]::after{
+
+    content:"PRO";
+
+    position:absolute;
+
+    top:8px;
+
+    right:8px;
+
+    font-size:8px;
+
+    padding:3px 6px;
+
+    border-radius:10px;
+
+    background:
+
+    linear-gradient(
+    135deg,
+    #ffd700,
+    #ff9800
+    );
+
+    color:#111;
+
+    font-weight:800;
+
+}
+
+
+.action-badge{
+
+    position:absolute;
+
+    top:-5px;
+
+    right:-5px;
+
+    min-width:18px;
+
+    height:18px;
+
+    padding:0 5px;
+
+    border-radius:20px;
+
+    background:#ff3b5c;
+
+    font-size:10px;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+
+.action-icon{
+
+    transition:.3s;
+
+}
+
+
+.action-card:active .action-icon{
+
+    transform:rotate(8deg) scale(1.1);
+
+}
+
+
+
+
+
+.quick-section{
+
+    animation:fadeUp .7s ease;
+
+}
+
+
+.action-card{
+
+    overflow:hidden;
+
+}
+
+
+.action-card::before{
+
+    content:"";
+
+    position:absolute;
+
+    inset:0;
+
+    background:
+
+    linear-gradient(
+    135deg,
+    rgba(0,229,255,.12),
+    transparent
+    );
+
+    opacity:0;
+
+    transition:.3s;
+
+}
+
+
+.action-card:hover::before{
+
+    opacity:1;
+
+}
+
+
+
+.activity-section{
+
+    margin-top:30px;
+
+}
+
+
+.activity-list{
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:12px;
+
+}
+
+
+
+
+
+
+.activity-item{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+    padding:14px;
+
+    border-radius:22px;
+
+
+    background:
+
+    linear-gradient(
+    145deg,
+    rgba(255,255,255,.08),
+    rgba(255,255,255,.03)
+    );
+
+
+    border:
+
+    1px solid rgba(255,255,255,.10);
+
+}
+
+
+.activity-icon{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:15px;
+
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+
+    background:
+
+    rgba(255,255,255,.12);
+
+    font-size:20px;
+
+}
+
+
+.activity-info{
+
+    flex:1;
+
+}
+
+
+.activity-title{
+
+    font-size:13px;
+
+    font-weight:700;
+
+}
+
+
+.activity-time{
+
+    margin-top:4px;
+
+    font-size:11px;
+
+    color:#9caec3;
+
+}
+
+
+
+
+
+.activity-list{
+
+    position:relative;
+
+}
+
+
+.activity-list::before{
+
+    content:"";
+
+    position:absolute;
+
+    left:34px;
+
+    top:20px;
+
+    bottom:20px;
+
+    width:1px;
+
+    background:
+
+    rgba(255,255,255,.15);
+
+}
+
+
+.activity-item{
+
+    position:relative;
+
+    z-index:1;
+
+}
+
+
+
+.activity-status{
+
+    display:inline-flex;
+
+    align-items:center;
+
+    gap:5px;
+
+    margin-top:6px;
+
+    padding:4px 9px;
+
+    border-radius:12px;
+
+    font-size:10px;
+
+    background:
+
+    rgba(0,255,153,.12);
+
+    color:#00ff99;
+
+}
+
+
+
+.status-dot{
+
+    width:6px;
+
+    height:6px;
+
+    border-radius:50%;
+
+    background:#00ff99;
+
+}
+
+
+
+.activity-item[data-type="warning"] .activity-status{
+
+    color:#ffd700;
+
+    background:
+
+    rgba(255,215,0,.12);
+
+}
+
+
+.activity-item[data-type="warning"] .status-dot{
+
+    background:#ffd700;
+
+}
+
+
+
+
+
+
+.activity-header-action{
+
+    font-size:12px;
+
+    color:#00e5ff;
+
+    padding:8px 14px;
+
+    border-radius:16px;
+
+    background:
+
+    rgba(0,229,255,.10);
+
+    border:
+
+    1px solid rgba(0,229,255,.20);
+
+}
+
+
+.activity-item[data-id]{
+
+    transition:.3s;
+
+}
+
+
+.activity-item[data-id]:active{
+
+    transform:scale(.98);
+
+}
+
+
+
+.empty-state{
+
+    display:none;
+
+    text-align:center;
+
+    padding:20px;
+
+    color:#9caec3;
+
+    font-size:13px;
+
+}
+
+
+
+
+
+
+.fab{
+
+    position:fixed;
+
+    right:22px;
+
+    bottom:90px;
+
+    width:62px;
+
+    height:62px;
+
+
+    border-radius:50%;
+
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+
+    font-size:28px;
+
+
+    background:
+
+    linear-gradient(
+    135deg,
+    #00e5ff,
+    #0066ff
+    );
+
+
+    box-shadow:
+
+    0 10px 35px rgba(0,229,255,.35);
+
+
+    cursor:pointer;
+
+
+    z-index:50;
+
+
+    transition:.3s;
+
+}
+
+
+
+.fab:active{
+
+    transform:scale(.88) rotate(10deg);
+
+}
+
+
+
+.fab-ring{
+
+    position:absolute;
+
+    width:100%;
+
+    height:100%;
+
+    border-radius:50%;
+
+    border:2px solid rgba(255,255,255,.35);
+
+    animation:ring 2s infinite;
+
+}
+
+
+
+@keyframes ring{
+
+    0%{
+
+        transform:scale(1);
+
+        opacity:1;
+
+    }
+
+
+    100%{
+
+        transform:scale(1.5);
+
+        opacity:0;
+
+    }
+
+}
+
+
+
+
+
+
+.bottom-nav{
+
+    position:fixed;
+
+    left:50%;
+
+    bottom:15px;
+
+    transform:translateX(-50%);
+
+
+    width:calc(100% - 30px);
+
+    max-width:450px;
+
+
+    height:70px;
+
+
+    border-radius:28px;
+
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-around;
+
+
+    background:
+
+    rgba(15,20,35,.85);
+
+
+    backdrop-filter:blur(25px);
+
+
+    border:
+
+    1px solid rgba(255,255,255,.12);
+
+
+    z-index:40;
+
+
+}
+
+
+
+.nav-item{
+
+    flex:1;
+
+    text-align:center;
+
+    color:#9caec3;
+
+    font-size:11px;
+
+    position:relative;
+
+}
+
+
+
+.nav-icon{
+
+    font-size:22px;
+
+    display:block;
+
+    margin-bottom:4px;
+
+}
+
+
+
+.nav-item.active{
+
+    color:#00e5ff;
+
+}
+
+
+
+.nav-item.active::before{
+
+    content:"";
+
+    position:absolute;
+
+    top:-12px;
+
+    left:50%;
+
+    transform:translateX(-50%);
+
+
+    width:35px;
+
+    height:4px;
+
+
+    border-radius:10px;
+
+
+    background:#00e5ff;
+
+}
+
+
+
+
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<div class="app">
+
+
+<!-- PREMIUM TOP BAR START -->
+
+
+<header class="top-bar">
+
+
+<div class="brand-area">
+
+<div class="brand-name">
+
+Business<span>OS</span>
+
+</div>
+
+<div class="status">
+
+Online
+
+</div>
+
+</div>
+
+
+<div class="top-actions">
+
+<div class="vip">
+
+VIP
+
+</div>
+
+
+<div class="notification">
+
+🔔
+
+</div>
+
+
+<div class="profile-btn">
+
+R
+
+</div>
+
+</div>
+
+
+</header>
+
+
+<!-- PREMIUM TOP BAR END -->
+
+
+<main class="content">
+
+
+
+<!-- HERO BANNER START -->
+
+
+<section class="hero-section">
+
+
+<div class="hero-content">
+
+
+<div class="hero-tag">
+
+🚀 Premium Dashboard
+
+</div>
+
+
+<h1 class="hero-title">
+
+Grow Your <span>Business</span> Faster
+
+</h1>
+
+
+<p class="hero-desc">
+
+Track sales, manage inventory and control your entire business from one smart platform.
+
+</p>
+
+
+<div class="hero-btn">
+
+⚡ Open Workspace
+
+</div>
+
+
+<div class="hero-metrics">
+
+
+<div class="metric-mini">
+
+<h3>12.5K</h3>
+
+<p>Sales</p>
+
+</div>
+
+
+<div class="metric-mini">
+
+<h3>348</h3>
+
+<p>Orders</p>
+
+</div>
+
+
+<div class="metric-mini">
+
+<h3>+24%</h3>
+
+<p>Growth</p>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<div class="float-card">
+
+📊
+
+</div>
+
+
+</section>
+
+
+<!-- HERO BANNER END -->
+
+
+<!-- STATISTICS SECTION START -->
+
+
+<section class="stats-section">
+
+
+<div class="section-header">
+
+<h2 class="section-title">
+
+Live Statistics
+
+</h2>
+
+
+<div class="view-btn">
+
+View Report
+
+</div>
+
+
+</div>
+
+
+<div id="stats-container">
+
+
+<div class="stats-grid">
+
+
+<div class="stat-card">
+
+
+<div class="stat-icon">
+
+💰
+
+</div>
+
+
+<div class="live-status">
+
+<span class="live-dot"></span>
+
+Live
+
+</div>
+
+
+<div class="stat-number api-value" data-api="revenue">
+
+$24.8K
+
+</div>
+
+
+<div class="chart-box">
+
+<div class="bar"></div>
+
+<div class="bar"></div>
+
+<div class="bar"></div>
+
+<div class="bar"></div>
+
+<div class="bar"></div>
+
+</div>
+
+
+<div class="stat-label">
+
+Revenue
+
+</div>
+
+
+<div class="stat-growth">
+
+↑ 18.5% Growth
+
+</div>
+
+
+</div>
+
+
+
+<div class="stat-card">
+
+
+<div class="stat-icon">
+
+📦
+
+</div>
+
+
+<div class="stat-number api-value" data-api="orders">
+
+1,248
+
+</div>
+
+
+<div class="stat-label">
+
+Orders
+
+</div>
+
+
+<div class="stat-growth">
+
+↑ 12% Today
+
+</div>
+
+
+</div>
+
+
+
+<div class="stat-card">
+
+
+<div class="stat-icon">
+
+👥
+
+</div>
+
+
+<div class="stat-number api-value" data-api="customers">
+
+856
+
+</div>
+
+
+<div class="stat-label">
+
+Customers
+
+</div>
+
+
+<div class="stat-growth">
+
+↑ 8.4% New
+
+</div>
+
+
+</div>
+
+
+
+<div class="stat-card">
+
+
+<div class="stat-icon">
+
+🏬
+
+</div>
+
+
+<div class="stat-number api-value" data-api="products">
+
+342
+
+</div>
+
+
+<div class="stat-label">
+
+Products
+
+</div>
+
+
+<div class="stat-growth">
+
+Stock Ready
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+<!-- STATISTICS SECTION END -->
+
+
+<!-- QUICK ACTIONS START -->
+
+
+<section class="quick-section">
+
+
+<div class="section-header">
+
+<h2 class="section-title">
+
+Quick Actions
+
+</h2>
+
+
+</div>
+
+
+
+<div class="action-grid">
+
+
+<div class="action-card">
+
+
+<div class="action-icon">
+
+➕
+
+</div>
+
+
+<div class="action-name">
+
+Product
+
+</div>
+
+
+</div>
+
+
+
+<div class="action-card" data-role="admin">
+
+
+<div class="action-icon">
+
+🛒
+
+</div>
+
+
+<div class="action-name">
+
+Order
+
+</div>
+
+
+</div>
+
+
+
+<div class="action-card">
+
+
+<div class="action-icon">
+
+📦
+
+</div>
+
+
+<div class="action-name">
+
+Stock
+
+</div>
+
+
+</div>
+
+
+
+<div class="action-card">
+
+
+<div class="action-icon">
+
+📊
+
+</div>
+
+
+<div class="action-badge">
+
+3
+
+</div>
+
+
+<div class="action-name">
+
+Reports
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+<!-- QUICK ACTIONS END -->
+
+
+<!-- RECENT ACTIVITY START -->
+
+
+<section class="activity-section">
+
+
+<div class="section-header">
+
+<h2 class="section-title">
+
+Recent Activity
+
+</h2>
+
+
+<div class="activity-header-action">
+
+View All
+
+</div>
+
+
+</div>
+
+
+
+<div class="activity-list">
+
+
+<div class="activity-item" data-id="activity-001">
+
+
+<div class="activity-icon">
+
+🛒
+
+</div>
+
+
+<div class="activity-info">
+
+
+<div class="activity-title">
+
+New Order Created
+
+</div>
+
+
+<div class="activity-time">
+
+2 minutes ago
+
+</div>
+
+
+<div class="activity-status">
+
+<span class="status-dot"></span>
+
+Completed
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="activity-item" data-id="activity-002">
+
+
+<div class="activity-icon">
+
+💰
+
+</div>
+
+
+<div class="activity-info">
+
+
+<div class="activity-title">
+
+Payment Received
+
+</div>
+
+
+<div class="activity-time">
+
+15 minutes ago
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<div class="activity-item" data-id="activity-003" data-type="warning">
+
+
+<div class="activity-icon">
+
+📦
+
+</div>
+
+
+<div class="activity-info">
+
+
+<div class="activity-title">
+
+Product Added
+
+</div>
+
+
+<div class="activity-time">
+
+1 hour ago
+
+</div>
+
+
+<div class="activity-status">
+
+<span class="status-dot"></span>
+
+Updated
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<div class="empty-state">
+
+No recent activity
+
+</div>
+
+
+</section>
+
+
+<!-- RECENT ACTIVITY END -->
+
+
+</main>
+
+
+
+</div>
+
+
+<!-- FLOATING ACTION BUTTON START -->
+
+
+<div class="fab">
+
+
+<div class="fab-ring"></div>
+
+
+➕
+
+</div>
+
+
+<!-- FLOATING ACTION BUTTON END -->
+
+
+<!-- BOTTOM NAVIGATION START -->
+
+
+<nav class="bottom-nav">
+
+
+<div class="nav-item active">
+
+<span class="nav-icon">
+
+🏠
+
+</span>
+
+Home
+
+</div>
+
+
+<div class="nav-item">
+
+<span class="nav-icon">
+
+🛒
+
+</span>
+
+Orders
+
+</div>
+
+
+<div class="nav-item">
+
+<span class="nav-icon">
+
+📦
+
+</span>
+
+Products
+
+</div>
+
+
+<div class="nav-item">
+
+<span class="nav-icon">
+
+📈
+
+</span>
+
+Analytics
+
+</div>
+
+
+<div class="nav-item">
+
+<span class="nav-icon">
+
+👤
+
+</span>
+
+Profile
+
+</div>
+
+
+</nav>
+
+
+<!-- BOTTOM NAVIGATION END -->
+
+
+</body>
+
+
+</html>
+

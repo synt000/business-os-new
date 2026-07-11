@@ -1,45 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>Business OS Login</title>
-<link rel="stylesheet" href="/static/style.css">
+
+<style>
+
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:#111827;
+    font-family:Arial;
+    color:white;
+}
+
+.box{
+    width:320px;
+    background:#1f2937;
+    padding:25px;
+    border-radius:15px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:8px;
+    border:none;
+}
+
+button{
+    width:100%;
+    padding:12px;
+    margin-top:15px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    border-radius:8px;
+    font-size:16px;
+}
+
+#msg{
+    margin-top:10px;
+    color:#f87171;
+}
+
+</style>
+
 </head>
+
 
 <body>
 
-<div class="login-card">
 
-<h1>Business OS TEST123</h1>
-<p>Enterprise Workspace Login</p>
+<div class="box">
 
-<form id="loginForm">
+<h2>🚀 Business OS</h2>
 
-<input id="email" type="email" placeholder="Email">
+<input id="email" placeholder="Email">
 
 <input id="password" type="password" placeholder="Password">
 
-<button type="button" id="loginBtn">
-Sign In
+
+<button onclick="login()">
+Login
 </button>
 
-</form>
+
+<div id="msg"></div>
+
 
 </div>
 
-<script src="/static/app.js?v=6"></script>
+
 
 <script>
-document.getElementById("loginBtn").onclick = function(){
 
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
 
-    login(email,password);
+async function login(){
 
-};
+
+let email =
+document.getElementById("email").value;
+
+
+let password =
+document.getElementById("password").value;
+
+
+
+let form =
+new URLSearchParams();
+
+
+form.append("username", email);
+form.append("password", password);
+
+
+
+let res =
+await fetch(
+"/api/v4/auth/token",
+{
+method:"POST",
+headers:{
+"Content-Type":
+"application/x-www-form-urlencoded"
+},
+body:form
+}
+);
+
+
+
+let data =
+await res.json();
+
+
+
+if(data.access_token){
+
+
+localStorage.setItem(
+"token",
+data.access_token
+);
+
+
+location.href="/dashboard";
+
+
+}else{
+
+
+document.getElementById("msg").innerText =
+"Login Failed";
+
+
+}
+
+
+}
+
+
 </script>
+
 
 </body>
 </html>

@@ -1,204 +1,167 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Business OS Dashboard</title>
 
-<link rel="stylesheet" href="/static/app.css">
-<script defer src="/static/app.js"></script>
-
 <style>
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-font-family:Arial,sans-serif;
-}
-
 body{
-background:#0f172a;
-color:#fff;
-padding:20px;
-}
-
-.container{
-max-width:480px;
-margin:auto;
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#111827;
+    color:white;
 }
 
 .header{
-text-align:center;
-margin-bottom:25px;
+    padding:20px;
+    background:#1f2937;
+    font-size:22px;
+    font-weight:bold;
 }
 
-.header h1{
-font-size:28px;
-font-weight:bold;
+.container{
+    padding:20px;
 }
 
-.header p{
-margin-top:8px;
-color:#94a3b8;
+.cards{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
 }
 
-.stats{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px;
-margin-top:20px;
-margin-bottom:25px;
-}
 .card{
-background:#1e293b;
-border-radius:18px;
-padding:18px;
-text-align:center;
-box-shadow:0 5px 20px rgba(0,0,0,.25);
+    background:#374151;
+    padding:20px;
+    border-radius:15px;
 }
 
-.card h2{
-font-size:30px;
-margin-bottom:8px;
-color:#38bdf8;
-}
-
-.card p{
-font-size:14px;
-color:#cbd5e1;
+.number{
+    font-size:35px;
+    font-weight:bold;
+    margin-top:10px;
 }
 
 .menu{
-display:grid;
-gap:15px;
+    margin-top:30px;
 }
 
-.btn{
-display:block;
-text-decoration:none;
-text-align:center;
-padding:16px;
-border-radius:16px;
-font-size:16px;
-font-weight:bold;
-color:#fff;
-background:linear-gradient(135deg,#2563eb,#7c3aed);
+button{
+    width:100%;
+    padding:15px;
+    margin:8px 0;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
 }
 
-.btn:active{
-transform:scale(.98);
-}
-
-.logout{
-background:linear-gradient(135deg,#dc2626,#ef4444);
-}
 </style>
+
 </head>
 
 <body>
 
+<div class="header">
+🚀 Business OS Owner Dashboard
+</div>
+
+
 <div class="container">
 
-<div class="header">
-<h1>🚀 Business OS</h1>
-<p>Enterprise Dashboard</p>
-</div>
-
-<div class="stats">
+<div class="cards">
 
 <div class="card">
-<h2 id="products">0</h2>
-<p>Products</p>
+📦 Products
+<div class="number" id="products">0</div>
 </div>
+
 
 <div class="card">
-<h2 id="orders">0</h2>
-<p>Orders</p>
+🛒 Orders
+<div class="number" id="orders">0</div>
 </div>
+
 
 <div class="card">
-<h2 id="customers">0</h2>
-<p>Customers</p>
+👥 Customers
+<div class="number" id="customers">0</div>
 </div>
+
 
 <div class="card">
-<h2 id="suppliers">0</h2>
-<p>Suppliers</p>
+🚚 Suppliers
+<div class="number" id="suppliers">0</div>
 </div>
 
+
 </div>
+
 
 <div class="menu">
-<a href="/products/ui" class="btn">
-📦 Product Management
-</a>
 
-<a href="/inventory/ui" class="btn">
-📥 Inventory
-</a>
+<button>📦 Manage Products</button>
 
-<a href="/orders/ui" class="btn">
-🛒 Orders
-</a>
+<button>🗂 Categories</button>
 
-<a href="/customers/ui" class="btn">
-👥 Customers
-</a>
+<button>🛒 Orders</button>
 
-<a href="/suppliers/ui" class="btn">
-🚚 Suppliers
-</a>
+<button>📊 Reports</button>
 
-<a href="#" onclick="logout()" class="btn logout">
-🚪 Logout
-</a>
 
 </div>
 
 </div>
+
+
+
 <script>
 
 async function loadDashboard(){
 
-    const token = localStorage.getItem("access_token");
+try{
 
-    if(!token){
-        location="/login";
-        return;
-    }
+const res = await fetch(
+"/api/v4/dashboard/summary",
+{
+headers:{
+"Authorization":
+"Bearer "+localStorage.getItem("token")
+}
+}
+);
 
-    const r = await fetch("/api/v4/dashboard/summary",{
-        headers:{
-            "Authorization":"Bearer "+token
-        }
-    });
 
-    if(!r.ok){
-        alert(await r.text());
-        return;
-    }
+const data = await res.json();
 
-    const d = await r.json();
+console.log("DASHBOARD DATA:", data);
 
-    document.getElementById("products").innerText=d.products??0;
-    document.getElementById("orders").innerText=d.orders??0;
-    document.getElementById("customers").innerText=d.customers??0;
-    document.getElementById("suppliers").innerText=d.suppliers??0;
+
+document.getElementById("products").innerText =
+data.products ?? 0;
+
+document.getElementById("orders").innerText =
+data.orders ?? 0;
+
+document.getElementById("customers").innerText =
+data.customers ?? 0;
+
+document.getElementById("suppliers").innerText =
+data.suppliers ?? 0;
+
+
+}catch(error){
+
+console.log(error);
 
 }
+
+}
+
 
 loadDashboard();
 
 </script>
 
-<script>
-function logout(){
-    localStorage.removeItem("access_token");
-    localStorage.removeItem("tenant_id");
-    localStorage.removeItem("role_profile");
-    location="/login";
-}
-</script>
 
 </body>
 </html>

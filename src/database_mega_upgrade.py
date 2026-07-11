@@ -1,7 +1,15 @@
 import uuid
 from sqlalchemy import Column, String, Integer, Float, DateTime, ForeignKey, Text, Boolean
-from src.database import Base, engine
+from src.core.database import Base, engine
+from src.models.business_profile import BusinessProfile
 from datetime import datetime
+
+# SaaS Subscription Engine Models
+from src.models import subscription
+from src.domains.inventory.models import StockMovement
+from src.models.saas_core import Invoice
+from src.models.saas_core import Payment
+from src.models.saas_core import Receivable
 
 print("=== MEGA ERP SAAS ARCHITECTURE UPGRADE ENGINE ===")
 

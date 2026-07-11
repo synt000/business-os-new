@@ -1,92 +1,152 @@
 const API="/api/v4";
 
+
 async function loadDashboard(){
 
-    const token = localStorage.getItem("access_token");
+    const token =
+    localStorage.getItem("access_token");
+
 
     if(!token){
         location="/login";
         return;
     }
 
-    const r = await fetch(API + "/dashboard/summary", {
-        headers:{
-            "Authorization":"Bearer " + token
-        }
-    });
 
-    if(!r.ok){
-        console.log(await r.text());
+    const res = await fetch(
+        API + "/dashboard/summary",
+        {
+            headers:{
+                "Authorization":
+                "Bearer " + token
+            }
+        }
+    );
+
+
+    if(!res.ok){
+
+        console.log(
+            await res.text()
+        );
+
         return;
     }
 
-    const d = await r.json();
 
-    console.log("DASHBOARD DATA", d);
+    const data =
+    await res.json();
 
-    const cards = document.querySelectorAll(".text-xl.font-bold.text-white");
 
-    if(cards.length >= 4){
-        cards[0].innerText = d.products ?? 0;
-        cards[1].innerText = d.orders ?? 0;
-        cards[2].innerText = d.customers ?? 0;
-        cards[3].innerText = d.suppliers ?? 0;
-    }
+    console.log(
+        "Dashboard:",
+        data
+    );
+
+
+    const products =
+    document.getElementById("products");
+
+    const orders =
+    document.getElementById("orders");
+
+    const customers =
+    document.getElementById("customers");
+
+    const suppliers =
+    document.getElementById("suppliers");
+
+
+    if(products)
+        products.innerText =
+        data.products ?? 0;
+
+
+    if(orders)
+        orders.innerText =
+        data.orders ?? 0;
+
+
+    if(customers)
+        customers.innerText =
+        data.customers ?? 0;
+
+
+    if(suppliers)
+        suppliers.innerText =
+        data.suppliers ?? 0;
+
 }
 
-async function login(email, password){
 
-    try{
 
-        const r = await fetch(API + "/auth/login", {
+
+async function login(
+    email,
+    password
+){
+
+    const res =
+    await fetch(
+        API + "/auth/login",
+        {
             method:"POST",
             headers:{
-                "Content-Type":"application/json"
+                "Content-Type":
+                "application/json"
             },
-            body:JSON.stringify({
-                email:email,
-                password:password
-            })
-        });
-
-        const d = await r.json();
-
-        if(!r.ok){
-            alert(d.detail || "Login Failed");
-            return;
+            body:JSON.stringify(
+                {
+                    email,
+                    password
+                }
+            )
         }
+    );
 
-        localStorage.setItem("access_token", d.access_token);
-        localStorage.setItem("tenant_id", d.workspace_id);
-        localStorage.setItem("role_profile", d.role_profile);
 
-        location="/dashboard";
+    const data =
+    await res.json();
 
-    }catch(err){
-        alert(err);
-        console.error(err);
+
+    if(!res.ok){
+
+        alert(
+            data.detail ||
+            "Login Failed"
+        );
+
+        return;
     }
+
+
+    localStorage.setItem(
+        "access_token",
+        data.access_token
+    );
+
+
+    location="/dashboard";
+
 }
+
+
+
 
 function logout(){
+
     localStorage.clear();
+
     location="/login";
+
 }
 
-if(window.location.pathname === "/dashboard"){
+
+
+if(
+window.location.pathname === "/dashboard"
+){
+
     loadDashboard();
-}
 
-if(window.location.pathname === "/login"){
-
-    const btn = document.getElementById("loginBtn");
-
-    if(btn){
-        btn.onclick = function(){
-            login(
-                document.getElementById("email").value,
-                document.getElementById("password").value
-            );
-        };
-    }
 }

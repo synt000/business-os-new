@@ -3,7 +3,7 @@ import uuid
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from src.database import TenantModel
+from src.core.database import TenantModel
 
 
 class Inventory(TenantModel):
@@ -36,4 +36,48 @@ class Inventory(TenantModel):
         "Product",
         back_populates="inventory",
         uselist=False
+    )
+
+
+class StockMovement(TenantModel):
+    __tablename__ = "stock_movements"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True
+    )
+
+    product_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("products.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    movement_type: Mapped[str] = mapped_column(
+        nullable=False
+    )
+
+    quantity_change: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
+    )
+
+    before_quantity: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
+    )
+
+    after_quantity: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False
+    )
+
+    reason: Mapped[str | None] = mapped_column(
+        nullable=True
+    )
+
+
+    product = relationship(
+        "Product"
     )
