@@ -290,6 +290,41 @@ class CustomerCreditWallet(Base):
     )
 
 
+
+class CustomerCreditTransaction(Base):
+    __tablename__ = "customer_credit_transactions"
+
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    transaction_type = Column(String, nullable=False)
+    amount = Column(Float, default=0.0)
+
+    invoice_id = Column(String, nullable=True, index=True)
+    payment_id = Column(String, nullable=True, index=True)
+
+    notes = Column(Text, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+   
+    customer = relationship("Customer")
+    tenant = relationship("Tenant")
+
+
 class WorkspaceInvitation(Base):
     __tablename__ = "workspace_invitations"
 
