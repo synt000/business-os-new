@@ -4,6 +4,7 @@ from src.models.saas_core import (
     Customer,
     Invoice,
     Payment,
+    CustomerCreditWallet,
 )
 
 
@@ -84,6 +85,17 @@ def get_customer_statement(
         })
 
 
+    wallet = (
+        db.query(CustomerCreditWallet)
+        .filter(
+            CustomerCreditWallet.customer_id == customer_id,
+            CustomerCreditWallet.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+    customer_credit = wallet.credit_amount if wallet else 0
+
     return {
         "customer_id": customer.id,
         "customer_name": customer.customer_name,
@@ -91,6 +103,7 @@ def get_customer_statement(
         "summary": {
             "total_sales": total_sales,
             "total_paid": total_paid,
-            "balance": max(total_sales - total_paid, 0)
+            "balance": max(total_sales - total_paid, 0),
+            "customer_credit": customer_credit
         }
     }

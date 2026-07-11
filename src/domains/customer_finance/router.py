@@ -12,6 +12,10 @@ from src.domains.customer_finance.services.customer_statement_service import (
     get_customer_statement
 )
 
+from src.domains.customer_finance.services.credit_wallet_service import (
+    get_credit_wallet
+)
+
 
 router = APIRouter(
     prefix="/customer-finance",
@@ -39,6 +43,19 @@ def customer_statement(
     current_user = Depends(get_current_user)
 ):
     return get_customer_statement(
+        db,
+        current_user.tenant_id,
+        customer_id
+    )
+
+
+@router.get("/{customer_id}/credit")
+def customer_credit(
+    customer_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return get_credit_wallet(
         db,
         current_user.tenant_id,
         customer_id
