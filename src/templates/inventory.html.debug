@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Inventory</title>
+</head>
+<body>
+
+<h2>Inventory Module</h2>
+
+<label>Product</label>
+<select id="product"></select>
+
+<label>Qty</label>
+<input id="qty" type="number" value="1">
+
+<button onclick="stockIn()">Stock In</button>
+
+<hr>
+
+<table border="1" width="100%" id="tbl">
+<tr>
+<th>SKU</th>
+<th>Name</th>
+<th>Stock</th>
+</tr>
+</table>
+
+<script>
+const token = localStorage.getItem("access_token");
+let products = [];
+
+async function loadInventory() {
+    const r = await fetch("/api/v4/business/products", {
+        headers: {
+            Authorization: "Bearer " + token
+        }
+    });
+
+    const d = await r.json();
+if (!r.ok) return;
+    products = d.products || [];
+
+    const tbl = document.getElementById("tbl");
+    tbl.innerHTML = "<tr><th>SKU</th><th>Name</th><th>Stock</th></tr>";
+
+    const sel = document.getElementById("product");
+    sel.innerHTML = "";
+
+    products.forEach(function(p) {
+        tbl.innerHTML +=
+            "<tr><td>" + p.sku + "</td><td>" + p.name + "</td><td>" + p.stock_qty + "</td></tr>";
+
+        sel.innerHTML +=
+            "<option value='" + p.id + "'>" + p.name + "</option>";
+    });
+}
+
+async function stockIn() {
+    const p = products[document.getElementById("product").selectedIndex];
+    const qty = Number(document.getElementById("qty").value);
+
+    const r = await fetch("/movements/", {
+        method: "POST",
+       
+    if (!r.ok) {
+        alert(await r.text());
+        return;
+    }
+
+    alert("Stock added successfully");
+    loadInventory();
+}
+
+loadInventory();
+</script>
+
+</body>
+</html>
