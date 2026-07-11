@@ -13,7 +13,8 @@ from src.domains.customer_finance.services.customer_statement_service import (
 )
 
 from src.domains.customer_finance.services.credit_wallet_service import (
-    get_credit_wallet
+    get_credit_wallet,
+    use_credit_for_invoice
 )
 
 
@@ -60,3 +61,21 @@ def customer_credit(
         current_user.tenant_id,
         customer_id
     )
+
+
+@router.post("/{customer_id}/credit/use")
+def use_customer_credit(
+    customer_id: str,
+    invoice_id: str,
+    amount: float,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return use_credit_for_invoice(
+        db,
+        current_user.tenant_id,
+        customer_id,
+        invoice_id,
+        amount
+    )
+

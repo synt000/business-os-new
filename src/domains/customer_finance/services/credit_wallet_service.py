@@ -1,6 +1,12 @@
 from sqlalchemy.orm import Session
 
-from src.models.saas_core import CustomerCreditWallet
+from src.models.saas_core import (
+    CustomerCreditWallet,
+    Invoice,
+    Payment,
+    Receivable,
+    AccountLedger,
+)
 
 
 def get_credit_wallet(
@@ -35,6 +41,45 @@ def use_credit(
     customer_id: str,
     amount: float
 ):
+    wallet = (
+        db.query(CustomerCreditWallet)
+        .filter(
+            CustomerCreditWallet.customer_id == customer_id,
+            CustomerCreditWallet.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+    if not wallet:
+        raise Exception("WALLET_NOT_FOUND")
+
+    if wallet.credit_amount < amount:
+        raise Exception("INSUFFICIENT_CREDIT")
+
+    wallet.credit_amount -= amount
+
+    db.commit()
+    db.refresh(wallet)
+
+    return {
+        "customer_id": customer_id,
+        "used_credit": amount,
+        "remaining_credit": wallet.credit_amount
+    }
+
+
+
+
+def use_credit_for_invoice(
+    db: Session,
+    tenant_id: str,
+    customer_id: str,
+    invoice_id: str,
+    amount: float
+):
+    # ==============================
+    # FIND WALLET
+    # ==============================
 
     wallet = (
         db.query(CustomerCreditWallet)
@@ -48,18 +93,71 @@ def use_credit(
     if not wallet:
         raise Exception("WALLET_NOT_FOUND")
 
-
     if wallet.credit_amount < amount:
         raise Exception("INSUFFICIENT_CREDIT")
 
+    # ==============================
+    # FIND INVOICE
+    # ==============================
+
+    invoice = (
+        db.query(Invoice)
+        .filter(
+            Invoice.id == invoice_id,
+            Invoice.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+    if not invoice:
+        raise Exception("INVOICE_NOT_FOUND")
+
+
+    # ==============================
+    # APPLY CREDIT
+    # ==============================
 
     wallet.credit_amount -= amount
 
+    if wallet.credit_amount < 0:
+        wallet.credit_amount = 0
+
+
+    # ==============================
+    # UPDATE INVOICE
+    # ==============================
+
+    if invoice.status != "PAID":
+        invoice.status = "PAID"
+
+
+    # ==============================
+    # ACCOUNT LEDGER
+    # ==============================
+
+    ledger = AccountLedger(
+        entry_type="EXPENSE",
+        account_head="CUSTOMER_CREDIT_USED",
+        amount=amount,
+        reference_id=invoice_id,
+        description=f"Customer credit used for invoice {invoice_id}",
+        tenant_id=tenant_id,
+    )
+
+    db.add(ledger)
+
+
     db.commit()
+
     db.refresh(wallet)
+    db.refresh(invoice)
+
 
     return {
         "customer_id": customer_id,
+        "invoice_id": invoice_id,
         "used_credit": amount,
-        "remaining_credit": wallet.credit_amount
+        "remaining_credit": wallet.credit_amount,
+        "invoice_status": invoice.status
     }
+
