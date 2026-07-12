@@ -196,3 +196,21 @@ def credit_risk_dashboard(
         db=db,
         tenant_id=current_user.tenant_id
     )
+
+
+from src.domains.customer_finance.services.credit_risk_engine_service import (
+    recalculate_customer_credit_risk
+)
+
+
+@router.post("/{customer_id}/credit-risk/recalculate")
+def recalculate_credit_risk(
+    customer_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return recalculate_customer_credit_risk(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        customer_id=customer_id
+    )
