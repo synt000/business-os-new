@@ -221,7 +221,12 @@ def topup_credit(
     if not wallet:
         raise Exception("WALLET_NOT_FOUND")
 
-    wallet.credit_amount += amount
+    new_balance = wallet.credit_amount + amount
+
+    if wallet.credit_limit > 0:
+        wallet.credit_amount = min(new_balance, wallet.credit_limit)
+    else:
+        wallet.credit_amount = new_balance
 
     ledger = AccountLedger(
         entry_type="INCOME",
@@ -273,7 +278,12 @@ def refund_credit(
     if not wallet:
         raise Exception("WALLET_NOT_FOUND")
 
-    wallet.credit_amount += amount
+    new_balance = wallet.credit_amount + amount
+
+    if wallet.credit_limit > 0:
+        wallet.credit_amount = min(new_balance, wallet.credit_limit)
+    else:
+        wallet.credit_amount = new_balance
 
     ledger = AccountLedger(
         entry_type="EXPENSE",
