@@ -12,6 +12,10 @@ from src.domains.customer_finance.services.customer_statement_service import (
     get_customer_statement
 )
 
+from src.domains.customer_finance.services.credit_analytics_service import (
+    get_credit_summary,
+)
+
 from src.domains.customer_finance.services.credit_wallet_service import (
     get_credit_wallet,
     get_credit_history,
@@ -147,4 +151,33 @@ def update_customer_credit_limit(
         tenant_id=current_user.tenant_id,
         customer_id=customer_id,
         credit_limit=credit_limit
+    )
+
+
+@router.get("/analytics/credit-summary")
+def credit_summary_analytics(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return get_credit_summary(
+        db=db,
+        tenant_id=current_user.tenant_id
+    )
+
+
+from src.domains.customer_finance.services.credit_risk_service import (
+    calculate_customer_credit_score
+)
+
+
+@router.get("/{customer_id}/credit-risk")
+def customer_credit_risk(
+    customer_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return calculate_customer_credit_score(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        customer_id=customer_id
     )
