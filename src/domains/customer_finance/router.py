@@ -17,6 +17,7 @@ from src.domains.customer_finance.services.credit_wallet_service import (
     get_credit_history,
     topup_credit,
     refund_credit,
+    update_credit_limit,
     use_credit_for_invoice
 )
 
@@ -132,3 +133,18 @@ def customer_credit_refund(
         notes=notes
     )
 
+
+
+@router.patch("/{customer_id}/credit-limit")
+def update_customer_credit_limit(
+    customer_id: str,
+    credit_limit: float,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return update_credit_limit(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        customer_id=customer_id,
+        credit_limit=credit_limit
+    )

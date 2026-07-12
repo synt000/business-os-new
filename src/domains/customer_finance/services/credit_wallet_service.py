@@ -314,3 +314,32 @@ def refund_credit(
         "credit_balance": wallet.credit_amount
     }
 
+
+def update_credit_limit(
+    db: Session,
+    tenant_id: str,
+    customer_id: str,
+    credit_limit: float
+):
+    wallet = (
+        db.query(CustomerCreditWallet)
+        .filter(
+            CustomerCreditWallet.customer_id == customer_id,
+            CustomerCreditWallet.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+    if not wallet:
+        raise Exception("WALLET_NOT_FOUND")
+
+    wallet.credit_limit = credit_limit
+
+    db.commit()
+    db.refresh(wallet)
+
+    return {
+        "customer_id": customer_id,
+        "credit_limit": wallet.credit_limit,
+        "credit_balance": wallet.credit_amount
+    }
