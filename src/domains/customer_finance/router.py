@@ -181,3 +181,18 @@ def customer_credit_risk(
         tenant_id=current_user.tenant_id,
         customer_id=customer_id
     )
+
+from src.domains.customer_finance.services.credit_dashboard_service import (
+    get_credit_risk_dashboard
+)
+
+
+@router.get("/analytics/credit-risk-dashboard")
+def credit_risk_dashboard(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return get_credit_risk_dashboard(
+        db=db,
+        tenant_id=current_user.tenant_id
+    )
