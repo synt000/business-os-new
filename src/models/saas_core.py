@@ -270,6 +270,11 @@ class CustomerCreditWallet(Base):
         default=0.0
     )
 
+    credit_limit = Column(
+        Float,
+        default=0.0
+    )
+
     tenant_id = Column(
         String,
         ForeignKey("tenants.id", ondelete="CASCADE"),
@@ -321,6 +326,62 @@ class CustomerCreditTransaction(Base):
     )
 
    
+    customer = relationship("Customer")
+    tenant = relationship("Tenant")
+
+
+
+
+class CustomerCreditRiskHistory(Base):
+    __tablename__ = "customer_credit_risk_history"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    credit_score = Column(
+        Integer,
+        default=0
+    )
+
+    risk_level = Column(
+        String,
+        nullable=False
+    )
+
+    credit_balance = Column(
+        Float,
+        default=0.0
+    )
+
+    credit_limit = Column(
+        Float,
+        default=0.0
+    )
+
+    calculated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        index=True
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
     customer = relationship("Customer")
     tenant = relationship("Tenant")
 
