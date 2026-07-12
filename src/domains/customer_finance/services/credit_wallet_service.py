@@ -252,3 +252,55 @@ def topup_credit(
         "credit_balance": wallet.credit_amount
     }
 
+
+def refund_credit(
+    db: Session,
+    tenant_id: str,
+    customer_id: str,
+    amount: float,
+    invoice_id: str = None,
+    notes: str = "Credit refund"
+):
+    wallet = (
+        db.query(CustomerCreditWallet)
+        .filter(
+            CustomerCreditWallet.customer_id == customer_id,
+            CustomerCreditWallet.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+    if not wallet:
+        raise Exception("WALLET_NOT_FOUND")
+
+    wallet.credit_amount += amount
+
+    ledger = AccountLedger(
+        entry_type="EXPENSE",
+        account_head="CUSTOMER_CREDIT_REFUND",
+        amount=amount,
+        reference_id=invoice_id or customer_id,
+        description=notes,
+        tenant_id=tenant_id,
+    )
+    db.add(ledger)
+
+    credit_tx = CustomerCreditTransaction(
+        customer_id=customer_id,
+        transaction_type="REFUND",
+        amount=amount,
+        invoice_id=invoice_id,
+        tenant_id=tenant_id,
+        notes=notes
+    )
+    db.add(credit_tx)
+
+    db.commit()
+    db.refresh(wallet)
+
+    return {
+        "customer_id": customer_id,
+        "refund_amount": amount,
+        "credit_balance": wallet.credit_amount
+    }
+

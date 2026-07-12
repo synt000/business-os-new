@@ -16,6 +16,7 @@ from src.domains.customer_finance.services.credit_wallet_service import (
     get_credit_wallet,
     get_credit_history,
     topup_credit,
+    refund_credit,
     use_credit_for_invoice
 )
 
@@ -108,6 +109,26 @@ def customer_credit_topup(
         tenant_id=current_user.tenant_id,
         customer_id=customer_id,
         amount=amount,
+        notes=notes
+    )
+
+
+@router.post("/{customer_id}/credit/refund")
+def customer_credit_refund(
+    customer_id: str,
+    amount: float,
+    invoice_id: str | None = None,
+    notes: str = "Credit refund",
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return refund_credit(
+        db=db,
+        tenant_id=current_user.tenant_id,
+       
+        customer_id=customer_id,
+        amount=amount,
+        invoice_id=invoice_id,
         notes=notes
     )
 
