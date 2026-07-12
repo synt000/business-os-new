@@ -14,6 +14,8 @@ from src.domains.customer_finance.services.customer_statement_service import (
 
 from src.domains.customer_finance.services.credit_wallet_service import (
     get_credit_wallet,
+    get_credit_history,
+    topup_credit,
     use_credit_for_invoice
 )
 
@@ -77,5 +79,35 @@ def use_customer_credit(
         customer_id,
         invoice_id,
         amount
+    )
+
+
+@router.get("/{customer_id}/credit/history")
+def customer_credit_history(
+    customer_id: str,
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return get_credit_history(
+        db,
+        current_user.tenant_id,
+        customer_id
+    )
+
+
+@router.post("/{customer_id}/credit/topup")
+def customer_credit_topup(
+    customer_id: str,
+    amount: float,
+    notes: str = "Manual credit top-up",
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return topup_credit(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        customer_id=customer_id,
+        amount=amount,
+        notes=notes
     )
 
