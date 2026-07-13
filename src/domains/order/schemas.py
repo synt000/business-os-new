@@ -10,6 +10,9 @@ class OrderItemCreate(BaseModel):
 
 class OrderCreate(BaseModel):
     order_number: str
+    customer_id: str
+    customer_name: str
+    customer_phone: str | None = None
     items: list[OrderItemCreate]
 
 
@@ -21,9 +24,6 @@ class OrderResponse(BaseModel):
 
     class Config:
         from_attributes = True
-
-
-from pydantic import BaseModel
 
 
 class OrderStatusUpdate(BaseModel):

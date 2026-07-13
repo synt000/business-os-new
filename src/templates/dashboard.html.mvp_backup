@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Business OS Dashboard</title>
+
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#111827;
+    color:white;
+}
+
+.header{
+    padding:20px;
+    background:#1f2937;
+    font-size:22px;
+    font-weight:bold;
+}
+
+.container{
+    padding:20px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:15px;
+}
+
+.card{
+    background:#374151;
+    padding:20px;
+    border-radius:15px;
+}
+
+.number{
+    font-size:35px;
+    font-weight:bold;
+    margin-top:10px;
+}
+
+.menu{
+    margin-top:30px;
+}
+
+button{
+    width:100%;
+    padding:15px;
+    margin:8px 0;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+🚀 Business OS Owner Dashboard
+</div>
+
+
+<div class="container">
+
+<div class="cards">
+
+<div class="card">
+📦 Products
+<div class="number" id="products">0</div>
+</div>
+
+
+<div class="card">
+🛒 Orders
+<div class="number" id="orders">0</div>
+</div>
+
+
+<div class="card">
+👥 Customers
+<div class="number" id="customers">0</div>
+</div>
+
+
+<div class="card">
+🚚 Suppliers
+<div class="number" id="suppliers">0</div>
+</div>
+
+
+</div>
+
+
+<div class="menu">
+
+<button>📦 Manage Products</button>
+
+<button>🗂 Categories</button>
+
+<button>🛒 Orders</button>
+
+<button>📊 Reports</button>
+
+
+</div>
+
+</div>
+
+
+
+<script>
+
+async function loadDashboard(){
+
+try{
+
+const res = await fetch(
+"/api/v4/dashboard/summary",
+{
+headers:{
+"Authorization":
+"Bearer "+localStorage.getItem("token")
+}
+}
+);
+
+
+const data = await res.json();
+
+console.log("DASHBOARD DATA:", data);
+
+
+document.getElementById("products").innerText =
+data.products ?? 0;
+
+document.getElementById("orders").innerText =
+data.orders ?? 0;
+
+document.getElementById("customers").innerText =
+data.customers ?? 0;
+
+document.getElementById("suppliers").innerText =
+data.suppliers ?? 0;
+
+
+}catch(error){
+
+console.log(error);
+
+}
+
+}
+
+
+loadDashboard();
+
+</script>
+
+
+</body>
+</html>

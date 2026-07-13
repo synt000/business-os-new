@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
+
 from src.models.saas_core import User
 
 from src.domains.supplier.schemas import (
@@ -12,7 +13,7 @@ from src.domains.supplier.schemas import (
 
 from src.domains.supplier.services.supplier_service import (
     create_supplier,
-    get_suppliers,
+    list_suppliers,
 )
 
 router = APIRouter(
@@ -30,22 +31,26 @@ async def create_supplier_api(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return create_supplier(
-        db,
-        current_user.tenant_id,
-        data,
-    )
+    try:
+        return create_supplier(
+            db,
+            current_user.tenant_id,
+            data,
+        )
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail=str(e),
+        )
 
 
-@router.get(
-    "/",
-    response_model=list[SupplierResponse],
-)
-async def list_suppliers(
+@router.get("/")
+async def get_suppliers(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return get_suppliers(
+    return list_suppliers(
         db,
         current_user.tenant_id,
     )

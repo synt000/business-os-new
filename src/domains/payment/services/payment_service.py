@@ -50,6 +50,28 @@ def create_payment(
 
 
     # ==============================
+    # OVER PAYMENT PROTECTION
+    # ==============================
+
+    from sqlalchemy import func
+
+    paid_total = (
+        db.query(func.sum(Payment.amount))
+        .filter(
+            Payment.invoice_id == invoice.id,
+            Payment.status == "COMPLETED"
+        )
+        .scalar()
+        or 0
+    )
+
+    remaining = invoice.amount - paid_total
+
+    if data.amount > remaining:
+        raise Exception("PAYMENT_EXCEEDS_BALANCE")
+
+
+    # ==============================
     # CREATE PAYMENT
     # ==============================
 
@@ -168,14 +190,31 @@ def create_payment(
     # ACCOUNT LEDGER
     # ==============================
 
-    ledger = AccountLedger(
-        entry_type="INCOME",
-        account_head="SALES_PAYMENT",
-        amount=data.amount,
-        reference_id=invoice.id,
-        description=f"Payment received {data.payment_number}",
-        tenant_id=tenant_id,
+    # ==============================
+    # LEDGER DUPLICATE PROTECTION
+    # ==============================
+
+    existing_ledger = (
+        db.query(AccountLedger)
+        .filter(
+            AccountLedger.reference_id == invoice.id,
+            AccountLedger.account_head == "SALES_PAYMENT",
+            AccountLedger.tenant_id == tenant_id,
+        )
+        .first()
     )
+
+    ledger = None
+
+    if not existing_ledger:
+        ledger = AccountLedger(
+            entry_type="INCOME",
+            account_head="SALES_PAYMENT",
+            amount=data.amount,
+            reference_id=invoice.id,
+            description=f"Payment received {data.payment_number}",
+            tenant_id=tenant_id,
+        )
 
 
     db.add(payment)

@@ -1,12 +1,14 @@
+import uuid
+
 from sqlalchemy.orm import Session
 
 from src.models.saas_core import (
-    ProcurementLedger,
+    PurchaseOrder,
+    PurchaseItem,
     Supplier,
     Product,
+    SupplierPayable,
 )
-
-from src.domains.inventory.models import StockMovement
 
 
 def create_purchase(
@@ -14,11 +16,12 @@ def create_purchase(
     tenant_id: str,
     data,
 ):
+
     supplier = (
         db.query(Supplier)
         .filter(
             Supplier.id == data.supplier_id,
-            Supplier.tenant_id == tenant_id,
+            Supplier.tenant_id == tenant_id
         )
         .first()
     )
@@ -26,48 +29,92 @@ def create_purchase(
     if not supplier:
         raise Exception("SUPPLIER_NOT_FOUND")
 
-    product = (
-        db.query(Product)
-        .filter(
-            Product.id == data.product_id,
-            Product.tenant_id == tenant_id,
-        )
-        .first()
-    )
 
-    if not product:
-        raise Exception("PRODUCT_NOT_FOUND")
+    total = 0
 
-    before_quantity = product.stock_qty
 
-    total_cost = data.qty_purchased * data.unit_cost
-
-    purchase = ProcurementLedger(
-        procurement_number=data.procurement_number,
+    purchase = PurchaseOrder(
+        id=str(uuid.uuid4()),
+        purchase_number=data.purchase_number,
         supplier_id=supplier.id,
-        product_id=product.id,
-        qty_purchased=data.qty_purchased,
-        unit_cost=data.unit_cost,
-        total_cost=total_cost,
+        total_amount=0,
+        status="CONFIRMED",
         tenant_id=tenant_id,
     )
 
-    product.stock_qty += data.qty_purchased
-
-    movement = StockMovement(
-        product_id=product.id,
-        movement_type="IN",
-        quantity_change=data.qty_purchased,
-        before_quantity=before_quantity,
-        after_quantity=product.stock_qty,
-        reason=f"PURCHASE_{data.procurement_number}",
-        tenant_id=tenant_id,
-    )
 
     db.add(purchase)
-    db.add(movement)
+    db.flush()
+
+
+    for item in data.items:
+
+        product = (
+            db.query(Product)
+            .filter(
+                Product.id == item.product_id,
+                Product.tenant_id == tenant_id
+            )
+            .first()
+        )
+
+
+        if not product:
+            raise Exception("PRODUCT_NOT_FOUND")
+
+
+        line_total = (
+            item.quantity *
+            item.unit_cost
+        )
+
+
+        total += line_total
+
+
+        purchase_item = PurchaseItem(
+            id=str(uuid.uuid4()),
+            purchase_order_id=purchase.id,
+            product_id=product.id,
+            quantity=item.quantity,
+            unit_cost=item.unit_cost,
+            total_cost=line_total,
+            tenant_id=tenant_id,
+        )
+
+
+        db.add(purchase_item)
+
+
+        # STOCK INCREASE
+        product.stock_qty += item.quantity
+
+
+
+    purchase.total_amount = total
+
+
+    # UPDATE SUPPLIER CURRENT BALANCE
+    supplier.current_balance += total
+
+
+    # SUPPLIER PAYABLE CREATE
+    payable = SupplierPayable(
+        id=str(uuid.uuid4()),
+        purchase_order_id=purchase.id,
+        supplier_id=supplier.id,
+        total_amount=total,
+        paid_amount=0,
+        balance_amount=total,
+        status="OPEN",
+        tenant_id=tenant_id,
+    )
+
+    db.add(payable)
+
 
     db.commit()
     db.refresh(purchase)
+
 
     return purchase

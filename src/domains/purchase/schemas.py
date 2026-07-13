@@ -1,22 +1,24 @@
 from pydantic import BaseModel
 
 
-class PurchaseCreate(BaseModel):
-    procurement_number: str
-    supplier_id: str
+class PurchaseItemCreate(BaseModel):
     product_id: str
-    qty_purchased: int
+    quantity: int
     unit_cost: float
+
+
+class PurchaseCreate(BaseModel):
+    purchase_number: str
+    supplier_id: str
+    items: list[PurchaseItemCreate]
 
 
 class PurchaseResponse(BaseModel):
     id: str
-    procurement_number: str
+    purchase_number: str
     supplier_id: str
-    product_id: str
-    qty_purchased: int
-    unit_cost: float
-    total_cost: float
+    total_amount: float
+    status: str
 
     class Config:
         from_attributes = True

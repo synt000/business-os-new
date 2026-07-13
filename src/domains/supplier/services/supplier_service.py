@@ -1,18 +1,20 @@
+import uuid
+
 from sqlalchemy.orm import Session
 
 from src.models.saas_core import Supplier
-from src.domains.supplier.schemas import SupplierCreate
 
 
 def create_supplier(
     db: Session,
     tenant_id: str,
-    data: SupplierCreate,
+    data,
 ):
     supplier = Supplier(
-        tenant_id=tenant_id,
+        id=str(uuid.uuid4()),
         supplier_name=data.supplier_name,
         contact_phone=data.contact_phone,
+        tenant_id=tenant_id,
     )
 
     db.add(supplier)
@@ -22,7 +24,7 @@ def create_supplier(
     return supplier
 
 
-def get_suppliers(
+def list_suppliers(
     db: Session,
     tenant_id: str,
 ):

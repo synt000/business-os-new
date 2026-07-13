@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
-from src.database import get_db
+from src.core.database import get_db
 
 from src.domains.receivable.schemas import (
     ReceivableCreate,
@@ -45,6 +45,20 @@ def create_receivable_api(
             status_code=404,
             detail="INVOICE_NOT_FOUND"
         )
+
+    # ==============================
+    # DUPLICATE RECEIVABLE CHECK
+    # ==============================
+    existing = (
+        db.query(Receivable)
+        .filter(
+            Receivable.invoice_id == invoice.id
+        )
+        .first()
+    )
+
+    if existing:
+        return existing
 
     receivable = create_receivable(
         db,

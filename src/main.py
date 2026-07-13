@@ -21,6 +21,7 @@ from src.domains.inventory.router import router as inventory_router
 from src.domains.order.router import router as order_router
 from src.domains.customer.router import router as customer_router
 from src.domains.supplier.router import router as supplier_router
+from src.domains.supplier_payment.router import router as supplier_payment_router
 from src.domains.purchase.router import router as purchase_router
 from src.domains.invoice.router import router as invoice_router
 from src.domains.receivable.router import router as receivable_router
@@ -94,6 +95,7 @@ app.include_router(inventory_router)
 app.include_router(order_router)
 app.include_router(customer_router)
 app.include_router(supplier_router)
+app.include_router(supplier_payment_router)
 app.include_router(purchase_router)
 app.include_router(invoice_router)
 app.include_router(receivable_router)
@@ -135,3 +137,27 @@ def get_system_runtime_configuration_matrix():
         "project": settings.PROJECT_NAME,
         "version": settings.API_VERSION_PREFIX
     }
+
+
+from src.domains.dashboard.router import router as dashboard_router
+
+app.include_router(dashboard_router)
+
+
+
+from src.domains.ai_assistant.router import router as ai_router
+
+app.include_router(ai_router)
+
+
+
+from src.domains.ai_insight.router import router as ai_insight_router
+
+app.include_router(ai_insight_router)
+
+
+
+from src.domains.social_center.router import router as social_router
+
+app.include_router(social_router)
+

@@ -4,59 +4,136 @@
 <title>Business OS Dashboard</title>
 
 <style>
+
 body{
-    margin:0;
-    font-family:Arial,sans-serif;
-    background:#111827;
-    color:white;
+margin:0;
+font-family:Arial,sans-serif;
+background:#111827;
+color:white;
 }
 
 .header{
-    padding:20px;
-    background:#1f2937;
-    font-size:22px;
-    font-weight:bold;
+padding:20px;
+background:#1f2937;
+font-size:22px;
+font-weight:bold;
 }
 
 .container{
-    padding:20px;
+padding:20px;
 }
 
 .cards{
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:15px;
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
 }
 
 .card{
-    background:#374151;
-    padding:20px;
-    border-radius:15px;
+background:#374151;
+padding:18px;
+border-radius:15px;
+}
+
+.title{
+font-size:15px;
+opacity:.8;
 }
 
 .number{
-    font-size:35px;
-    font-weight:bold;
-    margin-top:10px;
+font-size:32px;
+font-weight:bold;
+margin-top:10px;
+}
+
+.sales{
+background:#065f46;
+}
+
+.alert{
+background:#7f1d1d;
 }
 
 .menu{
-    margin-top:30px;
+margin-top:30px;
 }
 
 button{
-    width:100%;
-    padding:15px;
-    margin:8px 0;
-    border:none;
-    border-radius:12px;
-    background:#2563eb;
-    color:white;
-    font-size:16px;
+width:100%;
+padding:15px;
+margin:8px 0;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:white;
+font-size:16px;
+}
+
+a{
+text-decoration:none;
 }
 
 </style>
 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+async function loadSalesTrend(){
+
+try{
+
+const res = await fetch(
+"/dashboard/sales-trend",
+{
+headers:{
+"Authorization":"Bearer "+localStorage.getItem("access_token")
+}
+}
+);
+
+const data = await res.json();
+
+const labels = data.trend.map(x=>x.date);
+const sales = data.trend.map(x=>x.sales);
+
+new Chart(
+document.getElementById("salesChart"),
+{
+type:"line",
+data:{
+labels:labels,
+datasets:[
+{
+label:"Sales",
+data:sales,
+fill:false,
+tension:0.35
+}
+]
+},
+options:{
+responsive:true,
+plugins:{
+legend:{
+display:true
+}
+}
+}
+}
+);
+
+}
+catch(e){
+console.log("Sales Trend Error",e);
+}
+
+}
+
+loadSalesTrend();
+
+
+</script>
 </head>
 
 <body>
@@ -65,53 +142,87 @@ button{
 🚀 Business OS Owner Dashboard
 </div>
 
-
 <div class="container">
 
 <div class="cards">
 
 <div class="card">
-📦 Products
+<div class="title">📦 Products</div>
 <div class="number" id="products">0</div>
 </div>
 
-
 <div class="card">
-🛒 Orders
+<div class="title">🛒 Orders</div>
 <div class="number" id="orders">0</div>
 </div>
 
-
 <div class="card">
-👥 Customers
+<div class="title">👥 Customers</div>
 <div class="number" id="customers">0</div>
 </div>
 
-
 <div class="card">
-🚚 Suppliers
+<div class="title">🚚 Suppliers</div>
 <div class="number" id="suppliers">0</div>
 </div>
 
+<div class="card sales">
+<div class="title">💰 Sales</div>
+<div class="number" id="sales">0</div>
+</div>
+
+<div class="card alert">
+<div class="title">⚠️ Credit Alerts</div>
+<div class="number" id="alerts">0</div>
+</div>
+
+</div>
+
+<div class="ai-panel">
+
+<div class="ai-title">
+🤖 AI Business Advisor
+</div>
+
+<div id="aiRecommendations">
+Loading AI recommendations...
+</div>
 
 </div>
 
 
 <div class="menu">
 
+<a href="/products/ui">
 <button>📦 Manage Products</button>
+</a>
 
-<button>🗂 Categories</button>
-
+<a href="/orders/ui">
 <button>🛒 Orders</button>
+</a>
 
-<button>📊 Reports</button>
+<a href="/customers/ui">
+<button>👥 Customers</button>
+</a>
 
+<a href="/suppliers/ui">
+<button>🚚 Suppliers</button>
+</a>
 
 </div>
 
 </div>
 
+
+
+<div class="card" style="margin-top:20px;padding:20px;">
+<h3>📈 Last 7 Days Sales Trend</h3>
+<canvas id="salesChart" height="120"></canvas>
+
+<div class="card" style="margin-top:20px;padding:20px;">
+<h3>💹 Revenue vs Expense</h3>
+<canvas id="revenueExpenseChart" height="120"></canvas>
+</div>
 
 
 <script>
@@ -121,37 +232,49 @@ async function loadDashboard(){
 try{
 
 const res = await fetch(
-"/api/v4/dashboard/summary",
+"/dashboard/ceo-summary",
 {
 headers:{
 "Authorization":
-"Bearer "+localStorage.getItem("token")
+"Bearer " + localStorage.getItem("access_token")
 }
 }
 );
 
-
 const data = await res.json();
-
-console.log("DASHBOARD DATA:", data);
 
 
 document.getElementById("products").innerText =
-data.products ?? 0;
+data.dashboard?.total_products ?? 0;
+
 
 document.getElementById("orders").innerText =
-data.orders ?? 0;
+data.dashboard?.total_orders ?? 0;
+
 
 document.getElementById("customers").innerText =
-data.customers ?? 0;
+data.dashboard?.total_customers ?? 0;
+
 
 document.getElementById("suppliers").innerText =
-data.suppliers ?? 0;
+data.dashboard?.total_suppliers ?? 0;
 
 
-}catch(error){
+document.getElementById("sales").innerText =
+"$ " + (data.dashboard?.total_sales ?? 0);
 
-console.log(error);
+
+document.getElementById("alerts").innerText =
+data.dashboard?.low_stock ?? 0;
+
+
+}
+catch(error){
+
+console.log(
+"Dashboard Error:",
+error
+);
 
 }
 
@@ -159,9 +282,116 @@ console.log(error);
 
 
 loadDashboard();
+loadAIRecommendations();
+
+
+
+
+async function loadAIRecommendations(){
+
+try{
+
+const res = await fetch(
+"/ai/recommendations",
+{
+headers:{
+"Authorization":
+"Bearer " + localStorage.getItem("access_token")
+}
+}
+);
+
+
+const data = await res.json();
+
+
+const box =
+document.getElementById(
+"aiRecommendations"
+);
+
+
+box.innerHTML = "";
+
+
+data.forEach(item=>{
+
+
+let cls =
+item.priority.toLowerCase();
+
+
+box.innerHTML += `
+
+<div class="ai-item ai-${cls}">
+
+<b>${item.title}</b>
+
+<br>
+
+${item.action}
+
+</div>
+
+`;
+
+});
+
+
+}
+catch(error){
+
+console.log(
+"AI Error:",
+error
+);
+
+}
+
+}
+
 
 </script>
 
 
 </body>
 </html>
+
+
+<style>
+
+.ai-panel{
+margin-top:25px;
+background:#111827;
+padding:20px;
+border-radius:16px;
+color:white;
+}
+
+.ai-title{
+font-size:20px;
+font-weight:bold;
+margin-bottom:15px;
+}
+
+.ai-item{
+background:#1f2937;
+padding:12px;
+margin-bottom:10px;
+border-radius:10px;
+}
+
+.ai-high{
+border-left:5px solid #ef4444;
+}
+
+.ai-medium{
+border-left:5px solid #f59e0b;
+}
+
+.ai-info{
+border-left:5px solid #3b82f6;
+}
+
+</style>
+

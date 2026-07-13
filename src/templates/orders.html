@@ -300,7 +300,7 @@ customer.appendChild(o);
 async function loadOrders(){
 
 const res=await fetch(
-"/api/v4/business/orders",
+"/orders/list",
 {
 headers:{
 "Authorization":"Bearer "+token
@@ -316,7 +316,7 @@ const table=document.getElementById("orders-table");
 table.innerHTML="";
 
 
-(data.orders||[]).forEach(o=>{
+(data.orders || data || []).forEach(o=>{
 
 
 table.innerHTML += `
@@ -328,11 +328,11 @@ ${o.order_number}
 </td>
 
 <td>
-${o.customer}
+${o.customer || "Customer"}
 </td>
 
 <td>
-$${o.total_usd}
+$${o.total_amount || 0}
 </td>
 
 <td>
@@ -385,6 +385,9 @@ e.preventDefault();
 
 const payload={
 
+order_number:
+"ORD-"+Date.now(),
+
 platform_channel:"POS",
 
 customer_name:
@@ -402,6 +405,11 @@ product_id:product.value,
 quantity:
 parseInt(
 document.getElementById("quantity").value
+),
+
+price:
+parseFloat(
+document.getElementById("price").value
 )
 
 }
@@ -414,7 +422,7 @@ document.getElementById("quantity").value
 
 const res=await fetch(
 
-"/api/v4/business/orders",
+"/orders/",
 
 {
 
@@ -468,8 +476,12 @@ toast.className=
 "mt-4 p-3 rounded-xl bg-red-900 text-red-300";
 
 
-toast.innerText=
-"✗ "+data.detail;
+toast.innerText =
+"✗ " + (
+    Array.isArray(data.detail)
+    ? data.detail.map(e => e.msg || JSON.stringify(e)).join("\n")
+    : JSON.stringify(data.detail)
+);
 
 
 }
@@ -508,8 +520,12 @@ loadOrders();
 
 async function updateOrderStatus(id,status){
 
+const token = localStorage.getItem("access_token");
+
+
+
 const res = await fetch(
-"/api/v4/business/orders/"+id+"/status",
+"/orders/"+id+"/status",
 {
 method:"PATCH",
 headers:{

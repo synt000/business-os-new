@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from src.database import get_db
+from src.core.database import get_db
 from src.database_mega_upgrade import TenantPartnership
 from src.domains.product.models import Product
 import json

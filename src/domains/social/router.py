@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
-from src.database import get_db
+from src.core.database import get_db
 from src.database_mega_upgrade import SocialWebhookLog
 from src.domains.inventory.models import Inventory
 import json

@@ -24,6 +24,13 @@ class Tenant(Base):
     subscription_tier = Column(Enum(SubscriptionTier), default=SubscriptionTier.FREE_TRIAL)
     is_billing_active = Column(Boolean, default=True)
     trial_expired = Column(Boolean, default=False)
+
+    business_type_id = Column(
+        String,
+        ForeignKey("business_types.id"),
+        nullable=True
+    )
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
     max_sku_limit = Column(Integer, default=50)
@@ -201,12 +208,59 @@ class Branch(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="branches")
 
+
+
+class BusinessType(Base):
+    __tablename__ = "business_types"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    name = Column(
+        String,
+        nullable=False,
+        unique=True
+    )
+
+    code = Column(
+        String,
+        nullable=False,
+        unique=True
+    )
+
+    description = Column(
+        String,
+        nullable=True
+    )
+
+    is_active = Column(
+        Boolean,
+        default=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
 class Supplier(Base):
     __tablename__ = "suppliers"
 
     id = Column(String, primary_key=True, default=generate_uuid, index=True)
     supplier_name = Column(String, nullable=False, index=True)
     contact_phone = Column(String, nullable=True)
+
+    opening_balance = Column(Float, default=0.0)
+
+    current_balance = Column(Float, default=0.0)
+
+    status = Column(String, default="ACTIVE")
+
     created_at = Column(DateTime, default=datetime.utcnow)
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
@@ -229,6 +283,219 @@ class ProcurementLedger(Base):
     supplier = relationship("Supplier", back_populates="procurements")
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="procurements")
+
+
+
+class AIBusinessMemory(Base):
+    __tablename__ = "ai_business_memory"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+    memory_type = Column(
+        String,
+        nullable=False
+    )
+
+    content = Column(
+        String,
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+
+class AIConversation(Base):
+    __tablename__ = "ai_conversations"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+    user_message = Column(
+        String,
+        nullable=False
+    )
+
+    ai_response = Column(
+        String,
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+
+class AIInsight(Base):
+    __tablename__ = "ai_insights"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+    title = Column(
+        String,
+        nullable=False
+    )
+
+    message = Column(
+        String,
+        nullable=False
+    )
+
+    priority = Column(
+        String,
+        default="NORMAL"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+
+
+
+class BusinessFeature(Base):
+    __tablename__ = "business_features"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid
+    )
+
+    business_type_id = Column(
+        String,
+        ForeignKey("business_types.id"),
+        nullable=False
+    )
+
+    feature_name = Column(
+        String,
+        nullable=False
+    )
+
+    feature_code = Column(
+        String,
+        nullable=False
+    )
+
+    enabled = Column(
+        Boolean,
+        default=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+
+
+
+
+class DashboardMenu(Base):
+    __tablename__ = "dashboard_menus"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    feature_code = Column(
+        String,
+        nullable=False
+    )
+
+    menu_name = Column(
+        String,
+        nullable=False
+    )
+
+    menu_icon = Column(
+        String,
+        nullable=True
+    )
+
+    route_path = Column(
+        String,
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+class TenantFeature(Base):
+    __tablename__ = "tenant_features"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+    feature_code = Column(
+        String,
+        nullable=False
+    )
+
+    enabled = Column(
+        Boolean,
+        default=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
 
 class Customer(Base):
     __tablename__ = "customers"
@@ -578,3 +845,472 @@ class Receivable(Base):
     tenant = relationship(
         "Tenant"
     )
+
+
+class CustomerCreditActionHistory(Base):
+
+    __tablename__ = "customer_credit_action_history"
+
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+
+    action = Column(
+        String,
+        nullable=False
+    )
+
+
+    old_limit = Column(
+        Float,
+        default=0.0
+    )
+
+
+    new_limit = Column(
+        Float,
+        default=0.0
+    )
+
+
+   
+    reason = Column(
+        String,
+        nullable=True
+    )
+
+    credit_score = Column(
+        Integer,
+        default=0
+    )
+
+    behavior_score = Column
+    behavior_score = Column(
+        Integer,
+        default=0
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        index=True
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    customer = relationship("Customer")
+    tenant = relationship("Tenant")
+
+
+class CustomerCreditAlert(Base):
+
+    __tablename__ = "customer_credit_alerts"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    alert_type = Column(
+        String,
+        nullable=False
+    )
+
+    severity = Column(
+        String,
+        default="WARNING"
+    )
+
+    message = Column(
+        String,
+        nullable=False
+    )
+
+    status = Column(
+        String,
+        default="OPEN"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        index=True
+    )
+
+
+    customer = relationship("Customer")
+
+    tenant = relationship("Tenant")
+
+
+
+class PurchaseOrder(Base):
+    __tablename__ = "purchase_orders"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    purchase_number = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+    supplier_id = Column(
+        String,
+        ForeignKey("suppliers.id"),
+        nullable=False
+    )
+
+    total_amount = Column(
+        Float,
+        default=0.0
+    )
+
+    status = Column(
+        String,
+        default="DRAFT"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+
+
+
+class SupplierPayable(Base):
+    __tablename__ = "supplier_payables"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    purchase_order_id = Column(
+        String,
+        ForeignKey("purchase_orders.id"),
+        nullable=False
+    )
+
+    supplier_id = Column(
+        String,
+        ForeignKey("suppliers.id"),
+        nullable=False
+    )
+
+    total_amount = Column(
+        Float,
+        default=0.0
+    )
+
+    paid_amount = Column(
+        Float,
+        default=0.0
+    )
+
+    balance_amount = Column(
+        Float,
+        default=0.0
+    )
+
+    status = Column(
+        String,
+        default="OPEN"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+
+class PurchaseItem(Base):
+    __tablename__ = "purchase_items"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    purchase_order_id = Column(
+        String,
+        ForeignKey("purchase_orders.id"),
+        nullable=False
+    )
+
+    product_id = Column(
+        String,
+        ForeignKey("products.id"),
+        nullable=False
+    )
+
+    quantity = Column(
+        Integer,
+        nullable=False
+    )
+
+    unit_cost = Column(
+        Float,
+        nullable=False
+    )
+
+    total_cost = Column(
+        Float,
+        nullable=False
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+
+
+class SupplierPayment(Base):
+    __tablename__ = "supplier_payments"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    payment_number = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+    supplier_id = Column(
+        String,
+        ForeignKey("suppliers.id"),
+        nullable=False
+    )
+
+    payable_id = Column(
+        String,
+        ForeignKey("supplier_payables.id"),
+        nullable=False
+    )
+
+    amount = Column(
+        Float,
+        nullable=False
+    )
+
+    payment_method = Column(
+        String,
+        default="CASH"
+    )
+
+    status = Column(
+        String,
+        default="COMPLETED"
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+
+class BusinessProfile(Base):
+
+    __tablename__ = "business_profiles"
+
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+
+    business_name = Column(
+        String,
+        nullable=False
+    )
+
+
+    logo_url = Column(
+        String,
+        nullable=True
+    )
+
+
+    phone = Column(
+        String,
+        nullable=True
+    )
+
+
+    address = Column(
+        String,
+        nullable=True
+    )
+
+
+    description = Column(
+        String,
+        nullable=True
+    )
+
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+
+class SocialAccount(Base):
+
+    __tablename__ = "social_accounts"
+
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+
+    platform = Column(
+        String,
+        nullable=False
+    )
+
+
+    account_name = Column(
+        String,
+        nullable=True
+    )
+
+
+    account_url = Column(
+        String,
+        nullable=True
+    )
+
+
+    access_token = Column(
+        String,
+        nullable=True
+    )
+
+
+    status = Column(
+        String,
+        default="CONNECTED"
+    )
+
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+
+class SocialMessage(Base):
+    __tablename__ = "social_messages"
+
+    id = Column(String, primary_key=True)
+
+    platform = Column(String, nullable=False)
+
+    customer_name = Column(String)
+
+    customer_id = Column(String)
+
+    message = Column(String)
+
+    message_type = Column(String, default="TEXT")
+
+    status = Column(String, default="NEW")
+
+    reply_text = Column(String)
+
+    tenant_id = Column(String, nullable=False)
+
+    created_at = Column(DateTime, default=datetime.utcnow)

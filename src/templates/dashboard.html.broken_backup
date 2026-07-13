@@ -1,0 +1,127 @@
+cat > src/templates/dashboard.html <<'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<title>Business OS Dashboard</title>
+
+<style>
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#111827;
+color:white;
+}
+
+.header{
+padding:20px;
+background:#1f2937;
+font-size:22px;
+font-weight:bold;
+}
+
+.container{
+padding:20px;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:15px;
+}
+
+.card{
+background:#374151;
+padding:18px;
+border-radius:15px;
+}
+
+.title{
+font-size:15px;
+opacity:.8;
+}
+
+.number{
+font-size:32px;
+font-weight:bold;
+margin-top:10px;
+}
+
+.sales{
+background:#065f46;
+}
+
+.alert{
+background:#7f1d1d;
+}
+
+.menu{
+margin-top:30px;
+}
+
+a{
+text-decoration:none;
+}
+
+button{
+width:100%;
+padding:15px;
+margin:8px 0;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:white;
+font-size:16px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+🚀 Business OS Owner Dashboard
+</div>
+
+
+<div class="container">
+
+<div class="cards">
+
+<div class="card">
+<div class="title">📦 Products</div>
+<div class="number" id="products">0</div>
+</div>
+
+
+<div class="card">
+<div class="title">🛒 Orders</div>
+<div class="number" id="orders">0</div>
+</div>
+
+
+<div class="card">
+<div class="title">👥 Customers</div>
+<div class="number" id="customers">0</div>
+</div>
+
+
+<div class="card">
+<div class="title">🚚 Suppliers</div>
+<div class="number" id="suppliers">0</div>
+</div>
+
+
+<div class="card sales">
+<div class="title">💰 Sales</div>
+<div class="number" id="sales">0</div>
+</div>
+
+
+<div class="card alert">
+<div class="title">⚠️ Credit Alerts</div>
+<div class="number" id="alerts">0</div>
+</div>
+
+
+</div>

@@ -3,16 +3,15 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
-from src.models.saas_core import User, Order, OrderItem, Product
+from src.models.saas_core import User, Order, Product
 
 from src.domains.order.schemas import (
     OrderCreate,
     OrderResponse,
-    OrderStatusUpdate
+    OrderStatusUpdate,
 )
 
 from src.domains.order.services.order_service import create_order
-
 
 router = APIRouter(
     prefix="/orders",
@@ -36,14 +35,16 @@ async def create_new_order(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-
     try:
 
         order = create_order(
             db,
             current_user.tenant_id,
             data.order_number,
-            data.items
+            data.items,
+            data.customer_id,
+            data.customer_name,
+            data.customer_phone,
         )
 
         return order
@@ -64,11 +65,14 @@ async def get_orders(
     db: Session = Depends(get_db)
 ):
 
-    orders = db.query(Order).filter(
-        Order.tenant_id == current_user.tenant_id
-    ).order_by(
-        Order.created_at.desc()
-    ).all()
+    orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == current_user.tenant_id
+        )
+        .order_by(Order.created_at.desc())
+        .all()
+    )
 
     return [
         {
@@ -76,23 +80,27 @@ async def get_orders(
             "order_number": o.order_number,
             "status": o.order_status,
             "total_amount": o.total_amount,
-            "created_at": o.created_at
+            "created_at": o.created_at,
         }
         for o in orders
     ]
 
 
-@router.get("/{order_id}")
+@router.get("/detail/{order_id}")
 async def get_order_detail(
     order_id: str,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
 
-    order = db.query(Order).filter(
-        Order.id == order_id,
-        Order.tenant_id == current_user.tenant_id
-    ).first()
+    order = (
+        db.query(Order)
+        .filter(
+            Order.id == order_id,
+            Order.tenant_id == current_user.tenant_id
+        )
+        .first()
+    )
 
     if not order:
         raise HTTPException(
@@ -100,81 +108,32 @@ async def get_order_detail(
             detail="ORDER_NOT_FOUND"
         )
 
-
     items = []
 
     for item in order.items:
 
-        product = db.query(Product).filter(
-            Product.id == item.product_id
-        ).first()
+        product = (
+            db.query(Product)
+            .filter(Product.id == item.product_id)
+            .first()
+        )
 
         items.append(
             {
                 "product_id": item.product_id,
                 "product_name": product.name if product else None,
                 "quantity": item.quantity,
-                "price": item.price_at_sale
+                "price": item.price_at_sale,
             }
         )
 
-
     return {
         "id": order.id,
         "order_number": order.order_number,
+        "customer_id": order.customer_id,
+        "customer_name": order.customer_name,
+        "customer_phone": order.customer_phone,
         "status": order.order_status,
         "total_amount": order.total_amount,
-        "created_at": order.created_at,
-        "items": items
-    }
-
-
-@router.patch("/{order_id}/status")
-async def update_order_status(
-    order_id: str,
-    data: OrderStatusUpdate,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-
-    allowed_status = [
-        "PENDING",
-        "CONFIRMED",
-        "PROCESSING",
-        "SHIPPED",
-        "COMPLETED",
-        "CANCELLED"
-    ]
-
-
-    if data.status not in allowed_status:
-        raise HTTPException(
-            status_code=400,
-            detail="INVALID_ORDER_STATUS"
-        )
-
-
-    order = db.query(Order).filter(
-        Order.id == order_id,
-        Order.tenant_id == current_user.tenant_id
-    ).first()
-
-
-    if not order:
-        raise HTTPException(
-            status_code=404,
-            detail="ORDER_NOT_FOUND"
-        )
-
-
-    order.order_status = data.status
-
-    db.commit()
-    db.refresh(order)
-
-
-    return {
-        "id": order.id,
-        "order_number": order.order_number,
-        "status": order.order_status
+        "items": items,
     }

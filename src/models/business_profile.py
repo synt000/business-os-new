@@ -5,6 +5,10 @@ from src.core.database import Base
 class BusinessProfile(Base):
     __tablename__ = "business_profiles"
 
+    __table_args__ = {
+        "extend_existing": True
+    }
+
 
     id = Column(
         Integer,
