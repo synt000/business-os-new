@@ -77,6 +77,129 @@ text-decoration:none;
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+<script>
+
+async function loadRevenueExpense(){
+
+try{
+
+const res = await fetch(
+"/dashboard/revenue-expense",
+{
+headers:{
+"Authorization":"Bearer "+localStorage.getItem("access_token")
+}
+}
+);
+
+const data = await res.json();
+
+console.log("Profit API:", data);
+
+if(!data.summary){
+alert(JSON.stringify(data));
+return;
+}
+
+
+new Chart(
+document.getElementById("revenueExpenseChart"),
+{
+type:"bar",
+data:{
+labels:["Revenue","Expense","Profit"],
+datasets:[
+{
+label:"Amount",
+data:[
+data.summary.revenue,
+data.summary.expense,
+data.summary.profit
+]
+}
+]
+},
+options:{
+responsive:true
+}
+}
+);
+
+}
+catch(e){
+
+console.log("Revenue Expense Error",e);
+alert("Revenue Chart Error: "+e);
+
+}
+
+}
+
+
+window.addEventListener(
+"load",
+function(){
+loadRevenueExpense();
+}
+);
+
+
+
+
+
+async function loadProfitChart(){
+
+try{
+
+const res = await fetch(
+"/dashboard/revenue-expense",
+{
+headers:{
+"Authorization":"Bearer "+localStorage.getItem("access_token")
+}
+}
+);
+
+const data = await res.json();
+
+new Chart(
+document.getElementById("profitChart"),
+{
+type:"line",
+data:{
+labels:["Revenue","Expense","Profit"],
+datasets:[
+{
+label:"Business Performance",
+data:[
+data.summary.revenue,
+data.summary.expense,
+data.summary.profit
+],
+fill:false,
+tension:0.35
+}
+]
+},
+options:{
+responsive:true
+}
+}
+);
+
+}
+catch(e){
+console.log("Profit Chart Error",e);
+}
+
+}
+
+loadProfitChart();
+
+
+</script>
+
 <script>
 
 async function loadSalesTrend(){
@@ -223,6 +346,12 @@ Loading AI recommendations...
 <h3>💹 Revenue vs Expense</h3>
 <canvas id="revenueExpenseChart" height="120"></canvas>
 </div>
+
+<div class="card" style="margin-top:20px;padding:20px;">
+<h3>📈 Profit Analysis</h3>
+<canvas id="profitChart" height="120"></canvas>
+</div>
+
 
 
 <script>
