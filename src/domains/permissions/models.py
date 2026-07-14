@@ -58,3 +58,43 @@ class RolePermission(Base):
     role = relationship("Role")
 
     permission = relationship("Permission")
+
+
+class UserPermission(Base):
+    __tablename__ = "user_permissions"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    user_id = Column(
+        Integer,
+        ForeignKey(
+            "users.id",
+            ondelete="CASCADE"
+        ),
+        nullable=False
+    )
+
+    permission_id = Column(
+        Integer,
+        ForeignKey(
+            "permissions.id",
+            ondelete="CASCADE"
+        ),
+        nullable=False
+    )
+
+    is_allowed = Column(
+        Integer,
+        default=1
+    )
+
+
+    permission = relationship(
+        "Permission"
+    )
+
+

@@ -7,6 +7,7 @@ ROLES = [
     ("ADMIN", "Administrator access"),
     ("MANAGER", "Business manager access"),
     ("STAFF", "Limited staff access"),
+    ("CASHIER", "Cashier access"),
 ]
 
 
@@ -15,6 +16,7 @@ def seed_roles():
     db = SessionLocal()
 
     try:
+
         for name, desc in ROLES:
 
             exists = (
@@ -24,12 +26,13 @@ def seed_roles():
             )
 
             if not exists:
-                role = Role(
-                    name=name,
-                    description=desc
-                )
 
-                db.add(role)
+                db.add(
+                    Role(
+                        name=name,
+                        description=desc
+                    )
+                )
 
         db.commit()
 

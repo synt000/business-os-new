@@ -36,6 +36,11 @@ ROLE_MAP = {
         "orders.create",
     ],
 
+    "CASHIER": [
+        "orders.view",
+        "orders.create",
+    ],
+
 }
 
 
@@ -60,6 +65,7 @@ def seed_role_permissions():
             for perm_code in permissions:
 
                 if perm_code == "*":
+
                     all_permissions = db.query(Permission).all()
 
                     for permission in all_permissions:
@@ -74,6 +80,7 @@ def seed_role_permissions():
                         )
 
                         if not exists:
+
                             db.add(
                                 RolePermission(
                                     role_id=role.id,
@@ -103,6 +110,7 @@ def seed_role_permissions():
                     )
 
                     if not exists:
+
                         db.add(
                             RolePermission(
                                 role_id=role.id,

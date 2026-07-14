@@ -9,7 +9,8 @@ from src.models.saas_core import User
 from src.domains.permissions.models import (
     Role,
     Permission,
-    RolePermission
+    RolePermission,
+    UserPermission
 )
 
 
@@ -20,8 +21,7 @@ def require_permission(permission_code: str):
         db: Session = Depends(get_db)
     ):
 
-        # OWNER bypass
-
+        # OWNER FULL ACCESS
         if current_user.role == "OWNER":
             return current_user
 
@@ -41,6 +41,24 @@ def require_permission(permission_code: str):
                 detail="Permission not found"
             )
 
+
+        # USER PERSONAL OVERRIDE CHECK
+        user_permission = (
+            db.query(UserPermission)
+            .filter(
+                UserPermission.user_id == current_user.id,
+                UserPermission.permission_id == permission.id
+            )
+            .first()
+        )
+
+
+        if user_permission:
+            return current_user
+
+
+
+        # ROLE PERMISSION CHECK
 
         role = (
             db.query(Role)

@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from src.core.database import get_db
 from src.core.permissions.guard import require_permission
 
+from src.domains.permissions.models import Permission
+
 from src.domains.permissions.assign import PermissionAssign
 from src.domains.permissions.remove import PermissionRemove
 from src.domains.permissions.service import assign_permission
@@ -109,34 +111,35 @@ def remove_role_permission(
     }
 
 
-@router.delete(
-    "/remove"
+
+
+@router.get(
+    "/all"
 )
-def remove_role_permission(
-    data: PermissionRemove,
+def get_all_permissions(
     current_user = Depends(
         require_permission("users.manage")
     ),
     db: Session = Depends(get_db),
 ):
 
-    from src.domains.permissions.remove_service import (
-        remove_permission
-    )
-
-    result = remove_permission(
-        db,
-        data.role_name,
-        data.permission_id
-    )
-
-    if not result:
-        raise HTTPException(
-            status_code=404,
-            detail="Permission mapping not found"
+    rows = (
+        db.query(Permission)
+        .order_by(
+            Permission.id
         )
+        .all()
+    )
+
 
     return {
-        "status": "SUCCESS",
-        **result
+        "permissions":[
+            {
+                "id": p.id,
+                "code": p.code,
+                "module": p.module,
+                "description": p.description
+            }
+            for p in rows
+        ]
     }

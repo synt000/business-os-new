@@ -139,7 +139,7 @@ async function loadAdmins(){
 
             btn.onclick = ()=>{
                 selectedAdmin = admin;
-                loadPermissions(admin.role);
+                loadUserPermissions(admin.id);
             };
 
 
@@ -152,6 +152,171 @@ async function loadAdmins(){
 }
 
 
+
+
+
+
+// ======================================
+// USER PERSONAL PERMISSION PANEL
+// ======================================
+
+
+async function loadUserPermissions(userId){
+
+    selectedAdmin = {
+        id:userId
+    };
+
+
+    const token =
+    localStorage.getItem("access_token")
+    || localStorage.getItem("token");
+
+
+    const allRes = await fetch(
+        "/permissions/all",
+        {
+            headers:{
+                "Authorization":
+                "Bearer " + token
+            }
+        }
+    );
+
+
+    const allData = await allRes.json();
+
+
+    const userRes = await fetch(
+        "/admin/users/" + userId + "/permissions",
+        {
+            headers:{
+                "Authorization":
+                "Bearer " + token
+            }
+        }
+    );
+
+
+    const userData = await userRes.json();
+
+
+    const current =
+    new Set(
+        userData.permissions.map(
+            p=>p.id
+        )
+    );
+
+
+    const panel =
+    document.getElementById(
+        "permissionPanel"
+    );
+
+
+    panel.innerHTML =
+    `
+    <h3>🔐 Personal Permissions</h3>
+    `;
+
+
+    allData.permissions.forEach(p=>{
+
+
+        panel.innerHTML +=
+        `
+        <label>
+
+        <input
+        type="checkbox"
+        class="user-permission-check"
+        data-id="${p.id}"
+        ${current.has(p.id) ? "checked":""}
+        >
+
+        ${p.code}
+
+        </label>
+        `;
+
+
+    });
+
+
+    panel.innerHTML +=
+    `
+    <button id="saveUserPermissionBtn">
+    💾 SAVE PERSONAL PERMISSIONS
+    </button>
+    `;
+
+
+    document
+    .getElementById(
+        "saveUserPermissionBtn"
+    )
+    .onclick = async()=>{
+
+
+        const checks =
+        document.querySelectorAll(
+            ".user-permission-check"
+        );
+
+
+        for(
+            const check of checks
+        ){
+
+            const id =
+            check.dataset.id;
+
+
+            if(check.checked){
+
+                await fetch(
+                "/admin/users/"
+                + userId
+                + "/permissions/"
+                + id,
+                {
+                    method:"POST",
+                    headers:{
+                    "Authorization":
+                    "Bearer "+token
+                    }
+                });
+
+            }
+            else{
+
+                await fetch(
+                "/admin/users/"
+                + userId
+                + "/permissions/"
+                + id,
+                {
+                    method:"DELETE",
+                    headers:{
+                    "Authorization":
+                    "Bearer "+token
+                    }
+                });
+
+            }
+
+        }
+
+
+        alert(
+        "✅ Personal Permissions Saved"
+        );
+
+
+    };
+
+}
 
 async function loadPermissions(role){
 
@@ -171,8 +336,7 @@ async function loadPermissions(role){
     );
 
 
-    const data =
-    await res.json();
+    const data = await res.json();
 
 
     const panel =
@@ -181,8 +345,21 @@ async function loadPermissions(role){
     );
 
 
+    if(!data.permissions){
+
+        panel.innerHTML =
+        "<h3>No Permissions Found</h3>";
+
+        return;
+    }
+
+
     panel.innerHTML =
-    "<h3>"+role+" Permissions</h3>";
+    `
+    <h3>
+    🔐 ${role} Permissions
+    </h3>
+    `;
 
 
     const groups = {};
@@ -191,7 +368,8 @@ async function loadPermissions(role){
     data.permissions.forEach(p=>{
 
         const module =
-        p.module || "general";
+        (p.module || "general")
+        .toUpperCase();
 
 
         if(!groups[module]){
@@ -204,23 +382,31 @@ async function loadPermissions(role){
     });
 
 
-    Object.keys(groups).forEach(module=>{
+    Object.keys(groups)
+    .sort()
+    .forEach(module=>{
 
 
         panel.innerHTML +=
         `
+        <div class="permission-group">
+
         <h4>
-        📂 ${module.toUpperCase()}
+        📂 ${module}
         </h4>
         `;
 
 
-        groups[module].forEach(p=>{
+        groups[module]
+        .sort((a,b)=>
+            a.code.localeCompare(b.code)
+        )
+        .forEach(p=>{
 
 
             panel.innerHTML +=
             `
-            <label>
+            <label class="permission-item">
 
             <input
             type="checkbox"
@@ -228,32 +414,43 @@ async function loadPermissions(role){
             data-id="${p.id}"
             checked>
 
+            <span>
             ${p.code}
+            </span>
 
             </label>
             `;
 
+
         });
+
+
+        panel.innerHTML +=
+        `
+        </div>
+        `;
+
 
     });
 
 
     panel.innerHTML +=
     `
-    <button
-    id="selectAllBtn">
+    <div class="permission-actions">
+
+    <button id="selectAllBtn">
     ☑ SELECT ALL
     </button>
 
-    <button
-    id="clearAllBtn">
+    <button id="clearAllBtn">
     ☐ CLEAR ALL
     </button>
 
-    <button
-    id="savePermissionBtn">
+    <button id="savePermissionBtn">
     💾 SAVE CHANGES
     </button>
+
+    </div>
     `;
 
 
@@ -263,7 +460,9 @@ async function loadPermissions(role){
 
         document
         .querySelectorAll(".permission-check")
-        .forEach(c=>c.checked=true);
+        .forEach(
+            c=>c.checked=true
+        );
 
     };
 
@@ -274,7 +473,9 @@ async function loadPermissions(role){
 
         document
         .querySelectorAll(".permission-check")
-        .forEach(c=>c.checked=false);
+        .forEach(
+            c=>c.checked=false
+        );
 
     };
 
@@ -286,6 +487,7 @@ async function loadPermissions(role){
 
 
 }
+
 
 async function savePermissions(){
 
@@ -394,10 +596,69 @@ async function savePermissions(){
 }
 
 
+
+
+// ================================
+// ROLE SELECTOR UI
+// ================================
+
+function loadRoleSelector(){
+
+    const box =
+    document.getElementById(
+        "roleSelector"
+    );
+
+    if(!box) return;
+
+
+    box.innerHTML = `
+
+    <h3>🎭 Role Management</h3>
+
+    <button class="role-btn" data-role="OWNER">
+    👑 OWNER
+    </button>
+
+    <button class="role-btn" data-role="ADMIN">
+    👨‍💼 ADMIN
+    </button>
+
+    <button class="role-btn" data-role="STAFF">
+    👤 STAFF
+    </button>
+
+    <button class="role-btn" data-role="CASHIER">
+    💰 CASHIER
+    </button>
+
+    `;
+
+
+    document
+    .querySelectorAll(".role-btn")
+    .forEach(btn=>{
+
+        btn.onclick = ()=>{
+
+            const role =
+            btn.dataset.role;
+
+
+            loadPermissions(role);
+
+        };
+
+    });
+
+}
+
+
 // ===== OWNER PERMISSION PANEL INIT =====
 
 
-async function loadAdminPermissionPanel(){
+
+async function loadAdminPermissionPanel(roleFilter=null){
 
     const token =
     localStorage.getItem("access_token")
@@ -415,8 +676,7 @@ async function loadAdminPermissionPanel(){
     );
 
 
-    const admins =
-    await res.json();
+    const admins = await res.json();
 
 
     const box =
@@ -430,6 +690,10 @@ async function loadAdminPermissionPanel(){
 
 
         if(admin.role !== "OWNER"){
+
+            if(roleFilter && admin.role !== roleFilter){
+                return;
+            }
 
 
             const btn =
@@ -447,8 +711,8 @@ async function loadAdminPermissionPanel(){
 
                 selectedAdmin = admin;
 
-                loadPermissions(
-                    admin.role
+                loadUserPermissions(
+                    admin.id
                 );
 
             };
@@ -460,7 +724,12 @@ async function loadAdminPermissionPanel(){
 
     });
 
+
 }
+
+
+
+
 
 
 
@@ -470,19 +739,9 @@ document.addEventListener(
 
     loadOwnerDashboard();
 
+    loadRoleSelector();
     loadAdminPermissionPanel();
 
 });
 
-
-// FORCE OWNER DASHBOARD INIT
-setTimeout(()=>{
-    console.log("OWNER DASHBOARD FORCE START");
-    loadOwnerDashboard();
-
-    if(typeof loadAdminPermissionPanel === "function"){
-        loadAdminPermissionPanel();
-    }
-
-},500);
 
