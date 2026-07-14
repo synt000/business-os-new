@@ -1,46 +1,30 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
-MESSAGE="$1"
+TASK="$1"
 
-DATE=$(date "+%Y-%m-%d %H:%M")
+DATE=$(date +"%Y-%m-%d")
 
-echo "🚀 BUSINESS OS AUTO SAVE"
-echo "========================"
-
-if [ -z "$MESSAGE" ]; then
-    echo "❌ Message missing"
-    echo "Example:"
-    echo "bash project_done.sh \"Permission UI Completed\""
-    exit 1
-fi
+echo "✅ Saving: $TASK"
 
 
-echo ""
-echo "📝 Updating CHANGELOG..."
+echo "" >> CHANGELOG.md
 
-cat >> CHANGELOG.md <<EOL
+echo "## $DATE" >> CHANGELOG.md
 
-## $DATE
+echo "DONE:" >> CHANGELOG.md
 
-DONE:
-- $MESSAGE
-
-EOL
-
-
-echo "✅ CHANGELOG Updated"
+echo "- $TASK" >> CHANGELOG.md
 
 
 echo ""
-echo "📦 Git Backup..."
+
 
 git add .
 
-git commit -m "DONE: $MESSAGE"
+git commit -m "DONE: $TASK"
 
 
-echo ""
+echo "======================"
 echo "✅ PROJECT SAVED"
-echo "================"
+echo "======================"
 
-git log -1 --oneline
