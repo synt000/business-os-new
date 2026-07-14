@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
@@ -11,11 +13,16 @@ from src.domains.dashboard.service import (
     get_business_health_score,
     get_sales_trend,
     get_revenue_expense_summary,
+    get_financial_kpi_summary,
+    get_finance_insight,
 )
 
 from src.domains.dashboard.schemas import (
     DashboardMenuResponse
 )
+
+templates = Jinja2Templates(directory="src/templates")
+
 
 router = APIRouter(
     prefix="/dashboard",
@@ -102,3 +109,47 @@ def revenue_expense(
             current_user.tenant_id
         )
     }
+
+
+@router.get("/financial-kpi")
+def financial_kpi(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return {
+        "status": "SUCCESS",
+        "finance": get_financial_kpi_summary(
+            db,
+            current_user.tenant_id
+        )
+    }
+
+
+@router.get("/finance-insight")
+def finance_insight(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return {
+        "status": "SUCCESS",
+        "ai_finance": get_finance_insight(
+            db,
+            current_user.tenant_id
+        )
+    }
+
+
+
+@router.get(
+    "/owner/dashboard",
+    response_class=HTMLResponse
+)
+def owner_dashboard(
+    request: Request
+):
+    return templates.TemplateResponse(
+        "owner_dashboard.html",
+        {
+            "request": request
+        }
+    )

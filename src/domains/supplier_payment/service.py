@@ -2,10 +2,15 @@ import uuid
 
 from sqlalchemy.orm import Session
 
+from src.domains.accounting.services.journal_service import (
+    create_supplier_payment_journal,
+)
+
 from src.models.saas_core import (
     SupplierPayment,
     SupplierPayable,
     Supplier,
+    AccountLedger,
 )
 
 
@@ -46,6 +51,13 @@ def create_supplier_payment(
 
     db.add(payment)
 
+
+    create_supplier_payment_journal(
+        db=db,
+        tenant_id=tenant_id,
+        payment_id=payment.id,
+        payment_amount=data.amount,
+    )
 
     payable.paid_amount += data.amount
 

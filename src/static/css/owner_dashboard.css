@@ -1,0 +1,250 @@
+*{
+    box-sizing:border-box;
+}
+
+body{
+
+    margin:0;
+
+    background:#020617;
+
+    color:white;
+
+    font-family:
+    Inter,
+    Arial,
+    sans-serif;
+
+}
+
+
+.app{
+
+    min-height:100vh;
+
+    background:
+    linear-gradient(
+        180deg,
+        #020617,
+        #0f172a
+    );
+
+    padding:20px;
+
+}
+
+
+.topbar{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#111827;
+
+    padding:20px;
+
+    border-radius:18px;
+
+}
+
+
+.topbar h1{
+
+    margin:0;
+
+    color:#38bdf8;
+
+}
+
+
+.owner-box{
+
+    text-align:right;
+
+}
+
+
+.hero{
+
+    margin-top:20px;
+
+    background:#1e293b;
+
+    padding:20px;
+
+    border-radius:18px;
+
+}
+
+
+.cards{
+
+    display:grid;
+
+    grid-template-columns:
+    repeat(2,1fr);
+
+    gap:15px;
+
+    margin-top:20px;
+
+}
+
+
+.card{
+
+    background:#111827;
+
+    padding:18px;
+
+    border-radius:16px;
+
+    border:1px solid #1e293b;
+
+}
+
+
+.card h3{
+
+    color:#94a3b8;
+
+}
+
+
+.card strong{
+
+    font-size:28px;
+
+    color:#38bdf8;
+
+}
+
+
+.green{
+
+    color:#22c55e!important;
+
+}
+
+
+.panel,
+.system-panel,
+.admin-panel{
+
+    margin-top:20px;
+
+    padding:20px;
+
+    background:#111827;
+
+    border-radius:18px;
+
+}
+
+
+.health-item{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    padding:12px;
+
+    background:#1e293b;
+
+    border-radius:10px;
+
+    margin-top:10px;
+
+}
+
+
+#adminList button{
+
+    width:100%;
+
+    padding:14px;
+
+    margin-bottom:10px;
+
+    background:#1e293b;
+
+    color:white;
+
+    border:none;
+
+    border-radius:12px;
+
+}
+
+
+#permissionPanel{
+
+    margin-top:20px;
+
+    background:#020617;
+
+    padding:15px;
+
+    border-radius:14px;
+
+}
+
+
+#permissionPanel label{
+
+    display:block;
+
+    padding:10px;
+
+    background:#1e293b;
+
+    border-radius:10px;
+
+}
+
+
+#savePermissionBtn{
+
+    width:100%;
+
+    margin-top:20px;
+
+    padding:14px;
+
+    background:#16a34a;
+
+    color:white;
+
+    border:none;
+
+    border-radius:12px;
+
+    font-size:16px;
+
+}
+
+
+footer{
+
+    margin-top:30px;
+
+    text-align:center;
+
+    color:#64748b;
+
+}
+
+
+@media(max-width:600px){
+
+.cards{
+
+    grid-template-columns:1fr;
+
+}
+
+}

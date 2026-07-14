@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from src.models.saas_core import Product, Order, OrderItem
 from src.domains.inventory.services.stock_service import reduce_stock
+from src.domains.accounting.services.accounting_service import create_sale_journal
 
 
 def create_order(
@@ -65,6 +66,24 @@ def create_order(
 
 
     order.total_amount = total
+
+    inventory_cost = sum(
+        (
+            db.query(Product)
+            .filter(Product.id == str(item.product_id))
+            .first()
+            .purchase_price
+        ) * item.quantity
+        for item in items
+    )
+
+    create_sale_journal(
+        db=db,
+        tenant_id=tenant_id,
+        order_id=order.id,
+        sale_amount=total,
+        inventory_cost=inventory_cost,
+    )
 
     db.commit()
     db.refresh(order)

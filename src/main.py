@@ -29,6 +29,9 @@ from src.domains.payment.router import router as payment_router
 from src.domains.customer_finance.router import router as customer_finance_router
 from src.business_profile_router import router as business_profile_router
 from src.domains.accounting.router import router as accounting_router
+from src.domains.admin.router import router as admin_router
+from src.domains.permissions.router import router as permissions_router
+from src.domains.platform.router import router as platform_router
 
 print(f"📡 [DevOps Telemetry] Loaded Cryptographic Secret Prefix: {settings.SECRET_KEY[:10]}")
 
@@ -108,6 +111,9 @@ app.include_router(public_page_router)
 app.include_router(business_settings_router)
 app.include_router(business_profile_router)
 app.include_router(accounting_router)
+app.include_router(admin_router)
+app.include_router(permissions_router)
+app.include_router(platform_router)
 
 # DYNAMIC COMPATIBILITY INJECTOR FOR CORE ANALYTICS INTEGRATION
 @app.get("/api/v4/dashboard/summary", tags=["Infrastructure Telemetry"])
@@ -163,3 +169,8 @@ from src.domains.social_center.router import router as social_router
 
 app.include_router(social_router)
 
+
+
+from src.domains.hr.router import router as hr_router
+
+app.include_router(hr_router)

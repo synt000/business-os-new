@@ -1314,3 +1314,68 @@ class SocialMessage(Base):
     tenant_id = Column(String, nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class Employee(Base):
+    __tablename__ = "employees"
+
+    id = Column(
+        String,
+        primary_key=True
+    )
+
+    employee_code = Column(
+        String,
+        nullable=False
+    )
+
+    full_name = Column(
+        String,
+        nullable=False
+    )
+
+    phone = Column(
+        String,
+        nullable=True
+    )
+
+    email = Column(
+        String,
+        nullable=True
+    )
+
+    department = Column(
+        String,
+        nullable=True
+    )
+
+    position = Column(
+        String,
+        nullable=True
+    )
+
+    hire_date = Column(
+        DateTime,
+        nullable=True
+    )
+
+    salary = Column(
+        Float,
+        default=0
+    )
+
+    status = Column(
+        String,
+        default="ACTIVE"
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id"),
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )

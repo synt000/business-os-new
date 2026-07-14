@@ -12,6 +12,8 @@ from src.models.saas_core import (
     Payment,
     Supplier,
     SupplierPayable,
+    Invoice,
+    AccountLedger,
 )
 
 
@@ -385,4 +387,227 @@ def get_revenue_expense_summary(
         "revenue": float(revenue),
         "expense": float(expense),
         "profit": float(revenue - expense)
+    }
+
+
+def get_financial_kpi_summary(
+    db: Session,
+    tenant_id: str
+):
+
+    cash_balance = (
+        db.query(
+            func.coalesce(
+                func.sum(AccountLedger.amount),
+                0
+            )
+        )
+        .filter(
+            AccountLedger.tenant_id == tenant_id,
+            AccountLedger.account_head == "CASH_ASSET"
+        )
+        .scalar()
+    )
+
+
+    supplier_payable = (
+        db.query(
+            func.coalesce(
+                func.sum(SupplierPayable.balance_amount),
+                0
+            )
+        )
+        .filter(
+            SupplierPayable.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    customer_receivable = (
+        db.query(
+            func.coalesce(
+                func.sum(Invoice.amount),
+                0
+            )
+        )
+        .filter(
+            Invoice.tenant_id == tenant_id,
+            Invoice.status != "PAID"
+        )
+        .scalar()
+    )
+
+
+    revenue = (
+        db.query(
+            func.coalesce(
+                func.sum(Invoice.amount),
+                0
+            )
+        )
+        .filter(
+            Invoice.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    purchase_cost = (
+        db.query(
+            func.coalesce(
+                func.sum(AccountLedger.amount),
+                0
+            )
+        )
+        .filter(
+            AccountLedger.tenant_id == tenant_id,
+            AccountLedger.account_head == "INVENTORY_ASSET"
+        )
+        .scalar()
+    )
+
+
+    estimated_profit = (
+        revenue - purchase_cost
+    )
+
+
+    health = 50
+
+
+    if estimated_profit > 0:
+        health += 30
+
+
+    if supplier_payable < revenue:
+        health += 20
+
+
+    if health > 100:
+        health = 100
+
+
+    return {
+        "cash_balance": cash_balance,
+        "supplier_payable": supplier_payable,
+        "customer_receivable": customer_receivable,
+        "revenue": revenue,
+        "purchase_cost": purchase_cost,
+        "estimated_profit": estimated_profit,
+        "finance_health": health
+    }
+
+
+def get_finance_insight(
+    db: Session,
+    tenant_id: str
+):
+    """
+    AI Finance Insight Engine
+    """
+
+    from sqlalchemy import func
+
+    # Revenue
+    revenue = (
+        db.query(
+            func.coalesce(
+                func.sum(Payment.amount),
+                0
+            )
+        )
+        .filter(
+            Payment.tenant_id == tenant_id,
+            Payment.status == "COMPLETED"
+        )
+        .scalar()
+    )
+
+
+    # Supplier Payable
+    supplier_payable = (
+        db.query(
+            func.coalesce(
+                func.sum(SupplierPayable.balance_amount),
+                0
+            )
+        )
+        .filter(
+            SupplierPayable.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    # Invoice Receivable
+    customer_receivable = (
+        db.query(
+            func.coalesce(
+                func.sum(Invoice.amount),
+                0
+            )
+        )
+        .filter(
+            Invoice.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    # Cash Ledger
+    cash_balance = (
+        db.query(
+            func.coalesce(
+                func.sum(AccountLedger.amount),
+                0
+            )
+        )
+        .filter(
+            AccountLedger.tenant_id == tenant_id,
+            AccountLedger.account_head == "CASH_ASSET"
+        )
+        .scalar()
+    )
+
+
+    purchase_cost = (
+        db.query(
+            func.coalesce(
+                func.sum(AccountLedger.amount),
+                0
+            )
+        )
+        .filter(
+            AccountLedger.tenant_id == tenant_id,
+            AccountLedger.account_head == "INVENTORY_ASSET"
+        )
+        .scalar()
+    )
+
+
+    profit = revenue - purchase_cost
+
+
+    health = 50
+
+    if profit > 0:
+        health += 30
+
+    if cash_balance > supplier_payable:
+        health += 20
+
+
+    if health > 100:
+        health = 100
+
+
+    return {
+        "cash_balance": float(cash_balance),
+        "supplier_payable": float(supplier_payable),
+        "customer_receivable": float(customer_receivable),
+        "revenue": float(revenue),
+        "purchase_cost": float(purchase_cost),
+        "estimated_profit": float(profit),
+        "finance_health": health
     }

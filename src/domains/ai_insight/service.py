@@ -5,6 +5,9 @@ from sqlalchemy import func
 
 from src.models.saas_core import (
     Product,
+    Supplier,
+    PurchaseOrder,
+    PurchaseItem,
     SupplierPayable,
     Customer,
     Order,
@@ -195,3 +198,413 @@ def generate_business_insights(
 
 
     return insights
+
+
+# =========================
+# PROFIT MARGIN AI ENGINE
+# =========================
+
+def generate_profit_margin_insight(
+    db: Session,
+    tenant_id: str
+):
+
+    revenue = (
+        db.query(
+            func.coalesce(
+                func.sum(Order.total_amount),
+                0
+            )
+        )
+        .filter(
+            Order.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    expense = (
+        db.query(
+            func.coalesce(
+                func.sum(SupplierPayable.balance_amount),
+                0
+            )
+        )
+        .filter(
+            SupplierPayable.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    profit = revenue - expense
+
+
+    margin = 0
+
+    if revenue > 0:
+        margin = round(
+            (profit / revenue) * 100,
+            2
+        )
+
+
+    level = "INFO"
+
+    if margin < 20:
+        level = "WARNING"
+
+    elif margin >= 70:
+        level = "SUCCESS"
+
+
+    return {
+        "title": "Profit Margin Analysis",
+        "revenue": float(revenue),
+        "expense": float(expense),
+        "profit": float(profit),
+        "margin": margin,
+        "level": level,
+        "message":
+            f"Profit Margin {margin}% ဖြစ်ပါသည်"
+    }
+
+
+
+def generate_ceo_daily_brief(
+    db: Session,
+    tenant_id: str
+):
+
+    profit = generate_profit_margin_insight(
+        db,
+        tenant_id
+    )
+
+    insights = generate_business_insights(
+        db,
+        tenant_id
+    )
+
+    return {
+        "title": "CEO Daily Brief",
+        "performance": profit,
+        "insights": insights[:3]
+    }
+
+
+
+
+
+def generate_ceo_score(
+    db: Session,
+    tenant_id: str
+):
+
+    score = 100
+
+    risks = []
+
+    breakdown = {}
+
+
+    # =====================
+    # INVENTORY HEALTH
+    # =====================
+
+    low_stock = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == tenant_id,
+            Product.stock_qty <= Product.low_stock_threshold
+        )
+        .count()
+    )
+
+
+    if low_stock > 0:
+        inventory_score = 10
+        score -= 15
+
+        risks.append(
+            "🔴 Low Stock Risk"
+        )
+
+    else:
+        inventory_score = 20
+
+
+    breakdown["inventory_health"] = inventory_score
+
+
+
+    # =====================
+    # CASH FLOW
+    # =====================
+
+    debt = (
+        db.query(
+            func.coalesce(
+                func.sum(
+                    SupplierPayable.balance_amount
+                ),
+                0
+            )
+        )
+        .filter(
+            SupplierPayable.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    if debt > 0:
+
+        cash_score = 15
+        score -= 10
+
+        risks.append(
+            "🟡 Supplier Debt Risk"
+        )
+
+    else:
+        cash_score = 25
+
+
+    breakdown["cash_flow"] = cash_score
+
+
+
+    # =====================
+    # SALES HEALTH
+    # =====================
+
+    orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == tenant_id
+        )
+        .count()
+    )
+
+
+    if orders > 0:
+        sales_score = 20
+
+    else:
+        sales_score = 10
+
+
+    breakdown["sales_growth"] = sales_score
+
+
+
+    # =====================
+    # PROFIT HEALTH
+    # =====================
+
+    revenue = (
+        db.query(
+            func.coalesce(
+                func.sum(Order.total_amount),
+                0
+            )
+        )
+        .filter(
+            Order.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    if revenue > 0:
+        profit_score = 30
+
+    else:
+        profit_score = 15
+
+
+    breakdown["profit_health"] = profit_score
+
+
+
+    if score < 0:
+        score = 0
+
+
+
+    if score >= 80:
+        level = "EXCELLENT"
+
+    elif score >= 60:
+        level = "WARNING"
+
+    else:
+        level = "CRITICAL"
+
+
+
+    return {
+
+        "score": score,
+
+        "level": level,
+
+        "breakdown": breakdown,
+
+        "risks": risks,
+
+        "actions": [
+
+            "Create Purchase Order"
+            if low_stock > 0
+            else "Inventory Stable",
+
+            "Review Supplier Payment Plan"
+            if debt > 0
+            else "Cash Flow Healthy"
+
+        ]
+
+    }
+
+
+
+
+# ==========================================
+# AI CREATE PURCHASE ORDER
+# ==========================================
+
+def create_ai_purchase_order(
+    db: Session,
+    tenant_id: str
+):
+
+    product = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == tenant_id,
+            Product.stock_qty <= Product.low_stock_threshold
+        )
+        .first()
+    )
+
+
+    if not product:
+        return {
+            "status": "NO_ACTION",
+            "message": "Low stock product မရှိပါ"
+        }
+
+
+    supplier = (
+        db.query(Supplier)
+        .filter(
+            Supplier.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+
+    if not supplier:
+        return {
+            "status": "FAILED",
+            "message": "Supplier မတွေ့ပါ"
+        }
+
+
+    purchase_number = (
+        "AI-PO-"
+        + datetime.utcnow().strftime("%Y%m%d%H%M%S")
+    )
+
+
+    quantity = 50
+
+    unit_cost = product.purchase_price or 0
+
+
+    total_cost = quantity * unit_cost
+
+
+    purchase = PurchaseOrder(
+
+        purchase_number=purchase_number,
+
+        supplier_id=supplier.id,
+
+        total_amount=total_cost,
+
+        status="DRAFT",
+
+        tenant_id=tenant_id
+
+    )
+
+
+    db.add(purchase)
+
+    db.flush()
+
+
+    item = PurchaseItem(
+
+        purchase_order_id=purchase.id,
+
+        product_id=product.id,
+
+        quantity=quantity,
+
+        unit_cost=unit_cost,
+
+        total_cost=total_cost,
+
+        tenant_id=tenant_id
+
+    )
+
+
+    db.add(item)
+
+
+    payable = SupplierPayable(
+
+        purchase_order_id=purchase.id,
+
+        supplier_id=supplier.id,
+
+        total_amount=total_cost,
+
+        paid_amount=0,
+
+        balance_amount=total_cost,
+
+        status="OPEN",
+
+        tenant_id=tenant_id
+
+    )
+
+
+    db.add(payable)
+
+
+    db.commit()
+
+
+    return {
+
+        "status": "SUCCESS",
+
+        "message": "AI Purchase Order Created",
+
+        "purchase_number": purchase_number,
+
+        "product": product.name,
+
+        "quantity": quantity,
+
+        "amount": total_cost
+
+    }
+

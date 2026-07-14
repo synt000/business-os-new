@@ -71,3 +71,80 @@ def create_sale_journal(
 
 
     return True
+
+
+def create_purchase_journal(
+    db: Session,
+    tenant_id: str,
+    purchase_id: str,
+    purchase_amount: float,
+):
+    """
+    Purchase Double Entry Journal
+
+    Inventory Increase:
+        DEBIT INVENTORY_ASSET
+
+    Supplier Liability:
+        CREDIT SUPPLIER_PAYABLE
+    """
+
+    create_ledger_entry(
+        db=db,
+        tenant_id=tenant_id,
+        entry_type="DEBIT",
+        account_head="INVENTORY_ASSET",
+        amount=purchase_amount,
+        reference_id=purchase_id,
+        description="Purchased inventory asset",
+    )
+
+
+    create_ledger_entry(
+        db=db,
+        tenant_id=tenant_id,
+        entry_type="CREDIT",
+        account_head="SUPPLIER_PAYABLE",
+        amount=purchase_amount,
+        reference_id=purchase_id,
+        description="Supplier payable created",
+    )
+
+
+    return True
+
+def create_supplier_payment_journal(
+    db: Session,
+    tenant_id: str,
+    payment_id: str,
+    payment_amount: float,
+):
+    """
+    Supplier Payment Journal
+
+    Dr Supplier Payable
+        Cr Cash Asset
+    """
+
+    create_ledger_entry(
+        db=db,
+        tenant_id=tenant_id,
+        entry_type="DEBIT",
+        account_head="SUPPLIER_PAYABLE",
+        amount=payment_amount,
+        reference_id=payment_id,
+        description="Supplier payment",
+    )
+
+    create_ledger_entry(
+        db=db,
+        tenant_id=tenant_id,
+        entry_type="CREDIT",
+        account_head="CASH_ASSET",
+        amount=payment_amount,
+        reference_id=payment_id,
+        description="Cash payment to supplier",
+    )
+
+    return True
+

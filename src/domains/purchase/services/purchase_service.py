@@ -2,6 +2,10 @@ import uuid
 
 from sqlalchemy.orm import Session
 
+from src.domains.accounting.services.journal_service import (
+    create_purchase_journal,
+)
+
 from src.models.saas_core import (
     PurchaseOrder,
     PurchaseItem,
@@ -86,8 +90,7 @@ def create_purchase(
         db.add(purchase_item)
 
 
-        # STOCK INCREASE
-        product.stock_qty += item.quantity
+        # STOCK RECEIVE WILL HAPPEN AFTER APPROVAL
 
 
 
@@ -111,6 +114,15 @@ def create_purchase(
     )
 
     db.add(payable)
+
+
+    # ACCOUNTING JOURNAL POSTING
+    create_purchase_journal(
+        db=db,
+        tenant_id=tenant_id,
+        purchase_id=purchase.id,
+        purchase_amount=total,
+    )
 
 
     db.commit()
