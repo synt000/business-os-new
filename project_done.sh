@@ -2,20 +2,21 @@
 
 MESSAGE="$1"
 
-DATE=$(date +"%Y-%m-%d")
+DATE=$(date "+%Y-%m-%d %H:%M")
 
 echo "🚀 BUSINESS OS AUTO SAVE"
-
-echo ""
+echo "========================"
 
 if [ -z "$MESSAGE" ]; then
-    echo "Usage:"
-    echo "bash project_done.sh \"Task Completed\""
+    echo "❌ Message missing"
+    echo "Example:"
+    echo "bash project_done.sh \"Permission UI Completed\""
     exit 1
 fi
 
 
-echo "✅ Updating CHANGELOG..."
+echo ""
+echo "📝 Updating CHANGELOG..."
 
 cat >> CHANGELOG.md <<EOL
 
@@ -27,15 +28,19 @@ DONE:
 EOL
 
 
-echo "✅ Git Backup..."
-
-git add .
-
-git commit -m "DONE: $MESSAGE" 2>/dev/null
+echo "✅ CHANGELOG Updated"
 
 
 echo ""
-echo "======================"
-echo "✅ SAVED:"
-echo "$MESSAGE"
-echo "======================"
+echo "📦 Git Backup..."
+
+git add .
+
+git commit -m "DONE: $MESSAGE"
+
+
+echo ""
+echo "✅ PROJECT SAVED"
+echo "================"
+
+git log -1 --oneline
