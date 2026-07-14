@@ -1,30 +1,37 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
+if [ -z "$1" ]; then
+    echo "Usage:"
+    echo "./project_done.sh \"Completed Task\""
+    exit 1
+fi
+
 TASK="$1"
 
-DATE=$(date +"%Y-%m-%d")
+echo ""
+echo "======================================="
+echo " BUSINESS OS PROJECT UPDATE"
+echo "======================================="
+echo ""
 
-echo "✅ Saving: $TASK"
+echo "✅ DONE: $TASK"
 
+echo ""
+echo "[$(date '+%Y-%m-%d %H:%M')] $TASK" >> CHANGELOG.md
 
-echo "" >> CHANGELOG.md
+git add . >/dev/null 2>&1
 
-echo "## $DATE" >> CHANGELOG.md
+git commit -m "DONE: $TASK" >/dev/null 2>&1
 
-echo "DONE:" >> CHANGELOG.md
+echo ""
+echo "✔ CHANGELOG Updated"
 
-echo "- $TASK" >> CHANGELOG.md
-
+echo "✔ Git Commit Created"
 
 echo ""
 
+git log --oneline -1
 
-git add .
+echo ""
 
-git commit -m "DONE: $TASK"
-
-
-echo "======================"
-echo "✅ PROJECT SAVED"
-echo "======================"
-
+echo "======================================="
