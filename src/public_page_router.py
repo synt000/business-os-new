@@ -1,5 +1,6 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Request, Depends, HTTPException
 from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
@@ -10,6 +11,26 @@ router = APIRouter(
     prefix="",
     tags=["Public Web Page"]
 )
+
+templates = Jinja2Templates(directory="src/templates")
+
+
+@router.get("/", response_class=HTMLResponse)
+async def read_landing_page(request: Request):
+    return templates.TemplateResponse("landing.html", {"request": request})
+
+
+@router.get("/landing-page", response_class=HTMLResponse)
+async def read_test_landing_page(request: Request):
+    return templates.TemplateResponse("landing.html", {"request": request})
+
+
+
+@router.get("/register", response_class=HTMLResponse)
+async def read_register_page(request: Request):
+    return templates.TemplateResponse("register.html", {"request": request})
+
+
 
 
 @router.get("/{business_slug}", response_class=HTMLResponse)
