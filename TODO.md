@@ -7,7 +7,7 @@
 
 [x] Business Card UI
 
-[ ] Mobile Auto Navigation
+[x] Mobile Auto Navigation
 
 [ ] Telegram Contact Button
 
