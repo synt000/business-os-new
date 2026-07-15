@@ -1,7 +1,6 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 if [ -z "$1" ]; then
-    echo ""
     echo "Usage:"
     echo "./project_done.sh \"Completed Task\""
     exit 1
@@ -15,59 +14,58 @@ echo " BUSINESS OS PROJECT UPDATE"
 echo "======================================="
 echo ""
 
-echo "✅ DONE : $TASK"
+echo "✅ DONE: $TASK"
 
-# ----------------------------------
-# CHANGELOG
-# ----------------------------------
+# ----------------------------
+# Auto Update TODO.md
+# ----------------------------
+if [ -f TODO.md ]; then
+python - "$TASK" <<'PY'
+import sys
+from pathlib import Path
 
+task = sys.argv[1]
+todo = Path("TODO.md")
+
+text = todo.read_text(encoding="utf-8")
+
+lines = text.splitlines()
+new = []
+
+for line in lines:
+    if "[ ]" in line and task.lower() in line.lower():
+        line = line.replace("[ ]","[x]",1)
+    new.append(line)
+
+todo.write_text("\n".join(new),encoding="utf-8")
+PY
+fi
+
+# ----------------------------
+# Update CHANGELOG
+# ----------------------------
 echo "[$(date '+%Y-%m-%d %H:%M')] $TASK" >> CHANGELOG.md
 
-# ----------------------------------
-# TODO AUTO CHECK
-# ----------------------------------
-
-if [ -f TODO.md ]; then
-
-FIRST_LINE=$(grep -n "\[ \]" TODO.md | head -1 | cut -d: -f1)
-
-if [ ! -z "$FIRST_LINE" ]; then
-
-sed -i "${FIRST_LINE}s/\[ \]/[x]/" TODO.md
-
-fi
-
-fi
-
-# ----------------------------------
-# GIT
-# ----------------------------------
-
+# ----------------------------
+# Git
+# ----------------------------
 git add . >/dev/null 2>&1
-
 git commit -m "DONE: $TASK" >/dev/null 2>&1
 
 echo ""
-echo "✔ CHANGELOG Updated"
-
 echo "✔ TODO Updated"
-
+echo "✔ CHANGELOG Updated"
 echo "✔ Git Commit Created"
 
 echo ""
-echo "-------------"
-echo "NEXT TASK"
-echo "-------------"
-
-grep "\[ \]" TODO.md
-
-echo ""
-echo "-------------"
-echo "LAST COMMIT"
-echo "-------------"
-
 git log --oneline -1
 
 echo ""
+echo "--------------- TODO STATUS ---------------"
 
+if [ -f TODO.md ]; then
+grep "\[ \]" TODO.md || echo "🎉 ALL TASKS COMPLETED"
+fi
+
+echo ""
 echo "======================================="

@@ -2,49 +2,68 @@
 
 clear
 
-echo "=============================================="
-echo "      🚀 BUSINESS OS COMMAND CENTER"
-echo "=============================================="
-echo
+echo "==============================================="
+echo "       🚀 BUSINESS OS COMMAND CENTER"
+echo "==============================================="
+echo ""
 
-echo "📍 PROJECT"
-echo "----------------------------------------------"
-head -25 PROJECT_BRAIN.md
+echo "📅 DATE"
+date
+echo ""
 
-echo
-echo "=============================================="
+echo "==============================================="
+echo "🧠 PROJECT STATUS"
+echo "==============================================="
 
-echo "✅ COMPLETED"
-echo "----------------------------------------------"
-grep "\[x\]" TODO.md || echo "No completed tasks"
+if [ -f PROJECT_BRAIN.md ]; then
+cat PROJECT_BRAIN.md
+fi
 
-echo
-echo "----------------------------------------------"
+echo ""
+echo "==============================================="
+echo "📋 TODO"
+echo "==============================================="
 
-echo "🟡 REMAINING"
-echo "----------------------------------------------"
-grep "\[ \]" TODO.md || echo "No remaining tasks"
+if [ -f TODO.md ]; then
+cat TODO.md
+fi
 
-echo
-echo "=============================================="
+echo ""
+echo "==============================================="
+echo "📜 CHANGELOG"
+echo "==============================================="
 
-echo "📝 LAST CHANGES"
-echo "----------------------------------------------"
-tail -10 CHANGELOG.md
+if [ -f CHANGELOG.md ]; then
+tail -20 CHANGELOG.md
+fi
 
-echo
-echo "=============================================="
-
+echo ""
+echo "==============================================="
 echo "🌿 GIT STATUS"
-echo "----------------------------------------------"
+echo "==============================================="
+
 git status --short
 
-echo
-echo "=============================================="
+echo ""
 
-echo "📌 LAST COMMIT"
-echo "----------------------------------------------"
-git log --oneline -1
+echo "==============================================="
+echo "📝 LAST COMMIT"
+echo "==============================================="
 
-echo
-echo "=============================================="
+git log --oneline -5
+
+echo ""
+echo "==============================================="
+echo "📊 PROJECT SUMMARY"
+echo "==============================================="
+
+DONE=$(grep -R "\[x\]" . --include="TODO.md" 2>/dev/null | wc -l)
+TODO=$(grep -R "\[ \]" . --include="TODO.md" 2>/dev/null | wc -l)
+
+echo "✅ Completed : $DONE"
+echo "⬜ Remaining : $TODO"
+
+echo ""
+echo "==============================================="
+echo "READY TO WORK ✅"
+echo "==============================================="
