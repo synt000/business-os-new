@@ -72,6 +72,46 @@ class User(Base):
     tenant = relationship("Tenant", back_populates="users")
     audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
 
+class Category(Base):
+    __tablename__ = "categories"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    name = Column(String, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="categories")
+
+class Product(Base):
+    __tablename__ = "products"
+
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
+    name = Column(String, nullable=False)
+    sku = Column(String, nullable=False, index=True)
+    barcode = Column(String, nullable=True)
+    stock_qty = Column(Integer, default=0)
+    low_stock_threshold = Column(Integer, default=10)
+    purchase_price = Column(Float, default=0.0)
+    retail_price = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="products")
+    order_items = relationship("OrderItem", back_populates="product", cascade="all, delete-orphan")
+    procurements = relationship("ProcurementLedger", back_populates="product", cascade="all, delete-orphan")
+
+    inventory = relationship(
+        "Inventory",
+        back_populates="product",
+        uselist=False,
+        cascade="all, delete-orphan"
+    )
+
+    inventory = relationship(
+        "Inventory",
+        back_populates="product",
+        uselist=False
+    )
 
 class Order(Base):
     __tablename__ = "orders"
@@ -125,6 +165,21 @@ class BillingReceipt(Base):
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="receipts")
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    action_type = Column(String, nullable=False, index=True)
+    module_name = Column(String, nullable=False, index=True)
+    details_log = Column(Text, nullable=False)
+    ip_address = Column(String, default="127.0.0.1")
+    logged_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user = relationship("User", back_populates="audit_logs")
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="audit_logs")
 
 class AccountLedger(Base):
     __tablename__ = "account_ledgers"

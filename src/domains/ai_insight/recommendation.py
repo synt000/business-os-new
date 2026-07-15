@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
+from src.domains.product.models import Product
 
 from src.models.saas_core import (
-    Product,
     SupplierPayable,
     Order,
     Payment,

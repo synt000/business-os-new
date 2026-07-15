@@ -1,10 +1,10 @@
 from datetime import datetime, time
 
 from sqlalchemy.orm import Session
+from src.domains.product.models import Product
 from sqlalchemy import func
 
 from src.models.saas_core import (
-    Product,
     Supplier,
     PurchaseOrder,
     PurchaseItem,

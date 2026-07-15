@@ -10,9 +10,9 @@ from src.models.saas_core import (
     PurchaseOrder,
     PurchaseItem,
     Supplier,
-    Product,
     SupplierPayable,
 )
+
 
 
 def create_purchase(

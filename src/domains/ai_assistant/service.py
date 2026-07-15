@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
+from src.domains.product.models import Product
 
 from src.models.saas_core import (
-    Product,
     Order,
     Customer,
 )
@@ -65,7 +65,6 @@ def ask_ai(
     if "product" in text or "ပစ္စည်း" in text:
 
         return (
-            f"လက်ရှိ Product {data['products']} ခုရှိပါတယ်။",
             "PRODUCT"
         )
 

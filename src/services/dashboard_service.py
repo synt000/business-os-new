@@ -2,13 +2,14 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from src.models.saas_core import (
-    Product,
     Order,
     Customer,
     Supplier,
     AccountLedger,
     CustomerCreditAlert,
 )
+
+from src.domains.product.models import Product
 
 
 class DashboardService:
@@ -46,19 +47,15 @@ class DashboardService:
         sales_total = (
             db.query(func.sum(AccountLedger.amount))
             .filter(
-                AccountLedger.tenant_id == tenant_id,
-                AccountLedger.account_head == "SALES_REVENUE"
+                AccountLedger.tenant_id == tenant_id
             )
             .scalar()
             or 0
         )
 
-        credit_alerts = (
+        alerts = (
             db.query(CustomerCreditAlert)
-            .filter(
-                CustomerCreditAlert.tenant_id == tenant_id,
-                CustomerCreditAlert.status == "OPEN"
-            )
+            .filter(CustomerCreditAlert.tenant_id == tenant_id)
             .count()
         )
 
@@ -67,6 +64,6 @@ class DashboardService:
             "orders": orders,
             "customers": customers,
             "suppliers": suppliers,
-            "sales_total": round(sales_total, 2),
-            "credit_alerts": credit_alerts
+            "sales_total": sales_total,
+            "credit_alerts": alerts,
         }

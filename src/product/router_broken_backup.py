@@ -9,14 +9,12 @@ from sqlalchemy import func
 from src.core.database import get_db
 from src.core.config import settings
 from src.core.security import get_current_user
-from src.models.saas_core import User, Product, Order, OrderItem, Category, AuditLog, AccountLedger, Branch, Supplier, ProcurementLedger, Tenant, Customer, WorkspaceInvitation
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
 
 # ==========================================================================
 # PYDANTIC STRUCTURAL REQUEST PAYLOAD VALIDATION SCHEMAS
 # ==========================================================================
-class ProductCreateInboundSchema(BaseModel):
     name: str
     sku: str
     barcode: Optional[str] = None
@@ -24,7 +22,6 @@ class ProductCreateInboundSchema(BaseModel):
     purchase_price: float = 0.0
     retail_price: float = 0.0
 
-class ProductUpdateInboundSchema(BaseModel):
     name: Optional[str] = None
     barcode: Optional[str] = None
     stock_qty: Optional[int] = None
@@ -133,20 +130,16 @@ async def delete_isolated_category(category_id: int, request: Request, current_u
 # 2. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH HARDENED SUBSCRIPTION GUARDS)
 # ==========================================================================
 @router.post("/products", status_code=status.HTTP_201_CREATED)
-async def create_isolated_product_item(payload: ProductCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     if not payload.name.strip() or not payload.sku.strip():
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: NAME_AND_SKU_ARE_REQUIRED")
         
     tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
-    current_skus = db.query(func.count(Product.id)).filter(Product.tenant_id == current_user.tenant_id).scalar() or 0
     if tenant and current_skus >= tenant.max_sku_limit:
         raise HTTPException(status_code=403, detail=f"SUBSCRIPTION_LIMIT_EXCEEDED: Your current tier allows maximum {tenant.max_sku_limit} SKUs. Upgrade required.")
         
-    duplicate_sku = db.query(Product).filter(Product.sku == payload.sku, Product.tenant_id == current_user.tenant_id).first()
     if duplicate_sku:
         raise HTTPException(status_code=400, detail="CONFLICT: SKU_ALREADY_EXISTS_IN_THIS_WORKSPACE")
         
-    new_product = Product(name=payload.name, sku=payload.sku, barcode=payload.barcode, stock_qty=payload.stock_qty, purchase_price=payload.purchase_price, retail_price=payload.retail_price, tenant_id=current_user.tenant_id)
     db.add(new_product)
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)
     db.commit()
@@ -154,12 +147,9 @@ async def create_isolated_product_item(payload: ProductCreateInboundSchema, requ
 
 @router.get("/products")
 async def fetch_all_isolated_products(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    tenant_products = db.query(Product).filter(Product.tenant_id == current_user.tenant_id).all()
     return {"tenant_id": current_user.tenant_id, "total_items": len(tenant_products), "products": [{"id": p.id, "name": p.name, "sku": p.sku, "barcode": p.barcode, "stock_qty": p.stock_qty, "purchase_price": p.purchase_price, "retail_price": p.retail_price} for p in tenant_products]}
 
 @router.put("/products/{product_id}")
-async def update_isolated_product_item(product_id: str, payload: ProductUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    target_product = db.query(Product).filter(Product.id == product_id, Product.tenant_id == current_user.tenant_id).first()
     if not target_product:
         raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
     update_data = payload.dict(exclude_unset=True)
@@ -171,7 +161,6 @@ async def update_isolated_product_item(product_id: str, payload: ProductUpdateIn
 
 @router.delete("/products/{product_id}")
 async def delete_isolated_product_item(product_id: str, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    target_product = db.query(Product).filter(Product.id == product_id, Product.tenant_id == current_user.tenant_id).first()
     if not target_product:
         raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "DELETE", "PRODUCTS", f"Purged SKU record {target_product.sku}: {target_product.name}", request)
@@ -200,7 +189,6 @@ async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, r
     computed_total_pool = 0.0
     computed_cogs_pool = 0.0
     for item in payload.items:
-        target_product = db.query(Product).filter(Product.id == item.product_id, Product.tenant_id == current_user.tenant_id).first()
         if not target_product:
             raise HTTPException(status_code=404, detail=f"PRODUCT_ID_{item.product_id}_NOT_FOUND_IN_THIS_WORKSPACE")
         if target_product.stock_qty < item.quantity:
@@ -298,7 +286,6 @@ async def fetch_tenant_subscription_usage_meters(current_user: User = Depends(ge
     tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
     if not tenant: 
         raise HTTPException(status_code=404, detail="WORKSPACE_PROFILE_NOT_FOUND")
-    current_skus = db.query(func.count(Product.id)).filter(Product.tenant_id == current_user.tenant_id).scalar() or 0
     current_orders = db.query(func.count(Order.id)).filter(Order.tenant_id == current_user.tenant_id).scalar() or 0
     return {
         "workspace_id": current_user.tenant_id,
@@ -345,7 +332,6 @@ async def fetch_isolated_suppliers(current_user: User = Depends(get_current_user
 
 @router.post("/procurements", status_code=status.HTTP_201_CREATED)
 async def create_procurement_purchase_entry(payload: ProcurementCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    target_product = db.query(Product).filter(Product.id == payload.product_id, Product.tenant_id == current_user.tenant_id).first()
     target_supplier = db.query(Supplier).filter(Supplier.id == payload.supplier_id, Supplier.tenant_id == current_user.tenant_id).first()
     if not target_product or not target_supplier: 
         raise HTTPException(status_code=404, detail="PRODUCT_OR_SUPPLIER_NOT_FOUND_IN_THIS_WORKSPACE")

@@ -3,10 +3,10 @@ from datetime import datetime, time
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+
 from src.models.saas_core import (
     TenantFeature,
     DashboardMenu,
-    Product,
     Order,
     Customer,
     Payment,
@@ -136,6 +136,7 @@ def get_ceo_dashboard_summary(
     )
 
 
+
     low_stock = (
         db.query(Product)
         .filter(
@@ -144,6 +145,7 @@ def get_ceo_dashboard_summary(
         )
         .count()
     )
+
 
 
     completed_payments = (
@@ -211,15 +213,6 @@ def get_business_health_score(
 
 
 
-    # Product Stock Score (25)
-    low_stock = (
-        db.query(Product)
-        .filter(
-            Product.tenant_id == tenant_id,
-            Product.stock_qty <= Product.low_stock_threshold
-        )
-        .count()
-    )
 
     if low_stock == 0:
         stock_score = 25

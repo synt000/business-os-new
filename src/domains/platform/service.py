@@ -2,11 +2,11 @@ from datetime import datetime
 from sqlalchemy.orm import Session
 from sqlalchemy import func, text
 
+
 from src.models.saas_core import (
     User,
     Tenant,
     Order,
-    Product,
     Customer,
     Supplier,
 )
@@ -20,7 +20,6 @@ def get_platform_dashboard(db: Session):
 
     total_orders = db.query(Order).count()
 
-    total_products = db.query(Product).count()
 
     total_customers = db.query(Customer).count()
 

@@ -3,36 +3,31 @@
 clear
 
 echo "=========================================="
-echo "🚀 BUSINESS OS COMMAND CENTER"
+echo "      🚀 BUSINESS OS COMMAND CENTER"
 echo "=========================================="
-echo
 
+echo
 echo "📅 $(date)"
-echo
-
-echo "📌 CURRENT ROADMAP"
-echo "------------------------------------------"
-grep -E "^\[.\]" PROJECT_BRAIN.md 2>/dev/null
 
 echo
-echo "📋 TODO"
-echo "------------------------------------------"
-grep "\[ \]" TODO.md 2>/dev/null
+echo "🧠 CURRENT PHASE"
+grep "^Phase:" PROJECT_BRAIN.md 2>/dev/null
 
 echo
 echo "✅ COMPLETED"
-echo "------------------------------------------"
-grep "\[x\]" TODO.md 2>/dev/null
+grep "\[x\]" PROJECT_BRAIN.md
+
+echo
+echo "📋 NEXT TASKS"
+grep "\[ \]" TODO.md
 
 echo
 echo "📝 LAST CHANGE"
-echo "------------------------------------------"
-tail -5 CHANGELOG.md 2>/dev/null
+tail -5 CHANGELOG.md
 
 echo
-echo "🌿 GIT"
-echo "------------------------------------------"
-git log --oneline -1
+echo "🌿 GIT STATUS"
+git status --short
 
 echo
 echo "=========================================="

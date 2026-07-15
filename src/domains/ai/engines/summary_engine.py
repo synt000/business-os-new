@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 
 from src.models.saas_core import (
-    Product,
     SupplierPayable,
+    Product,
 )
 
 
@@ -37,6 +37,5 @@ def business_summary(
 
     return (
         "📊 Business Summary\n\n"
-        f"Products: {product_count}\n"
         f"Supplier Debt: {debt}\n"
     )

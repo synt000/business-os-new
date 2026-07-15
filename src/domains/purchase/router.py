@@ -58,11 +58,11 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
+
 from src.models.saas_core import (
     User,
     PurchaseOrder,
     PurchaseItem,
-    Product,
     ProcurementLedger,
     AccountLedger,
 )
@@ -110,7 +110,10 @@ def approve_ai_purchase(
 
         product = (
             db.query(Product)
-            .filter(Product.id == item.product_id)
+            .filter(
+                Product.id == item.product_id,
+                Product.tenant_id == current_user.tenant_id
+            )
             .first()
         )
 

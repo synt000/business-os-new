@@ -36,7 +36,6 @@ def ask_business_ai(
             "Online Shop Assistant:\n"
             "- Order checking\n"
             "- Customer reply\n"
-            "- Product suggestion\n"
             "- Sales report"
         )
 

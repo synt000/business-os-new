@@ -7,7 +7,7 @@ from src.domains.inventory.schemas import (
     StockMovementResponse,
     LowStockAlertResponse
 )
-from src.models.saas_core import Product, User
+from src.models.saas_core import User
 from src.domains.inventory.models import StockMovement
 
 from src.core.security import get_current_user
@@ -32,10 +32,6 @@ async def adjust_stock(
     db: Session = Depends(get_db)
 ):
 
-    product = db.query(Product).filter(
-        Product.id == data.product_id,
-        Product.tenant_id == current_user.tenant_id
-    ).first()
 
 
     if not product:
@@ -118,10 +114,14 @@ async def low_stock_alerts(
     db: Session = Depends(get_db)
 ):
 
-    products = db.query(Product).filter(
-        Product.tenant_id == current_user.tenant_id,
-        Product.stock_qty <= Product.low_stock_threshold
-    ).all()
+    products = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == current_user.tenant_id,
+            Product.stock_qty <= Product.low_stock_threshold
+        )
+        .all()
+    )
 
     return [
         {
@@ -144,9 +144,13 @@ async def inventory_summary(
     db: Session = Depends(get_db)
 ):
 
-    products = db.query(Product).filter(
-        Product.tenant_id == current_user.tenant_id
-    ).all()
+    products = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == current_user.tenant_id
+        )
+        .all()
+    )
 
 
     total_products = len(products)

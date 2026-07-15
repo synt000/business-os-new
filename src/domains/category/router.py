@@ -3,7 +3,9 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
-from src.models.saas_core import User, Category
+from src.models.saas_core import User
+from src.domains.category.models import Category
+from src.domains.category.models import Category
 
 router = APIRouter(
     prefix="/api/v4/business/categories",

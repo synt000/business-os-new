@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from src.models.saas_core import Product
+from src.domains.product.models import Product
 from src.domains.inventory.models import StockMovement
 
 

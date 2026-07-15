@@ -10,7 +10,6 @@ db = SessionLocal()
 
 menus = [
 
-("PRODUCT","Products","📦","/products"),
 ("ORDER","Orders","🛒","/orders"),
 ("CUSTOMER","Customers","👥","/customers"),
 ("PAYMENT","Payments","💳","/payments"),

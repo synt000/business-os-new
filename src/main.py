@@ -5,6 +5,13 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.openapi.docs import get_swagger_ui_html
 
+# ==========================================
+# SQLAlchemy Model Registry Preload
+# ==========================================
+import src.models
+import src.domains.product.models
+import src.domains.category.models
+
 from src.core.config import settings
 from src.core.middlewares import SecurityInfrastructureMiddleware, setup_global_exception_handlers
 from src.auth.router import router as auth_router
@@ -174,3 +181,35 @@ app.include_router(social_router)
 from src.domains.hr.router import router as hr_router
 
 app.include_router(hr_router)
+
+@app.get("/", response_class=HTMLResponse)
+def landing():
+    with open("src/templates/landing.html", encoding="utf-8") as f:
+        return HTMLResponse(f.read())
+
+
+from src.domains.tenant.router import router as tenant_router
+app.include_router(tenant_router)
+
+
+from src.domains.trial.router import router as trial_router
+app.include_router(trial_router)
+
+
+from fastapi import Form
+from fastapi.responses import RedirectResponse
+
+@app.get("/signup", response_class=HTMLResponse)
+def signup_page():
+    with open("src/templates/signup.html", encoding="utf-8") as f:
+        return HTMLResponse(f.read())
+
+@app.post("/signup")
+def handle_signup(name: str = Form(...)):
+    # simulate tenant + trial creation
+    return RedirectResponse(url="/dashboard", status_code=302)
+
+
+from src.domains.audit.router import router as audit_router
+app.include_router(audit_router)
+

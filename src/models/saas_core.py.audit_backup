@@ -126,6 +126,21 @@ class BillingReceipt(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="receipts")
 
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    action_type = Column(String, nullable=False, index=True)
+    module_name = Column(String, nullable=False, index=True)
+    details_log = Column(Text, nullable=False)
+    ip_address = Column(String, default="127.0.0.1")
+    logged_at = Column(DateTime, default=datetime.utcnow, index=True)
+
+    user_id = Column(String, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
+    user = relationship("User", back_populates="audit_logs")
+    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
+    tenant = relationship("Tenant", back_populates="audit_logs")
+
 class AccountLedger(Base):
     __tablename__ = "account_ledgers"
 

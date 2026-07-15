@@ -9,12 +9,11 @@ from sqlalchemy import func
 from src.core.database import get_db
 from src.core.config import settings
 from src.core.security import get_current_user
-from src.domains.audit.models import AuditLog
-
 from src.models.saas_core import (
     User,
     Order,
     OrderItem,
+    AuditLog,
     AccountLedger,
     Branch,
     Supplier,
@@ -28,12 +27,9 @@ from src.domains.category.models import Category
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
 
-
 # ==========================================================================
 # PYDANTIC STRUCTURAL REQUEST PAYLOAD VALIDATION SCHEMAS
 # ==========================================================================
-
-class ProductCreateInboundSchema(BaseModel):
     name: str
     sku: str
     barcode: Optional[str] = None
@@ -41,8 +37,6 @@ class ProductCreateInboundSchema(BaseModel):
     purchase_price: float = 0.0
     retail_price: float = 0.0
 
-
-class ProductUpdateInboundSchema(BaseModel):
     name: Optional[str] = None
     barcode: Optional[str] = None
     stock_qty: Optional[int] = None
@@ -151,12 +145,6 @@ async def delete_isolated_category(category_id: int, request: Request, current_u
 # 2. CORE PRODUCTS CRUD PIPELINES MATRIX (WITH HARDENED SUBSCRIPTION GUARDS)
 # ==========================================================================
 @router.post("/products", status_code=status.HTTP_201_CREATED)
-async def create_isolated_product_item(
-    payload: ProductCreateInboundSchema,
-    request: Request,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
     if not payload.name.strip() or not payload.sku.strip():
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: NAME_AND_SKU_ARE_REQUIRED")
         
@@ -177,18 +165,6 @@ async def fetch_all_isolated_products(current_user: User = Depends(get_current_u
     return {"tenant_id": current_user.tenant_id, "total_items": len(tenant_products), "products": [{"id": p.id, "name": p.name, "sku": p.sku, "barcode": p.barcode, "stock_qty": p.stock_qty, "purchase_price": p.purchase_price, "retail_price": p.retail_price} for p in tenant_products]}
 
 @router.put("/products/{product_id}")
-async def update_isolated_product_item(
-    product_id: str,
-    payload: ProductUpdateInboundSchema,
-    request: Request,
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-    target_product = db.query(Product).filter(
-        Product.id == product_id,
-        Product.tenant_id == current_user.tenant_id
-    ).first()
-
     if not target_product:
         raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
     update_data = payload.dict(exclude_unset=True)
