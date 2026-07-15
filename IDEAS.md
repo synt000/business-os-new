@@ -1,17 +1,11 @@
 # IDEAS
 
-Future
+Future Ideas
 
-Marketplace
-
-AI Assistant
-
-Accounting
-
-CRM
-
-POS
-
-Warehouse
-
-Franchise
+- AI Assistant
+- Voice Order
+- WhatsApp Integration
+- Telegram Commerce
+- QR Ordering
+- Customer Wallet
+- Loyalty System

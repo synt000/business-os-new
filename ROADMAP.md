@@ -1,16 +1,21 @@
 # BUSINESS OS ROADMAP
 
-## Phase 1
+## PHASE 1 (Current)
+
 [x] SaaS Core
-[x] Authentication
-[x] Owner Dashboard
 [x] Permission System
+[x] Project Management System
+
+Current Target:
 
 [ ] Landing Website
-[ ] Business Rental
-[ ] Trial System
+[ ] Business Rental System
+[ ] Customer Portal
+[ ] Trial Registration
 
-## Phase 2
+---
+
+## PHASE 2
 
 [ ] Online Shop
 [ ] Beauty Salon
@@ -18,12 +23,20 @@
 [ ] Retail / Wholesale
 [ ] 2D Seller
 
-## Phase 3
+---
 
-[ ] 28 Business Vertical
-
-## Phase 4
+## PHASE 3
 
 [ ] AI
-[ ] Analytics
-[ ] Enterprise
+[ ] Mobile App
+[ ] POS
+[ ] Payment Gateway
+[ ] Reports
+
+---
+
+## PHASE 4
+
+[ ] 28 Business Types
+[ ] Marketplace
+[ ] Enterprise Edition

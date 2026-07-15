@@ -1,3 +1,5 @@
-# BUG LIST
+# BUG TRACKER
+
+Open Bugs
 
 None
