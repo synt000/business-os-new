@@ -2,32 +2,34 @@
 
 clear
 
-echo "=========================================="
-echo "      🚀 BUSINESS OS COMMAND CENTER"
-echo "=========================================="
+echo "========================================"
+echo "   🚀 BUSINESS OS COMMAND CENTER"
+echo "========================================"
+echo
+
+echo "📍 CURRENT PHASE"
+echo "----------------"
+grep "Current Phase" -A6 PROJECT_BRAIN.md 2>/dev/null
 
 echo
-echo "📅 $(date)"
-
-echo
-echo "🧠 CURRENT PHASE"
-grep "^Phase:" PROJECT_BRAIN.md 2>/dev/null
+echo "📋 TODO"
+echo "--------"
+grep "\[ \]" TODO.md 2>/dev/null
 
 echo
 echo "✅ COMPLETED"
-grep "\[x\]" PROJECT_BRAIN.md
-
-echo
-echo "📋 NEXT TASKS"
-grep "\[ \]" TODO.md
+echo "------------"
+grep "\[x\]" TODO.md 2>/dev/null
 
 echo
 echo "📝 LAST CHANGE"
-tail -5 CHANGELOG.md
+echo "--------------"
+tail -5 CHANGELOG.md 2>/dev/null
 
 echo
 echo "🌿 GIT STATUS"
+echo "-------------"
 git status --short
 
 echo
-echo "=========================================="
+echo "========================================"

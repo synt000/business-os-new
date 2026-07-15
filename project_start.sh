@@ -2,47 +2,41 @@
 
 clear
 
-echo "=========================================="
-echo "🚀 BUSINESS OS ENTERPRISE"
-echo "=========================================="
+cd ~/business-os-new || exit
 
-echo ""
+echo "==========================================="
+echo "      🚀 BUSINESS OS COMMAND CENTER"
+echo "==========================================="
+echo
+
 echo "📅 $(date)"
-echo ""
+echo
 
-echo "🧠 PROJECT STATUS"
-echo "------------------------------------------"
+echo "📌 CURRENT PHASE"
+echo "----------------"
 
-grep "\[x\]" PROJECT_BRAIN.md
+grep "^## Current Status" -A20 PROJECT_BRAIN.md 2>/dev/null
 
-echo ""
-echo "📋 NEXT TASKS"
-echo "------------------------------------------"
+echo
+echo "📋 TODO"
+echo "--------"
 
-grep "\[ \]" TODO.md
+grep "\[ \]" TODO.md 2>/dev/null
 
-echo ""
+echo
+echo "✅ COMPLETED"
+
+grep "\[x\]" TODO.md 2>/dev/null
+
+echo
 echo "📝 LAST CHANGE"
-echo "------------------------------------------"
 
-tail -5 CHANGELOG.md
+tail -5 CHANGELOG.md 2>/dev/null
 
-echo ""
+echo
 echo "🌿 GIT STATUS"
-echo "------------------------------------------"
 
 git status --short
 
-echo ""
-
-if git diff --quiet && git diff --cached --quiet
-then
-    echo "✅ Working Tree Clean"
-else
-    echo "⚠ Uncommitted Changes"
-fi
-
-echo ""
-echo "=========================================="
-echo " Ready To Build Business OS"
-echo "=========================================="
+echo
+echo "==========================================="

@@ -2,41 +2,44 @@
 
 clear
 
-echo "=========================================="
-echo "🚀 BUSINESS OS COMMAND CENTER"
-echo "=========================================="
+echo "=================================================="
+echo "        🚀 BUSINESS OS COMMAND CENTER"
+echo "=================================================="
+echo
+
+echo "📅 Date : $(date)"
+echo
+
+echo "🧠 CURRENT PHASE"
+echo "--------------------------------------------------"
+grep "Current Status" -A20 PROJECT_BRAIN.md 2>/dev/null
 
 echo
-echo "📂 Project:"
-pwd
-
-echo
-echo "🧠 Current Phase"
-grep -A10 "## Current Status" PROJECT_BRAIN.md
-
-echo
-echo "------------------------------------------"
 echo "📋 TODO"
-echo "------------------------------------------"
-grep "\[ \]" TODO.md
+echo "--------------------------------------------------"
+grep "\[ \]" TODO.md 2>/dev/null
 
 echo
-echo "------------------------------------------"
-echo "✅ Completed"
-echo "------------------------------------------"
-grep "\[x\]" TODO.md
+echo "✅ COMPLETED"
+echo "--------------------------------------------------"
+grep "\[x\]" TODO.md 2>/dev/null
 
 echo
-echo "------------------------------------------"
-echo "📝 Latest Change"
-echo "------------------------------------------"
-tail -5 CHANGELOG.md
+echo "📝 LAST CHANGE"
+echo "--------------------------------------------------"
+tail -5 CHANGELOG.md 2>/dev/null
 
 echo
-echo "------------------------------------------"
-echo "🌿 Git Status"
-echo "------------------------------------------"
+echo "🌿 GIT STATUS"
+echo "--------------------------------------------------"
 git status --short
+echo
+
+if git diff --quiet && git diff --cached --quiet; then
+    echo "✅ Working tree clean"
+else
+    echo "⚠️ Uncommitted changes detected"
+fi
 
 echo
-echo "=========================================="
+echo "=================================================="

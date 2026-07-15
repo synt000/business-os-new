@@ -3,7 +3,7 @@
 
 ## Website Rental
 
-[ ] Landing Page Design
+[x] Landing Page Design
 
 [ ] Business Card UI
 
