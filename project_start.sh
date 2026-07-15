@@ -2,41 +2,34 @@
 
 clear
 
-cd ~/business-os-new || exit
-
-echo "==========================================="
-echo "      🚀 BUSINESS OS COMMAND CENTER"
-echo "==========================================="
-echo
-
-echo "📅 $(date)"
+echo "========================================"
+echo "🚀 BUSINESS OS COMMAND CENTER"
+echo "========================================"
 echo
 
 echo "📌 CURRENT PHASE"
 echo "----------------"
-
-grep "^## Current Status" -A20 PROJECT_BRAIN.md 2>/dev/null
+grep -A15 "## Current Status" PROJECT_BRAIN.md 2>/dev/null
 
 echo
 echo "📋 TODO"
 echo "--------"
-
 grep "\[ \]" TODO.md 2>/dev/null
 
 echo
 echo "✅ COMPLETED"
-
+echo "------------"
 grep "\[x\]" TODO.md 2>/dev/null
 
 echo
 echo "📝 LAST CHANGE"
-
+echo "--------------"
 tail -5 CHANGELOG.md 2>/dev/null
 
 echo
-echo "🌿 GIT STATUS"
-
-git status --short
+echo "🌿 LAST GIT COMMIT"
+echo "------------------"
+git log --oneline -1
 
 echo
-echo "==========================================="
+echo "========================================"

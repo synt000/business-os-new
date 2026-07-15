@@ -2,24 +2,28 @@
 
 ## Phase 1
 [x] SaaS Core
+[x] Authentication
+[x] Owner Dashboard
 [x] Permission System
-[x] Project Management System
 
-## Phase 2
 [ ] Landing Website
 [ ] Business Rental
-[ ] Business Registration
 [ ] Trial System
 
+## Phase 2
+
+[ ] Online Shop
+[ ] Beauty Salon
+[ ] Mini Mart
+[ ] Retail / Wholesale
+[ ] 2D Seller
+
 ## Phase 3
-[ ] Payment Gateway
-[ ] Subscription
-[ ] AI Dashboard
+
+[ ] 28 Business Vertical
 
 ## Phase 4
-[ ] Mobile App
-[ ] Push Notification
-[ ] Marketplace
 
-## Phase 5
-[ ] 28 Business Verticals
+[ ] AI
+[ ] Analytics
+[ ] Enterprise
