@@ -5,7 +5,7 @@
 
 [x] Landing Page Design
 
-[ ] Business Card UI
+[x] Business Card UI
 
 [ ] Mobile Auto Navigation
 
