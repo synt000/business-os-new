@@ -13,6 +13,8 @@ from src.models.saas_core import (
     SupplierPayable,
 )
 
+from src.domains.product.models import Product
+
 
 
 def create_purchase(

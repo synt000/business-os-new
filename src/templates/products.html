@@ -5,62 +5,307 @@
 
 <title>Manage Products</title>
 
-<style>
 
+<style>
 body{
-background:#111827;
-color:white;
-font-family:Arial;
-padding:20px;
+ background:#0f172a;
+ color:#f8fafc;
+ font-family:Arial,sans-serif;
+ padding:20px;
+}
+
+h2{
+ font-size:28px;
 }
 
 .box{
-background:#1f2937;
-padding:15px;
-border-radius:12px;
-margin-bottom:15px;
+ background:#1e293b;
+ padding:20px;
+ border-radius:16px;
+ margin-bottom:20px;
+ box-shadow:0 10px 25px #0005;
 }
 
 input{
-width:95%;
-padding:10px;
-margin:5px 0;
-border-radius:8px;
-border:0;
+ width:95%;
+ padding:12px;
+ margin:6px 0;
+ border-radius:10px;
+ border:1px solid #334155;
+ background:#0f172a;
+ color:white;
 }
 
 button{
-padding:10px;
-border:0;
-border-radius:8px;
-background:#2563eb;
-color:white;
-margin-top:5px;
+ padding:10px 16px;
+ border:0;
+ border-radius:10px;
+ cursor:pointer;
+ color:white;
+ background:#2563eb;
 }
-
 
 .product{
-background:#374151;
-padding:15px;
-margin:10px 0;
-border-radius:10px;
+ background:#1e293b;
+ padding:18px;
+ margin:12px 0;
+ border-radius:16px;
+ border:1px solid #334155;
+}
+
+.product h3{
+ margin-top:0;
+ color:#38bdf8;
+}
+
+.edit{
+ background:#16a34a;
+ margin-right:8px;
+}
+
+.delete{
+ background:#dc2626;
+}
+
+.badge{
+ display:inline-block;
+ padding:4px 10px;
+ border-radius:20px;
+ font-size:12px;
+ background:#334155;
+}
+
+.price{
+ color:#facc15;
+ font-weight:bold;
+}
+
+.stock-ok{
+ color:#22c55e;
+}
+
+.history-in{
+ background:#166534;
+ color:#bbf7d0;
+ padding:5px 10px;
+ border-radius:20px;
+ font-weight:bold;
 }
 
 
-.delete{
+.history-qty-in{
+ color:#22c55e;
+ font-weight:bold;
+}
+
+.history-qty-out{
+ color:#ef4444;
+ font-weight:bold;
+}
+
+.history-out{
+ background:#991b1b;
+ color:#fecaca;
+ padding:5px 10px;
+ border-radius:20px;
+ font-weight:bold;
+}
+
+.history-table{
+ width:100%;
+ margin-top:20px;
+ border-collapse:collapse;
+}
+
+.history-table th{
+ background:#334155;
+ padding:12px;
+}
+
+.history-table td{
+ padding:10px;
+ border-bottom:1px solid #334155;
+}
+
+.stock-low{
+ color:#f97316;
+}
+
+.stock-zero{
+ color:#ef4444;
+}
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#0008;
+align-items:center;
+justify-content:center;
+}
+
+.modal-box{
+background:#1e293b;
+padding:25px;
+border-radius:20px;
+width:320px;
+box-shadow:0 20px 50px #000;
+}
+
+.modal-box input{
+width:90%;
+}
+
+.close{
 background:#dc2626;
 }
 
+.save{
+background:#16a34a;
+}
+
+
+.dashboard{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:12px;
+margin-bottom:20px;
+}
+
+.card{
+background:#1e293b;
+padding:15px;
+border-radius:16px;
+box-shadow:0 10px 25px #0005;
+font-size:18px;
+}
+
+.card span{
+display:block;
+font-size:28px;
+font-weight:bold;
+margin-top:8px;
+}
+
+
+
+table{
+border-collapse:collapse;
+}
+
+th,td{
+padding:10px;
+border-bottom:1px solid #334155;
+text-align:left;
+}
 
 </style>
 
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
 </head>
+
 
 
 <body>
 
 
+
 <h2>📦 Manage Products</h2>
+
+<div class="dashboard">
+
+<div class="card">
+📦 Products
+<span id="totalProducts">0</span>
+</div>
+
+<div class="card">
+✅ Available
+<span id="availableProducts">0</span>
+</div>
+
+<div class="card">
+⚠️ Low Stock
+<span id="lowProducts">0</span>
+</div>
+
+<div class="card">
+❌ Out Stock
+<span id="outProducts">0</span>
+</div>
+
+
+<div class="card">
+📦 Total Units
+<span id="totalUnits">0</span>
+</div>
+
+<div class="card">
+💰 Stock Value
+<span id="inventoryValue">0 MMK</span>
+</div>
+
+<div class="card">
+📉 Inventory Qty
+<span id="inventoryQty">0</span>
+</div>
+
+<div class="card">
+💵 Avg Value / Unit
+<span id="avgValue">0 MMK</span>
+</div>
+
+
+<div class="card">
+💰 Inventory Cost
+<span id="inventoryCost">0 MMK</span>
+</div>
+
+<div class="card">
+📈 Potential Revenue
+<span id="potentialRevenue">0 MMK</span>
+</div>
+
+<div class="card">
+💵 Expected Profit
+<span id="expectedProfit">0 MMK</span>
+</div>
+
+<div class="card">
+📊 Profit Margin
+<span id="profitMargin">0 %</span>
+</div>
+<div class="card">
+🔔 Need Restock
+<span id="restockProducts">0</span>
+</div>
+
+
+
+</div>
+<div class="box">
+<h3>🚨 Restock Recommendation</h3>
+<div id="restockList">
+Loading...
+</div>
+</div>
+
+
+
+
+<div class="box">
+
+<h3>📈 Stock Movement</h3>
+
+<canvas id="stockChart" height="120"></canvas>
+
+</div>
 
 
 <div class="box">
@@ -100,7 +345,32 @@ onkeyup="loadProducts()">
 
 
 
+
 <div id="list"></div>
+
+<div class="box">
+<h3>📜 Stock History</h3>
+
+<table style="width:100%;color:white;">
+<thead>
+<tr>
+<th>Date</th>
+<th>Product</th>
+<th>Action</th>
+<th>Qty</th>
+<th>Before</th>
+<th>After</th>
+<th>Reason</th>
+</tr>
+</thead>
+
+<tbody id="history">
+</tbody>
+
+</table>
+
+</div>
+
 
 
 
@@ -108,11 +378,13 @@ onkeyup="loadProducts()">
 
 
 const token =
-localStorage.getItem("token");
+localStorage.getItem("access_token");
 
 
 
 async function loadProducts(){
+
+console.log("LOAD PRODUCTS START");
 
 
 let res =
@@ -129,6 +401,82 @@ headers:{
 let data =
 await res.json();
 
+console.log("TOKEN:", token);
+console.log("PRODUCT RESPONSE:", data);
+
+console.log("PRODUCT COUNT:", data.products.length);
+
+let total = data.products.length;
+
+
+// PROFIT CALCULATION
+
+let inventoryCost = 0;
+let potentialRevenue = 0;
+
+data.products.forEach(p=>{
+
+    inventoryCost += 
+    (p.purchase_price || 0) * (p.stock_qty || 0);
+
+    potentialRevenue +=
+    (p.retail_price || 0) * (p.stock_qty || 0);
+
+});
+
+
+let expectedProfit =
+potentialRevenue - inventoryCost;
+
+
+let profitMargin =
+potentialRevenue
+? ((expectedProfit / potentialRevenue) * 100).toFixed(2)
+: 0;
+
+
+document.getElementById("inventoryCost").innerText =
+inventoryCost.toLocaleString()+" MMK";
+
+
+document.getElementById("potentialRevenue").innerText =
+potentialRevenue.toLocaleString()+" MMK";
+
+
+document.getElementById("expectedProfit").innerText =
+expectedProfit.toLocaleString()+" MMK";
+
+
+document.getElementById("profitMargin").innerText =
+profitMargin+" %";
+
+
+
+let available = data.products.filter(
+p=>p.stock_qty > 10
+).length;
+
+let low = data.products.filter(
+p=>p.stock_qty > 0 && p.stock_qty <= (p.reorder_level || 5)
+).length;
+
+let out = data.products.filter(
+p=>p.stock_qty === 0
+).length;
+
+let restock = data.products.filter(
+p => p.need_restock === true
+).length;
+
+document.getElementById("restockProducts").innerText = restock;
+
+
+document.getElementById("totalProducts").innerText = total;
+document.getElementById("availableProducts").innerText = available;
+document.getElementById("lowProducts").innerText = low;
+document.getElementById("outProducts").innerText = out;
+
+
 
 let search =
 document.getElementById("search").value
@@ -137,6 +485,33 @@ document.getElementById("search").value
 
 
 let html="";
+
+let restockHTML = "";
+
+data.products
+.filter(p=>p.need_restock === true)
+.forEach(p=>{
+
+restockHTML += `
+<div class="restock-item">
+📦 ${p.name}<br>
+SKU: ${p.sku}<br>
+Current Stock: <b>${p.stock_qty}</b><br>
+🔔 Reorder Level: <b>${p.reorder_level || 5}</b><br>
+⚠️ Need: <b>${((p.reorder_level || 5) - p.stock_qty)} Units</b>
+<br>
+<button class="save" onclick="quickRestock('${p.id}',${((p.reorder_level || 5) - p.stock_qty)})">
+➕ Restock ${((p.reorder_level || 5) - p.stock_qty)}
+</button>
+</div>
+<hr>
+`;
+
+});
+
+document.getElementById("restockList").innerHTML =
+restockHTML || "✅ All stock levels OK";
+
 
 
 data.products
@@ -150,43 +525,111 @@ p.name.toLowerCase()
 html += `
 
 <div class="product">
+<h3>📦 ${p.name}</h3>
+<div class="badge">SKU: ${p.sku}</div>
+<br>
+<div class="${
+p.stock_qty === 0
+? 'stock-zero'
+: p.stock_qty <= (p.reorder_level || 5)
+? 'stock-low'
+: 'stock-ok'
+}">
+📦 Stock: ${p.stock_qty}
 
+${
+p.stock_qty === 0
+? " ❌ OUT OF STOCK"
+: p.stock_qty <= (p.reorder_level || 5)
+? " ⚠️ LOW STOCK"
+: " ✅ AVAILABLE"
+}
 
-<h3>
-📦 ${p.name}
-</h3>
+</div>
 
+<button class="save" onclick="changeStock('${p.id}',1)">
+➕ Stock
+</button>
 
-SKU:
-${p.sku}
+<button class="delete" onclick="changeStock('${p.id}',-1)">
+➖ Stock
+</button>
+
+<br>
+<div>🛒 Buy: <span class="price">${p.purchase_price}</span></div>
+<br>
+<div>💰 Sell: <span class="price">${p.retail_price}</span></div>
+
+<br>
+
+<div>
+🔔 Reorder Level:
+<span class="price">
+${p.reorder_level || 5}
+</span>
+</div>
+
+<div>
+${
+p.need_restock
+?
+`⚠️ Need Restock: ${((p.reorder_level || 5) - p.stock_qty)} Units`
+:
+`✅ Stock Level OK`
+}
+</div>
+
 <br>
 
 
-Stock:
-${p.stock_qty}
+<div>
+${p.purchase_price > 0 ? `
+📊 Profit / Unit:
+<span class="price">
+${(p.retail_price-p.purchase_price).toLocaleString()} MMK
+</span>
 
 <br>
 
-
-Buy:
-${p.purchase_price}
+💵 Stock Profit:
+<span class="price">
+${((p.retail_price-p.purchase_price)*p.stock_qty).toLocaleString()} MMK
+</span>
 
 <br>
 
+📈 Margin:
+<span class="price">
+${(((p.retail_price-p.purchase_price)/p.retail_price)*100).toFixed(2)}%
+</span>
 
-Sell:
-${p.retail_price}
+` : `
 
+⚠️ Cost Missing
 
+<br>
+
+💵 Stock Profit:
+<span class="price">
+N/A
+</span>
+
+<br>
+
+📈 Margin:
+<span class="price">
+N/A
+</span>
+
+`}
+</div>
 
 <br><br>
-
-
-<button class="delete"
-onclick="deleteProduct('${p.id}')">
-
+<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+✏️ Edit
+</button>
+<button class="delete" onclick="deleteProduct('${p.id}')">
 🗑 Delete
-
 </button>
 
 
@@ -210,52 +653,57 @@ document.getElementById("list")
 
 async function addProduct(){
 
+let token = localStorage.getItem("access_token");
+
+if(!token){
+    alert("LOGIN REQUIRED");
+    return;
+}
+
+
+
+
 
 let body={
 
 
-name:
-name.value,
+name: document.getElementById("name").value,
 
 
-sku:
-sku.value,
+sku: document.getElementById("sku").value,
 
 
-barcode:
-barcode.value,
+barcode: document.getElementById("barcode").value,
 
 
 stock_qty:
-Number(stock.value),
+Number(document.getElementById("stock").value),
 
 
 purchase_price:
-Number(purchase.value),
+Number(document.getElementById("purchase").value),
 
 
 retail_price:
-Number(retail.value)
+Number(document.getElementById("retail").value)
 
 
 };
 
 
 
-await fetch(
+let res = await fetch(
 "/api/v4/business/products",
 {
 
 method:"POST",
 
 headers:{
-
 "Authorization":
 "Bearer "+token,
 
 "Content-Type":
 "application/json"
-
 },
 
 body:
@@ -263,17 +711,78 @@ JSON.stringify(body)
 
 });
 
+let text = await res.text();
 
-alert("Product Added");
+console.log("ADD RESPONSE:", res.status, text);
 
+alert(res.status + "\n" + text);
 
 loadProducts();
+loadStockHistory();
+loadInventorySummary();
 
 
 }
 
 
 
+
+
+let editId = null;
+
+
+function editProduct(id,name,price){
+
+editId = id;
+
+document.getElementById("editName").value = name;
+document.getElementById("editPrice").value = price;
+
+document.getElementById("editModal").style.display="flex";
+
+}
+
+
+function closeEdit(){
+
+document.getElementById("editModal").style.display="none";
+
+}
+
+
+async function saveEdit(){
+
+let name =
+document.getElementById("editName").value;
+
+let price =
+Number(document.getElementById("editPrice").value);
+
+
+let res = await fetch(
+"/api/v4/business/products/"+editId,
+{
+method:"PUT",
+headers:{
+"Authorization":"Bearer "+token,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name:name,
+retail_price:price
+})
+});
+
+
+let text = await res.text();
+
+alert("UPDATE\n"+res.status+"\n"+text);
+
+closeEdit();
+
+loadProducts();
+
+}
 
 
 async function deleteProduct(id){
@@ -309,8 +818,282 @@ loadProducts();
 loadProducts();
 
 
+
+
+
+
+
+
+async function quickRestock(id,qty){
+
+let res = await fetch(
+"/api/v4/business/products/"+id+"/stock",
+{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+token,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+quantity:qty,
+reason:"Restock"
+})
+});
+
+let data = await res.json();
+console.log("RESTOCK:",data);
+
+loadProducts();
+loadStockHistory();
+loadInventorySummary();
+
+}
+
+
+async function changeStock(id,amount){
+
+let qty = prompt(
+"📦 Enter Stock Quantity:",
+"1"
+);
+
+if(qty===null) return;
+
+
+let reason = prompt(
+"📝 Reason:",
+amount > 0 ? "Stock IN" : "Stock OUT"
+);
+
+
+let res = await fetch(
+"/api/v4/business/products/"+id+"/stock",
+{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+token,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+quantity:Number(qty)*amount,
+reason:reason
+})
+});
+
+
+let text = await res.text();
+
+alert(
+"STOCK UPDATE\n"+
+res.status+
+"\n"+
+text
+);
+
+
+loadProducts();
+
+}
+
+
+
+
+
+function formatDate(date){
+    if(!date) return "";
+
+    let d = new Date(date);
+
+    return d.toLocaleString("en-GB",{
+        day:"2-digit",
+        month:"short",
+        year:"numeric",
+        hour:"2-digit",
+        minute:"2-digit"
+    });
+}
+
+
+
+async function loadInventorySummary(){
+
+let res = await fetch(
+"/api/v4/business/inventory-summary",
+{
+headers:{
+"Authorization":"Bearer "+token
+}
+});
+
+if(!res.ok) return;
+
+let data = await res.json();
+
+document.getElementById("totalUnits").innerText =
+data.total_units;
+
+document.getElementById("inventoryValue").innerText =
+data.inventory_value.toLocaleString()+" MMK";
+
+document.getElementById("inventoryQty").innerText =
+data.total_products;
+
+document.getElementById("avgValue").innerText =
+data.total_products
+? Math.round(data.inventory_value/data.total_products).toLocaleString()+" MMK"
+: "0 MMK";
+
+}
+
+
+
+async function loadStockChart(){
+
+let res = await fetch(
+"/api/v4/business/stock-movements",
+{
+headers:{
+"Authorization":"Bearer "+token
+}
+});
+
+if(!res.ok) return;
+
+let data = await res.json();
+console.log("STOCK CHART DATA:", data);
+
+let inQty = data
+.filter(x=>x.movement_type==="IN")
+.reduce((a,b)=>a+b.quantity_change,0);
+
+let outQty = data
+.filter(x=>x.movement_type==="OUT")
+.reduce((a,b)=>a+Math.abs(b.quantity_change),0);
+
+
+new Chart(
+document.getElementById("stockChart"),
+{
+type:"bar",
+data:{
+labels:[
+"🟢 IN",
+"🔴 OUT"
+],
+datasets:[
+{
+label:"Stock Movement",
+data:[
+inQty,
+outQty
+]
+}
+]
+},
+options:{
+responsive:true
+}
+}
+);
+
+}
+
+
+async function loadStockHistory(){
+
+let res = await fetch(
+"/api/v4/business/stock-movements",
+{
+headers:{
+"Authorization":"Bearer "+token
+}
+});
+
+if(!res.ok) return;
+
+let data = await res.json();
+
+let html="";
+
+data.forEach(m=>{
+
+html += `
+<tr>
+
+<td>${formatDate(m.created_at)}</td>
+
+<td>${m.product_name || m.product_id}</td>
+
+<td>
+${
+m.movement_type==="IN"
+?
+'<span class="history-in">🟢 IN</span>'
+:
+'<span class="history-out">🔴 OUT</span>'
+}
+</td>
+
+<td>
+${
+m.quantity_change > 0
+?
+`<span class="history-qty-in">+${m.quantity_change}</span>`
+:
+`<span class="history-qty-out">${m.quantity_change}</span>`
+}
+</td>
+
+<td>${m.before_quantity}</td>
+
+<td>${m.after_quantity}</td>
+<td>${m.reason || ""}</td>
+
+</tr>
+`;
+
+});
+
+
+document.getElementById("history").innerHTML=html;
+
+}
+
+
+
+loadProducts();
+loadStockHistory();
+loadInventorySummary();
+
+setTimeout(()=>{
+    loadStockChart();
+},500);
+
 </script>
 
+
+
+<div id="editModal" class="modal">
+<div class="modal-box">
+
+<h3>✏️ Edit Product</h3>
+
+<input id="editName" placeholder="Product Name">
+
+<input id="editPrice" placeholder="Retail Price">
+
+<br><br>
+
+<button class="save" onclick="saveEdit()">
+💾 Save
+</button>
+
+<button class="close" onclick="closeEdit()">
+❌ Cancel
+</button>
+
+</div>
+</div>
 
 </body>
 

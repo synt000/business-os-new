@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Manage Products</title>
+
+
+<style>
+body{
+ background:#0f172a;
+ color:#f8fafc;
+ font-family:Arial,sans-serif;
+ padding:20px;
+}
+
+h2{
+ font-size:28px;
+}
+
+.box{
+ background:#1e293b;
+ padding:20px;
+ border-radius:16px;
+ margin-bottom:20px;
+ box-shadow:0 10px 25px #0005;
+}
+
+input{
+ width:95%;
+ padding:12px;
+ margin:6px 0;
+ border-radius:10px;
+ border:1px solid #334155;
+ background:#0f172a;
+ color:white;
+}
+
+button{
+ padding:10px 16px;
+ border:0;
+ border-radius:10px;
+ cursor:pointer;
+ color:white;
+ background:#2563eb;
+}
+
+.product{
+ background:#1e293b;
+ padding:18px;
+ margin:12px 0;
+ border-radius:16px;
+ border:1px solid #334155;
+}
+
+.product h3{
+ margin-top:0;
+ color:#38bdf8;
+}
+
+.edit{
+ background:#16a34a;
+ margin-right:8px;
+}
+
+.delete{
+ background:#dc2626;
+}
+
+.badge{
+ display:inline-block;
+ padding:4px 10px;
+ border-radius:20px;
+ font-size:12px;
+ background:#334155;
+}
+
+.price{
+ color:#facc15;
+ font-weight:bold;
+}
+
+.stock-ok{
+ color:#22c55e;
+}
+
+.stock-low{
+ color:#f97316;
+}
+
+.stock-zero{
+ color:#ef4444;
+}
+
+.modal{
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:#0008;
+align-items:center;
+justify-content:center;
+}
+
+.modal-box{
+background:#1e293b;
+padding:25px;
+border-radius:20px;
+width:320px;
+box-shadow:0 20px 50px #000;
+}
+
+.modal-box input{
+width:90%;
+}
+
+.close{
+background:#dc2626;
+}
+
+.save{
+background:#16a34a;
+}
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<h2>📦 Manage Products</h2>
+
+
+<div class="box">
+
+<h3>Add Product</h3>
+
+
+<input id="name" placeholder="Product Name">
+
+<input id="sku" placeholder="SKU">
+
+<input id="barcode" placeholder="Barcode">
+
+<input id="stock" placeholder="Stock Qty">
+
+<input id="purchase" placeholder="Purchase Price">
+
+<input id="retail" placeholder="Retail Price">
+
+
+<button onclick="addProduct()">
+➕ Add
+</button>
+
+
+</div>
+
+
+
+<div class="box">
+
+<input id="search"
+placeholder="🔍 Search Product"
+onkeyup="loadProducts()">
+
+</div>
+
+
+
+<div id="list"></div>
+
+
+
+<script>
+
+
+const token =
+localStorage.getItem("access_token");
+
+
+
+async function loadProducts(){
+
+
+let res =
+await fetch(
+"/api/v4/business/products",
+{
+headers:{
+"Authorization":
+"Bearer "+token
+}
+});
+
+
+let data =
+await res.json();
+
+
+let search =
+document.getElementById("search").value
+.toLowerCase();
+
+
+
+let html="";
+
+
+data.products
+.filter(p=>
+p.name.toLowerCase()
+.includes(search)
+)
+.forEach(p=>{
+
+
+html += `
+
+<div class="product">
+<h3>📦 ${p.name}</h3>
+<div class="badge">SKU: ${p.sku}</div>
+<br>
+<div class="stock-ok">
+📦 Stock: <span id="stock-${p.id}">${p.stock_qty}</span>
+</div>
+
+<button class="save" onclick="changeStock('${p.id}',1)">
+➕ Stock
+</button>
+
+<button class="delete" onclick="changeStock('${p.id}',-1)">
+➖ Stock
+</button>
+
+<br>
+<div>🛒 Buy: <span class="price">${p.purchase_price}</span></div>
+<br>
+<div>💰 Sell: <span class="price">${p.retail_price}</span></div>
+<br><br>
+<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+✏️ Edit
+</button>
+<button class="delete" onclick="deleteProduct('${p.id}')">
+🗑 Delete
+</button>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+document.getElementById("list")
+.innerHTML=html;
+
+
+}
+
+
+
+
+async function addProduct(){
+
+let token = localStorage.getItem("access_token");
+
+if(!token){
+    alert("LOGIN REQUIRED");
+    return;
+}
+
+
+
+
+
+let body={
+
+
+name: document.getElementById("name").value,
+
+
+sku: document.getElementById("sku").value,
+
+
+barcode: document.getElementById("barcode").value,
+
+
+stock_qty:
+Number(document.getElementById("stock").value),
+
+
+purchase_price:
+Number(document.getElementById("purchase").value),
+
+
+retail_price:
+Number(document.getElementById("retail").value)
+
+
+};
+
+
+
+let res = await fetch(
+"/api/v4/business/products",
+{
+
+method:"POST",
+
+headers:{
+"Authorization":
+"Bearer "+token,
+
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify(body)
+
+});
+
+let text = await res.text();
+
+console.log("ADD RESPONSE:", res.status, text);
+
+alert(res.status + "\n" + text);
+
+loadProducts();
+
+
+}
+
+
+
+
+
+let editId = null;
+
+
+function editProduct(id,name,price){
+
+editId = id;
+
+document.getElementById("editName").value = name;
+document.getElementById("editPrice").value = price;
+
+document.getElementById("editModal").style.display="flex";
+
+}
+
+
+function closeEdit(){
+
+document.getElementById("editModal").style.display="none";
+
+}
+
+
+async function saveEdit(){
+
+let name =
+document.getElementById("editName").value;
+
+let price =
+Number(document.getElementById("editPrice").value);
+
+
+let res = await fetch(
+"/api/v4/business/products/"+editId,
+{
+method:"PUT",
+headers:{
+"Authorization":"Bearer "+token,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name:name,
+retail_price:price
+})
+});
+
+
+let text = await res.text();
+
+alert("UPDATE\n"+res.status+"\n"+text);
+
+closeEdit();
+
+loadProducts();
+
+}
+
+
+async function deleteProduct(id){
+
+
+if(!confirm("Delete Product?"))
+return;
+
+
+await fetch(
+"/api/v4/business/products/"+id,
+{
+
+method:"DELETE",
+
+headers:{
+
+"Authorization":
+"Bearer "+token
+
+}
+
+});
+
+
+loadProducts();
+
+
+}
+
+
+
+loadProducts();
+
+
+
+
+
+
+
+async function changeStock(id,amount){
+
+let qty = prompt(
+"📦 Enter Stock Quantity:",
+"1"
+);
+
+if(qty===null) return;
+
+
+let reason = prompt(
+"📝 Reason:",
+amount > 0 ? "Stock IN" : "Stock OUT"
+);
+
+
+let res = await fetch(
+"/api/v4/business/products/"+id+"/stock",
+{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+token,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+quantity:Number(qty)*amount,
+reason:reason
+})
+});
+
+
+let text = await res.text();
+
+alert(
+"STOCK UPDATE\n"+
+res.status+
+"\n"+
+text
+);
+
+
+loadProducts();
+
+}
+
+
+</script>
+
+
+
+<div id="editModal" class="modal">
+<div class="modal-box">
+
+<h3>✏️ Edit Product</h3>
+
+<input id="editName" placeholder="Product Name">
+
+<input id="editPrice" placeholder="Retail Price">
+
+<br><br>
+
+<button class="save" onclick="saveEdit()">
+💾 Save
+</button>
+
+<button class="close" onclick="closeEdit()">
+❌ Cancel
+</button>
+
+</div>
+</div>
+
+</body>
+
+</html>

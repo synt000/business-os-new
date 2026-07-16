@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Manage Products</title>
+
+
+<style>
+body{
+ background:#0f172a;
+ color:#f8fafc;
+ font-family:Arial,sans-serif;
+ padding:20px;
+}
+
+h2{
+ font-size:28px;
+}
+
+.box{
+ background:#1e293b;
+ padding:20px;
+ border-radius:16px;
+ margin-bottom:20px;
+ box-shadow:0 10px 25px #0005;
+}
+
+input{
+ width:95%;
+ padding:12px;
+ margin:6px 0;
+ border-radius:10px;
+ border:1px solid #334155;
+ background:#0f172a;
+ color:white;
+}
+
+button{
+ padding:10px 16px;
+ border:0;
+ border-radius:10px;
+ cursor:pointer;
+ color:white;
+ background:#2563eb;
+}
+
+.product{
+ background:#1e293b;
+ padding:18px;
+ margin:12px 0;
+ border-radius:16px;
+ border:1px solid #334155;
+}
+
+.product h3{
+ margin-top:0;
+ color:#38bdf8;
+}
+
+.edit{
+ background:#16a34a;
+ margin-right:8px;
+}
+
+.delete{
+ background:#dc2626;
+}
+
+.badge{
+ display:inline-block;
+ padding:4px 10px;
+ border-radius:20px;
+ font-size:12px;
+ background:#334155;
+}
+
+.price{
+ color:#facc15;
+ font-weight:bold;
+}
+
+.stock-ok{
+ color:#22c55e;
+}
+
+.stock-low{
+ color:#f97316;
+}
+
+.stock-zero{
+ color:#ef4444;
+}
+</style>
+
+
+</head>
+
+
+<body>
+
+
+<h2>📦 Manage Products</h2>
+
+
+<div class="box">
+
+<h3>Add Product</h3>
+
+
+<input id="name" placeholder="Product Name">
+
+<input id="sku" placeholder="SKU">
+
+<input id="barcode" placeholder="Barcode">
+
+<input id="stock" placeholder="Stock Qty">
+
+<input id="purchase" placeholder="Purchase Price">
+
+<input id="retail" placeholder="Retail Price">
+
+
+<button onclick="addProduct()">
+➕ Add
+</button>
+
+
+</div>
+
+
+
+<div class="box">
+
+<input id="search"
+placeholder="🔍 Search Product"
+onkeyup="loadProducts()">
+
+</div>
+
+
+
+<div id="list"></div>
+
+
+
+<script>
+
+
+const token =
+localStorage.getItem("access_token");
+
+
+
+async function loadProducts(){
+
+
+let res =
+await fetch(
+"/api/v4/business/products",
+{
+headers:{
+"Authorization":
+"Bearer "+token
+}
+});
+
+
+let data =
+await res.json();
+
+
+let search =
+document.getElementById("search").value
+.toLowerCase();
+
+
+
+let html="";
+
+
+data.products
+.filter(p=>
+p.name.toLowerCase()
+.includes(search)
+)
+.forEach(p=>{
+
+
+html += `
+
+<div class="product">
+<h3>📦 ${p.name}</h3>
+<div class="badge">SKU: ${p.sku}</div>
+<br>
+<div class="stock-ok">📦 Stock: ${p.stock_qty}</div>
+<br>
+<div>🛒 Buy: <span class="price">${p.purchase_price}</span></div>
+<br>
+<div>💰 Sell: <span class="price">${p.retail_price}</span></div>
+<br><br>
+<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+✏️ Edit
+</button>
+<button class="delete" onclick="deleteProduct('${p.id}')">
+🗑 Delete
+</button>
+
+
+</div>
+
+
+`;
+
+
+});
+
+
+document.getElementById("list")
+.innerHTML=html;
+
+
+}
+
+
+
+
+async function addProduct(){
+
+let token = localStorage.getItem("access_token");
+
+if(!token){
+    alert("LOGIN REQUIRED");
+    return;
+}
+
+
+
+
+
+let body={
+
+
+name: document.getElementById("name").value,
+
+
+sku: document.getElementById("sku").value,
+
+
+barcode: document.getElementById("barcode").value,
+
+
+stock_qty:
+Number(document.getElementById("stock").value),
+
+
+purchase_price:
+Number(document.getElementById("purchase").value),
+
+
+retail_price:
+Number(document.getElementById("retail").value)
+
+
+};
+
+
+
+let res = await fetch(
+"/api/v4/business/products",
+{
+
+method:"POST",
+
+headers:{
+"Authorization":
+"Bearer "+token,
+
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify(body)
+
+});
+
+let text = await res.text();
+
+console.log("ADD RESPONSE:", res.status, text);
+
+alert(res.status + "\n" + text);
+
+loadProducts();
+
+
+}
+
+
+
+
+
+async function editProduct(id,name,price){
+
+let newName = prompt("✏️ Product Name:", name);
+if(newName===null) return;
+
+let newPrice = prompt("💰 Retail Price:", price);
+if(newPrice===null) return;
+
+let res = await fetch(
+"/api/v4/business/products/"+id,
+{
+method:"PUT",
+headers:{
+"Authorization":"Bearer "+token,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+name:newName,
+retail_price:Number(newPrice)
+})
+});
+
+let text = await res.text();
+
+alert("UPDATE\n"+res.status+"\n"+text);
+
+loadProducts();
+
+}
+
+
+async function deleteProduct(id){
+
+
+if(!confirm("Delete Product?"))
+return;
+
+
+await fetch(
+"/api/v4/business/products/"+id,
+{
+
+method:"DELETE",
+
+headers:{
+
+"Authorization":
+"Bearer "+token
+
+}
+
+});
+
+
+loadProducts();
+
+
+}
+
+
+
+loadProducts();
+
+
+</script>
+
+
+</body>
+
+</html>

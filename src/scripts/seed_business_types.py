@@ -1,61 +1,72 @@
-from src.core.database import SessionLocal
+from sqlalchemy.orm import Session
+
+from src.database import SessionLocal
+import importlib
+
+# Load all models before SQLAlchemy mapper initialization
+importlib.import_module("src.models.saas_core")
+
+try:
+    importlib.import_module("src.models.inventory_models")
+except Exception:
+    pass
+
+from sqlalchemy.orm import configure_mappers
+configure_mappers()
+
 from src.models.saas_core import BusinessType
 
-db = SessionLocal()
 
-print("=== SEED BUSINESS TYPES ===")
-
-businesses = [
+BUSINESS_TYPES = [
     {
-        "name": "Online Shop",
+        "name": "Online Shop / E-commerce Seller",
         "code": "ONLINE_SHOP",
-        "description": "Ecommerce, Orders, Customers, Inventory"
+        "description": "Online selling, Facebook Shop, TikTok Shop and e-commerce business"
     },
     {
-        "name": "2D Seller & Design Service",
+        "name": "2D ဒိုင် / Seller Management",
         "code": "2D_SELLER",
-        "description": "2D Agent, Seller, Logo Design Service"
+        "description": "2D agent, seller and transaction management"
     },
     {
-        "name": "Beauty Salon & Spa",
+        "name": "Beauty Salon",
         "code": "BEAUTY_SALON",
-        "description": "Appointment, Service, Customer Management"
+        "description": "Beauty salon service and customer management"
     },
     {
-        "name": "Mini Mart",
+        "name": "Food & Beverage",
+        "code": "FOOD_BEVERAGE",
+        "description": "Restaurant, cafe and food business management"
+    },
+    {
+        "name": "Mini Mart / Retail Shop",
         "code": "MINI_MART",
-        "description": "Retail Store, Stock, Purchase, Sales"
-    },
-    {
-        "name": "Repair & Service Shop",
-        "code": "SERVICE_REPAIR",
-        "description": "Repair Ticket, Customer, Service Tracking"
+        "description": "Retail store, inventory and sales management"
     }
 ]
 
 
-for item in businesses:
+def seed_business_types(db: Session):
+    for item in BUSINESS_TYPES:
 
-    exists = (
-        db.query(BusinessType)
-        .filter(
-            BusinessType.code == item["code"]
-        )
-        .first()
-    )
-
-    if not exists:
-        obj = BusinessType(
-            name=item["name"],
-            code=item["code"],
-            description=item["description"]
+        exists = (
+            db.query(BusinessType)
+            .filter(BusinessType.code == item["code"])
+            .first()
         )
 
-        db.add(obj)
+        if not exists:
+            db.add(
+                BusinessType(**item)
+            )
+
+    db.commit()
 
 
-db.commit()
-
-print("✓ Business Types Seeded")
-
-db.close()
+if __name__ == "__main__":
+    db = SessionLocal()
+    try:
+        seed_business_types(db)
+        print("✅ Business Types Seed Completed")
+    finally:
+        db.close()

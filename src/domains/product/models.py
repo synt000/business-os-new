@@ -29,6 +29,24 @@ class Product(TenantModel):
         nullable=False
     )
 
+    purchase_price = mapped_column(
+        Integer,
+        default=0,
+        nullable=False
+    )
+
+    retail_price = mapped_column(
+        Integer,
+        default=0,
+        nullable=False
+    )
+
+    reorder_level = mapped_column(
+        Integer,
+        default=5,
+        nullable=False
+    )
+
     category_id = mapped_column(
         UUID(as_uuid=True),
         ForeignKey("categories.id")
@@ -43,6 +61,17 @@ class Product(TenantModel):
         "Inventory",
         back_populates="product",
         uselist=False
+    )
+
+    order_items = relationship(
+        "OrderItem",
+        back_populates="product",
+        cascade="all, delete-orphan"
+    )
+
+    procurements = relationship(
+        "ProcurementLedger",
+        back_populates="product"
     )
 
     tenant = relationship(

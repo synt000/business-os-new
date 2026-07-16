@@ -16,10 +16,9 @@ PWD_CONTEXT = CryptContext(
     deprecated="auto",
 )
 
-SECRET_KEY = os.getenv(
-    "SECRET_KEY",
-    "prod-business-os-enterprise-9.9-jwt-key-2026",
-)
+from src.core.config import settings
+
+SECRET_KEY = settings.SECRET_KEY
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7

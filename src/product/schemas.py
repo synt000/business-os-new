@@ -10,6 +10,7 @@ class ProductBase(BaseModel):
     category_id: UUID
     price: float = Field(..., gt=0)
     stock_quantity: int = Field(0, ge=0)
+    reorder_level: int = Field(5, ge=0)
 
 class ProductCreate(ProductBase):
     pass
@@ -21,6 +22,7 @@ class ProductUpdate(BaseModel):
     category_id: Optional[UUID] = None
     price: Optional[float] = None
     stock_quantity: Optional[int] = None
+    reorder_level: Optional[int] = None
 
 class ProductResponse(ProductBase):
     id: UUID

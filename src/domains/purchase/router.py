@@ -7,6 +7,7 @@ from src.core.database import get_db
 from src.core.security import get_current_user
 
 from src.models.saas_core import User
+from src.domains.inventory.models import StockMovement, Inventory
 
 from src.domains.purchase.schemas import (
     PurchaseCreate,
@@ -66,8 +67,10 @@ from src.models.saas_core import (
     ProcurementLedger,
     AccountLedger,
 )
+from src.domains.product.models import Product
 
 
+from src.domains.inventory.models import StockMovement, Inventory
 @router.post("/approve-ai-po/{purchase_id}")
 def approve_ai_purchase(
     purchase_id: str,
@@ -90,7 +93,13 @@ def approve_ai_purchase(
             "message":"Purchase Order Not Found"
         }
 
-    if po.status == "APPROVED":
+    if po.status == "RECEIVED":
+        return {
+            "status":"FAILED",
+            "message":"PURCHASE_ALREADY_RECEIVED"
+        }
+
+    if po.status in ["APPROVED", "RECEIVED"]:
         return {
             "status":"FAILED",
             "message":"PURCHASE_ALREADY_APPROVED"
@@ -98,79 +107,13 @@ def approve_ai_purchase(
 
     po.status = "APPROVED"
 
-    items = (
-        db.query(PurchaseItem)
-        .filter(
-            PurchaseItem.purchase_order_id == po.id
-        )
-        .all()
-    )
-
-    for item in items:
-
-        product = (
-            db.query(Product)
-            .filter(
-                Product.id == item.product_id,
-                Product.tenant_id == current_user.tenant_id
-            )
-            .first()
-        )
-
-        if product:
-            print("FOUND PRODUCT:", product.name, product.stock_qty, item.quantity)
-            product.stock_qty += item.quantity
-            print("NEW STOCK:", product.stock_qty)
-
-            ledger = ProcurementLedger(
-                id=str(uuid.uuid4()),
-                procurement_number=po.purchase_number,
-                qty_purchased=item.quantity,
-                unit_cost=item.unit_cost,
-                total_cost=item.total_cost,
-                product_id=product.id,
-                supplier_id=po.supplier_id,
-                tenant_id=current_user.tenant_id,
-            )
-
-            db.add(ledger)
-
-            # ACCOUNTING LEDGER
-            if item.total_cost <= 0:
-                print("SKIP ZERO COST LEDGER:", item.product_id)
-                continue
-
-            inventory_ledger = AccountLedger(
-                id=str(uuid.uuid4()),
-                entry_type="DEBIT",
-                account_head="INVENTORY_ASSET",
-                amount=item.total_cost,
-                reference_id=po.id,
-                description=f"Purchased inventory via {po.purchase_number}",
-                tenant_id=current_user.tenant_id,
-            )
-
-            payable_ledger = AccountLedger(
-                id=str(uuid.uuid4()),
-                entry_type="CREDIT",
-                account_head="SUPPLIER_PAYABLE",
-                amount=item.total_cost,
-                reference_id=po.id,
-                description=f"Supplier payable created via {po.purchase_number}",
-                tenant_id=current_user.tenant_id,
-            )
-
-            db.add(inventory_ledger)
-            db.add(payable_ledger)
-
-        else:
-            print("PRODUCT NOT FOUND:", item.product_id)
+    po.status = "APPROVED"
 
     db.commit()
 
     return {
         "status":"SUCCESS",
-        "message":"Purchase Order Approved & Stock Received",
+        "message":"Purchase Order Approved",
         "purchase_number":po.purchase_number
     }
 
@@ -179,6 +122,7 @@ def approve_ai_purchase(
 from sqlalchemy import desc
 
 from src.models.saas_core import PurchaseOrder
+from src.domains.inventory.models import StockMovement, Inventory
 
 
 @router.get("/orders")
@@ -208,3 +152,63 @@ def list_purchase_orders(
         for r in rows
     ]
 
+
+
+@router.post("/receive/{purchase_id}")
+def receive_purchase_stock(
+    purchase_id: str,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    po = (
+        db.query(PurchaseOrder)
+        .filter(
+            PurchaseOrder.id == purchase_id,
+            PurchaseOrder.tenant_id == current_user.tenant_id
+        )
+        .first()
+    )
+
+    if not po:
+        return {
+            "status": "FAILED",
+            "message": "Purchase Order Not Found"
+        }
+
+
+    if po.status == "RECEIVED":
+        return {
+            "status": "FAILED",
+            "message": "PURCHASE_ALREADY_RECEIVED"
+        }
+
+    if po.status != "APPROVED":
+        return {
+            "status": "FAILED",
+            "message": "PURCHASE_NOT_APPROVED"
+        }
+
+
+    items = (
+        db.query(PurchaseItem)
+        .filter(
+            PurchaseItem.purchase_order_id == po.id
+        )
+        .all()
+    )
+
+
+    # STOCK RECEIVE moved to /receive endpoint
+    # approve only changes status
+
+    po.status = "RECEIVED"
+
+    db.commit()
+
+
+    return {
+        "status":"SUCCESS",
+        "message":"Purchase Stock Received",
+        "purchase_number":po.purchase_number
+    }

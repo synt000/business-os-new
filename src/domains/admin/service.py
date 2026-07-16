@@ -1,42 +1,32 @@
 from sqlalchemy.orm import Session
 
-from src.models.saas_core import User
-from src.core.security import get_password_hash
+from src.models.saas_core import Tenant
 
 
-def list_admins(db: Session):
+def list_tenants(db: Session):
+    return db.query(Tenant).all()
+
+
+def get_tenant(db: Session, tenant_id: str):
     return (
-        db.query(User)
-        .filter(
-            User.role.in_([
-                "OWNER",
-                "ADMIN",
-                "MANAGER",
-                "STAFF"
-            ])
-        )
-        .order_by(User.created_at.desc())
-        .all()
+        db.query(Tenant)
+        .filter(Tenant.id == tenant_id)
+        .first()
     )
 
 
-def create_admin(
+def update_billing_status(
     db: Session,
-    payload
+    tenant_id: str,
+    active: bool
 ):
-    user = User(
-        email=payload.email,
-        hashed_password=get_password_hash(payload.password),
-        full_name=payload.full_name,
-        role=payload.role,
-        is_active=True,
+    tenant = get_tenant(db, tenant_id)
 
-        # ယာယီအတွက် OWNER နဲ့ tenant တူတူသုံးမယ်
-        tenant_id="e4ca6dc4-9543-4c4f-ab8c-a39777f27b45"
-    )
+    if not tenant:
+        return None
 
-    db.add(user)
+    tenant.is_billing_active = active
     db.commit()
-    db.refresh(user)
+    db.refresh(tenant)
 
-    return user
+    return tenant

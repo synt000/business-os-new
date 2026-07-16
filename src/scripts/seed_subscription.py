@@ -5,7 +5,7 @@ from src.core.database import SessionLocal
 from src.models.saas_core import Tenant, User
 
 # Load Subscription Models
-from src.models.subscription import SubscriptionPlan
+from src.domains.subscription.models import SubscriptionPlan
 
 import uuid
 

@@ -2,7 +2,7 @@ from src.core.database import engine, Base
 
 # Load models
 from src.models.saas_core import *
-from src.models.subscription import *
+from src.domains.subscription.models import *
 
 print("Creating subscription tables...")
 

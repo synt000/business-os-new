@@ -1,0 +1,35 @@
+INFO:     Started server process [23037]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+📡 [DevOps Telemetry] Loaded Cryptographic Secret Prefix: 21a169122f
+✅ [UI Sync] Preexisting Frontend Static Assets Mounted Safely from src/static
+INFO:     127.0.0.1:58392 - "GET /products/ui HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58392 - "GET /api/v4/business/products HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:58392 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58392 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58392 - "GET /subscription/status HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:58392 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58392 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58392 - "GET /products/ui HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58392 - "GET /api/v4/business/products HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:58392 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58392 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58392 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58394 - "POST /api/v4/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58394 - "GET /dashboard HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58394 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:58394 - "GET /products/ui HTTP/1.1" 200 OK
+INFO:     127.0.0.1:58394 - "GET /api/v4/business/products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60940 - "GET /favicon.ico HTTP/1.1" 204 No Content
+INFO:     127.0.0.1:60940 - "DELETE /api/v4/business/products/28691d72-f9c0-465b-8c9a-3f6cfdb33aee HTTP/1.1" 200 OK
+INFO:     127.0.0.1:60940 - "GET /api/v4/business/products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:44008 - "GET /api/v4/business/products HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:47348 - "POST /api/v4/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:60778 - "POST /api/v4/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54652 - "POST /api/v4/auth/login HTTP/1.1" 401 Unauthorized
+INFO:     127.0.0.1:50508 - "POST /api/v4/auth/login HTTP/1.1" 200 OK
+INFO:     127.0.0.1:40288 - "GET /api/v4/business/products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55624 - "GET /api/v4/business/products HTTP/1.1" 200 OK
+INFO:     127.0.0.1:35388 - "PUT /api/v4/business/products/f0f2057e-47db-4c7b-845b-5a1ab72f3f36 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:49718 - "GET /api/v4/business/products HTTP/1.1" 200 OK

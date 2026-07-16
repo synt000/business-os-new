@@ -1,3 +1,5 @@
+import uuid
+import uuid
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
@@ -7,7 +9,7 @@ from sqlalchemy.orm import Session
 from src.core.database import get_db
 from src.core.security import verify_password, get_password_hash, create_access_token, create_refresh_token
 from src.models.saas_core import User, Tenant
-from src.models.subscription import Subscription, SubscriptionPlan
+from src.domains.subscription.models import Subscription, SubscriptionPlan
 
 from src.security.login_guard import (
     check_account_locked,
@@ -259,6 +261,7 @@ async def register_business_owner(
     if trial_plan:
 
         subscription = Subscription(
+        id=str(uuid.uuid4()),
             tenant_id=tenant.id,
             plan_id=trial_plan.id,
             start_date=datetime.utcnow(),

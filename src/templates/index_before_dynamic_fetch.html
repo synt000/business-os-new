@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business OS Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="layout">
+
+<aside class="sidebar">
+
+<div class="brand">
+🚀 Business OS
+</div>
+
+<nav>
+<a class="active" href="/">🏠 Home</a>
+<a href="/dashboard">📊 Dashboard</a>
+<a href="#">📦 Inventory</a>
+<a href="#">💰 Accounting</a>
+<a href="#">🧾 Invoice</a>
+<a href="#">👥 Team</a>
+<a href="#">⚙ Settings</a>
+</nav>
+
+<div class="system-box">
+🟢 System Online
+<br>
+<small>SaaS Kernel Active</small>
+</div>
+
+</aside>
+
+
+<main class="content">
+
+<header class="topbar">
+
+<div>
+<h1>
+Welcome back 👋
+</h1>
+
+<p>
+Your Business OS workspace is running normally.
+</p>
+
+</div>
+
+<div class="profile">
+👤 Admin
+</div>
+
+</header>
+
+
+<section class="cards">
+
+<div class="card">
+<h3>💰 Revenue</h3>
+<strong>$14.2M</strong>
+<span>+14.2% stability</span>
+</div>
+
+
+<div class="card">
+<h3>📦 Orders</h3>
+<strong>8,492</strong>
+<span>Processed</span>
+</div>
+
+
+<div class="card">
+<h3>📋 Inventory</h3>
+<strong>1,248</strong>
+<span>Active SKU</span>
+</div>
+
+
+<div class="card">
+<h3>💳 Subscription</h3>
+<strong>PRO</strong>
+<span>Active Plan</span>
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h2>Quick Actions</h2>
+
+<div class="actions">
+
+<button>
++ Create Invoice
+</button>
+
+<button>
++ Add Product
+</button>
+
+<button>
++ New Customer
+</button>
+
+<button>
++ Record Payment
+</button>
+
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h2>Business Health</h2>
+
+<div class="health">
+
+<div>
+🟢 Database
+<br>
+<small>Healthy</small>
+</div>
+
+
+<div>
+🟢 Accounting
+<br>
+<small>Balanced</small>
+</div>
+
+
+<div>
+🟢 Subscription
+<br>
+<small>Active</small>
+</div>
+
+
+<div>
+🔐 Security
+<br>
+<small>Protected</small>
+</div>
+
+
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h2>Recent Activity</h2>
+
+<ul class="activity">
+
+<li>
+✅ Payment confirmed
+<br>
+<small>KBZ_PAY 19,900 MMK</small>
+</li>
+
+
+<li>
+🧾 Invoice generated
+<br>
+<small>Subscription Invoice</small>
+</li>
+
+
+<li>
+📊 Dashboard synced
+<br>
+<small>System healthy</small>
+</li>
+
+</ul>
+
+</section>
+
+
+</main>
+
+</div>
+
+
+<script>
+async function loadDashboardData(){
+
+    try {
+
+        const res = await fetch('/api/v4/dashboard/summary');
+
+        if(!res.ok){
+            console.log("Dashboard API unavailable");
+            return;
+        }
+
+        const data = await res.json();
+
+        const cards = document.querySelectorAll('.card');
+
+        if(cards.length >= 4){
+
+            cards[0].querySelector('strong').innerText =
+                Number(data.revenue || 0).toLocaleString() + " MMK";
+
+            cards[1].querySelector('strong').innerText =
+                data.orders || 0;
+
+            cards[2].querySelector('strong').innerText =
+                data.products || 0;
+
+            cards[3].querySelector('strong').innerText =
+                "ACTIVE";
+        }
+
+    } catch(e){
+
+        console.log(e);
+
+    }
+
+}
+
+loadDashboardData();
+</script>
+
+</body>
+</html>

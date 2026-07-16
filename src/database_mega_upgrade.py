@@ -4,7 +4,8 @@ from src.core.database import Base, engine
 from datetime import datetime
 
 # SaaS Subscription Engine Models
-from src.models import subscription
+from src.domains.subscription import models as subscription
+from src.models.refresh_token import RefreshToken
 from src.domains.inventory.models import StockMovement
 from src.models.saas_core import Invoice
 from src.models.saas_core import Payment

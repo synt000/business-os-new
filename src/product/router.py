@@ -9,6 +9,7 @@ from sqlalchemy import func
 from src.core.database import get_db
 from src.core.config import settings
 from src.core.security import get_current_user
+from src.core.permissions.subscription_guard import require_active_subscription
 from src.domains.audit.models import AuditLog
 
 from src.models.saas_core import (
@@ -25,6 +26,8 @@ from src.models.saas_core import (
 )
 
 from src.domains.category.models import Category
+from src.domains.product.models import Product
+from src.domains.inventory.models import Inventory, StockMovement
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
 
@@ -32,6 +35,11 @@ router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine
 # ==========================================================================
 # PYDANTIC STRUCTURAL REQUEST PAYLOAD VALIDATION SCHEMAS
 # ==========================================================================
+
+
+class StockUpdateSchema(BaseModel):
+    quantity: int
+    reason: Optional[str] = "Manual stock adjustment"
 
 class ProductCreateInboundSchema(BaseModel):
     name: str
@@ -98,7 +106,14 @@ def log_security_audit_action(db: Session, user_id: str, tenant_id: str, action:
     client_ip = "127.0.0.1"
     if request and request.client:
         client_ip = request.client.host
-    audit_entry = AuditLog(action_type=action, module_name=module, details_log=details, ip_address=client_ip, user_id=user_id, tenant_id=tenant_id)
+    audit_entry = AuditLog(
+        action=action,
+        table_name=module,
+        record_id="SYSTEM",
+        changes=details,
+        user_id=user_id,
+        tenant_id=tenant_id
+    )
     db.add(audit_entry)
 
 def record_double_entry_accounting(db: Session, tenant_id: str, entry_type: str, account_head: str, amount: float, reference_id: str, description: str):
@@ -110,7 +125,7 @@ def record_double_entry_accounting(db: Session, tenant_id: str, entry_type: str,
 # 1. CATEGORIES COMPLETE CRUD PIPELINES (WITH INTEGRATED TELEMETRY)
 # ==========================================================================
 @router.post("/categories", status_code=status.HTTP_201_CREATED)
-async def create_isolated_category(payload: CategoryCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_isolated_category(payload: CategoryCreateInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     if not payload.name.strip():
         raise HTTPException(status_code=422, detail="Category name cannot be empty")
     new_cat = Category(name=payload.name, tenant_id=current_user.tenant_id)
@@ -120,12 +135,12 @@ async def create_isolated_category(payload: CategoryCreateInboundSchema, request
     return {"status": "CATEGORY_CREATED", "tenant_id": current_user.tenant_id}
 
 @router.get("/categories")
-async def fetch_isolated_categories(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def fetch_isolated_categories(current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     cats = db.query(Category).filter(Category.tenant_id == current_user.tenant_id).all()
     return {"categories": [{"id": c.id, "name": c.name} for c in cats]}
 
 @router.put("/categories/{category_id}")
-async def update_isolated_category(category_id: int, payload: CategoryUpdateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def update_isolated_category(category_id: int, payload: CategoryUpdateInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     if not payload.name.strip():
         raise HTTPException(status_code=422, detail="Category name cannot be empty")
     target_cat = db.query(Category).filter(Category.id == category_id, Category.tenant_id == current_user.tenant_id).first()
@@ -138,7 +153,7 @@ async def update_isolated_category(category_id: int, payload: CategoryUpdateInbo
     return {"status": "CATEGORY_SUCCESSFULLY_UPDATED", "category_id": category_id}
 
 @router.delete("/categories/{category_id}")
-async def delete_isolated_category(category_id: int, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def delete_isolated_category(category_id: int, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     target_cat = db.query(Category).filter(Category.id == category_id, Category.tenant_id == current_user.tenant_id).first()
     if not target_cat:
         raise HTTPException(status_code=404, detail="CATEGORY_NOT_FOUND_IN_THIS_WORKSPACE")
@@ -154,34 +169,97 @@ async def delete_isolated_category(category_id: int, request: Request, current_u
 async def create_isolated_product_item(
     payload: ProductCreateInboundSchema,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
     if not payload.name.strip() or not payload.sku.strip():
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: NAME_AND_SKU_ARE_REQUIRED")
         
-    tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
+    current_skus = db.query(Product).filter(
+        Product.tenant_id == current_user.tenant_id
+    ).count()
+
+    tenant = db.query(Tenant).filter(
+        Tenant.id == current_user.tenant_id
+    ).first()
+
     if tenant and current_skus >= tenant.max_sku_limit:
-        raise HTTPException(status_code=403, detail=f"SUBSCRIPTION_LIMIT_EXCEEDED: Your current tier allows maximum {tenant.max_sku_limit} SKUs. Upgrade required.")
-        
+        raise HTTPException(
+            status_code=403,
+            detail="SUBSCRIPTION_LIMIT_EXCEEDED"
+        )
+
+    duplicate_sku = db.query(Product).filter(
+        Product.tenant_id == current_user.tenant_id,
+        Product.sku == payload.sku
+    ).first()
+
     if duplicate_sku:
-        raise HTTPException(status_code=400, detail="CONFLICT: SKU_ALREADY_EXISTS_IN_THIS_WORKSPACE")
-        
+        raise HTTPException(
+            status_code=400,
+            detail="CONFLICT: SKU_ALREADY_EXISTS_IN_THIS_WORKSPACE"
+        )
+
+    new_product = Product(
+        tenant_id=current_user.tenant_id,
+        name=payload.name,
+        sku=payload.sku,
+        barcode=payload.barcode,
+        price=int(payload.retail_price)
+    )
+
     db.add(new_product)
+    db.flush()
+
+    new_inventory = Inventory(
+        tenant_id=current_user.tenant_id,
+        product_id=new_product.id,
+        quantity=payload.stock_qty
+    )
+
+    db.add(new_inventory)
+
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)
     db.commit()
     return {"status": "PRODUCT_SUCCESSFULLY_CREATED", "product_id": new_product.id}
 
 @router.get("/products")
-async def fetch_all_isolated_products(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    return {"tenant_id": current_user.tenant_id, "total_items": len(tenant_products), "products": [{"id": p.id, "name": p.name, "sku": p.sku, "barcode": p.barcode, "stock_qty": p.stock_qty, "purchase_price": p.purchase_price, "retail_price": p.retail_price} for p in tenant_products]}
+async def fetch_all_isolated_products(
+    current_user: User = Depends(require_active_subscription()),
+    db: Session = Depends(get_db)
+):
+    tenant_products = db.query(Product).filter(
+        Product.tenant_id == current_user.tenant_id
+    ).all()
+
+    return {
+        "tenant_id": current_user.tenant_id,
+        "total_items": len(tenant_products),
+        "products": [
+            {
+                "id": p.id,
+                "name": p.name,
+                "sku": p.sku,
+                "barcode": p.barcode,
+                "stock_qty": p.inventory.quantity if p.inventory else 0,
+                "purchase_price": p.purchase_price,
+                "retail_price": p.retail_price,
+                  "reorder_level": p.reorder_level,
+                  "need_restock": (
+                      (p.inventory.quantity if p.inventory else 0)
+                      < p.reorder_level
+                  )
+            }
+            for p in tenant_products
+        ]
+    }
 
 @router.put("/products/{product_id}")
 async def update_isolated_product_item(
     product_id: str,
     payload: ProductUpdateInboundSchema,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
     target_product = db.query(Product).filter(
@@ -198,20 +276,101 @@ async def update_isolated_product_item(
     db.commit()
     return {"status": "PRODUCT_SUCCESSFULLY_UPDATED", "product_id": product_id}
 
+
+
+@router.post("/products/{product_id}/stock")
+async def update_product_stock(
+    product_id: str,
+    payload: StockUpdateSchema,
+    request: Request,
+    current_user: User = Depends(require_active_subscription()),
+    db: Session = Depends(get_db)
+):
+
+    inventory = db.query(Inventory).filter(
+        Inventory.product_id == product_id,
+        Inventory.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not inventory:
+        raise HTTPException(
+            status_code=404,
+            detail="INVENTORY_NOT_FOUND"
+        )
+
+    before = inventory.quantity
+    after = before + payload.quantity
+
+    if after < 0:
+        raise HTTPException(
+            status_code=400,
+            detail="INSUFFICIENT_STOCK"
+        )
+
+    inventory.quantity = after
+
+    movement = StockMovement(
+        product_id=product_id,
+        movement_type="IN" if payload.quantity > 0 else "OUT",
+        quantity_change=payload.quantity,
+        before_quantity=before,
+        after_quantity=after,
+        reason=payload.reason,
+        tenant_id=current_user.tenant_id
+    )
+
+    db.add(movement)
+    db.commit()
+
+    return {
+        "status": "STOCK_UPDATED",
+        "product_id": product_id,
+        "before": before,
+        "after": after
+    }
+
 @router.delete("/products/{product_id}")
-async def delete_isolated_product_item(product_id: str, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def delete_isolated_product_item(
+    product_id: str,
+    request: Request,
+    current_user: User = Depends(require_active_subscription()),
+    db: Session = Depends(get_db)
+):
+    target_product = db.query(Product).filter(
+        Product.id == product_id,
+        Product.tenant_id == current_user.tenant_id
+    ).first()
+
     if not target_product:
-        raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "DELETE", "PRODUCTS", f"Purged SKU record {target_product.sku}: {target_product.name}", request)
+        raise HTTPException(
+            status_code=404,
+            detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE"
+        )
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "DELETE",
+        "PRODUCTS",
+        f"Purged SKU record {target_product.sku}: {target_product.name}",
+        request
+    )
+
+    if target_product.inventory:
+        db.delete(target_product.inventory)
     db.delete(target_product)
     db.commit()
-    return {"status": "PRODUCT_SUCCESSFULLY_DELETED", "product_id": product_id}
 
+    return {
+        "status": "PRODUCT_SUCCESSFULLY_DELETED",
+        "product_id": product_id
+    }
 # ==========================================================================
 # 3. PRODUCTION AUTOMATED ACCOUNTING DOUBLE-ENTRY ORDERS INGESTION (POS)
 # ==========================================================================
 @router.post("/orders", status_code=status.HTTP_201_CREATED)
-async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     if not payload.customer_name.strip() or not payload.items:
         raise HTTPException(status_code=422, detail="VALIDATION_ERROR: CUSTOMER_NAME_AND_ITEMS_ARE_REQUIRED")
         
@@ -228,14 +387,49 @@ async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, r
     computed_total_pool = 0.0
     computed_cogs_pool = 0.0
     for item in payload.items:
+
+        target_product = db.query(Product).filter(
+            Product.id == item.product_id,
+            Product.tenant_id == current_user.tenant_id
+        ).first()
+
         if not target_product:
-            raise HTTPException(status_code=404, detail=f"PRODUCT_ID_{item.product_id}_NOT_FOUND_IN_THIS_WORKSPACE")
-        if target_product.stock_qty < item.quantity:
-            raise HTTPException(status_code=400, detail=f"INSUFFICIENT_STOCK: {target_product.name} has only {target_product.stock_qty} units left")
-        
-        target_product.stock_qty -= item.quantity
-        sale_price = target_product.retail_price
-        cogs_price = target_product.purchase_price
+            raise HTTPException(
+                status_code=404,
+                detail=f"PRODUCT_ID_{item.product_id}_NOT_FOUND_IN_THIS_WORKSPACE"
+            )
+
+        if not target_product.inventory:
+            raise HTTPException(
+                status_code=400,
+                detail="INVENTORY_RECORD_NOT_FOUND"
+            )
+
+        if target_product.inventory.quantity < item.quantity:
+            raise HTTPException(
+                status_code=400,
+                detail=f"INSUFFICIENT_STOCK: {target_product.name} has only {target_product.inventory.quantity} units left"
+            )
+
+        before_qty = target_product.inventory.quantity
+
+        target_product.inventory.quantity -= item.quantity
+
+        after_qty = target_product.inventory.quantity
+
+        stock_movement = StockMovement(
+            tenant_id=current_user.tenant_id,
+            product_id=target_product.id,
+            movement_type="SALE",
+            quantity_change=-item.quantity,
+            before_quantity=before_qty,
+            after_quantity=after_qty,
+            reason=f"Order {new_order.order_number}"
+        )
+
+        db.add(stock_movement)
+        sale_price = target_product.price
+        cogs_price = 0
         computed_total_pool += (sale_price * item.quantity)
         computed_cogs_pool += (cogs_price * item.quantity)
         
@@ -259,7 +453,7 @@ async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, r
     return {"status": "ORDER_SUCCESSFULLY_SYNCED", "order_id": new_order.id, "order_number": order_num, "total_amount": computed_total_pool}
 
 @router.get("/orders")
-async def fetch_all_isolated_orders(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def fetch_all_isolated_orders(current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     tenant_orders = db.query(Order).filter(Order.tenant_id == current_user.tenant_id).order_by(Order.created_at.desc()).all()
     return {"tenant_id": current_user.tenant_id, "total_orders": len(tenant_orders), "orders": [{"id": o.id, "order_number": o.order_number, "platform": o.platform_channel, "customer": o.customer_name, "phone": o.customer_phone, "total_usd": o.total_amount, "status": o.order_status, "created_at": o.created_at} for o in tenant_orders]}
 
@@ -268,7 +462,7 @@ async def fetch_all_isolated_orders(current_user: User = Depends(get_current_use
 async def update_order_status(
     order_id: str,
     payload: dict,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
     order = db.query(Order).filter(
@@ -312,7 +506,7 @@ async def update_order_status(
 
 
 @router.get("/accounting/profit-loss")
-async def generate_isolated_profit_loss_statement(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def generate_isolated_profit_loss_statement(current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     total_revenue = db.query(func.sum(AccountLedger.amount)).filter(AccountLedger.tenant_id == current_user.tenant_id, AccountLedger.account_head == "SALES_REVENUE").scalar() or 0.0
     total_cogs = db.query(func.sum(AccountLedger.amount)).filter(AccountLedger.tenant_id == current_user.tenant_id, AccountLedger.account_head == "COGS_EXPENSE").scalar() or 0.0
     gross_profit = total_revenue - total_cogs
@@ -320,7 +514,7 @@ async def generate_isolated_profit_loss_statement(current_user: User = Depends(g
     return {"tenant_id": current_user.tenant_id, "report_type": "ACCRUAL_PROFIT_AND_LOSS_STATEMENT", "generated_at": datetime.utcnow(), "financial_summary": {"total_gross_revenue": total_revenue, "total_cost_of_goods_sold": total_cogs, "gross_profit_margin": gross_profit, "net_operational_profit": gross_profit, "net_profit_margin_percentage": f"{profit_margin_pct:.2f}%"}}
 
 @router.get("/billing/usage-meters")
-async def fetch_tenant_subscription_usage_meters(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def fetch_tenant_subscription_usage_meters(current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     """Meters dynamic tenant workspace usages against active plan quotas live."""
     tenant = db.query(Tenant).filter(Tenant.id == current_user.tenant_id).first()
     if not tenant: 
@@ -340,7 +534,7 @@ async def fetch_tenant_subscription_usage_meters(current_user: User = Depends(ge
 # 4. MASTER PROMPT V5.5 NEW NODE: MULTI-BRANCH, SUPPLIER & PROCUREMENT
 # ==========================================================================
 @router.post("/branches", status_code=status.HTTP_201_CREATED)
-async def create_isolated_branch(payload: BranchCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_isolated_branch(payload: BranchCreateInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     if not payload.branch_name.strip(): 
         raise HTTPException(status_code=422, detail="Branch name cannot be empty")
     new_branch = Branch(branch_name=payload.branch_name, location_address=payload.location_address, tenant_id=current_user.tenant_id)
@@ -350,12 +544,12 @@ async def create_isolated_branch(payload: BranchCreateInboundSchema, request: Re
     return {"status": "BRANCH_SUCCESSFULLY_CREATED", "branch_id": new_branch.id}
 
 @router.get("/branches")
-async def fetch_isolated_branches(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def fetch_isolated_branches(current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     branches = db.query(Branch).filter(Branch.tenant_id == current_user.tenant_id).all()
     return {"branches": [{"id": b.id, "branch_name": b.branch_name, "location": b.location_address} for b in branches]}
 
 @router.post("/suppliers", status_code=status.HTTP_201_CREATED)
-async def create_isolated_supplier(payload: SupplierCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_isolated_supplier(payload: SupplierCreateInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     if not payload.supplier_name.strip(): 
         raise HTTPException(status_code=422, detail="Supplier name cannot be empty")
     new_supplier = Supplier(supplier_name=payload.supplier_name, contact_phone=payload.contact_phone, tenant_id=current_user.tenant_id)
@@ -365,19 +559,32 @@ async def create_isolated_supplier(payload: SupplierCreateInboundSchema, request
     return {"status": "SUPPLIER_SUCCESSFULLY_REGISTERED", "supplier_id": new_supplier.id}
 
 @router.get("/suppliers")
-async def fetch_isolated_suppliers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def fetch_isolated_suppliers(current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     suppliers = db.query(Supplier).filter(Supplier.tenant_id == current_user.tenant_id).all()
     return {"suppliers": [{"id": s.id, "supplier_name": s.supplier_name, "phone": s.contact_phone} for s in suppliers]}
 
 @router.post("/procurements", status_code=status.HTTP_201_CREATED)
-async def create_procurement_purchase_entry(payload: ProcurementCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
-    target_supplier = db.query(Supplier).filter(Supplier.id == payload.supplier_id, Supplier.tenant_id == current_user.tenant_id).first()
-    if not target_product or not target_supplier: 
-        raise HTTPException(status_code=404, detail="PRODUCT_OR_SUPPLIER_NOT_FOUND_IN_THIS_WORKSPACE")
+async def create_procurement_purchase_entry(payload: ProcurementCreateInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
+
+    target_product = db.query(Product).filter(
+        Product.id == payload.product_id,
+        Product.tenant_id == current_user.tenant_id
+    ).first()
+
+    target_supplier = db.query(Supplier).filter(
+        Supplier.id == payload.supplier_id,
+        Supplier.tenant_id == current_user.tenant_id
+    ).first()
+
+    if not target_product or not target_supplier:
+        raise HTTPException(
+            status_code=404,
+            detail="PRODUCT_OR_SUPPLIER_NOT_FOUND_IN_THIS_WORKSPACE"
+        )
         
     po_number = f"PO-{datetime.utcnow().strftime('%Y%m%d')}-{int(datetime.utcnow().timestamp()) % 10000:04d}"
     total_cost_pool = payload.qty_purchased * payload.unit_cost
-    target_product.stock_qty += payload.qty_purchased
+    target_product.inventory.quantity += payload.qty_purchased
     target_product.purchase_price = payload.unit_cost
     
     new_po = ProcurementLedger(procurement_number=po_number, qty_purchased=payload.qty_purchased, unit_cost=payload.unit_cost, total_cost=total_cost_pool, product_id=payload.product_id, supplier_id=payload.supplier_id, tenant_id=current_user.tenant_id)
@@ -398,7 +605,7 @@ async def create_procurement_purchase_entry(payload: ProcurementCreateInboundSch
 # 5. MASTER PROMPT V5.5 NEW NODE: CRM CUSTOMERS & SECURE USER INVITATIONS
 # ==========================================================================
 @router.post("/customers", status_code=status.HTTP_201_CREATED)
-async def create_isolated_crm_customer(payload: CustomerCreateInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_isolated_crm_customer(payload: CustomerCreateInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     if not payload.customer_name.strip(): 
         raise HTTPException(status_code=422, detail="Customer name cannot be empty")
     new_customer = Customer(customer_name=payload.customer_name, customer_email=payload.customer_email, customer_phone=payload.customer_phone, tenant_id=current_user.tenant_id)
@@ -408,12 +615,12 @@ async def create_isolated_crm_customer(payload: CustomerCreateInboundSchema, req
     return {"status": "CUSTOMER_SUCCESSFULLY_REGISTERED", "customer_id": new_customer.id}
 
 @router.get("/customers")
-async def fetch_isolated_crm_customers(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def fetch_isolated_crm_customers(current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     clients = db.query(Customer).filter(Customer.tenant_id == current_user.tenant_id).all()
     return {"customers": [{"id": c.id, "name": c.customer_name, "email": c.customer_email, "phone": c.customer_phone, "total_spent_usd": c.total_spent} for c in clients]}
 
 @router.post("/workspace/invite-user", status_code=status.HTTP_201_CREATED)
-async def create_secure_workspace_invitation(payload: WorkspaceInviteInboundSchema, request: Request, current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
+async def create_secure_workspace_invitation(payload: WorkspaceInviteInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
     if current_user.role != "ADMIN": 
         raise HTTPException(status_code=403, detail="ROLE_RESTRICTED: ONLY_WORKSPACE_ADMINS_CAN_INVITE_USERS")
     import secrets
@@ -430,7 +637,7 @@ async def update_isolated_crm_customer(
     customer_id: str,
     payload: CustomerUpdateInboundSchema,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
     customer = db.query(Customer).filter(
@@ -473,7 +680,7 @@ async def update_isolated_crm_customer(
 async def delete_isolated_crm_customer(
     customer_id: str,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
     customer = db.query(Customer).filter(
@@ -511,7 +718,7 @@ async def delete_isolated_crm_customer(
 async def create_isolated_supplier(
     payload: SupplierCreateInboundSchema,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
     if not payload.supplier_name.strip():
@@ -549,7 +756,7 @@ async def create_isolated_supplier(
 
 @router.get("/suppliers")
 async def fetch_isolated_suppliers(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
     suppliers = db.query(Supplier).filter(
@@ -574,7 +781,7 @@ async def update_isolated_supplier(
     supplier_id: str,
     payload: SupplierCreateInboundSchema,
     request: Request,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
     supplier = db.query(Supplier).filter(
@@ -587,4 +794,131 @@ async def update_isolated_supplier(
             status_code=404,
             detail="SUPPLIER_NOT_FOUND"
         )
+
+
+@router.get("/stock-movements")
+async def get_stock_movements(
+    current_user: User = Depends(require_active_subscription()),
+    db: Session = Depends(get_db)
+):
+
+    movements = db.query(StockMovement).filter(
+        StockMovement.tenant_id == current_user.tenant_id
+    ).order_by(
+        StockMovement.created_at.desc()
+    ).all()
+
+    return [
+        {
+            "id": m.id,
+            "product_id": m.product_id,
+            "product_name": m.product.name if m.product else "Unknown",
+            "movement_type": m.movement_type,
+            "quantity_change": m.quantity_change,
+            "before_quantity": m.before_quantity,
+            "after_quantity": m.after_quantity,
+            "reason": m.reason,
+            "created_at": m.created_at
+        }
+        for m in movements
+    ]
+
+
+
+@router.get("/inventory-summary")
+async def inventory_summary(
+    current_user: User = Depends(require_active_subscription()),
+    db: Session = Depends(get_db)
+):
+
+    products = db.query(Product).filter(
+        Product.tenant_id == current_user.tenant_id
+    ).all()
+
+    total_units = 0
+    total_value = 0
+    low_stock = 0
+    out_stock = 0
+
+    for p in products:
+        qty = p.inventory.quantity if p.inventory else 0
+
+        total_units += qty
+        total_value += qty * (p.retail_price or 0)
+
+        if qty == 0:
+            out_stock += 1
+        elif qty <= 10:
+            low_stock += 1
+
+    return {
+        "total_products": len(products),
+        "total_units": total_units,
+        "inventory_value": total_value,
+        "low_stock": low_stock,
+        "out_stock": out_stock
+    }
+
+
+
+@router.get("/stock-analytics")
+async def stock_analytics(
+    current_user: User = Depends(require_active_subscription()),
+    db: Session = Depends(get_db)
+):
+
+    movements = db.query(StockMovement).filter(
+        StockMovement.tenant_id == current_user.tenant_id
+    ).all()
+
+
+    today_in = 0
+    today_out = 0
+
+    for m in movements:
+        if m.movement_type == "IN":
+            today_in += m.quantity_change
+        else:
+            today_out += abs(m.quantity_change)
+
+
+    low_products = db.query(Product).filter(
+        Product.tenant_id == current_user.tenant_id
+    ).all()
+
+    low_stock = []
+
+    for p in low_products:
+        qty = p.inventory.quantity if p.inventory else 0
+
+        if qty > 0 and qty <= 10:
+            low_stock.append({
+                "name": p.name,
+                "stock": qty
+            })
+
+
+    top_stock = []
+
+    for p in low_products:
+        qty = p.inventory.quantity if p.inventory else 0
+
+        top_stock.append({
+            "name": p.name,
+            "stock": qty
+        })
+
+
+    top_stock.sort(
+        key=lambda x:x["stock"],
+        reverse=True
+    )
+
+
+    return {
+        "today_in": today_in,
+        "today_out": today_out,
+        "top_stock": top_stock[:5],
+        "low_stock": low_stock
+    }
 

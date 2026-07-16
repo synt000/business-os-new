@@ -44,10 +44,15 @@ class DashboardService:
             .count()
         )
 
-        sales_total = (
+        revenue = (
             db.query(func.sum(AccountLedger.amount))
             .filter(
-                AccountLedger.tenant_id == tenant_id
+                AccountLedger.tenant_id == tenant_id,
+                AccountLedger.entry_type == "CREDIT",
+                AccountLedger.account_head.in_([
+                    "SALES_REVENUE",
+                    "SUBSCRIPTION_REVENUE"
+                ])
             )
             .scalar()
             or 0
@@ -64,6 +69,42 @@ class DashboardService:
             "orders": orders,
             "customers": customers,
             "suppliers": suppliers,
-            "sales_total": sales_total,
+            "revenue": revenue,
             "credit_alerts": alerts,
+        }
+
+
+    @staticmethod
+    def get_revenue_chart(
+        db: Session,
+        tenant_id: str
+    ):
+
+        rows = (
+            db.query(
+                func.date(AccountLedger.created_at),
+                func.sum(AccountLedger.amount)
+            )
+            .filter(
+                AccountLedger.tenant_id == tenant_id,
+                AccountLedger.entry_type == "CREDIT"
+            )
+            .group_by(
+                func.date(AccountLedger.created_at)
+            )
+            .order_by(
+                func.date(AccountLedger.created_at)
+            )
+            .all()
+        )
+
+        return {
+            "labels": [
+                str(row[0])
+                for row in rows
+            ],
+            "values": [
+                row[1]
+                for row in rows
+            ]
         }

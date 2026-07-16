@@ -1,6 +1,6 @@
 from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey
 from sqlalchemy.sql import func
-from core.database import Base
+from src.core.database import Base
 
 
 class SubscriptionPlan(Base):
@@ -62,6 +62,11 @@ class SubscriptionPayment(Base):
     id = Column(String, primary_key=True)
 
     tenant_id = Column(String, nullable=False)
+
+    plan_id = Column(
+        String,
+        nullable=False
+    )
 
     subscription_id = Column(
         String,

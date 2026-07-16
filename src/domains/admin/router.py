@@ -1,180 +1,82 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from src.core.database import get_db
-from src.core.permissions.guard import require_permission
-
-from src.models.saas_core import User
-
-from src.domains.admin.schemas import (
-    AdminCreate,
-    AdminResponse,
-)
-
+from src.database import get_db
 from src.domains.admin.service import (
-    create_admin,
-    list_admins as service_list_admins,
+    list_tenants,
+    get_tenant,
+    update_billing_status
 )
-
-from src.domains.permissions.models import (
-    UserPermission,
-    Permission
-)
-
 
 router = APIRouter(
     prefix="/admin",
-    tags=["Admin Management"]
+    tags=["Admin SaaS"]
 )
 
 
-@router.get(
-    "/users",
-    response_model=list[AdminResponse]
-)
-def get_admin_users(
-    current_user: User = Depends(
-        require_permission("users.view")
-    ),
-    db: Session = Depends(get_db),
+@router.get("/health")
+def admin_health():
+    return {
+        "module": "admin",
+        "status": "ready"
+    }
+
+
+@router.get("/tenants")
+def admin_list_tenants(
+    db: Session = Depends(get_db)
 ):
-    return service_list_admins(db)
-
-
-
-@router.post(
-    "/users",
-    response_model=AdminResponse
-)
-def create_admin_user(
-    admin: AdminCreate,
-    current_user: User = Depends(
-        require_permission("users.manage")
-    ),
-    db: Session = Depends(get_db),
-):
-    return create_admin(
-        db,
-        admin
-    )
-
-
-
-# ======================================
-# USER PERSONAL PERMISSION OVERRIDE
-# ======================================
-
-
-@router.get(
-    "/users/{user_id}/permissions"
-)
-def get_user_permissions(
-    user_id: str,
-    current_user: User = Depends(
-        require_permission("users.manage")
-    ),
-    db: Session = Depends(get_db),
-):
-
-    rows = (
-        db.query(Permission)
-        .join(
-            UserPermission,
-            UserPermission.permission_id == Permission.id
-        )
-        .filter(
-            UserPermission.user_id == user_id
-        )
-        .all()
-    )
-
+    tenants = list_tenants(db)
 
     return {
-        "user_id": user_id,
-        "permissions": [
+        "total": len(tenants),
+        "tenants": [
             {
-                "id": p.id,
-                "code": p.code,
-                "module": p.module,
-                "description": p.description
+                "id": t.id,
+                "company_name": t.company_name,
+                "owner_email": t.owner_email,
+                "subscription_tier": str(t.subscription_tier),
+                "billing_active": t.is_billing_active
             }
-            for p in rows
+            for t in tenants
         ]
     }
 
 
-
-@router.post(
-    "/users/{user_id}/permissions/{permission_id}"
-)
-def add_user_permission(
-    user_id: str,
-    permission_id: int,
-    current_user: User = Depends(
-        require_permission("users.manage")
-    ),
-    db: Session = Depends(get_db),
+@router.get("/tenant/{tenant_id}")
+def admin_get_tenant(
+    tenant_id: str,
+    db: Session = Depends(get_db)
 ):
+    tenant = get_tenant(db, tenant_id)
 
-    exists = (
-        db.query(UserPermission)
-        .filter(
-            UserPermission.user_id == user_id,
-            UserPermission.permission_id == permission_id
-        )
-        .first()
-    )
-
-
-    if exists:
+    if not tenant:
         return {
-            "status": "EXISTS"
+            "status": "NOT_FOUND"
         }
 
-
-    row = UserPermission(
-        user_id=user_id,
-        permission_id=permission_id
-    )
+    return tenant
 
 
-    db.add(row)
-    db.commit()
-
-
-    return {
-        "status": "SUCCESS"
-    }
-
-
-
-@router.delete(
-    "/users/{user_id}/permissions/{permission_id}"
-)
-def remove_user_permission(
-    user_id: str,
-    permission_id: int,
-    current_user: User = Depends(
-        require_permission("users.manage")
-    ),
-    db: Session = Depends(get_db),
+@router.patch("/tenant/{tenant_id}/billing")
+def admin_update_billing(
+    tenant_id: str,
+    active: bool,
+    db: Session = Depends(get_db)
 ):
-
-    row = (
-        db.query(UserPermission)
-        .filter(
-            UserPermission.user_id == user_id,
-            UserPermission.permission_id == permission_id
-        )
-        .first()
+    tenant = update_billing_status(
+        db,
+        tenant_id,
+        active
     )
 
-
-    if row:
-        db.delete(row)
-        db.commit()
-
+    if not tenant:
+        return {
+            "status": "NOT_FOUND"
+        }
 
     return {
-        "status": "SUCCESS"
+        "status": "UPDATED",
+        "tenant_id": tenant.id,
+        "billing_active": tenant.is_billing_active
     }

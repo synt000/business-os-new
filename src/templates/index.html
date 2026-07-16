@@ -1,403 +1,489 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Business OS - World-Class Premium Enterprise SaaS</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <style>
-        /* ==========================================================================
-           $100M STARTUP CORE DESIGN SYSTEM MATRIX
-           ========================================================================== */
-        :root {
-            --bg-base: #0B1020;
-            --primary: #4F8CFF;
-            --secondary: #8B5CF6;
-            --accent: #22C55E;
-            --text-main: #F8FAFC;
-            --text-muted: #94A3B8;
-            --glass-core: rgba(10, 16, 32, 0.75);
-            --border-glass: rgba(255, 255, 255, 0.07);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { 
-            background: var(--bg-base); 
-            color: var(--text-main); 
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            min-height: 100vh; 
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        /* 1. TOP ANNOUNCEMENT TICKER LAYOUT */
-        .ticker-wrap {
-            width: 100%;
-            background: rgba(11, 16, 32, 0.9);
-            border-bottom: 1px solid var(--border-glass);
-            overflow: hidden;
-            height: 36px;
-            display: flex;
-            align-items: center;
-            position: relative;
-            z-index: 110;
-        }
-        .ticker-move {
-            display: inline-flex;
-            white-space: nowrap;
-            padding-right: 100%;
-            animation: tickerMarquee 35s linear infinite;
-        }
-        @keyframes tickerMarquee {
-            0% { transform: translate3d(0, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
-        .ticker-item {
-            display: inline-flex;
-            align-items: center;
-            padding: 0 24px;
-            font-size: 11px;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            color: var(--text-main);
-        }
-        .pulse-badge {
-            background: rgba(239, 68, 68, 0.15);
-            color: #EF4444;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 9px;
-            font-weight: 800;
-            margin-right: 8px;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
-            animation: structuralPulse 2s infinite;
-        }
-        @keyframes structuralPulse {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.6; transform: scale(0.96); }
-        }
-
-        /* 2. STICKY GLASS NAVBAR */
-        .nav-container {
-            position: sticky;
-            top: 12px;
-            z-index: 100;
-            width: 100%;
-            max-width: 1140px;
-            padding: 0 16px;
-            margin-top: 8px;
-        }
-        .luxury-glass {
-            background: var(--glass-core);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border-glass);
-            box-shadow: 0 25px 60px rgba(0,0,0,0.5);
-        }
-        .nav-box {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 24px;
-            border-radius: 16px;
-        }
-        .nav-links { display: flex; gap: 24px; list-style: none; align-items: center; }
-        @media(max-width: 850px) { .nav-links { display: none; } }
-        .nav-links a { color: var(--text-muted); text-decoration: none; font-size: 13px; font-weight: 500; transition: color 0.3s; }
-        .nav-links a:hover { color: var(--text-main); }
-
-        /* HERO ACTION CONTROLS */
-        .btn-p {
-            height: 48px; padding: 0 24px; border-radius: 12px; font-size: 13px; font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            color: #FFF; border: none; cursor: pointer; display: inline-flex; align-items: center;
-            justify-content: center; text-decoration: none; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 0 20px rgba(79, 140, 255, 0.3);
-        }
-        .btn-p:hover { transform: translateY(-2px) scale(1.02); box-shadow: 0 12px 30px rgba(79, 140, 255, 0.5); }
-        .btn-s { height: 48px; padding: 0 24px; border-radius: 12px; font-size: 13px; font-weight: 700; background: rgba(255,255,255,0.03); color: #FFF; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; transition: all 0.3s ease; }
-        .btn-s:hover { transform: translateY(-2px); background: rgba(255,255,255,0.07); }
-
-        .hero-section {
-            width: 100%; max-width: 1140px; margin: 80px auto 40px; text-align: center;
-            display: flex; flex-direction: column; align-items: center; gap: 24px; padding: 0 24px; position: relative;
-        }
-        .hero-badge {
-            background: rgba(79, 140, 255, 0.08); border: 1px solid rgba(79, 140, 255, 0.2);
-            color: var(--primary); font-size: 11px; font-weight: 700; text-transform: uppercase;
-            letter-spacing: 1.5px; padding: 6px 14px; border-radius: 20px;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Business OS Dashboard</title>
+<link rel="stylesheet" href="/static/style.css">
 </head>
+
 <body>
 
-    <!-- LIVE MARQUEE ANNOUNCEMENT TICKER -->
-    <div class="ticker-wrap">
-        <div class="ticker-move">
-            <div class="ticker-item"><span class="pulse-badge">🔴 LIVE</span> Business OS v4 Enterprise Edition is now available • AI Accounting • POS Systems • Enterprise CRM • Real-time Inventory • HR Orchestration • Async Payroll • Smart Warehouse Management • Automated Manufacturing</div>
-            <div class="ticker-item"><span class="pulse-badge">🔴 LIVE</span> Business OS v4 Enterprise Edition is now available • AI Accounting • POS Systems • Enterprise CRM • Real-time Inventory • HR Orchestration • Async Payroll • Smart Warehouse Management • Automated Manufacturing</div>
-        </div>
-    </div>
+<div class="layout">
 
-    <!-- STICKY APPLE-INSPIRED HEADER NAVIGATION -->
-    <div class="nav-container">
-        <nav class="luxury-glass nav-box">
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <div style="width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%); display: flex; align-items: center; justify-content: center; color: white;"><i class="bi bi-layers-half" style="font-size:16px;"></i></div>
-                <span style="font-size: 15px; font-weight: 800; letter-spacing: 0.5px;">BUSINESS <span style="color: var(--primary);">OS</span></span>
-            </div>
-            
-            <ul class="nav-links">
-                <li><a href="#features">Features</a></li>
-                <li><a href="#solutions">Solutions</a></li>
-                <li><a href="#pricing">Pricing</a></li>
-                <li><a href="/api/v4/docs">Resources</a></li>
-            </ul>
+<aside class="sidebar">
 
-            <div style="display: flex; align-items: center; gap: 14px;">
-                <a href="/auth/login" class="monochrome-logo" style="font-size: 12px; color: var(--text-muted);">Contact Sales</a>
-                <a href="/auth/register" class="btn-p" style="height: 36px; padding: 0 16px; border-radius: 8px; font-size: 12px;">Start Free</a>
-            </div>
-        </nav>
-    </div>
+<div class="brand">
+🚀 Business OS
+</div>
 
-    <style>
-        .hero-title {
-            font-size: clamp(34px, 6vw, 56px);
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            line-height: 1.05;
-            color: #FFF;
-            max-width: 800px;
+<nav>
+<a class="active" href="/">🏠 Home</a>
+<a href="/dashboard">📊 Dashboard</a>
+<a href="/inventory/ui">📦 Inventory</a>
+<a href="/accounting/ui">💰 Accounting</a>
+<a href="/invoice/ui">🧾 Invoice</a>
+<a href="/customers/ui">👥 Team</a>
+<a href="/settings">⚙ Settings</a>
+</nav>
+
+<div class="system-box">
+🟢 System Online
+<br>
+<small>SaaS Kernel Active</small>
+</div>
+
+</aside>
+
+
+<main class="content">
+
+<header class="topbar">
+
+<div>
+<h1>
+Welcome back 👋
+</h1>
+
+<p>
+Your Business OS workspace is running normally.
+</p>
+
+</div>
+
+<div class="profile">
+👤 Admin
+</div>
+
+</header>
+
+
+<section class="cards">
+
+<div class="card">
+<h3>💰 Revenue</h3>
+<strong id="revenue-value">Loading...</strong>
+<span>+14.2% stability</span>
+</div>
+
+
+<div class="card">
+<h3>📦 Orders</h3>
+<strong id="orders-value">Loading...</strong>
+<span>Processed</span>
+</div>
+
+
+<div class="card">
+<h3>📋 Inventory</h3>
+<strong id="products-value">Loading...</strong>
+<span>Active SKU</span>
+</div>
+
+
+<div class="card">
+<h3>💳 Subscription</h3>
+<strong id="subscription-value">Loading...</strong>
+<span>Active Plan</span>
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h2>Quick Actions</h2>
+
+<div class="actions">
+
+<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+
+<a class="action-btn" href="/products/ui">+ Add Product</a>
+
+<a class="action-btn" href="/customers/ui">+ New Customer</a>
+
+<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h2>Business Health</h2>
+
+
+<div class="health" id="healthBox">
+
+<div>
+🟢 Database
+<br>
+<small>Loading...</small>
+</div>
+
+<div>
+🟢 Accounting
+<br>
+<small>Loading...</small>
+</div>
+
+<div>
+🟢 Subscription
+<br>
+<small>Loading...</small>
+</div>
+
+<div>
+🔐 Security
+<br>
+<small>Loading...</small>
+</div>
+
+</div>
+
+
+<script>
+
+fetch("/api/public/home-health")
+.then(r => r.json())
+.then(data => {
+
+const box = document.getElementById("healthBox");
+
+box.innerHTML = `
+
+<div>
+🟢 Database
+<br>
+<small>${data.database}</small>
+</div>
+
+<div>
+🟢 Accounting
+<br>
+<small>${data.accounting}</small>
+</div>
+
+<div>
+🟢 Subscription
+<br>
+<small>${data.subscription}</small>
+</div>
+
+<div>
+🔐 Security
+<br>
+<small>${data.security}</small>
+</div>
+
+`;
+
+});
+
+</script>
+
+
+
+<div>
+🟢 Accounting
+<br>
+<small>Balanced</small>
+</div>
+
+
+<div>
+🟢 Subscription
+<br>
+<small>Active</small>
+</div>
+
+
+<div>
+🔐 Security
+<br>
+<small>Protected</small>
+</div>
+
+
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h2>Recent Activity</h2>
+
+
+<ul class="activity" id="activityList">
+
+<li>
+Loading activity...
+</li>
+
+</ul>
+
+<script>
+
+fetch("/api/public/home-activity")
+.then(r => r.json())
+.then(data => {
+
+    const list = document.getElementById("activityList");
+
+    list.innerHTML = "";
+
+    data.forEach(item => {
+
+        let icon = "📊";
+
+        if(item.type === "CREDIT"){
+            icon = "💰";
         }
-        .hero-desc {
-            font-size: clamp(14px, 2.5vw, 16px);
-            color: var(--text-muted);
-            max-width: 540px;
-            font-weight: 300;
-            line-height: 1.6;
+
+        if(item.type === "DEBIT"){
+            icon = "💳";
         }
-        .trusted-row {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            margin-top: 12px;
-            width: 100%;
-        }
-        .dash-perspective {
-            perspective: 1200px;
-            width: 100%;
-            max-width: 1000px;
-            margin: 40px auto;
-            padding: 0 16px;
-        }
-        .dash-board-mock {
-            transform: rotateX(5deg) translateY(0);
-            box-shadow: 0 50px 100px rgba(0,0,0,0.7), 0 0 40px rgba(79, 140, 255, 0.15);
-            border-color: rgba(79, 140, 255, 0.25) !important;
-            transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .dash-board-mock:hover {
-            transform: rotateX(2deg) translateY(-4px);
-        }
-        .kpi-grid-2x2 {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
-            width: 100%;
-            max-width: 1140px;
-            margin: 48px auto;
-            padding: 0 16px;
-            z-index: 10;
-        }
-        @media(min-width: 768px) {
-            .kpi-grid-2x2 {
-                grid-template-columns: repeat(4, 1fr);
-                gap: 24px;
+
+        list.innerHTML += `
+        <li>
+        ${icon} ${item.title}
+        <br>
+        <small>${item.detail}</small>
+        </li>
+        `;
+
+    });
+
+});
+
+</script>
+
+
+</section>
+
+
+
+<section class="panel">
+<h2>📈 Revenue Analytics</h2>
+
+<canvas id="revenueChart" height="120"></canvas>
+
+</section>
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+fetch("/api/public/home-revenue-chart")
+.then(response => response.json())
+.then(data => {
+
+    const ctx = document.getElementById("revenueChart");
+
+    new Chart(ctx, {
+
+        type: "line",
+
+        data: {
+
+            labels: data.labels,
+
+            datasets: [
+                {
+                    label: "Revenue (MMK)",
+
+                    data: data.values,
+
+                    tension: 0.4,
+
+                    fill: true,
+
+                    borderWidth: 3
+                }
+            ]
+        },
+
+        options: {
+
+            responsive: true,
+
+            plugins: {
+
+                legend: {
+                    display: true
+                },
+
+                tooltip: {
+
+                    callbacks: {
+
+                        label: function(context){
+
+                            return Number(
+                                context.raw
+                            ).toLocaleString()
+                            + " MMK";
+
+                        }
+
+                    }
+
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    ticks: {
+
+                        callback: function(value){
+
+                            return Number(value)
+                            .toLocaleString()
+                            + " MMK";
+
+                        }
+
+                    }
+
+                }
+
             }
+
         }
-    </style>
 
-    <!-- PREMIUM HERO INTERFACE HEADINGS -->
-    <header class="hero-section">
-        <span class="hero-badge">Distributed Orchestration Pipeline</span>
-        <h1 class="hero-title">The Operating System for Modern Enterprise.</h1>
-        <p class="hero-desc">Streamline complex workflows, isolate multi-tenant operations, and automate cross-industry logic with absolute performance criteria.</p>
-        
-        <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; margin-top: 8px;">
-            <a href="/auth/register" class="btn-p">Start Free Trial <i class="bi bi-arrow-right-short" style="font-size: 16px;"></i></a>
-            <a href="#preview-mockup" class="btn-s"><i class="bi bi-play-circle" style="color: var(--primary);"></i> Watch Demo</a>
-        </div>
-    </header>
+    });
 
-    <!-- TRUSTED LEADERS BRAND REGISTRY -->
-    <section style="width: 100%; max-width: 1140px; margin: 24px auto; text-align: center; padding: 0 24px; z-index: 10;">
-        <p style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: rgba(148, 163, 184, 0.25); text-transform: uppercase; margin-bottom: 20px;">Trusted by $100M+ Scaling Infrastructures</p>
-        <div class="trusted-row">
-            <span class="monochrome-logo"><i class="bi bi-google"></i> Google</span>
-            <span class="monochrome-logo"><i class="bi bi-microsoft"></i> Microsoft</span>
-            <span class="monochrome-logo"><i class="bi bi-stripe"></i> Stripe</span>
-            <span class="monochrome-logo"><i class="bi bi-nvidia"></i> NVIDIA</span>
-        </div>
-    </section>
+});
 
-    <!-- 3D FLUID PREMIUM DASHBOARD TERMINAL PREVIEW -->
-    <section class="dash-perspective">
-        <div class="luxury-glass dash-board-mock" style="padding: 20px; border-radius: 20px;">
-            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; padding-left: 4px;">
-                <div style="display: flex; gap: 6px;">
-                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #EF4444;"></div>
-                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #F59E0B;"></div>
-                    <div style="width: 10px; height: 10px; border-radius: 50%; background: #22C55E;"></div>
-                </div>
-                <span style="font-size: 10px; color: rgba(148, 163, 184, 0.4); font-family: monospace;">workspace.businessos.io/analytics-terminal</span>
-                <div style="width: 32px;"></div>
-            </div>
-            
-            <div style="background: #070B18; border-radius: 12px; border: 1px solid rgba(255,255,255,0.02); padding: 24px; display: flex; flex-direction: column; gap: 20px;">
-                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.04); padding-bottom: 16px; flex-wrap: wrap; gap: 12px;">
-                    <div>
-                        <div style="font-size: 9px; font-weight: 700; color: rgba(148, 163, 184, 0.4); text-transform: uppercase; letter-spacing: 0.5px;">Global Transaction Velocity</div>
-                        <div style="font-size: 26px; font-weight: 800; color: white; margin-top: 4px;">$142,384.50 <span style="font-size: 12px; color: var(--accent); font-weight: 400;"><i class="bi bi-graph-up-arrow"></i> +12.4% stability</span></div>
-                    </div>
-                    <span style="font-size: 10px; color: var(--primary); background: rgba(79, 140, 255, 0.1); padding: 4px 10px; border-radius: 6px; font-weight: 600;">SaaS Kernel Active</span>
-                </div>
-                
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px;">
-                    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); padding: 14px; border-radius: 10px;">
-                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px;"><i class="bi bi-box-seam text-blue-400"></i> Inventory Matrix</div>
-                        <div style="font-size: 15px; font-weight: 700; color: white; margin-top: 6px;">1,248 Active SKUs</div>
-                    </div>
-                    <div style="background: rgba(255,255,255,0.01); border: 1px solid rgba(255,255,255,0.02); padding: 14px; border-radius: 10px;">
-                        <div style="font-size: 10px; color: var(--text-muted); font-weight: 600; display: flex; align-items: center; gap: 6px;"><i class="bi bi-receipt text-purple-400"></i> Async Ledger</div>
-                        <div style="font-size: 15px; font-weight: 700; color: white; margin-top: 6px;">8,492 Requests/sec</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+</script>
 
-    <!-- 4-GRID CONTINUOUS HARDENED KPI CARDS -->
-    <section class="kpi-grid-2x2">
-        <div class="luxury-glass stat-card" style="border-radius: 16px;">
-            <div>📊</div>
-            <div class="num">1,248+</div>
-            <div class="desc">Active Tenants</div>
-            <div class="badge"><i class="bi bi-arrow-up-short"></i> +26% mo/mo</div>
-        </div>
-        <div class="luxury-glass stat-card" style="border-radius: 16px;">
-            <div>📈</div>
-            <div class="num">$14.2M</div>
-            <div class="desc">Gross Volume</div>
-            <div class="badge"><i class="bi bi-arrow-up-short"></i> +14.2% stability</div>
-        </div>
-        <div class="luxury-glass stat-card" style="border-radius: 16px;">
-            <div>📦</div>
-            <div class="num">8,492</div>
-            <div class="desc">Orders Processed</div>
-            <div class="badge" style="color: var(--primary); background: rgba(79, 140, 255, 0.1);"><i class="bi bi-box-seam"></i> Secure</div>
-        </div>
-        <div class="luxury-glass stat-card" style="border-radius: 16px;">
-            <div>🔐</div>
-            <div class="num">99.98%</div>
-            <div class="desc">Production Uptime</div>
-            <div class="badge" style="color: var(--primary); background: rgba(79, 140, 255, 0.1);"><i class="bi bi-shield-lock"></i> SLA</div>
-        </div>
-    </section>
 
-    <!-- 6 PLUGGABLE INDUSTRY DOMAINS AREA -->
-    <section id="features" style="width: 100%; max-width: 1140px; margin: 64px auto 32px; padding: 0 16px; z-index: 10;">
-        <p style="font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--primary); text-transform: uppercase; text-align: center; margin-bottom: 8px;">Modular Architecture</p>
-        <h3 style="font-size: 26px; font-weight: 800; text-align: center; color: white; margin-bottom: 32px; letter-spacing: -0.5px;">28 Industry Verticals. One Unified Kernel.</h3>
-        
-        <div class="grid-3">
-            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
-                <div style="font-size: 20px; color: var(--primary);"><i class="bi bi-box-seam"></i></div>
-                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">📦 INVENTORY LEDGER</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Real-time asset telemetry mapping and multi-warehouse delta synchronization logic pipelines.</div>
-            </div>
-            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
-                <div style="font-size: 20px; color: var(--secondary);"><i class="bi bi-cash-coin"></i></div>
-                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">💰 CORE ACCOUNTING</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Automated corporate general ledgers and balancing charts aligned to financial standards.</div>
-            </div>
-            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
-                <div style="font-size: 20px; color: var(--accent);"><i class="bi bi-people"></i></div>
-                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">👥 HR WORKPLACE</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Multi-tenant isolated employee rosters, salary configuration keys, and performance nodes.</div>
-            </div>
-            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
-                <div style="font-size: 20px; color: #60A5FA;"><i class="bi bi-graph-up-arrow"></i></div>
-                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">📈 PREDICTIVE ANALYTICS</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">AI-driven pipeline velocity tracing and historical inventory demand calculation graphs.</div>
-            </div>
-            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
-                <div style="font-size: 20px; color: #F59E0B;"><i class="bi bi-cart3"></i></div>
-                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">🛒 SALES WEBHOOKS</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Omni-channel checkout interceptors processing transaction tokens dynamically via streams.</div>
-            </div>
-            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 24px;">
-                <div style="font-size: 20px; color: #EF4444;"><i class="bi bi-shield-lock"></i></div>
-                <div style="font-size: 14px; font-weight: 700; color: white; margin-top: 12px;">🔒 SECURITY VAULT</div>
-                <div style="font-size: 12px; color: var(--text-muted); margin-top: 6px; font-weight: 300; line-height: 1.6;">Cryptographically hard-sealed access tokens tracking session integrity verification metrics.</div>
-            </div>
-        </div>
-    </section>
+</main>
 
-    <!-- SAAS PRICING TIERS -->
-    <section id="pricing" style="width: 100%; max-width: 1140px; margin: 64px auto; padding: 0 16px; z-index: 10;">
-        <div class="grid-3" style="max-width: 800px; margin: 0 auto;">
-            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 32px;">
-                <div style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">Startup Tier</div>
-                <div style="font-size: 32px; font-weight: 800; color: white; margin-top: 8px;">$49<span style="font-size: 14px; color: var(--text-muted); font-weight: 400;"> / mo</span></div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px; font-weight: 300; line-height: 1.5;">Ideal for scaling core businesses requiring low hardware limits.</p>
-                <a href="/auth/register" class="btn-s" style="width: 100%; height: 40px; font-size: 12px; border-radius: 8px; margin-top: 20px;">Deploy Basic Stack</a>
-            </div>
-            <div class="luxury-glass stat-card" style="border-radius: 16px; padding: 32px; border-color: var(--primary);">
-                <div style="font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase;">Growth Plan</div>
-                <div style="font-size: 32px; font-weight: 800; color: white; margin-top: 8px;">$149<span style="font-size: 14px; color: var(--text-muted); font-weight: 400;"> / mo</span></div>
-                <p style="font-size: 12px; color: var(--text-muted); margin-top: 8px; font-weight: 300; line-height: 1.5;">Unlimited pluggable modules, advanced AI agents, and 99.98% SLA bounds.</p>
-                <a href="/auth/register" class="btn-p" style="width: 100%; height: 40px; font-size: 12px; border-radius: 8px; margin-top: 20px; box-shadow: none;">Deploy Scale Trial</a>
-            </div>
-        </div>
-    </section>
+</div>
 
-    <!-- CORPORATE DETAILED MULTI-LINK FOOTER -->
-    <footer style="width: 100%; max-width: 1140px; margin: 80px auto 0; padding: 40px 24px 24px; border-top: 1px solid var(--border-glass); z-index: 10;">
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 32px; text-align: left; margin-bottom: 40px;">
-            <div>
-                <h5 style="font-size: 12px; font-weight: 700; color: white; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Product</h5>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 12px;">
-                    <li><a href="#features" style="color: var(--text-muted); text-decoration: none;">Industry Modules</a></li>
-                    <li><a href="/api/v4/docs" style="color: var(--text-muted); text-decoration: none;">Kernel Core API</a></li>
-                    <li><a href="#pricing" style="color: var(--text-muted); text-decoration: none;">SaaS Pricing Plans</a></li>
-                </ul>
-            </div>
-            <div>
-                <h5 style="font-size: 12px; font-weight: 700; color: white; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;">Corporate</h5>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 12px;">
-                    <li><a href="/auth/login" style="color: var(--text-muted); text-decoration: none;">Contact Sales</a></li>
-                    <li><a href="/api/v4/docs" style="color: var(--text-muted); text-decoration: none;">Infrastructure Status</a></li>
-                    <li><a href="#stats" style="color: var(--text-muted); text-decoration: none;">Enterprise SLA Trust</a></li>
-                </ul>
-            </div>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; font-size: 11px; color: var(--text-muted); border-top: 1px solid rgba(255,255,255,0.02); padding-top: 24px;">
-            <span>&copy; 2026 Business OS Architecture Inc. All Rights Reserved. Engineered for Global Infrastructure Scale.</span>
-            <div style="display: flex; gap: 16px;">
-                <span class="monochrome-logo" style="font-size: 13px;"><i class="bi bi-github"></i></span>
-                <span class="monochrome-logo" style="font-size: 13px;"><i class="bi bi-slack"></i></span>
-            </div>
-        </div>
-    </footer>
+
+<script>
+async function loadDashboardData(){
+
+    try {
+
+        const res = await fetch('/api/v4/dashboard/summary');
+
+        if(!res.ok){
+            console.log("Dashboard API unavailable");
+            return;
+        }
+
+        const data = await res.json();
+
+        const cards = document.querySelectorAll('.card');
+
+        if(cards.length >= 4){
+
+            cards[0].querySelector('strong').innerText =
+                Number(data.revenue || 0).toLocaleString() + " MMK";
+
+            cards[1].querySelector('strong').innerText =
+                data.orders || 0;
+
+            cards[2].querySelector('strong').innerText =
+                data.products || 0;
+
+            cards[3].querySelector('strong').innerText =
+                "ACTIVE";
+        }
+
+    } catch(e){
+
+        console.log(e);
+
+    }
+
+}
+
+loadDashboardData();
+</script>
 
 </body>
 </html>
+
+<script>
+
+async function loadHomeSummary(){
+
+    try{
+
+        const res = await fetch("/api/public/home-summary");
+
+        const data = await res.json();
+
+
+        document.querySelector("#revenue-value").innerText =
+            Number(data.revenue).toLocaleString() + " MMK";
+
+
+        document.querySelector("#orders-value").innerText =
+            data.orders;
+
+
+        document.querySelector("#products-value").innerText =
+            data.products;
+
+
+        document.querySelector("#subscription-value").innerText =
+            data.subscription;
+
+
+    }catch(error){
+
+        console.log("Dashboard KPI Load Failed", error);
+
+    }
+
+}
+
+
+loadHomeSummary();
+
+</script>
+
+
+<script>
+async function loadDashboardData(){
+
+    try{
+        const res = await fetch("/api/public/home-dashboard");
+        const data = await res.json();
+
+        const cards = document.querySelectorAll(".card strong");
+
+        if(cards.length >= 4){
+            cards[0].innerText =
+                Number(data.revenue).toLocaleString() + " MMK";
+
+            cards[1].innerText =
+                data.orders;
+
+            cards[2].innerText =
+                data.products;
+
+            cards[3].innerText =
+                data.subscription;
+        }
+
+    }catch(err){
+        console.log("Dashboard API Error:", err);
+    }
+
+}
+
+loadDashboardData();
+</script>
+

@@ -28,3 +28,8 @@ class Category(TenantModel):
         "Product",
         back_populates="category"
     )
+
+    tenant = relationship(
+        "Tenant",
+        back_populates="categories"
+    )

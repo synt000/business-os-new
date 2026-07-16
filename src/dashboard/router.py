@@ -157,3 +157,79 @@ async def suppliers_ui(request: Request):
         name="suppliers.html"
     )
 
+
+
+@router.get("/api/public/home-summary")
+async def public_home_summary(
+    db: Session = Depends(get_db)
+):
+
+    from sqlalchemy import func
+    from src.models.saas_core import Tenant, Order, AccountLedger
+    from src.domains.product.models import Product
+
+
+    tenant = (
+        db.query(Tenant)
+        .order_by(Tenant.created_at.asc())
+        .first()
+    )
+
+
+    if not tenant:
+        return {
+            "revenue": 0,
+            "orders": 0,
+            "products": 0,
+            "subscription": "NONE"
+        }
+
+
+    revenue = (
+        db.query(func.sum(AccountLedger.amount))
+        .filter(
+            AccountLedger.tenant_id == tenant.id,
+            AccountLedger.entry_type == "CREDIT"
+        )
+        .scalar()
+        or 0
+    )
+
+
+    orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == tenant.id
+        )
+        .count()
+    )
+
+
+    products = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == tenant.id
+        )
+        .count()
+    )
+
+
+    return {
+        "revenue": revenue,
+        "orders": orders,
+        "products": products,
+        "subscription": tenant.subscription_tier.value
+    }
+
+
+
+@router.get("/api/v4/dashboard/revenue-chart")
+async def revenue_chart(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    return DashboardService.get_revenue_chart(
+        db,
+        current_user.tenant_id
+    )

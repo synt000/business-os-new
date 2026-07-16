@@ -2,19 +2,22 @@
 
 Goal:
 
-Finish Landing Website
+Finish Core SaaS Phase Extensions
 
 Tasks
 
-[ ] Landing UI
+[x] Landing UI
+[x] Mobile Navigation
+[x] Business Cards
+[x] Trial Button
+[x] Pricing
+[x] Contact
+[x] Business Rental System Tables
+[x] Customer Onboarding Schemas
+[x] Subscription & Payment Architecture
 
-[ ] Mobile Navigation
+# BUG TRACKER
 
-[ ] Business Cards
+Open Bugs
 
-[ ] Trial Button
-
-[ ] Pricing
-
-[ ] Contact
-
+None

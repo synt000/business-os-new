@@ -7,6 +7,16 @@ from src.core.database import get_db
 from src.models.business_profile import BusinessProfile
 
 
+BLOCKED_PUBLIC_PATHS = {
+    "favicon.ico",
+    "dashboard",
+    "login",
+    "logout",
+    "api",
+    "docs",
+    "openapi.json"
+}
+
 router = APIRouter(
     prefix="",
     tags=["Public Web Page"]
@@ -33,11 +43,33 @@ async def read_register_page(request: Request):
 
 
 
+@router.get("/openapi.json", include_in_schema=False)
+async def openapi_guard():
+    raise HTTPException(
+        status_code=404,
+        detail="NOT_PUBLIC_PAGE"
+    )
+
+
+@router.get("/docs", include_in_schema=False)
+async def docs_guard():
+    raise HTTPException(
+        status_code=404,
+        detail="NOT_PUBLIC_PAGE"
+    )
+
+
 @router.get("/{business_slug}", response_class=HTMLResponse)
 async def public_business_page(
     business_slug: str,
     db: Session = Depends(get_db)
 ):
+
+    if business_slug in BLOCKED_PUBLIC_PATHS:
+        raise HTTPException(
+            status_code=404,
+            detail="PUBLIC_PAGE_NOT_FOUND"
+        )
 
     profile = (
         db.query(BusinessProfile)
@@ -333,3 +365,189 @@ src="{profile.logo_url or 'https://via.placeholder.com/100'}">
 
 
     return HTMLResponse(html)
+
+
+@router.get("/api/public/home-revenue-chart")
+async def public_home_revenue_chart(
+    db: Session = Depends(get_db)
+):
+
+    from sqlalchemy import func
+    from src.models.saas_core import AccountLedger
+
+    rows = (
+        db.query(
+            func.date(AccountLedger.created_at),
+            func.sum(AccountLedger.amount)
+        )
+        .filter(
+            AccountLedger.entry_type == "CREDIT"
+        )
+        .group_by(
+            func.date(AccountLedger.created_at)
+        )
+        .order_by(
+            func.date(AccountLedger.created_at)
+        )
+        .all()
+    )
+
+    return {
+        "labels": [
+            str(r[0])
+            for r in rows
+        ],
+        "values": [
+            r[1]
+            for r in rows
+        ]
+    }
+
+
+@router.get("/api/public/home-dashboard")
+async def public_home_dashboard(
+    db: Session = Depends(get_db)
+):
+
+    from sqlalchemy import func
+    from src.models.saas_core import (
+        Tenant,
+        Order,
+        AccountLedger
+    )
+    from src.domains.product.models import Product
+
+
+    tenant = (
+        db.query(Tenant)
+        .first()
+    )
+
+    if not tenant:
+        return {
+            "revenue":0,
+            "orders":0,
+            "products":0,
+            "subscription":"NONE"
+        }
+
+
+    revenue = (
+        db.query(func.sum(AccountLedger.amount))
+        .filter(
+            AccountLedger.tenant_id == tenant.id,
+            AccountLedger.entry_type == "CREDIT"
+        )
+        .scalar()
+        or 0
+    )
+
+
+    orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == tenant.id
+        )
+        .count()
+    )
+
+
+    products = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == tenant.id
+        )
+        .count()
+    )
+
+
+    return {
+        "revenue": revenue,
+        "orders": orders,
+        "products": products,
+        "subscription": tenant.subscription_tier.value
+    }
+
+
+@router.get("/api/public/home-activity")
+async def public_home_activity(
+    db: Session = Depends(get_db)
+):
+
+    from src.models.saas_core import AccountLedger, Order
+
+    activities = []
+
+    payments = (
+        db.query(AccountLedger)
+        .order_by(AccountLedger.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
+    for item in payments:
+
+        activities.append({
+            "title": item.account_head,
+            "detail": str(item.amount) + " MMK",
+            "type": item.entry_type
+        })
+
+
+    orders = (
+        db.query(Order)
+        .order_by(Order.created_at.desc())
+        .limit(3)
+        .all()
+    )
+
+    for order in orders:
+
+        activities.append({
+            "title": "Order Created",
+            "detail": order.order_number,
+            "type": "ORDER"
+        })
+
+
+    return activities[:5]
+
+
+
+@router.get("/api/public/home-health")
+async def public_home_health(
+    db: Session = Depends(get_db)
+):
+
+    from sqlalchemy import text
+    from src.models.saas_core import Tenant
+
+
+    health = {
+        "database": "Healthy",
+        "accounting": "Balanced",
+        "subscription": "Active",
+        "security": "Protected"
+    }
+
+
+    try:
+        db.execute(text("SELECT 1"))
+        health["database"] = "Healthy"
+
+    except Exception:
+        health["database"] = "Error"
+
+
+    tenant = db.query(Tenant).first()
+
+    if tenant:
+
+        if tenant.is_billing_active:
+            health["subscription"] = "Active"
+        else:
+            health["subscription"] = "Inactive"
+
+
+    return health
+

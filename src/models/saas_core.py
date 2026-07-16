@@ -643,7 +643,7 @@ class Invoice(Base):
     order_id = Column(
         String,
         ForeignKey("orders.id", ondelete="CASCADE"),
-        nullable=False
+        nullable=True
     )
 
     order = relationship(
