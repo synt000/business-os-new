@@ -27,12 +27,12 @@ templates = Jinja2Templates(directory="src/templates")
 
 @router.get("/", response_class=HTMLResponse)
 async def read_landing_page(request: Request):
-    return templates.TemplateResponse("landing.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="landing.html")
 
 
 @router.get("/landing-page", response_class=HTMLResponse)
 async def read_test_landing_page(request: Request):
-    return templates.TemplateResponse("landing.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="landing.html")
 
 
 
