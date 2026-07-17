@@ -47,7 +47,7 @@ from src.auth.two_factor import router as two_factor_router
 from src.auth.session_router import router as session_router
 from src.auth.refresh_router import router as refresh_router
 from src.product.router import router as product_router
-from src.dashboard.router import router as dashboard_router
+from src.domains.dashboard.router import router as dashboard_router
 from src.public_router import router as public_router
 from src.public_page_router import router as public_page_router
 from src.business_settings_router import router as business_settings_router
@@ -66,6 +66,7 @@ from src.domains.customer_finance.router import router as customer_finance_route
 from src.business_profile_router import router as business_profile_router
 from src.domains.subscription.router import router as subscription_router
 from src.domains.admin.router import router as admin_router
+from src.domains.rental.router import router as rental_router
 
 print(f"📡 [DevOps Telemetry] Loaded Cryptographic Secret Prefix: {settings.SECRET_KEY[:10]}")
 
@@ -175,7 +176,11 @@ app.include_router(public_page_router)
 app.include_router(business_settings_router)
 app.include_router(business_profile_router)
 app.include_router(admin_router)
+app.include_router(rental_router)
+print("🔥 BEFORE CHECK:", len(app.routes))
+print("🔥 RENTAL ATTACHED:", [r.path for r in rental_router.routes])
 
+print("🔥 AFTER CHECK:", len(app.routes))
 # DYNAMIC COMPATIBILITY INJECTOR FOR CORE ANALYTICS INTEGRATION
 @app.get("/api/v4/dashboard/summary", tags=["Infrastructure Telemetry"])
 def fetch_dynamic_dashboard_telemetry_summary():

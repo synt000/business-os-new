@@ -4,6 +4,7 @@ from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from src.core.database import TenantModel
+from src.domains.product.models import Product
 
 
 class Inventory(TenantModel):

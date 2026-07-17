@@ -6,19 +6,20 @@ db = SessionLocal()
 
 
 types = [
-    ("Online Shop","ONLINE_SHOP"),
-    ("2D Seller + Design Studio","2D_DESIGN"),
-    ("Restaurant Cafe","RESTAURANT"),
-    ("Beauty Salon","BEAUTY_SALON"),
-    ("Wholesale Distribution","WHOLESALE"),
+    ("Online Shop / E-commerce Seller", "ONLINE_SHOP"),
+    ("2D ဒိုင် / Seller Management", "2D_SELLER"),
+    ("Beauty Salon", "BEAUTY_SALON"),
+    ("Food & Beverage", "FOOD_BEVERAGE"),
+    ("Mini Mart / Retail Shop", "MINI_MART"),
+    ("Rental Service Management", "RENTAL_SERVICE"),
 ]
 
 
-for name,code in types:
+for name, code in types:
 
     exists = (
         db.query(BusinessType)
-        .filter(BusinessType.code==code)
+        .filter(BusinessType.code == code)
         .first()
     )
 
@@ -33,4 +34,5 @@ for name,code in types:
 
 db.commit()
 
-print("✓ Rental Business Types Seeded")
+print("✓ Business Types Seeded")
+db.close()

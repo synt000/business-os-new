@@ -54,3 +54,18 @@ FEATURE_MAPPING = {
     ],
 
 }
+
+
+# Rental Service Management
+FEATURE_MAPPING["RENTAL_SERVICE"] = [
+    "RENTAL_ITEM",
+    "RENTAL_BOOKING",
+    "CUSTOMER",
+    "PAYMENT",
+    "INVOICE",
+    "DEPOSIT",
+    "RETURN_TRACKING",
+    "MAINTENANCE",
+    "INVENTORY",
+    "LOG_HISTORY",
+]

@@ -16,3 +16,15 @@ dashboard_part*_backup.html
 
 *.log
 .env
+
+# Generated PDF reports
+*.pdf
+
+# JWT / temporary credentials
+token.txt
+*.token
+
+# Local test files
+check_*.py
+fix_*.py
+dashboard_upgrade.txt
