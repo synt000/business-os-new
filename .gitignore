@@ -28,3 +28,8 @@ token.txt
 check_*.py
 fix_*.py
 dashboard_upgrade.txt
+
+# Alembic temporary backups
+alembic/backups/
+alembic/old_broken/
+old_246.py
