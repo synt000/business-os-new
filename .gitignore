@@ -33,3 +33,12 @@ dashboard_upgrade.txt
 alembic/backups/
 alembic/old_broken/
 old_246.py
+
+# Backup files
+*_before_*
+*_backup*
+backup_*
+*.sql
+
+# Local scripts
+login.sh

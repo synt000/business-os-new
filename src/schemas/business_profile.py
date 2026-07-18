@@ -13,7 +13,7 @@ class BusinessProfileCreate(BaseModel):
 
 
 class BusinessProfileResponse(BaseModel):
-    id: int
+    id: str
     tenant_id: str
     business_name: str
     logo_url: Optional[str] = None

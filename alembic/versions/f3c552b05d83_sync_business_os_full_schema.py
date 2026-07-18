@@ -534,7 +534,7 @@ def upgrade() -> None:
     op.add_column('products', sa.Column('purchase_price', sa.Integer(), nullable=False))
     op.add_column('products', sa.Column('retail_price', sa.Integer(), nullable=False))
     op.add_column('products', sa.Column('reorder_level', sa.Integer(), nullable=False))
-    op.add_column('products', sa.Column('category_id', sa.UUID(), nullable=True))
+    op.add_column('products', sa.Column('category_id', sa.String(), nullable=True))
     op.add_column('products', sa.Column('created_at', sa.DateTime(), nullable=False))
     op.add_column('products', sa.Column('updated_at', sa.DateTime(), nullable=False))
     op.alter_column('products', 'sku',

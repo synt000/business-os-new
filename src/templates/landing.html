@@ -1,72 +1,146 @@
 <!DOCTYPE html>
-<html lang="my">
-
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Business OS - Myanmar Business Management SaaS</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Business OS Myanmar</title>
 
 <style>
 
+*{
+box-sizing:border-box;
+}
+
 body{
-    font-family: Arial, sans-serif;
-    background:#0f172a;
-    color:white;
-    margin:0;
+margin:0;
+font-family:Arial, sans-serif;
+background:#0f172a;
+color:white;
 }
 
 .container{
-    max-width:1100px;
-    margin:auto;
-    padding:40px 20px;
+max-width:480px;
+margin:auto;
+padding:25px;
 }
 
-.hero{
-    text-align:center;
-    padding:80px 20px;
+.header{
+text-align:center;
+padding:30px 10px;
 }
 
-h1{
-    font-size:45px;
+.header h1{
+font-size:34px;
+margin:0;
 }
 
-.highlight{
-    color:#38bdf8;
+.header span{
+color:#38bdf8;
 }
+
+.subtitle{
+margin-top:10px;
+color:#cbd5e1;
+font-size:15px;
+}
+
+
+.grid{
+
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:18px;
+margin-top:30px;
+
+}
+
+
+.app{
+
+background:rgba(255,255,255,0.08);
+border:1px solid rgba(255,255,255,0.15);
+border-radius:25px;
+padding:25px 15px;
+text-align:center;
+text-decoration:none;
+color:white;
+backdrop-filter:blur(15px);
+
+transition:.3s;
+
+}
+
+
+.app:hover{
+
+transform:translateY(-5px);
+
+}
+
+
+.icon{
+
+font-size:45px;
+margin-bottom:15px;
+
+}
+
+
+.name{
+
+font-size:16px;
+font-weight:bold;
+
+}
+
+
+.desc{
+
+font-size:12px;
+color:#cbd5e1;
+margin-top:8px;
+
+}
+
+
 
 .btn{
-    display:inline-block;
-    padding:14px 25px;
-    margin:10px;
-    border-radius:10px;
-    text-decoration:none;
-    color:white;
-    background:#2563eb;
+
+display:block;
+margin-top:25px;
+padding:16px;
+border-radius:30px;
+text-align:center;
+background:#2563eb;
+color:white;
+text-decoration:none;
+font-weight:bold;
+
 }
+
 
 .telegram{
-    background:#0088cc;
+
+background:#0088cc;
+
 }
 
 
-.cards{
-    display:flex;
-    gap:20px;
-    flex-wrap:wrap;
-}
+footer{
 
-.card{
-    background:#1e293b;
-    padding:25px;
-    border-radius:15px;
-    flex:1;
-    min-width:250px;
+text-align:center;
+margin-top:40px;
+font-size:12px;
+color:#94a3b8;
+
 }
 
 
 </style>
 
+<link rel="manifest" href="/static/pwa/manifest.json">
+<meta name="theme-color" content="#2563eb">
 </head>
 
 
@@ -76,138 +150,103 @@ h1{
 <div class="container">
 
 
-<section class="hero">
+<div class="header">
 
 <h1>
-🚀 <span class="highlight">Business OS</span>
+🚀 <span>Business OS</span>
 </h1>
 
-<h2>
-မြန်မာလုပ်ငန်းများအတွက်
-Digital Management System
-</h2>
+<div class="subtitle">
+Myanmar Business App Platform
+</div>
 
-<p>
-Inventory • Accounting • Invoice • Customer • Team Management
-</p>
+</div>
 
 
-<a class="btn telegram"
-href="https://t.me/yourusername">
 
-📩 Telegram ဖြင့် ဆက်သွယ်ရန်
+<div class="grid">
+
+
+{% for b in businesses %}
+
+<a class="app" href="/{{ b.business_slug }}">
+
+
+<div class="icon">
+
+{% if "Shop" in b.business_name or "Online" in b.business_name %}
+🛒
+
+{% elif "2D" in b.business_name %}
+🎲
+
+{% elif "Beauty" in b.business_name %}
+💇
+
+{% elif "Mart" in b.business_name %}
+🏪
+
+{% elif "Rental" in b.business_name %}
+🏠
+
+{% else %}
+🏢
+
+{% endif %}
+
+</div>
+
+
+<div class="name">
+{{ b.business_name }}
+</div>
+
+
+<div class="desc">
+
+{{ b.description or "Business OS Service" }}
+
+</div>
+
 
 </a>
 
 
-<a class="btn"
-href="/signup">
+{% endfor %}
 
-🆓 Free Trial စတင်ရန်
 
+</div>
+
+
+
+<a class="btn" href="/signup">
+🆓 Start Free Trial
 </a>
 
 
-</section>
+<a class="btn telegram" href="https://t.me/yourusername">
+✈️ Contact Telegram
+</a>
 
 
 
-<h2>
-💳 Pricing Plans
-</h2>
+<footer>
 
+© 2026 Business OS Myanmar
 
-<div class="cards">
-
-
-<div class="card">
-
-<h3>FREE TRIAL</h3>
-
-<p>
-3 Days Trial
-</p>
-
-<p>
-Basic Business Workspace
-</p>
-
-</div>
-
-
-
-<div class="card">
-
-<h3>STARTUP</h3>
-
-<p>
-30,000 MMK / Month
-</p>
-
-<p>
-Small Business
-</p>
-
-</div>
-
-
-
-<div class="card">
-
-<h3>BUSINESS</h3>
-
-<p>
-100,000 MMK / Month
-</p>
-
-<p>
-Growing Company
-</p>
-
-</div>
+</footer>
 
 
 </div>
 
 
-
-<br>
-
-
-<h2>
-✨ Features
-</h2>
-
-
-<div class="cards">
-
-<div class="card">
-📦 Inventory Management
-</div>
-
-
-<div class="card">
-💰 Accounting & Finance
-</div>
-
-
-<div class="card">
-🧾 Invoice System
-</div>
-
-
-<div class="card">
-👥 Team Permission
-</div>
-
-
-</div>
-
-
-
-</div>
-
-
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/static/pwa/sw.js")
+    .then(() => console.log("Business OS PWA Ready"))
+    .catch(err => console.log("SW Error", err));
+}
+</script>
 </body>
 
 </html>

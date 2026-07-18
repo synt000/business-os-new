@@ -7,7 +7,7 @@ class ProductBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     sku: str = Field(..., min_length=3, max_length=50)
     barcode: Optional[str] = None
-    category_id: UUID
+    category_id: str
     price: float = Field(..., gt=0)
     stock_quantity: int = Field(0, ge=0)
     reorder_level: int = Field(5, ge=0)
@@ -19,7 +19,7 @@ class ProductUpdate(BaseModel):
     name: Optional[str] = None
     sku: Optional[str] = None
     barcode: Optional[str] = None
-    category_id: Optional[UUID] = None
+    category_id: Optional[str] = None
     price: Optional[float] = None
     stock_quantity: Optional[int] = None
     reorder_level: Optional[int] = None

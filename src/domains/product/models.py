@@ -1,6 +1,5 @@
 from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import relationship, mapped_column
-from sqlalchemy.dialects.postgresql import UUID
 
 from src.database import TenantModel
 
@@ -48,7 +47,7 @@ class Product(TenantModel):
     )
 
     category_id = mapped_column(
-        UUID(as_uuid=True),
+        String,
         ForeignKey("categories.id")
     )
 

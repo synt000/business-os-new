@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException, HTTPException
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
@@ -62,7 +62,14 @@ async def get_profile(
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
-
-    return db.query(BusinessProfile).filter(
+    profile = db.query(BusinessProfile).filter(
         BusinessProfile.tenant_id == current_user.tenant_id
     ).first()
+
+    if profile is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Business profile not found"
+        )
+
+    return profile

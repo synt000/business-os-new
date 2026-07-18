@@ -26,8 +26,30 @@ templates = Jinja2Templates(directory="src/templates")
 
 
 @router.get("/", response_class=HTMLResponse)
-async def read_landing_page(request: Request):
-    return templates.TemplateResponse(request=request, name="landing.html")
+async def read_landing_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    businesses = (
+        db.query(BusinessProfile)
+        .filter(
+            BusinessProfile.is_public == True
+        )
+        .order_by(
+            BusinessProfile.id
+        )
+        .limit(5)
+        .all()
+    )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="landing.html",
+        context={
+            "businesses": businesses
+        }
+    )
 
 
 @router.get("/landing-page", response_class=HTMLResponse)
@@ -146,154 +168,153 @@ async def public_business_page(
 
     html = f"""
 <!DOCTYPE html>
-<html>
+<html lang="my">
 
 <head>
 
-<meta name="viewport"
-content="width=device-width, initial-scale=1">
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <title>{profile.business_name}</title>
 
-
 <style>
+
+* {{
+box-sizing:border-box;
+}}
 
 body {{
 margin:0;
-font-family:Arial;
-background:#f3f4f6;
+font-family:Inter,Arial,sans-serif;
+background:#f8fafc;
+color:#0f172a;
 }}
 
 
 .cover {{
-height:180px;
+height:260px;
 background:
+linear-gradient(
+rgba(0,0,0,.35),
+rgba(0,0,0,.55)
+),
 url('{profile.cover_url or ""}')
 center/cover;
 }}
 
 
 .header {{
-
 background:{color};
 color:white;
-
-padding:30px;
-
+padding:35px 20px 80px;
 text-align:center;
-
-font-size:30px;
-
-font-weight:bold;
-
+font-size:34px;
+font-weight:800;
 }}
 
 
-
-.logo {{
-
-width:90px;
-
-height:90px;
-
-border-radius:50%;
-
-object-fit:cover;
-
-margin-top:-45px;
-
-border:5px solid white;
-
+.container {{
+max-width:900px;
+margin:-60px auto 40px;
+padding:20px;
 }}
-
 
 
 .card {{
-
 background:white;
-
-margin:20px;
-
-padding:25px;
-
-border-radius:25px;
-
+border-radius:30px;
+padding:30px;
+box-shadow:
+0 20px 50px rgba(15,23,42,.12);
 text-align:center;
-
-box-shadow:0 5px 20px #ddd;
-
 }}
 
+
+.logo {{
+width:120px;
+height:120px;
+border-radius:50%;
+object-fit:cover;
+border:6px solid white;
+margin-top:-90px;
+background:white;
+}}
+
+
+h1,h2,h3 {{
+margin-top:15px;
+}}
+
+
+.description {{
+font-size:18px;
+color:#475569;
+line-height:1.8;
+}}
 
 
 .owner {{
-
-font-size:20px;
-
-margin:20px;
-
+margin:25px 0;
+font-size:18px;
 }}
-
 
 
 .contact {{
-
 display:flex;
-
 flex-wrap:wrap;
-
 justify-content:center;
-
 gap:12px;
-
 }}
-
 
 
 .contact-btn {{
-
 background:{color};
-
 color:white;
-
-padding:14px 20px;
-
-border-radius:30px;
-
+padding:14px 22px;
+border-radius:999px;
 text-decoration:none;
-
-font-weight:bold;
-
+font-weight:700;
 }}
 
 
-
 .order {{
-
 display:block;
-
-margin-top:25px;
-
+margin-top:30px;
 background:#16a34a;
-
 color:white;
-
-padding:16px;
-
-border-radius:30px;
-
+padding:18px;
+border-radius:999px;
+font-size:20px;
+font-weight:800;
 text-decoration:none;
+}}
 
-font-size:18px;
 
+.feature-grid {{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:20px;
+margin-top:25px;
+}}
+
+
+.feature {{
+background:#f1f5f9;
+padding:25px;
+border-radius:25px;
+font-weight:700;
+}}
+
+
+footer {{
+text-align:center;
+padding:30px;
+color:#64748b;
 }}
 
 </style>
 
-
 </head>
-
 
 
 <body>
@@ -310,20 +331,22 @@ font-size:18px;
 
 
 
+<div class="container">
+
+
 <div class="card">
 
 
 <img class="logo"
-src="{profile.logo_url or 'https://via.placeholder.com/100'}">
-
+src="{profile.logo_url or 'https://via.placeholder.com/120'}">
 
 
 <h2>
-{profile.welcome_message or ""}
+{profile.welcome_message or "Welcome"}
 </h2>
 
 
-<p>
+<p class="description">
 {profile.description or ""}
 </p>
 
@@ -346,7 +369,7 @@ src="{profile.logo_url or 'https://via.placeholder.com/100'}">
 
 
 
-<a class="order">
+<a class="order" href="#">
 
 🛒 Order Now
 
@@ -354,7 +377,44 @@ src="{profile.logo_url or 'https://via.placeholder.com/100'}">
 
 
 
+<div class="feature-grid">
+
+
+<div class="feature">
+📦 Products
 </div>
+
+
+<div class="feature">
+🧾 Invoice
+</div>
+
+
+<div class="feature">
+💰 Finance
+</div>
+
+
+<div class="feature">
+👥 Customers
+</div>
+
+
+</div>
+
+
+</div>
+
+
+</div>
+
+
+
+<footer>
+
+Powered by 🚀 Business OS Myanmar
+
+</footer>
 
 
 </body>
@@ -362,7 +422,6 @@ src="{profile.logo_url or 'https://via.placeholder.com/100'}">
 </html>
 
 """
-
 
     return HTMLResponse(html)
 
