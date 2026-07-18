@@ -19,12 +19,10 @@ headers:{
 
 const data = await res.json();
 
-
 console.log("CEO DASHBOARD",data);
 
 
 if(data.dashboard){
-
 
 const d=data.dashboard;
 
@@ -41,20 +39,18 @@ d.today_orders+" Orders";
 }
 
 
-if(document.getElementById("customers")){
-document.getElementById("customers").innerText =
-d.total_customers;
-}
-
-
 if(document.getElementById("products")){
 document.getElementById("products").innerText =
 d.total_products;
 }
 
 
+if(document.getElementById("customers")){
+document.getElementById("customers").innerText =
+d.total_customers;
 }
 
+}
 
 }
 catch(e){
@@ -73,3 +69,4 @@ document.addEventListener(
 "DOMContentLoaded",
 loadDashboardSummary
 );
+

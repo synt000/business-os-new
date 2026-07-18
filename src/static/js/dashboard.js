@@ -1,72 +1,77 @@
-async function loadDashboardSummary(){
+async function loadCEOStats(){
 
-    const token =
-        localStorage.getItem("access_token") ||
-        localStorage.getItem("token");
-
-
-    try{
-
-        const res = await fetch(
-            "/api/v4/dashboard/summary",
-            {
-                headers:{
-                    "Authorization":"Bearer "+token
-                }
-            }
-        );
+const token =
+localStorage.getItem("access_token") ||
+localStorage.getItem("token");
 
 
-        const data = await res.json();
+try{
 
-        console.log(
-            "DASHBOARD SUMMARY",
-            data
-        );
-
-
-        if(data.revenue !== undefined){
-
-            const revenue =
-            document.getElementById("revenue");
-
-            if(revenue){
-                revenue.innerText =
-                data.revenue.toLocaleString()
-                +" MMK";
-            }
-        }
+const res = await fetch(
+"/ceo-summary",
+{
+headers:{
+"Authorization":"Bearer "+token
+}
+}
+);
 
 
-        const orders =
-        document.getElementById("orders");
-
-        if(orders){
-            orders.innerText =
-            data.orders;
-        }
+const data = await res.json();
 
 
-        const inventory =
-        document.getElementById("inventory");
-
-        if(inventory){
-            inventory.innerText =
-            data.products;
-        }
+console.log(
+"CEO DASHBOARD",
+data
+);
 
 
-    }
-    catch(e){
+if(data.status==="SUCCESS"){
 
-        console.error(
-            "Dashboard API Error",
-            e
-        );
+const d=data.dashboard;
 
-    }
+
+if(document.getElementById("revenue")){
+document.getElementById("revenue").innerText =
+Number(d.today_revenue).toLocaleString()+" MMK";
+}
+
+
+if(document.getElementById("orders")){
+document.getElementById("orders").innerText =
+d.today_orders;
+}
+
+
+if(document.getElementById("customers")){
+document.getElementById("customers").innerText =
+d.total_customers;
+}
+
+
+if(document.getElementById("products")){
+document.getElementById("products").innerText =
+d.total_products;
+}
+
 
 }
 
 
-loadDashboardSummary();
+}catch(e){
+
+console.error(
+"CEO DASHBOARD ERROR",
+e
+);
+
+}
+
+
+}
+
+
+document.addEventListener(
+"DOMContentLoaded",
+loadCEOStats
+);

@@ -126,7 +126,30 @@ async function login(
     );
 
 
-    location="/dashboard";
+    localStorage.setItem(
+        "role_profile",
+        data.role_profile || "USER"
+    );
+
+
+    const role = data.role_profile;
+
+
+    if(role === "OWNER"){
+
+        location="/owner";
+
+    }
+    else if(role === "ADMIN"){
+
+        location="/admin";
+
+    }
+    else{
+
+        location="/dashboard";
+
+    }
 
 }
 

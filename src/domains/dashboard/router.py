@@ -25,10 +25,25 @@ templates = Jinja2Templates(directory="src/templates")
 
 
 router = APIRouter(
-    prefix="",
-    tags=["Dashboard"]
+    prefix="/owner",
+    tags=["Owner Dashboard"]
 )
 
+
+
+
+@router.get("", response_class=HTMLResponse)
+def owner_dashboard_page(
+    request: Request,
+    current_user: User = Depends(get_current_user)
+):
+    return templates.TemplateResponse(
+        "owner_dashboard.html",
+        {
+            "request": request,
+            "user": current_user
+        }
+    )
 
 @router.get(
     "/menus",
