@@ -170,10 +170,9 @@ app.include_router(invoice_router)
 app.include_router(receivable_router)
 app.include_router(payment_router)
 app.include_router(customer_finance_router)
-app.include_router(
-    dashboard_router,
-    prefix=""
-)
+for _route in dashboard_router.routes:
+    app.router.routes.append(_route)
+
 app.include_router(public_router)
 app.include_router(public_page_router)
 app.include_router(business_settings_router)
