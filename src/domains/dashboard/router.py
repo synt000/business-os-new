@@ -148,8 +148,9 @@ def owner_dashboard(
     request: Request
 ):
     return templates.TemplateResponse(
-        "owner_dashboard.html",
-        {
+        request=request,
+        name="owner_dashboard.html",
+        context={
             "request": request
         }
     )
