@@ -183,6 +183,11 @@ print("🔥 BEFORE CHECK:", len(app.routes))
 print("🔥 RENTAL ATTACHED:", [r.path for r in rental_router.routes])
 
 print("🔥 AFTER CHECK:", len(app.routes))
+
+print("🔥 ALL ROUTES:")
+for r in app.routes:
+    print("ROUTE:", getattr(r, "path", None))
+
 # DYNAMIC COMPATIBILITY INJECTOR FOR CORE ANALYTICS INTEGRATION
 @app.get("/api/v4/dashboard/summary", tags=["Infrastructure Telemetry"])
 def fetch_dynamic_dashboard_telemetry_summary():
