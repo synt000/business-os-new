@@ -1,12 +1,10 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from src.database import get_db
-from src.domains.admin.service import (
-    list_tenants,
-    get_tenant,
-    update_billing_status
-)
+from . import service
+from .schemas import TenantStatusUpdate
+
 
 router = APIRouter(
     prefix="/admin",
@@ -23,60 +21,63 @@ def admin_health():
 
 
 @router.get("/tenants")
-def admin_list_tenants(
+def tenants(db: Session = Depends(get_db)):
+    data = service.list_tenants(db)
+
+    return [
+        {
+            "id": t.id,
+            "company_name": t.company_name,
+            "owner_email": t.owner_email,
+            "subscription_tier": t.subscription_tier,
+            "billing_active": t.is_billing_active
+        }
+        for t in data
+    ]
+
+
+@router.get("/tenants/{tenant_id}")
+def tenant_detail(
+    tenant_id: str,
     db: Session = Depends(get_db)
 ):
-    tenants = list_tenants(db)
+    tenant = service.get_tenant(db, tenant_id)
+
+    if not tenant:
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found"
+        )
 
     return {
-        "total": len(tenants),
-        "tenants": [
-            {
-                "id": t.id,
-                "company_name": t.company_name,
-                "owner_email": t.owner_email,
-                "subscription_tier": str(t.subscription_tier),
-                "billing_active": t.is_billing_active
-            }
-            for t in tenants
-        ]
+        "id": tenant.id,
+        "company_name": tenant.company_name,
+        "owner_email": tenant.owner_email,
+        "subscription_tier": tenant.subscription_tier,
+        "billing_active": tenant.is_billing_active
     }
 
 
-@router.get("/tenant/{tenant_id}")
-def admin_get_tenant(
+@router.post("/tenants/{tenant_id}/billing")
+def billing_update(
     tenant_id: str,
+    payload: TenantStatusUpdate,
     db: Session = Depends(get_db)
 ):
-    tenant = get_tenant(db, tenant_id)
-
-    if not tenant:
-        return {
-            "status": "NOT_FOUND"
-        }
-
-    return tenant
-
-
-@router.patch("/tenant/{tenant_id}/billing")
-def admin_update_billing(
-    tenant_id: str,
-    active: bool,
-    db: Session = Depends(get_db)
-):
-    tenant = update_billing_status(
+    tenant = service.update_billing_status(
         db,
         tenant_id,
-        active
+        payload.is_billing_active
     )
 
     if not tenant:
-        return {
-            "status": "NOT_FOUND"
-        }
+        raise HTTPException(
+            status_code=404,
+            detail="Tenant not found"
+        )
 
     return {
-        "status": "UPDATED",
+        "status": "updated",
         "tenant_id": tenant.id,
         "billing_active": tenant.is_billing_active
     }

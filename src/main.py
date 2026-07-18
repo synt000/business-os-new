@@ -47,7 +47,8 @@ from src.auth.two_factor import router as two_factor_router
 from src.auth.session_router import router as session_router
 from src.auth.refresh_router import router as refresh_router
 from src.product.router import router as product_router
-from src.domains.dashboard.router import router as dashboard_router
+from src.dashboard.router import router as dashboard_router
+from src.domains.platform.router import router as platform_router
 from src.public_router import router as public_router
 from src.public_page_router import router as public_page_router
 from src.business_settings_router import router as business_settings_router
@@ -179,6 +180,12 @@ app.include_router(business_settings_router)
 app.include_router(business_profile_router)
 app.include_router(admin_router)
 app.include_router(rental_router)
+app.include_router(dashboard_router)
+print("=== PLATFORM ROUTER ===")
+print([r.path for r in platform_router.routes])
+print("BEFORE:", [getattr(r,"path",None) for r in app.routes])
+app.include_router(platform_router)
+print("AFTER:", [getattr(r,"path",None) for r in app.routes])
 print("🔥 BEFORE CHECK:", len(app.routes))
 print("🔥 RENTAL ATTACHED:", [r.path for r in rental_router.routes])
 

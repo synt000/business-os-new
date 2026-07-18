@@ -10,6 +10,7 @@ async function loadOwnerDashboard(){
         });
 
         const data = await response.json();
+alert(JSON.stringify(data));
         console.log("OWNER API DATA", data);
 
         if(data.status !== "SUCCESS"){
@@ -25,24 +26,24 @@ async function loadOwnerDashboard(){
         console.log("STAT DEBUG", stats);
 
 
-        document.getElementById("ownerEmail").innerText =
-            data.owner || "Owner";
+//         document.getElementById("ownerEmail").innerText =
+//             data.owner || "Owner";
 
 
-        document.getElementById("tenants").innerText =
-            stats.tenants;
+//         document.getElementById("tenants").innerText =
+//             stats.tenants;
 
 
-        document.getElementById("users").innerText =
-            stats.users;
+//         document.getElementById("users").innerText =
+//             stats.users;
 
 
         document.getElementById("orders").innerText =
             stats.orders;
 
 
-        document.getElementById("sales").innerText =
-            stats.sales.toLocaleString();
+//         document.getElementById("sales").innerText =
+//             stats.sales.toLocaleString();
 
 
         if(document.getElementById("employees")){
@@ -98,6 +99,7 @@ async function loadAdmins(){
 
     const token = localStorage.getItem("access_token");
 
+try {
     const res = await fetch(
         "/admin/users",
         {
@@ -110,6 +112,10 @@ async function loadAdmins(){
 
 
     const admins = await res.json();
+} catch(e) {
+console.error(e);
+return;
+}
 
 
     const box =
@@ -325,6 +331,7 @@ async function loadPermissions(role){
     || localStorage.getItem("token");
 
 
+try {
     const res = await fetch(
         "/permissions/role/" + role,
         {
@@ -665,6 +672,7 @@ async function loadAdminPermissionPanel(roleFilter=null){
     || localStorage.getItem("token");
 
 
+try {
     const res = await fetch(
         "/admin/users",
         {
@@ -677,6 +685,10 @@ async function loadAdminPermissionPanel(roleFilter=null){
 
 
     const admins = await res.json();
+} catch(e) {
+console.error(e);
+return;
+}
 
 
     const box =
@@ -745,3 +757,76 @@ document.addEventListener(
 });
 
 
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const token = localStorage.getItem("access_token");
+
+    if (!token) {
+        console.log("No access token found.");
+        return;
+    }
+
+    try {
+        const res = await fetch("/platform/dashboard", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        const data = await res.json();
+
+        console.log("Dashboard API:", data);
+
+        if (data.status !== "SUCCESS") return;
+
+        const dashboard = data.dashboard.owner_dashboard;
+
+        const revenue = document.getElementById("revenue");
+        const orders = document.getElementById("orders");
+        const businesses = document.getElementById("businesses");
+        const employees = document.getElementById("employees");
+
+        if (revenue) revenue.textContent = dashboard.monthly_revenue;
+        if (orders) orders.textContent = dashboard.orders;
+        if (businesses) businesses.textContent = dashboard.active_businesses;
+        if (employees) employees.textContent = dashboard.employees;
+
+    } catch (err) {
+        console.error("Dashboard Load Error:", err);
+    }
+});
+
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const token = localStorage.getItem("access_token");
+    if (!token) return;
+
+    try {
+        const res = await fetch("/platform/dashboard", {
+            headers: {
+                "Authorization": "Bearer " + token
+            }
+        });
+
+        const data = await res.json();
+        if (data.status !== "SUCCESS") return;
+
+        const owner = data.dashboard.owner_dashboard;
+        const stats = data.dashboard.statistics;
+
+        document.getElementById("revenue").textContent =
+            owner.monthly_revenue.toLocaleString();
+
+        document.getElementById("orders").textContent =
+            owner.orders;
+
+        document.getElementById("customers").textContent =
+            stats.customers;
+
+        document.getElementById("products").textContent =
+            stats.products;
+
+    } catch (e) {
+        console.error("Dashboard API Error:", e);
+    }
+});

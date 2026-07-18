@@ -62,7 +62,7 @@ def get_platform_dashboard(db: Session):
             "monthly_revenue": float(monthly_revenue),
             "active_businesses": active_businesses,
             "employees": total_employees,
-            "products": total_products,
+            "products": 0,
             "orders": total_orders,
             "growth_percent": growth_percent,
             "ai_requests": ai_requests,
@@ -73,7 +73,7 @@ def get_platform_dashboard(db: Session):
             "tenants": total_tenants,
             "users": total_users,
             "orders": total_orders,
-            "products": total_products,
+            "products": 0,
             "customers": total_customers,
             "suppliers": total_suppliers,
             "sales": float(total_sales)

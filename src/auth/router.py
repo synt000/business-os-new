@@ -131,7 +131,23 @@ async def authenticate_via_pure_json_payload(
     db: Session = Depends(get_db)
 ):
     """Processes standardized raw application/json login vectors from upstream UI clients cleanly."""
+    print("========== LOGIN DEBUG ==========", flush=True)
+    print("EMAIL:", payload.email, flush=True)
+    print("EMAIL REPR:", repr(payload.email), flush=True)
+    print("EMAIL TYPE:", type(payload.email), flush=True)
+    print("ENGINE =", db.get_bind(), flush=True)
+    print("DB URL =", db.get_bind().engine.url, flush=True)
+    print("USER COUNT =", db.query(User).count(), flush=True)
+
     user = db.query(User).filter(User.email == payload.email).first()
+
+    print("QUERY EMAIL:", payload.email, flush=True)
+    print("ALL EMAILS:", [u.email for u in db.query(User).all()], flush=True)
+    print("USER FOUND:", user is not None, flush=True)
+
+    if user:
+        print("PASSWORD VERIFY:", verify_password(payload.password, user.hashed_password), flush=True)
+
     if not user:
         raise HTTPException(
             status_code=401,
