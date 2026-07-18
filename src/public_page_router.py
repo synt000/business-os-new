@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from src.core.database import get_db
 from src.models.business_profile import BusinessProfile
 
+
 BLOCKED_PUBLIC_PATHS = {
     "favicon.ico",
     "dashboard",
@@ -13,44 +14,95 @@ BLOCKED_PUBLIC_PATHS = {
     "logout",
     "api",
     "docs",
-    "openapi.json"
+    "openapi.json",
+    "business-health",
+    "ceo-summary",
+    "financial-kpi",
+    "finance-insight",
+    "executive-ai",
+    "menus",
+    "owner"
 }
+
 
 router = APIRouter(
     prefix="",
     tags=["Public Web Page"]
 )
 
-templates = Jinja2Templates(directory="src/templates")
+
+templates = Jinja2Templates(
+    directory="src/templates"
+)
 
 
+# ================================
+# MAIN HOMEPAGE
+# ================================
 @router.get("/", response_class=HTMLResponse)
-async def read_landing_page(request: Request):
+async def read_landing_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    businesses = (
+        db.query(BusinessProfile)
+        .filter(
+            BusinessProfile.is_public == True
+        )
+        .all()
+    )
+
     return templates.TemplateResponse(
         request=request,
-        name="owner_dashboard.html",
-        context={}
+        name="home.html",
+        context={
+            "businesses": businesses
+        }
     )
 
 
+# ================================
+# TEST LANDING PAGE
+# ================================
 @router.get("/landing-page", response_class=HTMLResponse)
-async def read_test_landing_page(request: Request):
+async def read_test_landing_page(
+    request: Request,
+    db: Session = Depends(get_db)
+):
+
+    businesses = (
+        db.query(BusinessProfile)
+        .filter(
+            BusinessProfile.is_public == True
+        )
+        .all()
+    )
+
     return templates.TemplateResponse(
         request=request,
-        name="owner_dashboard.html"
+        name="landing.html",
+        context={
+            "businesses": businesses
+        }
     )
 
 
+# ================================
+# PUBLIC BUSINESS PAGE
+# ================================
 @router.get("/{business_slug}", response_class=HTMLResponse)
 async def public_business_page(
     business_slug: str,
     db: Session = Depends(get_db)
 ):
+
     if business_slug in BLOCKED_PUBLIC_PATHS:
         raise HTTPException(
             status_code=404,
             detail="PUBLIC_PAGE_NOT_FOUND"
         )
+
 
     profile = (
         db.query(BusinessProfile)
@@ -61,15 +113,17 @@ async def public_business_page(
         .first()
     )
 
+
     if not profile:
         raise HTTPException(
             status_code=404,
             detail="BUSINESS_NOT_FOUND"
         )
 
+
     return templates.TemplateResponse(
         request=None,
-        name="landing.html",
+        name="business.html",
         context={
             "business": profile
         }

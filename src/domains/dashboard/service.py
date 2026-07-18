@@ -3,6 +3,9 @@ from datetime import datetime, time
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+from src.domains.product.models import Product
+from src.domains.inventory.models import Inventory
+
 
 from src.models.saas_core import (
     TenantFeature,
@@ -139,9 +142,10 @@ def get_ceo_dashboard_summary(
 
     low_stock = (
         db.query(Product)
+        .join(Inventory)
         .filter(
             Product.tenant_id == tenant_id,
-            Product.stock_qty <= Product.low_stock_threshold
+            Inventory.quantity <= Product.reorder_level
         )
         .count()
     )
@@ -192,6 +196,16 @@ def get_business_health_score(
 
     score = 0
     details = {}
+
+    low_stock = (
+        db.query(Product)
+        .join(Inventory)
+        .filter(
+            Product.tenant_id == tenant_id,
+            Inventory.quantity <= Product.reorder_level
+        )
+        .count()
+    )
 
 
     # Sales Score (30)
@@ -290,7 +304,6 @@ def get_business_health_score(
 
 
 from datetime import timedelta
-
 
 def get_sales_trend(
     db: Session,
