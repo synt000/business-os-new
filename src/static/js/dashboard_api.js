@@ -8,7 +8,7 @@ localStorage.getItem("token");
 
 
 const res = await fetch(
-"/api/v4/dashboard/summary",
+"/ceo-summary",
 {
 headers:{
 "Authorization":"Bearer "+token
@@ -19,43 +19,45 @@ headers:{
 
 const data = await res.json();
 
-console.log("DASHBOARD SUMMARY",data);
+
+console.log("CEO DASHBOARD",data);
 
 
+if(data.dashboard){
 
-if(data.revenue !== undefined){
 
+const d=data.dashboard;
+
+
+if(document.getElementById("revenue")){
 document.getElementById("revenue").innerText =
-Number(data.revenue).toLocaleString()+" MMK";
-
+Number(d.today_revenue).toLocaleString()+" MMK";
 }
 
 
-if(data.orders !== undefined){
-
+if(document.getElementById("orders")){
 document.getElementById("orders").innerText =
-data.orders+" Processed";
+d.today_orders+" Orders";
+}
+
+
+if(document.getElementById("customers")){
+document.getElementById("customers").innerText =
+d.total_customers;
+}
+
+
+if(document.getElementById("products")){
+document.getElementById("products").innerText =
+d.total_products;
+}
+
 
 }
 
 
-if(data.products !== undefined){
-
-document.getElementById("inventory").innerText =
-data.products+" Active SKU";
-
 }
-
-
-if(document.getElementById("subscription")){
-
-document.getElementById("subscription").innerText =
-"ENTERPRISE Active Plan";
-
-}
-
-
-}catch(e){
+catch(e){
 
 console.error(
 "DASHBOARD API ERROR",
@@ -71,4 +73,3 @@ document.addEventListener(
 "DOMContentLoaded",
 loadDashboardSummary
 );
-
