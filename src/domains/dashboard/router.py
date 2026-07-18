@@ -25,7 +25,7 @@ templates = Jinja2Templates(directory="src/templates")
 
 
 router = APIRouter(
-    prefix="/dashboard",
+    prefix="",
     tags=["Dashboard"]
 )
 
