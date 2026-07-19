@@ -121,7 +121,10 @@ class ProcurementLedger(Base):
         nullable=False,
     )
 
-    # product relationship handled by mapper registry
+    product = relationship(
+        "Product",
+        back_populates="procurements"
+    )
 
     supplier_id = Column(
         String,

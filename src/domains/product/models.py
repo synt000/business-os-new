@@ -69,5 +69,8 @@ class Product(TenantModel):
         cascade="all, delete-orphan"
     )
 
-    # ProcurementLedger relationship handled by registry
+    procurements = relationship(
+        "ProcurementLedger",
+        back_populates="product"
+    )
 # tenant relationship disabled (registry fix)
