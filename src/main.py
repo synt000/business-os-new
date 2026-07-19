@@ -66,6 +66,7 @@ from src.domains.payment.router import router as payment_router
 from src.domains.customer_finance.router import router as customer_finance_router
 from src.business_profile_router import router as business_profile_router
 from src.domains.subscription.router import router as subscription_router
+from src.domains.trial.router import router as trial_router
 from src.domains.admin.router import router as admin_router
 from src.domains.permissions.router import router as permissions_router
 from src.domains.rental.router import router as rental_router
@@ -165,6 +166,7 @@ app.include_router(product_router)
 app.include_router(category_router)
 app.include_router(tenant_router)
 app.include_router(subscription_router)
+app.include_router(trial_router)
 app.include_router(inventory_router)
 app.include_router(order_router)
 app.include_router(customer_router)
