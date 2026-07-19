@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.database import get_db
 from src.models.saas_core import User, Tenant
+from src.domains.subscription.models import Subscription
 
 # 1. 5-STAR UPGRADE: ENFORCE SECURE ARGON2 PASSWORD CRYPTOGRAPHY Context
 PWD_CONTEXT = CryptContext(schemes=["argon2"], deprecated="auto")
@@ -92,7 +93,29 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     if not active_user or not active_user.is_active:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCOUNT_SUSPENDED_OR_INACTIVE")
         
-    tenant_profile = db.query(Tenant).filter(Tenant.id == active_user.tenant_id).first()
-    if tenant_profile and tenant_profile.trial_expired:
-        raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED")
+    subscription = (
+        db.query(Subscription)
+        .filter(
+            Subscription.tenant_id == active_user.tenant_id,
+            Subscription.status == "ACTIVE"
+        )
+        .first()
+    )
+
+    if not subscription:
+        raise HTTPException(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            detail="WORKSPACE_LOCKED: SUBSCRIPTION_EXPIRED"
+        )
+
+    if subscription.end_date:
+        if subscription.end_date < datetime.utcnow():
+
+            subscription.status = "EXPIRED"
+            db.commit()
+
+            raise HTTPException(
+                status_code=status.HTTP_402_PAYMENT_REQUIRED,
+                detail="WORKSPACE_LOCKED: TRIAL_EXPIRED"
+            )
     return active_user
