@@ -165,3 +165,26 @@ def disable_plan(db: Session, plan_id: str):
     db.refresh(plan)
 
     return plan
+
+
+# =====================================
+# PLAN FEATURE ASSIGNMENT
+# =====================================
+
+def assign_plan_features(db: Session, plan_id: str, features):
+
+    plan = get_plan(db, plan_id)
+
+    if not plan:
+        return None
+
+    import json
+
+    plan.features_json = json.dumps({
+        "features": features
+    })
+
+    db.commit()
+    db.refresh(plan)
+
+    return plan
