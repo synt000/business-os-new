@@ -73,6 +73,12 @@ def create_subscription(db, tenant_id, plan_id, is_trial=False):
     db.commit()
     db.refresh(subscription)
 
+    sync_plan_features_to_tenant(
+        db,
+        tenant_id,
+        plan_id
+    )
+
     return subscription
 
 
@@ -146,12 +152,6 @@ def confirm_subscription_payment(db, payment_id):
         payment.tenant_id,
         payment.plan_id,
         False
-    )
-
-    sync_plan_features_to_tenant(
-        db,
-        payment.tenant_id,
-        payment.plan_id
     )
 
     payment.subscription_id = subscription.id
