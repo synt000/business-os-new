@@ -393,3 +393,35 @@ def admin_disable_plan(
         "status": "DISABLED",
         "plan_id": plan.id
     }
+
+
+# ======================================
+# PLAN FEATURE ASSIGNMENT API
+# ======================================
+
+from .schemas import FeatureAssignRequest
+
+
+@router.post("/plans/{plan_id}/features")
+def admin_assign_plan_features(
+    plan_id: str,
+    payload: FeatureAssignRequest,
+    db: Session = Depends(get_db)
+):
+    plan = service.assign_plan_features(
+        db,
+        plan_id,
+        payload.features
+    )
+
+    if not plan:
+        raise HTTPException(
+            status_code=404,
+            detail="PLAN_NOT_FOUND"
+        )
+
+    return {
+        "status": "UPDATED",
+        "plan_id": plan.id,
+        "features": payload.features
+    }
