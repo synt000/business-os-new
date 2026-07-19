@@ -1,11 +1,29 @@
-from fastapi import APIRouter
-from datetime import datetime, timedelta
+from fastapi import APIRouter, Depends
+from sqlalchemy.orm import Session
 
-router = APIRouter(prefix="/trial", tags=["Trial"])
+from src.core.database import get_db
+from src.core.security import get_current_user
 
-@router.get("/start")
-def start_trial():
-    return {
-        "trial_start": str(datetime.utcnow()),
-        "trial_end": str(datetime.utcnow() + timedelta(days=7))
-    }
+from src.models.saas_core import User
+
+from src.domains.trial.service import (
+    get_trial_status
+)
+
+
+router = APIRouter(
+    prefix="/trial",
+    tags=["Trial"]
+)
+
+
+@router.get("/status")
+def trial_status(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    return get_trial_status(
+        db=db,
+        tenant_id=current_user.tenant_id
+    )
