@@ -10,6 +10,7 @@ from src.core.security import verify_password, get_password_hash, create_access_
 from src.models.saas_core import User, Tenant, BusinessType
 from src.models.business_profile import BusinessProfile
 from src.domains.business_type.services.feature_assign_service import assign_features_to_tenant
+from src.domains.business_type.services.slug_service import generate_business_slug
 from src.domains.subscription.models import Subscription, SubscriptionPlan
 
 from src.security.login_guard import (
@@ -261,6 +262,22 @@ async def register_business_owner(
 
     print("STEP 4", flush=True)
     db.refresh(tenant)
+
+
+    profile = BusinessProfile(
+        business_name=payload.company_name,
+        tenant_id=tenant.id,
+        business_type_code=business_type.code,
+        business_slug=generate_business_slug(
+            payload.company_name
+        ),
+        owner_name=payload.full_name,
+        email=payload.email,
+        is_public=True
+    )
+
+    db.add(profile)
+    db.commit()
 
 
     assign_features_to_tenant(
