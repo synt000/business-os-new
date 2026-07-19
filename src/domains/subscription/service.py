@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timedelta
 
+from src.domains.subscription.feature_sync import sync_plan_features_to_tenant
 from src.domains.subscription.models import (
     SubscriptionPlan,
     Subscription,
@@ -145,6 +146,12 @@ def confirm_subscription_payment(db, payment_id):
         payment.tenant_id,
         payment.plan_id,
         False
+    )
+
+    sync_plan_features_to_tenant(
+        db,
+        payment.tenant_id,
+        payment.plan_id
     )
 
     payment.subscription_id = subscription.id
