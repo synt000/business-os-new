@@ -59,7 +59,7 @@ All-in-One Business Operating System ဖြစ်ရန်။
 
 # 🚧 CURRENT WORK
 
-[ ] Customer Onboarding Engine
+[x] Customer Onboarding Engine
 
 Goal:
 
@@ -84,11 +84,11 @@ Generate Public Homepage
 
 # NEXT STEPS
 
-[ ] Register API Business Type Integration
+[x] Register API Business Type Integration
 
-[ ] Auto Feature Assignment During Signup
+[x] Auto Feature Assignment During Signup
 
-[ ] Auto BusinessProfile Creation
+[ ] Auto BusinessProfile Creation  <-- CURRENT
 
 [ ] Business Slug Generator
 

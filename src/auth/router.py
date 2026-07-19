@@ -1,5 +1,4 @@
 import uuid
-import uuid
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException, status, Request
 from fastapi.security import OAuth2PasswordRequestForm
@@ -8,7 +7,9 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import verify_password, get_password_hash, create_access_token, create_refresh_token
-from src.models.saas_core import User, Tenant
+from src.models.saas_core import User, Tenant, BusinessType
+from src.models.business_profile import BusinessProfile
+from src.domains.business_type.services.feature_assign_service import assign_features_to_tenant
 from src.domains.subscription.models import Subscription, SubscriptionPlan
 
 from src.security.login_guard import (
@@ -48,11 +49,14 @@ class TokenResponseOutboundPayload(BaseModel):
     workspace_id: str
     role_profile: str
 
+
 class RegisterInboundPayload(BaseModel):
     company_name: str
     email: EmailStr
     password: str
     full_name: str | None = None
+    business_type_code: str
+
 
 # ==========================================================================
 # GATEWAY NODE 1: SWAGGER UI OAUTH2 COMPLIANT FORM-DATA TOKEN INGRESS
@@ -101,6 +105,8 @@ async def authenticate_via_oauth2_form_flow(
         "user_id": user.id,
         "tenant_id": user.tenant_id,
         "role": user.role,
+        "business_type": tenant.business_type_id if tenant else None,
+        "subscription": tenant.subscription_tier.value if tenant else None,
     }
 
     access_token = create_access_token(token_claims)
@@ -115,8 +121,6 @@ async def authenticate_via_oauth2_form_flow(
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "access_token": create_access_token(token_claims),
-        "refresh_token": create_refresh_token(token_claims),
         "workspace_id": user.tenant_id,
         "role_profile": user.role
     }
@@ -178,7 +182,9 @@ async def authenticate_via_pure_json_payload(
     token_claims = {
         "user_id": user.id,
         "tenant_id": user.tenant_id,
-        "role": user.role
+        "role": user.role,
+        "business_type": tenant.business_type_id if tenant else None,
+        "subscription": tenant.subscription_tier.value if tenant else None,
     }
 
     access_token = create_access_token(token_claims)
@@ -193,8 +199,6 @@ async def authenticate_via_pure_json_payload(
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        "access_token": create_access_token(token_claims),
-        "refresh_token": create_refresh_token(token_claims),
         "workspace_id": user.tenant_id,
         "role_profile": user.role
     }
@@ -206,11 +210,6 @@ async def authenticate_via_pure_json_payload(
 # ==========================================================================
 # BUSINESS OWNER REGISTRATION + FREE TRIAL ACTIVATION
 # ==========================================================================
-class RegisterInboundPayload(BaseModel):
-    company_name: str
-    email: EmailStr
-    password: str
-    full_name: str | None = None
 
 
 @router.post("/register")
@@ -232,9 +231,25 @@ async def register_business_owner(
         )
 
 
+    business_type = (
+        db.query(BusinessType)
+        .filter(
+            BusinessType.code == payload.business_type_code
+        )
+        .first()
+    )
+
+    if not business_type:
+        raise HTTPException(
+            status_code=400,
+            detail="INVALID_BUSINESS_TYPE"
+        )
+
+
     tenant = Tenant(
         company_name=payload.company_name,
         owner_email=payload.email,
+        business_type_id=business_type.id,
         subscription_tier="FREE_TRIAL",
         is_billing_active=True
     )
@@ -246,6 +261,14 @@ async def register_business_owner(
 
     print("STEP 4", flush=True)
     db.refresh(tenant)
+
+
+    assign_features_to_tenant(
+        db=db,
+        tenant_id=tenant.id,
+        business_type_id=business_type.id
+    )
+
 
     print("STEP 5", flush=True)
 
