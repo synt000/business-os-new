@@ -116,3 +116,54 @@ Generate Public Homepage
 [x] Record CHANGELOG
 
 
+
+# ✅ Completed Checkpoints
+
+## Sprint: Business Identity + SaaS Onboarding Core
+
+### ✅ Business Type Onboarding
+- [x] BusinessType Model integration
+- [x] Business Type seed data created
+- [x] Register payload supports business_type_code
+- [x] Validate selected business type during registration
+- [x] Tenant automatically linked with business_type_id
+
+### ✅ Auto Feature Assignment
+- [x] Feature assignment service connected
+- [x] assign_features_to_tenant() integrated into owner registration flow
+- [x] Business type based feature activation completed
+
+### ✅ Business Profile Auto Creation
+- [x] BusinessProfile auto create during owner registration
+- [x] Tenant identity connected with BusinessProfile
+- [x] Owner information stored
+- [x] Public business profile foundation completed
+
+### ✅ Business Slug System
+- [x] Added slug generator service
+- [x] File:
+      src/domains/business_type/services/slug_service.py
+- [x] Automatic public slug generation enabled
+
+### ✅ Free Trial Subscription Foundation
+- [x] SubscriptionPlan integration
+- [x] FREE_TRIAL subscription creation
+- [x] Trial activation during business registration
+
+---
+
+# 🚧 Next TODO
+
+## Trial + Device Control System
+- [ ] Create device module
+- [ ] Device fingerprint storage
+- [ ] 1 Device limit for FREE_TRIAL
+- [ ] Device activation flow
+- [ ] Device revoke management
+
+## Giveaway / Promotion Engine
+- [ ] Giveaway campaign model
+- [ ] Promo code system
+- [ ] Referral reward system
+- [ ] Reward history tracking
+
