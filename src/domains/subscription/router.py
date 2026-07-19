@@ -142,3 +142,84 @@ def confirm_subscription_payment_api(
         db,
         payment_id
     )
+
+
+# ======================================
+# OWNER SUBSCRIPTION STATUS API
+# ======================================
+
+@router.get("/status/{tenant_id}")
+def subscription_status(
+    tenant_id: str,
+    db: Session = Depends(get_db)
+):
+    subscription = (
+        db.query(Subscription)
+        .filter(
+            Subscription.tenant_id == tenant_id,
+            Subscription.status == "ACTIVE"
+        )
+        .first()
+    )
+
+    if not subscription:
+        raise HTTPException(
+            status_code=404,
+            detail="ACTIVE_SUBSCRIPTION_NOT_FOUND"
+        )
+
+    plan = (
+        db.query(SubscriptionPlan)
+        .filter(
+            SubscriptionPlan.id == subscription.plan_id
+        )
+        .first()
+    )
+
+    return {
+        "tenant_id": tenant_id,
+        "subscription_id": subscription.id,
+        "status": subscription.status,
+        "is_trial": subscription.is_trial,
+        "start_date": subscription.start_date,
+        "end_date": subscription.end_date,
+        "plan": {
+            "id": plan.id if plan else None,
+            "name": plan.name if plan else None,
+            "price": plan.price if plan else None
+        }
+    }
+
+
+@router.post("/upgrade")
+def upgrade_subscription(
+    tenant_id: str,
+    plan_id: str,
+    db: Session = Depends(get_db)
+):
+
+    old = (
+        db.query(Subscription)
+        .filter(
+            Subscription.tenant_id == tenant_id,
+            Subscription.status == "ACTIVE"
+        )
+        .first()
+    )
+
+    if old:
+        old.status = "CANCELLED"
+
+    new_subscription = create_subscription(
+        db,
+        tenant_id,
+        plan_id,
+        False
+    )
+
+    return {
+        "status": "UPGRADED",
+        "subscription_id": new_subscription.id,
+        "plan_id": plan_id
+    }
+
