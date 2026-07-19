@@ -1,82 +1,93 @@
-// OWNER DASHBOARD JS V2
 async function loadOwnerDashboard(){
 
-    try {
+    try{
 
-        const response = await fetch("/platform/dashboard", {
-            headers:{
-                "Authorization": "Bearer " + (localStorage.getItem("access_token") || localStorage.getItem("token"))
-            }
-        });
+        const token =
+            localStorage.getItem("access_token") ||
+            localStorage.getItem("token");
 
-        const data = await response.json();
-alert(JSON.stringify(data));
-        console.log("OWNER API DATA", data);
-
-        if(data.status !== "SUCCESS"){
-            console.log(data);
+        if(!token){
+            console.log("NO TOKEN");
             return;
         }
 
 
-        const dashboard = data.dashboard;
-        const owner = data.owner_dashboard || dashboard.owner_dashboard;
-        const stats = dashboard.statistics;
-
-        console.log("STAT DEBUG", stats);
-
-
-//         document.getElementById("ownerEmail").innerText =
-//             data.owner || "Owner";
-
-
-//         document.getElementById("tenants").innerText =
-//             stats.tenants;
+        const response = await fetch(
+            "/owner/platform-summary",
+            {
+                headers:{
+                    "Authorization":"Bearer " + token
+                }
+            }
+        );
 
 
-//         document.getElementById("users").innerText =
-//             stats.users;
+        const data = await response.json();
+
+        console.log(
+            "OWNER PLATFORM DATA:",
+            data
+        );
 
 
-        document.getElementById("orders").innerText =
-            stats.orders;
-
-
-//         document.getElementById("sales").innerText =
-//             stats.sales.toLocaleString();
-
-
-        if(document.getElementById("employees")){
-            document.getElementById("employees").innerText =
-                owner.employees;
+        if(data.status !== "SUCCESS"){
+            return;
         }
 
 
-        if(document.getElementById("growth")){
-            document.getElementById("growth").innerText =
-                owner.growth_percent + "%";
+        const platform = data.platform;
+
+
+        const tenants =
+            document.getElementById("tenants");
+
+        const users =
+            document.getElementById("users");
+
+        const orders =
+            document.getElementById("orders");
+
+        const sales =
+            document.getElementById("sales");
+
+
+        if(tenants){
+            tenants.innerText =
+                platform.total_businesses ?? 0;
         }
 
 
-        if(document.getElementById("aiRequests")){
-            document.getElementById("aiRequests").innerText =
-                owner.ai_requests;
+        if(users){
+            users.innerText =
+                platform.total_users ?? 0;
         }
 
 
-        if(document.getElementById("topBusiness")){
-            document.getElementById("topBusiness").innerText =
-                owner.top_business;
+        if(orders){
+            orders.innerText =
+                platform.total_orders ?? 0;
         }
 
 
-        console.log("OWNER DASHBOARD LOADED", data);
+        if(sales){
+            sales.innerText =
+                "$" +
+                Number(
+                    platform.total_sales ?? 0
+                ).toLocaleString();
+        }
 
 
-    } catch(error){
+        console.log(
+            "OWNER DASHBOARD UPDATED"
+        );
+
+
+    }
+    catch(error){
 
         console.error(
-            "Dashboard Error:",
+            "OWNER DASHBOARD ERROR:",
             error
         );
 
@@ -85,660 +96,90 @@ alert(JSON.stringify(data));
 }
 
 
-loadOwnerDashboard();
 
+async function loadAdminPermissionPanel(){
 
-// ================================
-// ADMIN PERMISSION MANAGEMENT
-// ================================
+    const list =
+        document.getElementById("adminList");
 
-let selectedAdmin = null;
-
-
-async function loadAdmins(){
-
-    const token = localStorage.getItem("access_token");
-
-try {
-    const res = await fetch(
-        "/admin/users",
-        {
-            headers:{
-                "Authorization":
-                "Bearer " + token
-            }
-        }
-    );
-
-
-    const admins = await res.json();
-} catch(e) {
-console.error(e);
-return;
-}
-
-
-    const box =
-    document.getElementById(
-        "adminList"
-    );
-
-
-    box.innerHTML = "";
-
-
-    admins.forEach(admin=>{
-
-        if(admin.role !== "OWNER"){
-
-            const btn =
-            document.createElement(
-                "button"
-            );
-
-            btn.innerHTML =
-            admin.full_name +
-            " ("+
-            admin.role+
-            ")";
-
-
-            btn.onclick = ()=>{
-                selectedAdmin = admin;
-                loadUserPermissions(admin.id);
-            };
-
-
-            box.appendChild(btn);
-
-        }
-
-    });
-
-}
-
-
-
-
-
-
-// ======================================
-// USER PERSONAL PERMISSION PANEL
-// ======================================
-
-
-async function loadUserPermissions(userId){
-
-    selectedAdmin = {
-        id:userId
-    };
-
-
-    const token =
-    localStorage.getItem("access_token")
-    || localStorage.getItem("token");
-
-
-    const allRes = await fetch(
-        "/permissions/all",
-        {
-            headers:{
-                "Authorization":
-                "Bearer " + token
-            }
-        }
-    );
-
-
-    const allData = await allRes.json();
-
-
-    const userRes = await fetch(
-        "/admin/users/" + userId + "/permissions",
-        {
-            headers:{
-                "Authorization":
-                "Bearer " + token
-            }
-        }
-    );
-
-
-    const userData = await userRes.json();
-
-
-    const current =
-    new Set(
-        userData.permissions.map(
-            p=>p.id
-        )
-    );
-
-
-    const panel =
-    document.getElementById(
-        "permissionPanel"
-    );
-
-
-    panel.innerHTML =
-    `
-    <h3>🔐 Personal Permissions</h3>
-    `;
-
-
-    allData.permissions.forEach(p=>{
-
-
-        panel.innerHTML +=
-        `
-        <label>
-
-        <input
-        type="checkbox"
-        class="user-permission-check"
-        data-id="${p.id}"
-        ${current.has(p.id) ? "checked":""}
-        >
-
-        ${p.code}
-
-        </label>
-        `;
-
-
-    });
-
-
-    panel.innerHTML +=
-    `
-    <button id="saveUserPermissionBtn">
-    💾 SAVE PERSONAL PERMISSIONS
-    </button>
-    `;
-
-
-    document
-    .getElementById(
-        "saveUserPermissionBtn"
-    )
-    .onclick = async()=>{
-
-
-        const checks =
-        document.querySelectorAll(
-            ".user-permission-check"
-        );
-
-
-        for(
-            const check of checks
-        ){
-
-            const id =
-            check.dataset.id;
-
-
-            if(check.checked){
-
-                await fetch(
-                "/admin/users/"
-                + userId
-                + "/permissions/"
-                + id,
-                {
-                    method:"POST",
-                    headers:{
-                    "Authorization":
-                    "Bearer "+token
-                    }
-                });
-
-            }
-            else{
-
-                await fetch(
-                "/admin/users/"
-                + userId
-                + "/permissions/"
-                + id,
-                {
-                    method:"DELETE",
-                    headers:{
-                    "Authorization":
-                    "Bearer "+token
-                    }
-                });
-
-            }
-
-        }
-
-
-        alert(
-        "✅ Personal Permissions Saved"
-        );
-
-
-    };
-
-}
-
-async function loadPermissions(role){
-
-    const token =
-    localStorage.getItem("access_token")
-    || localStorage.getItem("token");
-
-
-try {
-    const res = await fetch(
-        "/permissions/role/" + role,
-        {
-            headers:{
-                "Authorization":
-                "Bearer " + token
-            }
-        }
-    );
-
-
-    const data = await res.json();
-
-
-    const panel =
-    document.getElementById(
-        "permissionPanel"
-    );
-
-
-    if(!data.permissions){
-
-        panel.innerHTML =
-        "<h3>No Permissions Found</h3>";
-
+    if(!list){
         return;
     }
 
 
-    panel.innerHTML =
-    `
-    <h3>
-    🔐 ${role} Permissions
-    </h3>
-    `;
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
 
 
-    const groups = {};
+    try{
+
+        const res = await fetch(
+            "/admin/users",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
 
 
-    data.permissions.forEach(p=>{
-
-        const module =
-        (p.module || "general")
-        .toUpperCase();
+        const admins =
+            await res.json();
 
 
-        if(!groups[module]){
-            groups[module]=[];
+        if(!Array.isArray(admins)){
+
+            list.innerText =
+                "Admin Load Failed";
+
+            return;
         }
 
 
-        groups[module].push(p);
+        list.innerHTML =
+            admins.map(
+                admin => `
 
-    });
+                <div class="admin-card">
 
+                    <strong>
+                    👤 ${admin.email}
+                    </strong>
 
-    Object.keys(groups)
-    .sort()
-    .forEach(module=>{
+                    <br>
 
+                    Role:
+                    ${admin.role}
 
-        panel.innerHTML +=
-        `
-        <div class="permission-group">
+                    <br>
 
-        <h4>
-        📂 ${module}
-        </h4>
-        `;
+                    <button onclick="selectAdmin('${admin.id}')">
+                    Select Admin
+                    </button>
 
+                </div>
 
-        groups[module]
-        .sort((a,b)=>
-            a.code.localeCompare(b.code)
-        )
-        .forEach(p=>{
-
-
-            panel.innerHTML +=
-            `
-            <label class="permission-item">
-
-            <input
-            type="checkbox"
-            class="permission-check"
-            data-id="${p.id}"
-            checked>
-
-            <span>
-            ${p.code}
-            </span>
-
-            </label>
-            `;
+                `
+            ).join("");
 
 
-        });
 
+    }
+    catch(e){
 
-        panel.innerHTML +=
-        `
-        </div>
-        `;
-
-
-    });
-
-
-    panel.innerHTML +=
-    `
-    <div class="permission-actions">
-
-    <button id="selectAllBtn">
-    ☑ SELECT ALL
-    </button>
-
-    <button id="clearAllBtn">
-    ☐ CLEAR ALL
-    </button>
-
-    <button id="savePermissionBtn">
-    💾 SAVE CHANGES
-    </button>
-
-    </div>
-    `;
-
-
-    document
-    .getElementById("selectAllBtn")
-    .onclick=()=>{
-
-        document
-        .querySelectorAll(".permission-check")
-        .forEach(
-            c=>c.checked=true
+        console.error(
+            "ADMIN LOAD ERROR",
+            e
         );
 
-    };
-
-
-    document
-    .getElementById("clearAllBtn")
-    .onclick=()=>{
-
-        document
-        .querySelectorAll(".permission-check")
-        .forEach(
-            c=>c.checked=false
-        );
-
-    };
-
-
-    document
-    .getElementById("savePermissionBtn")
-    .onclick =
-    savePermissions;
-
-
-}
-
-
-async function savePermissions(){
-
-    if(!selectedAdmin){
-
-        alert(
-            "Select Admin First"
-        );
-
-        return;
+        list.innerText =
+            "Admin Load Error";
 
     }
 
-
-    const token =
-    localStorage.getItem(
-        "access_token"
-    );
-
-
-    const checks =
-    document.querySelectorAll(
-        ".permission-check"
-    );
-
-
-    for(
-        const check of checks
-    ){
-
-        const permissionId =
-        Number(
-            check.dataset.id
-        );
-
-
-        const roleName =
-        selectedAdmin.role;
-
-
-        if(check.checked){
-
-            await fetch(
-                "/permissions/assign",
-                {
-                    method:"POST",
-
-                    headers:{
-                        "Authorization":
-                        "Bearer " + token,
-
-                        "Content-Type":
-                        "application/json"
-                    },
-
-                    body:JSON.stringify({
-                        role_name:
-                        roleName,
-
-                        permission_id:
-                        permissionId
-                    })
-                }
-            );
-
-
-        } else {
-
-
-            await fetch(
-                "/permissions/remove",
-                {
-                    method:"DELETE",
-
-                    headers:{
-                        "Authorization":
-                        "Bearer " + token,
-
-                        "Content-Type":
-                        "application/json"
-                    },
-
-                    body:JSON.stringify({
-
-                        role_name:
-                        roleName,
-
-                        permission_id:
-                        permissionId
-
-                    })
-
-                }
-            );
-
-
-        }
-
-    }
-
-
-    alert(
-        "✅ Permissions Saved"
-    );
-
 }
-
-
-
-
-// ================================
-// ROLE SELECTOR UI
-// ================================
-
-function loadRoleSelector(){
-
-    const box =
-    document.getElementById(
-        "roleSelector"
-    );
-
-    if(!box) return;
-
-
-    box.innerHTML = `
-
-    <h3>🎭 Role Management</h3>
-
-    <button class="role-btn" data-role="OWNER">
-    👑 OWNER
-    </button>
-
-    <button class="role-btn" data-role="ADMIN">
-    👨‍💼 ADMIN
-    </button>
-
-    <button class="role-btn" data-role="STAFF">
-    👤 STAFF
-    </button>
-
-    <button class="role-btn" data-role="CASHIER">
-    💰 CASHIER
-    </button>
-
-    `;
-
-
-    document
-    .querySelectorAll(".role-btn")
-    .forEach(btn=>{
-
-        btn.onclick = ()=>{
-
-            const role =
-            btn.dataset.role;
-
-
-            loadPermissions(role);
-
-        };
-
-    });
-
-}
-
-
-// ===== OWNER PERMISSION PANEL INIT =====
-
-
-
-async function loadAdminPermissionPanel(roleFilter=null){
-
-    const token =
-    localStorage.getItem("access_token")
-    || localStorage.getItem("token");
-
-
-try {
-    const res = await fetch(
-        "/admin/users",
-        {
-            headers:{
-                "Authorization":
-                "Bearer " + token
-            }
-        }
-    );
-
-
-    const admins = await res.json();
-} catch(e) {
-console.error(e);
-return;
-}
-
-
-    const box =
-    document.getElementById("adminList");
-
-
-    box.innerHTML="";
-
-
-    admins.forEach(admin=>{
-
-
-        if(admin.role !== "OWNER"){
-
-            if(roleFilter && admin.role !== roleFilter){
-                return;
-            }
-
-
-            const btn =
-            document.createElement("button");
-
-
-            btn.innerText =
-            admin.full_name +
-            " ("+
-            admin.role+
-            ")";
-
-
-            btn.onclick = ()=>{
-
-                selectedAdmin = admin;
-
-                loadUserPermissions(
-                    admin.id
-                );
-
-            };
-
-
-            box.appendChild(btn);
-
-        }
-
-    });
-
-
-}
-
 
 
 
@@ -746,87 +187,1218 @@ return;
 
 
 document.addEventListener(
-"DOMContentLoaded",
-()=>{
+    "DOMContentLoaded",
+    ()=>{
 
-    loadOwnerDashboard();
+        loadOwnerDashboard();
 
-    loadRoleSelector();
-    loadAdminPermissionPanel();
+        loadAdminPermissionPanel();
 
-});
+    }
+);
 
 
+// ================================
+// ADMIN PERMISSION CHECKBOX UI
+// ================================
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const token = localStorage.getItem("access_token");
+let selectedAdminId = null;
 
-    if (!token) {
-        console.log("No access token found.");
+
+async function selectAdmin(userId){
+
+    selectedAdminId = userId;
+
+    const panel =
+        document.getElementById("permissionPanel");
+
+    if(!panel){
         return;
     }
 
-    try {
-        const res = await fetch("/platform/dashboard", {
-            headers: {
-                "Authorization": "Bearer " + token
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    try{
+
+        const permRes = await fetch(
+            "/permissions/all",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
             }
+        );
+
+
+        const userPermRes = await fetch(
+            `/admin/users/${userId}/permissions`,
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
+
+        const allPermissions =
+            await permRes.json();
+
+
+        const userPermissions =
+            await userPermRes.json();
+
+
+        const current =
+            (userPermissions.permissions || [])
+            .map(
+                p=>p.id
+            );
+
+
+        let groups = {};
+
+        allPermissions.permissions.forEach(p=>{
+
+            let module =
+                p.code.split(".")[0];
+
+            if(!groups[module]){
+                groups[module] = [];
+            }
+
+            groups[module].push(p);
+
         });
+
+
+        let html =
+        "<h3>🔐 Permission Control</h3>";
+
+
+        for(const module in groups){
+
+            html += `
+            <div class="permission-group">
+
+            <h4>
+            📁 ${module.toUpperCase()}
+            </h4>
+            `;
+
+
+            groups[module].forEach(p=>{
+
+                html += `
+                <label>
+
+                <input
+                type="checkbox"
+                ${current.includes(p.id) ? "checked":""}
+                onchange="togglePermission('${userId}',${p.id},this)"
+                >
+
+                ${p.code}
+
+                </label>
+                <br>
+                `;
+
+            });
+
+
+            html += `
+            </div>
+            <hr>
+            `;
+
+        }
+
+
+        panel.innerHTML = html;
+
+
+// ===============================
+// PERMISSION HISTORY TIMELINE
+// ===============================
+
+const historyPanel =
+    document.getElementById("permissionHistory");
+
+
+if(historyPanel){
+
+    const historyRes = await fetch(
+        `/admin/users/${userId}/permission-history`,
+        {
+            headers:{
+                "Authorization":
+                "Bearer " + token
+            }
+        }
+    );
+
+
+    const historyData =
+        await historyRes.json();
+
+
+    historyPanel.innerHTML =
+        (historyData.history || [])
+        .map(
+            h => `
+
+            <div class="history-item">
+
+            ${
+                h.action === "GRANTED"
+                ? "✅"
+                : "❌"
+            }
+
+            ${
+                h.action === "GRANTED"
+                ? "🟢"
+                : "🔴"
+            }
+
+            <strong>
+            ${h.permission_code}
+            </strong>
+
+            <br>
+
+            ${h.action}
+
+            <br>
+
+            <small>
+            ${h.created_at}
+            </small>
+
+            </div>
+
+            <hr>
+
+            `
+        )
+        .join("")
+        ||
+        "No Activity";
+
+}
+
+
+
+
+    }
+    catch(e){
+
+        console.error(
+            "PERMISSION UI ERROR",
+            e
+        );
+
+        panel.innerText =
+        "Permission Load Error";
+
+    }
+
+}
+
+
+
+async function togglePermission(
+    userId,
+    permissionId,
+    checkbox
+){
+
+    const checked = checkbox.checked;
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    const label =
+        checked ? "Granting..." : "Removing...";
+
+
+    showPermissionToast(label);
+
+
+    try{
+
+        const res = await fetch(
+            `/admin/users/${userId}/permissions/${permissionId}`,
+            {
+                method:
+                checked ? "POST" : "DELETE",
+
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
+
+        const data =
+            await res.json();
+
+
+        if(
+            res.ok &&
+            (
+                data.status === "SUCCESS" ||
+                data.status === "EXISTS"
+            )
+        ){
+
+            showPermissionToast(
+                checked
+                ?
+                "✅ Permission Granted"
+                :
+                "❌ Permission Removed"
+            );
+
+        }
+        else{
+
+            showPermissionToast(
+                "⚠ Permission Update Failed"
+            );
+
+        }
+
+
+    }
+    catch(e){
+
+        console.error(
+            "Permission Update Error",
+            e
+        );
+
+
+        checkbox.checked = !checked;
+
+        showPermissionToast(
+            "❌ Server Error"
+        );
+
+    }
+
+}
+
+
+function showPermissionToast(message){
+
+    let toast =
+        document.getElementById(
+            "permissionToast"
+        );
+
+
+    if(!toast){
+
+        toast =
+        document.createElement(
+            "div"
+        );
+
+        toast.id =
+        "permissionToast";
+
+
+        toast.style.position =
+        "fixed";
+
+        toast.style.bottom =
+        "20px";
+
+        toast.style.left =
+        "50%";
+
+        toast.style.transform =
+        "translateX(-50%)";
+
+        toast.style.background =
+        "#111827";
+
+        toast.style.color =
+        "white";
+
+        toast.style.padding =
+        "12px 20px";
+
+        toast.style.borderRadius =
+        "12px";
+
+        toast.style.zIndex =
+        "9999";
+
+
+        document.body.appendChild(
+            toast
+        );
+
+    }
+
+
+    toast.innerText =
+    message;
+
+
+    setTimeout(
+        ()=>{
+            toast.innerText="";
+        },
+        2000
+    );
+
+}
+
+
+
+// =====================================
+// AI BUSINESS INTELLIGENCE LOADER
+// =====================================
+
+async function loadAIInsights(){
+
+    const panel = document.getElementById(
+        "aiInsights"
+    );
+
+    if(!panel){
+        return;
+    }
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    try{
+
+        const res = await fetch(
+            "/ai/insights",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
 
         const data = await res.json();
 
-        console.log("Dashboard API:", data);
 
-        if (data.status !== "SUCCESS") return;
+        if(!Array.isArray(data)){
+            panel.innerHTML =
+            "⚠ AI data unavailable";
+            return;
+        }
 
-        const dashboard = data.dashboard.owner_dashboard;
 
-        const revenue = document.getElementById("revenue");
-        const orders = document.getElementById("orders");
-        const businesses = document.getElementById("businesses");
-        const employees = document.getElementById("employees");
+        panel.innerHTML =
+        data.map(item => `
 
-        if (revenue) revenue.textContent = dashboard.monthly_revenue;
-        if (orders) orders.textContent = dashboard.orders;
-        if (businesses) businesses.textContent = dashboard.active_businesses;
-        if (employees) employees.textContent = dashboard.employees;
+            <div class="ai-card">
 
-    } catch (err) {
-        console.error("Dashboard Load Error:", err);
+                <h4>
+                🤖 ${item.title}
+                </h4>
+
+                <p>
+                ${item.message}
+                </p>
+
+                <small>
+                ${item.level}
+                </small>
+
+            </div>
+
+        `).join("");
+
     }
-});
+    catch(e){
+
+        console.error(
+            "AI Insight Error",
+            e
+        );
+
+        panel.innerHTML =
+        "❌ AI Service Error";
+
+    }
+
+}
 
 
-document.addEventListener("DOMContentLoaded", async () => {
-    const token = localStorage.getItem("access_token");
-    if (!token) return;
+document.addEventListener(
+    "DOMContentLoaded",
+    loadAIInsights
+);
 
-    try {
-        const res = await fetch("/platform/dashboard", {
-            headers: {
-                "Authorization": "Bearer " + token
+
+
+// =====================================
+// AI RECOMMENDATIONS LOADER
+// =====================================
+
+async function loadAIRecommendations(){
+
+    const panel = document.getElementById(
+        "aiRecommendations"
+    );
+
+    if(!panel){
+        return;
+    }
+
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    try{
+
+        const res = await fetch(
+            "/ai/recommendations",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
             }
-        });
+        );
+
 
         const data = await res.json();
-        if (data.status !== "SUCCESS") return;
 
-        const owner = data.dashboard.owner_dashboard;
-        const stats = data.dashboard.statistics;
 
-        document.getElementById("revenue").textContent =
-            owner.monthly_revenue.toLocaleString();
+        if(!Array.isArray(data)){
 
-        document.getElementById("orders").textContent =
-            owner.orders;
+            panel.innerHTML =
+            "⚠ No recommendations";
 
-        document.getElementById("customers").textContent =
-            stats.customers;
+            return;
+        }
 
-        document.getElementById("products").textContent =
-            stats.products;
 
-    } catch (e) {
-        console.error("Dashboard API Error:", e);
+        panel.innerHTML =
+        data.map(item => {
+
+            let icon = "🟢";
+
+            if(item.priority === "HIGH"){
+                icon = "🔴";
+            }
+
+            if(item.priority === "MEDIUM"){
+                icon = "🟡";
+            }
+
+            return `
+
+            <div class="ai-card">
+
+                <h4>
+                ${icon} ${item.title || "Recommendation"}
+                </h4>
+
+                <p>
+                ${item.action || item.message || item}
+                </p>
+
+                <small>
+                Priority: ${item.priority || "INFO"}
+                </small>
+
+            </div>
+
+            `;
+
+        }).join("");
+
+
     }
-});
+    catch(e){
+
+        console.error(
+            "AI Recommendation Error",
+            e
+        );
+
+        panel.innerHTML =
+        "❌ Recommendation Service Error";
+
+    }
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadAIRecommendations
+);
+
+
+
+
+// =====================================
+// CEO DAILY BRIEF LOADER
+// =====================================
+
+
+async function loadCEOBrief(){
+
+    const briefPanel =
+        document.getElementById("ceoBrief");
+
+    const scorePanel =
+        document.getElementById("ceoScore");
+
+
+    if(!briefPanel && !scorePanel){
+        return;
+    }
+
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    try{
+
+        const briefRes = await fetch(
+            "/ai/ceo-brief",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
+
+        const briefData =
+            await briefRes.json();
+
+
+        if(briefPanel){
+
+            const insights =
+                briefData.insights || [];
+
+
+            const performance =
+                briefData.performance || {};
+
+
+            briefPanel.innerHTML = `
+
+            <div class="ai-card">
+
+                <h4>👑 CEO Performance</h4>
+
+                <h2>
+                ${performance.level || "ACTIVE"}
+                </h2>
+
+
+                <p>
+                💰 Revenue:
+                ${performance.revenue || 0}
+                </p>
+
+
+                <p>
+                💎 Profit:
+                ${performance.profit || 0}
+                </p>
+
+
+                <p>
+                📈 Margin:
+                ${performance.margin || 0}%
+                </p>
+
+
+            </div>
+
+
+            <h4>
+            🤖 AI Business Insights
+            </h4>
+
+
+            ${
+                insights.map(item => `
+
+                <div class="ai-card">
+
+                    <h4>
+                    🟢 ${item.title}
+                    </h4>
+
+                    <p>
+                    ${item.message}
+                    </p>
+
+                    <small>
+                    ${item.level}
+                    </small>
+
+                </div>
+
+                `).join("")
+            }
+
+
+            `;
+
+        }
+
+
+
+        const scoreRes = await fetch(
+            "/ai/ceo-score",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
+
+        const scoreData =
+            await scoreRes.json();
+
+
+
+        if(scorePanel){
+
+            scorePanel.innerHTML = `
+
+
+            <div class="ai-card">
+
+                <h4>
+                📊 Business Health Score
+                </h4>
+
+
+                <h1>
+                ${scoreData.score || 0}
+                /100
+                </h1>
+
+
+                <h3>
+                ${scoreData.level || "UNKNOWN"}
+                </h3>
+
+
+                <hr>
+
+
+                <p>
+                📦 Inventory:
+                ${scoreData.breakdown?.inventory_health || 0}
+                </p>
+
+
+                <p>
+                💰 Cash Flow:
+                ${scoreData.breakdown?.cash_flow || 0}
+                </p>
+
+
+                <p>
+                📈 Sales:
+                ${scoreData.breakdown?.sales_growth || 0}
+                </p>
+
+
+                <p>
+                💎 Profit:
+                ${scoreData.breakdown?.profit_health || 0}
+                </p>
+
+
+            </div>
+
+
+            `;
+
+        }
+
+
+    }
+    catch(e){
+
+        console.error(
+            "CEO AI Error",
+            e
+        );
+
+    }
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadCEOBrief
+);
+
+
+// =========================
+// AI HISTORY TIMELINE
+// =========================
+
+async function loadAIHistory(){
+
+    const panel = document.getElementById(
+        "aiHistory"
+    );
+
+    if(!panel){
+        return;
+    }
+
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    try{
+
+        const res = await fetch(
+            "/ai/history",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
+
+        const data = await res.json();
+
+
+        if(!Array.isArray(data)){
+            panel.innerHTML =
+            "❌ No AI History";
+            return;
+        }
+
+
+        panel.innerHTML =
+        data.map(item => {
+
+            let icon = "🟢";
+
+            if(item.priority === "WARNING"){
+                icon = "🟡";
+            }
+
+            if(item.priority === "HIGH"){
+                icon = "🔴";
+            }
+
+
+            return `
+            <div class="ai-card">
+
+                <h4>
+                ${icon} ${item.title}
+                </h4>
+
+                <p>
+                ${item.message}
+                </p>
+
+                <small>
+                ${item.created_at}
+                </small>
+
+            </div>
+            `;
+
+        }).join("");
+
+
+    }catch(e){
+
+        console.error(
+            "AI History Error",
+            e
+        );
+
+        panel.innerHTML =
+        "❌ AI History Error";
+
+    }
+
+}
+
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadAIHistory
+);
+
+
+
+
+
+
+
+
+
+// =========================
+// AI ACTION CENTER
+// =========================
+
+async function loadAIActions(){
+
+    const panel = document.getElementById("aiActions");
+
+    if(!panel){
+        return;
+    }
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    try{
+
+        const res = await fetch(
+            "/ai/actions",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
+
+        const actions = await res.json();
+
+
+        if(!Array.isArray(actions)){
+
+            panel.innerHTML =
+            "❌ No AI Actions";
+
+            return;
+        }
+
+
+        panel.innerHTML =
+        actions.map(item => `
+
+        <div class="ai-card">
+
+            <h4>
+            🤖 ${item.title}
+            </h4>
+
+
+            <p>
+            ${item.action}
+            </p>
+
+
+            <small>
+            Priority:
+            ${item.priority}
+            </small>
+
+
+            <br><br>
+
+
+            <button
+            onclick="executeAIAction('${item.action_id}')">
+
+            Execute
+
+            </button>
+
+
+        </div>
+
+        `).join("");
+
+
+
+    }catch(error){
+
+        console.error(
+            "AI ACTION ERROR",
+            error
+        );
+
+        panel.innerHTML =
+        "❌ AI Action Error";
+
+    }
+
+}
+
+
+
+async function executeAIAction(action_id){
+
+
+    const token =
+    localStorage.getItem("access_token") ||
+    localStorage.getItem("token");
+
+
+
+    const res = await fetch(
+
+        `/ai/actions/${action_id}/execute`,
+
+        {
+            method:"POST",
+
+            headers:{
+                "Authorization":
+                "Bearer " + token
+            }
+        }
+
+    );
+
+
+    const data =
+    await res.json();
+
+
+    alert(
+        data.message ||
+        "Action Completed"
+    );
+
+
+    loadAIActions();
+
+}
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+loadAIActions
+);
+
+
+
+async function loadAIProcurement(){
+
+    const box = document.getElementById("aiProcurement");
+
+    if(!box){
+        return;
+    }
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    try{
+
+        const res = await fetch(
+            "/ai/purchases/pending",
+            {
+                headers:{
+                    "Authorization":"Bearer " + token
+                }
+            }
+        );
+
+
+        const data = await res.json();
+
+
+        if(data.status !== "SUCCESS"){
+            box.innerHTML =
+            "AI Procurement Load Failed";
+            return;
+        }
+
+
+        if(data.count === 0){
+
+            box.innerHTML =
+            `
+            <div class="ai-empty">
+            ✅ No Pending AI Purchase
+            </div>
+            `;
+
+            return;
+        }
+
+
+        box.innerHTML =
+        data.items.map(
+            po => `
+
+            <div class="ai-po-card">
+
+            <h4>
+            🛒 ${po.purchase_number}
+            </h4>
+
+            <div class="ai-po-status">
+            ${
+                po.status === "PENDING_APPROVAL"
+                ? "🟡 Pending Approval"
+                : po.status
+            }
+            </div>
+
+
+            <p>
+            💰 Amount:
+            <strong>
+            ${Number(po.amount).toLocaleString()} MMK
+            </strong>
+            </p>
+
+
+            <div class="ai-timeline">
+
+            <p>
+            🟢 AI Purchase Created
+            </p>
+
+            <p>
+            🟡 Waiting Owner Decision
+            </p>
+
+            <p>
+            ⚪ Stock Receive Pending
+            </p>
+
+            </div>
+
+
+            <div class="ai-po-actions">
+
+            <button onclick="approveAIPO('${po.id}')">
+            ✅ Approve
+            </button>
+
+
+            <button onclick="rejectAIPO('${po.id}')">
+            ❌ Reject
+            </button>
+
+            </div>
+
+
+            </div>
+
+            `
+        ).join("");
+
+    }
+    catch(e){
+
+        console.error(
+            "AI PROCUREMENT ERROR",
+            e
+        );
+
+        box.innerHTML =
+        "AI Procurement Error";
+
+    }
+
+}
+
+
+
+async function approveAIPO(id){
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    await fetch(
+        "/purchases/approve-ai-po/" + id,
+        {
+            method:"POST",
+            headers:{
+                "Authorization":"Bearer " + token
+            }
+        }
+    );
+
+
+    loadAIProcurement();
+
+}
+
+
+
+
+async function rejectAIPO(id){
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    await fetch(
+        "/ai/purchases/reject/" + id,
+        {
+            method:"POST",
+            headers:{
+                "Authorization":"Bearer " + token,
+                "Content-Type":"application/json"
+            },
+            body:JSON.stringify({
+                reason:"Rejected from Dashboard"
+            })
+        }
+    );
+
+
+    loadAIProcurement();
+
+}
+
+document.addEventListener(
+"DOMContentLoaded",
+loadAIProcurement
+);
+

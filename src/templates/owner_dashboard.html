@@ -10,6 +10,75 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
+
+
+<style>
+
+.ai-po-card{
+
+background:#111827;
+border:1px solid #334155;
+border-radius:16px;
+padding:16px;
+margin-top:12px;
+
+}
+
+
+.ai-po-card h4{
+
+color:#00e5ff;
+margin-bottom:8px;
+
+}
+
+
+.ai-po-card p{
+
+margin:6px 0;
+color:#cbd5e1;
+
+}
+
+
+.ai-po-card button{
+
+padding:10px 14px;
+border:none;
+border-radius:10px;
+margin-right:8px;
+cursor:pointer;
+font-weight:700;
+
+}
+
+
+.ai-po-card button:first-of-type{
+
+background:#22c55e;
+color:white;
+
+}
+
+
+.ai-po-card button:last-of-type{
+
+background:#ef4444;
+color:white;
+
+}
+
+
+.ai-empty{
+
+padding:20px;
+text-align:center;
+color:#94a3b8;
+
+}
+
+</style>
+
 </head>
 
 <body>
@@ -226,6 +295,97 @@ READY
 <section class="admin-panel">
 
 <h2>
+
+<section class="admin-panel">
+
+<h2>
+🤖 AI Business Intelligence
+</h2>
+
+<div id="aiInsights">
+Loading AI Insights...
+</div>
+
+
+
+<div class="ai-ceo-panel">
+
+<h3>
+👑 CEO Daily Brief
+</h3>
+
+<div id="ceoBrief">
+Loading CEO Brief...
+</div>
+
+
+<div id="ceoScore">
+Loading CEO Score...
+</div>
+
+</div>
+
+
+<div class="ai-recommendation-panel">
+
+<h3>
+💡 AI Recommendations
+</h3>
+
+<div id="aiRecommendations">
+Loading Recommendations...
+</div>
+
+
+<section class="ai-action-panel">
+
+<h3>
+🤖 AI Action Center
+</h3>
+
+<div id="aiActions">
+Loading AI Actions...
+</div>
+
+</section>
+
+
+
+<section class="ai-procurement-panel">
+
+<h3>
+🛒 AI Procurement Center
+</h3>
+
+<div id="aiProcurement">
+
+<div class="ai-loading">
+Loading AI Procurement...
+</div>
+
+</div>
+
+</section>
+
+
+<section class="ai-history-panel">
+
+<h3>
+📚 AI Decision History
+</h3>
+
+<div id="aiHistory">
+Loading AI History...
+</div>
+
+</section>
+
+
+</div>
+
+</section>
+
+
 👥 Admin Permission Management
 </h2>
 
@@ -238,6 +398,19 @@ Loading Admins...
 <div id="permissionPanel">
 Select Admin
 </div>
+
+<div class="permission-history-panel">
+
+<h3>
+📜 Permission Activity Timeline
+</h3>
+
+<div id="permissionHistory">
+Select Admin to view activity
+</div>
+
+</div>
+
 
 </section>
 
@@ -253,7 +426,7 @@ Business OS Enterprise © Owner Control Center
 
 
 
-<script src="/static/js/owner_dashboard.js"></script>
+<script src="/static/js/owner_dashboard.js?v=3"></script>
 
 
 </body>

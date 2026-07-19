@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
+from src.core.permissions import require_owner_role
 from src.models.saas_core import User
 
 from src.domains.dashboard.service import (
@@ -15,6 +16,7 @@ from src.domains.dashboard.service import (
     get_revenue_expense_summary,
     get_financial_kpi_summary,
     get_finance_insight,
+    get_owner_platform_summary,
 )
 
 from src.domains.dashboard.schemas import (
@@ -34,14 +36,13 @@ router = APIRouter(
 
 @router.get("", response_class=HTMLResponse)
 def owner_dashboard_page(
-    request: Request,
-    current_user: User = Depends(get_current_user)
+    request: Request
 ):
     return templates.TemplateResponse(
         "owner_dashboard.html",
         {
             "request": request,
-            "user": current_user
+            "user": None
         }
     )
 
@@ -169,3 +170,15 @@ def owner_dashboard(
             "request": request
         }
     )
+
+
+@router.get("/platform-summary")
+def owner_platform_summary(
+    current_user: User = Depends(require_owner_role),
+    db: Session = Depends(get_db)
+):
+    return {
+        "status": "SUCCESS",
+        "platform": get_owner_platform_summary(db)
+    }
+

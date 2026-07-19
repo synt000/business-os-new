@@ -126,6 +126,7 @@ class BillingReceipt(Base):
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="receipts")
 
+
 class AccountLedger(Base):
     __tablename__ = "account_ledgers"
 
@@ -333,6 +334,57 @@ class AIInsight(Base):
 
 
 
+
+
+
+class AIActionLog(Base):
+    __tablename__ = "ai_action_logs"
+
+    id = Column(
+        Integer,
+        primary_key=True,
+        autoincrement=True
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    user_id = Column(
+        String,
+        ForeignKey("users.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    action_id = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+    action_title = Column(
+        String,
+        nullable=False
+    )
+
+    status = Column(
+        String,
+        default="SUCCESS"
+    )
+
+    result_message = Column(
+        Text,
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        index=True
+    )
 
 class BusinessFeature(Base):
     __tablename__ = "business_features"

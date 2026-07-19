@@ -128,7 +128,37 @@ data.access_token
 );
 
 
-location.href="/dashboard";
+localStorage.setItem(
+"role_profile",
+data.role_profile || "USER"
+);
+
+let role = data.role_profile;
+
+if(!role && data.access_token){
+    try{
+        let payload = JSON.parse(
+            atob(data.access_token.split(".")[1])
+        );
+        role = payload.role;
+        localStorage.setItem(
+            "role_profile",
+            role
+        );
+    }catch(e){
+        console.log(e);
+    }
+}
+
+if(role === "OWNER"){
+    location.href="/owner";
+}
+else if(role === "ADMIN"){
+    location.href="/admin";
+}
+else{
+    location.href="/dashboard";
+}
 
 
 }else{

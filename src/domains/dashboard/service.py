@@ -617,3 +617,167 @@ def get_finance_insight(
         "estimated_profit": float(profit),
         "finance_health": health
     }
+
+
+def get_owner_platform_summary(
+    db: Session
+):
+    """
+    Platform Owner Command Center Summary
+    """
+
+    from src.models.saas_core import (
+        Tenant,
+        User
+    )
+
+    total_businesses = (
+        db.query(Tenant)
+        .count()
+    )
+
+    total_users = (
+        db.query(User)
+        .count()
+    )
+
+
+    total_orders = 0
+    total_sales = 0
+
+
+    try:
+        total_orders = (
+            db.query(Order)
+            .count()
+        )
+
+        total_sales = (
+            db.query(
+                func.coalesce(
+                    func.sum(Order.total_amount),
+                    0
+                )
+            )
+            .scalar()
+        )
+
+    except Exception:
+        pass
+
+
+    return {
+
+        "businesses": total_businesses,
+
+        "users": total_users,
+
+        "orders": total_orders,
+
+        "sales": float(total_sales or 0),
+
+        "system_health": "100%"
+
+    }
+
+
+def get_owner_platform_summary(
+    db,
+    tenant_id=None
+):
+    from src.models.saas_core import User, Tenant
+    from src.domains.order.models import Order
+    from sqlalchemy import func
+
+    tenants = db.query(func.count(Tenant.id)).scalar() or 0
+
+    users = db.query(func.count(User.id)).scalar() or 0
+
+    orders = db.query(func.count(Order.id)).scalar() or 0
+
+    sales = (
+        db.query(func.coalesce(func.sum(Order.total_amount),0))
+        .scalar()
+        or 0
+    )
+
+    return {
+        "tenants": tenants,
+        "users": users,
+        "orders": orders,
+        "sales": float(sales)
+    }
+
+
+
+def get_owner_platform_summary(db: Session):
+    """
+    Owner SaaS Platform Summary V2
+    """
+
+    from src.models.saas_core import User, Tenant
+    from src.domains.order.models import Order
+    from sqlalchemy import func
+
+
+    total_users = (
+        db.query(func.count(User.id))
+        .scalar()
+        or 0
+    )
+
+
+    total_businesses = (
+        db.query(func.count(Tenant.id))
+        .scalar()
+        or 0
+    )
+
+
+    total_orders = 0
+    total_sales = 0
+
+
+    try:
+
+        total_orders = (
+            db.query(func.count(Order.id))
+            .scalar()
+            or 0
+        )
+
+
+        total_sales = (
+            db.query(
+                func.coalesce(
+                    func.sum(Order.total_amount),
+                    0
+                )
+            )
+            .scalar()
+            or 0
+        )
+
+
+    except Exception as e:
+        print(
+            "OWNER SUMMARY ERROR:",
+            e
+        )
+
+
+    return {
+
+        "total_users": total_users,
+
+        "total_businesses": total_businesses,
+
+        "total_orders": total_orders,
+
+        "total_sales": float(total_sales),
+
+        "monthly_growth": 0,
+
+        "system_status": "ONLINE"
+
+    }

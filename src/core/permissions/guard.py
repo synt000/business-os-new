@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
-
 from src.models.saas_core import User
 
 from src.domains.permissions.models import (
@@ -21,11 +20,6 @@ def require_permission(permission_code: str):
         db: Session = Depends(get_db)
     ):
 
-        # OWNER FULL ACCESS
-        if current_user.role == "OWNER":
-            return current_user
-
-
         permission = (
             db.query(Permission)
             .filter(
@@ -34,7 +28,6 @@ def require_permission(permission_code: str):
             .first()
         )
 
-
         if not permission:
             raise HTTPException(
                 status_code=404,
@@ -42,7 +35,10 @@ def require_permission(permission_code: str):
             )
 
 
-        # USER PERSONAL OVERRIDE CHECK
+        # =========================
+        # USER PERSONAL OVERRIDE
+        # =========================
+
         user_permission = (
             db.query(UserPermission)
             .filter(
@@ -52,13 +48,21 @@ def require_permission(permission_code: str):
             .first()
         )
 
-
         if user_permission:
-            return current_user
+
+            if user_permission.is_allowed == 1:
+                return current_user
+
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Permission explicitly denied"
+            )
 
 
 
-        # ROLE PERMISSION CHECK
+        # =========================
+        # ROLE PERMISSION
+        # =========================
 
         role = (
             db.query(Role)
@@ -69,31 +73,35 @@ def require_permission(permission_code: str):
         )
 
 
-        if not role:
-            raise HTTPException(
-                status_code=403,
-                detail="Role not found"
+        if role:
+
+            access = (
+                db.query(RolePermission)
+                .filter(
+                    RolePermission.role_id == role.id,
+                    RolePermission.permission_id == permission.id
+                )
+                .first()
             )
 
+            if access:
+                return current_user
 
-        access = (
-            db.query(RolePermission)
-            .filter(
-                RolePermission.role_id == role.id,
-                RolePermission.permission_id == permission.id
-            )
-            .first()
+
+
+        # =========================
+        # OWNER FALLBACK
+        # =========================
+
+        if current_user.role == "OWNER":
+            return current_user
+
+
+
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Permission denied"
         )
-
-
-        if not access:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="Permission denied"
-            )
-
-
-        return current_user
 
 
     return checker

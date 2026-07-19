@@ -75,3 +75,168 @@ document.addEventListener(
 "DOMContentLoaded",
 loadCEOStats
 );
+
+
+async function loadAIProcurement(){
+
+const token =
+localStorage.getItem("access_token") ||
+localStorage.getItem("token");
+
+
+const box = document.getElementById("aiPurchaseList");
+
+if(!box) return;
+
+
+try{
+
+const res = await fetch(
+"/ai/purchases/pending",
+{
+headers:{
+"Authorization":"Bearer "+token
+}
+}
+);
+
+
+const data = await res.json();
+
+
+if(
+data.status==="SUCCESS" &&
+data.items.length > 0
+){
+
+box.innerHTML = "";
+
+
+data.items.forEach(po=>{
+
+
+box.innerHTML += `
+
+<div class="ai-po">
+
+<div>
+<b>${po.purchase_number}</b>
+</div>
+
+<div>
+Amount:
+${Number(po.amount).toLocaleString()} MMK
+</div>
+
+<div>
+Status:
+${po.status}
+</div>
+
+
+<button
+class="ai-btn"
+onclick="approveAIPO('${po.id}')">
+✅ Approve
+</button>
+
+
+<button
+class="ai-btn"
+onclick="rejectAIPO('${po.id}')">
+❌ Reject
+</button>
+
+
+</div>
+
+`;
+
+
+});
+
+
+}else{
+
+
+box.innerHTML =
+"No Pending AI Purchase";
+
+
+}
+
+
+}catch(e){
+
+console.error(
+"AI PROCUREMENT ERROR",
+e
+);
+
+box.innerHTML =
+"AI Load Failed";
+
+}
+
+
+}
+
+
+
+async function approveAIPO(id){
+
+const token =
+localStorage.getItem("access_token") ||
+localStorage.getItem("token");
+
+
+await fetch(
+"/purchases/approve-ai-po/"+id,
+{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+token
+}
+}
+);
+
+
+loadAIProcurement();
+
+}
+
+
+
+async function rejectAIPO(id){
+
+const token =
+localStorage.getItem("access_token") ||
+localStorage.getItem("token");
+
+
+await fetch(
+"/ai/purchases/reject/"+id,
+{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+token,
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+reason:"Rejected from Dashboard"
+})
+}
+);
+
+
+loadAIProcurement();
+
+}
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+loadAIProcurement
+);
+

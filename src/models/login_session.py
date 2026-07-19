@@ -1,73 +1,70 @@
+import uuid
 from datetime import datetime
 
-from sqlalchemy import (
-    Column,
-    Integer,
-    String,
-    Boolean,
-    DateTime,
-    ForeignKey,
-)
+from sqlalchemy import Column, String, DateTime, Boolean
 
 from src.core.database import Base
 
 
 class LoginSession(Base):
+
     __tablename__ = "login_sessions"
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
 
-    tenant_id = Column(
+    id = Column(
         String,
-        ForeignKey("tenants.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        primary_key=True,
+        default=lambda: str(uuid.uuid4())
     )
+
 
     user_id = Column(
         String,
-        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
         index=True
     )
 
-    ip_address = Column(
+
+    tenant_id = Column(
         String,
-        default="UNKNOWN"
+        nullable=False,
+        index=True
     )
 
-    user_agent = Column(
+
+    session_key = Column(
         String,
-        default="UNKNOWN"
+        unique=True,
+        nullable=False,
+        index=True
     )
+
 
     device_name = Column(
         String,
-        default="UNKNOWN"
-    )
-
-    login_at = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
-
-    last_seen = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
-
-    logout_at = Column(
-        DateTime,
         nullable=True
     )
+
+
+    ip_address = Column(
+        String,
+        nullable=True
+    )
+
 
     is_active = Column(
         Boolean,
         default=True
     )
 
-    refresh_jti = Column(
-        String,
-        nullable=True,
-        index=True
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+    last_used_at = Column(
+        DateTime,
+        default=datetime.utcnow
     )

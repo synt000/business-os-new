@@ -132,7 +132,35 @@ async function login(
     );
 
 
-    const role = data.role_profile;
+    let role = data.role_profile;
+
+
+    if(!role && data.access_token){
+
+        try{
+
+            const payload =
+            JSON.parse(
+                atob(
+                    data.access_token.split(".")[1]
+                )
+            );
+
+            role = payload.role;
+
+        }catch(e){
+
+            console.log("JWT decode failed",e);
+
+        }
+
+    }
+
+
+    localStorage.setItem(
+        "role_profile",
+        role || "USER"
+    );
 
 
     if(role === "OWNER"){

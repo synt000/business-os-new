@@ -50,6 +50,12 @@ def insights(
     db: Session = Depends(get_db)
 ):
 
+    check_feature(
+        db,
+        current_user.tenant_id,
+        "AI_INSIGHT"
+    )
+
     return generate_business_insights(
         db,
         current_user.tenant_id
@@ -62,6 +68,12 @@ def recommendations(
     db: Session = Depends(get_db)
 ):
 
+    check_feature(
+        db,
+        current_user.tenant_id,
+        "AI_INSIGHT"
+    )
+
     return generate_ai_recommendations(
         db,
         current_user.tenant_id
@@ -73,6 +85,12 @@ def profit_margin(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+
+    check_feature(
+        db,
+        current_user.tenant_id,
+        "AI_INSIGHT"
+    )
 
     return generate_profit_margin_insight(
         db,
@@ -87,6 +105,12 @@ def ceo_daily_brief(
     db: Session = Depends(get_db)
 ):
 
+    check_feature(
+        db,
+        current_user.tenant_id,
+        "AI_INSIGHT"
+    )
+
     return generate_ceo_daily_brief(
         db,
         current_user.tenant_id
@@ -99,6 +123,12 @@ def ceo_score(
     db: Session = Depends(get_db)
 ):
 
+    check_feature(
+        db,
+        current_user.tenant_id,
+        "AI_INSIGHT"
+    )
+
     return generate_ceo_score(
         db,
         current_user.tenant_id
@@ -110,6 +140,12 @@ def create_purchase_order(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+
+    check_feature(
+        db,
+        current_user.tenant_id,
+        "AI_INSIGHT"
+    )
 
     return create_ai_purchase_order(
         db,

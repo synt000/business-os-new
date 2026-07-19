@@ -47,6 +47,12 @@ class BusinessProfile(Base):
         index=True
     )
 
+    business_type_code = Column(
+        String,
+        nullable=True,
+        index=True
+    )
+
     created_at = Column(
         Text,
         nullable=True

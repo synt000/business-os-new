@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from src.domains.product.models import Product
 from sqlalchemy import func
 
+from src.domains.ai.services.memory_service import save_ai_memory
+
 from src.models.saas_core import (
     Supplier,
     PurchaseOrder,
@@ -12,6 +14,7 @@ from src.models.saas_core import (
     Customer,
     Order,
     Payment,
+    AIInsight,
 )
 
 
@@ -72,6 +75,7 @@ def generate_business_insights(
 
 
     # =========================
+    # =========================
     # STOCK CHECK
     # =========================
 
@@ -83,10 +87,14 @@ def generate_business_insights(
         .all()
     )
 
-
     for product in products:
 
-        if product.stock_qty <= product.low_stock_threshold:
+        stock_qty = 0
+
+        if product.inventory:
+            stock_qty = product.inventory.quantity
+
+        if stock_qty <= product.reorder_level:
 
             insights.append({
 
@@ -94,12 +102,14 @@ def generate_business_insights(
                 "Low Stock Alert",
 
                 "message":
-                f"{product.name} လက်ကျန် {product.stock_qty} ခုသာ ကျန်ရှိပါသည်",
+                f"{product.name} လက်ကျန် {stock_qty} ခုသာ ကျန်ရှိပါသည်",
 
                 "level":
                 "WARNING"
 
             })
+
+
 
 
     # =========================
@@ -196,6 +206,27 @@ def generate_business_insights(
 
     })
 
+
+    save_ai_insights(
+        db,
+        tenant_id,
+        insights
+    )
+
+    print("AI MEMORY SYNC START", flush=True)
+
+    for item in insights:
+
+        print("SAVING MEMORY:", item["title"], flush=True)
+
+        save_ai_memory(
+            db,
+            tenant_id,
+            "AI_INSIGHT",
+            f"{item['title']}: {item['message']}"
+        )
+
+    print("AI MEMORY SYNC DONE", flush=True)
 
     return insights
 
@@ -312,14 +343,25 @@ def generate_ceo_score(
     # INVENTORY HEALTH
     # =====================
 
-    low_stock = (
+    low_stock = 0
+
+    products = (
         db.query(Product)
         .filter(
-            Product.tenant_id == tenant_id,
-            Product.stock_qty <= Product.low_stock_threshold
+            Product.tenant_id == tenant_id
         )
-        .count()
+        .all()
     )
+
+    for product in products:
+
+        qty = 0
+
+        if product.inventory:
+            qty = product.inventory.quantity
+
+        if qty <= product.reorder_level:
+            low_stock += 1
 
 
     if low_stock > 0:
@@ -480,14 +522,26 @@ def create_ai_purchase_order(
     tenant_id: str
 ):
 
-    product = (
+    product = None
+
+    products = (
         db.query(Product)
         .filter(
-            Product.tenant_id == tenant_id,
-            Product.stock_qty <= Product.low_stock_threshold
+            Product.tenant_id == tenant_id
         )
-        .first()
+        .all()
     )
+
+    for pdt in products:
+
+        qty = 0
+
+        if pdt.inventory:
+            qty = pdt.inventory.quantity
+
+        if qty <= pdt.reorder_level:
+            product = pdt
+            break
 
 
     if not product:
@@ -607,4 +661,60 @@ def create_ai_purchase_order(
         "amount": total_cost
 
     }
+
+
+
+# =========================
+# AI INSIGHT MEMORY SAVE
+# =========================
+
+def save_ai_insights(
+    db,
+    tenant_id,
+    insights
+):
+
+    try:
+
+        print(
+            "🔥 SAVE AI START",
+            tenant_id,
+            len(insights),
+            flush=True
+        )
+
+        for item in insights:
+
+            record = AIInsight(
+                tenant_id=tenant_id,
+                title=item["title"],
+                message=item["message"],
+                priority=item.get(
+                    "level",
+                    "NORMAL"
+                )
+            )
+
+            db.add(record)
+
+        db.commit()
+
+        print(
+            "✅ AI INSIGHTS SAVED",
+            flush=True
+        )
+
+        return True
+
+    except Exception as e:
+
+        db.rollback()
+
+        print(
+            "❌ AI SAVE ERROR:",
+            repr(e),
+            flush=True
+        )
+
+        return False
 

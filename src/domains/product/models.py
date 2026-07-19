@@ -2,6 +2,7 @@ from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import relationship, mapped_column
 
 from src.database import TenantModel
+from src.domains.category.models import Category
 
 
 class Product(TenantModel):
@@ -52,7 +53,7 @@ class Product(TenantModel):
     )
 
     category = relationship(
-        "Category",
+        Category,
         back_populates="products"
     )
 
