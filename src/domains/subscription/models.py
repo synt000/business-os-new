@@ -88,3 +88,50 @@ class SubscriptionPayment(Base):
         DateTime,
         server_default=func.now()
     )
+
+
+# ======================================
+# ACTIVATION KEY MANAGEMENT
+# ======================================
+
+class ActivationKey(Base):
+    __tablename__ = "activation_keys"
+
+    id = Column(String, primary_key=True)
+
+    key_code = Column(
+        String,
+        unique=True,
+        nullable=False
+    )
+
+    plan_id = Column(
+        String,
+        ForeignKey("subscription_plans.id"),
+        nullable=False
+    )
+
+    duration_days = Column(
+        Integer,
+        nullable=False
+    )
+
+    used = Column(
+        Boolean,
+        default=False
+    )
+
+    tenant_id = Column(
+        String,
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        server_default=func.now()
+    )
+
+    used_at = Column(
+        DateTime,
+        nullable=True
+    )
