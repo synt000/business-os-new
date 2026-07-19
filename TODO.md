@@ -1,169 +1,118 @@
-# ==========================================
-# BUSINESS OS ENTERPRISE
-# PROJECT TODO.md
-# ==========================================
+# Business OS Master TODO Roadmap
 
-📌 MASTER VISION
-----------------
+📅 Current Phase:
+Customer Onboarding + Business Identity Engine
 
-Business OS is not only an ERP.
+---
 
-Business OS is an AI Business Super Platform.
+## 🌍 MASTER VISION
 
-A business owner can manage the entire business from ONE system.
+Business OS က လုပ်ငန်းရှင်တွေကို Web တစ်ခုတည်းကနေ
 
-Supported Business Channels:
+✅ Facebook  
+✅ TikTok  
+✅ Telegram  
+✅ Instagram  
+✅ WhatsApp  
 
-☐ Facebook
-☐ TikTok
-☐ Telegram
-☐ Instagram
-☐ WhatsApp
-☐ Website
-☐ POS
+တို့နဲ့ ချိတ်ဆက်ပြီး လုပ်ငန်းအားလုံးကို စီမံနိုင်တဲ့
+All-in-One Business Operating System ဖြစ်ရန်။
 
+---
 
-Core Business Operations:
+# ✅ COMPLETED
 
-☐ Products
-☐ Orders
-☐ Customers
-☐ Suppliers
-☐ Inventory
-☐ Purchase
-☐ Finance
-☐ Marketing
-☐ AI Assistant
+[x] SaaS Core Architecture
 
+[x] Multi Tenant System
 
-# ==========================================
-# COMPLETED FOUNDATION
-# ==========================================
+[x] Permission System
 
-✅ SaaS Core
+[x] Role Management
 
-✅ Multi Tenant Foundation
+[x] Admin Permission UI
 
-✅ Permission System
+[x] Personal Permission Override
 
-✅ Role Management
+[x] Business Type Mapping System
 
-✅ Admin Permission UI
+[x] Feature Mapping Engine
 
-✅ Personal Permission Override
+[x] Tenant Feature Assignment Service
 
-✅ Authentication System
+[x] JWT Authentication System
 
+[x] JWT Token Claims Upgrade
+    - user_id
+    - tenant_id
+    - role
+    - business_type
+    - subscription
 
-# ==========================================
-# CURRENT PHASE
-# ==========================================
+[x] Login Token Generation Cleanup
 
-## Phase 1
-## Business Owner Homepage Foundation
+[x] Register Schema Upgrade
+    - business_type_code added
 
-STATUS:
-🔄 IN PROGRESS
 
+---
 
-Tasks:
+# 🚧 CURRENT WORK
 
-☐ Tenant Business Identity
+[ ] Customer Onboarding Engine
 
-☐ Business Profile Connection
+Goal:
 
-☐ Business Type Mapping
+Register လုပ်တဲ့အချိန်မှာ
 
-☐ Feature Mapping System
+Business Owner
+        ↓
+Select Business Type
+        ↓
+Create Tenant
+        ↓
+Attach Business Type
+        ↓
+Auto Assign Features
+        ↓
+Create Business Profile
+        ↓
+Generate Public Homepage
 
-☐ Dynamic Homepage Rendering
 
-☐ Business Type Widgets
+---
 
+# NEXT STEPS
 
-# ==========================================
-# BUSINESS TYPE HOMEPAGE
-# ==========================================
+[ ] Register API Business Type Integration
 
-☐ Online Shop Homepage
+[ ] Auto Feature Assignment During Signup
 
-☐ Mini Mart Homepage
+[ ] Auto BusinessProfile Creation
 
-☐ Beauty Salon Homepage
+[ ] Business Slug Generator
 
-☐ Rental Service Homepage
+[ ] Public Business Homepage Upgrade
 
-☐ Service Repair Homepage
+[ ] Landing Website Showcase
 
-☐ 2D Design Homepage
+[ ] Business Rental System
 
+[ ] Subscription System
 
-# ==========================================
-# CUSTOMER ONBOARDING
-# ==========================================
 
-☐ Business Registration Flow
+---
 
-☐ Business Setup Wizard
+# PROJECT RULE
 
-☐ Feature Auto Enable
+အလုပ်တစ်ဆင့်ပြီးတိုင်း
 
-☐ Owner Dashboard Setup
+[x] TODO.md update
 
+[x] Git commit
 
-# ==========================================
-# SUBSCRIPTION SYSTEM
-# ==========================================
+[x] Test compile
 
-☐ Free Trial
+[x] Record CHANGELOG
 
-☐ Basic Plan
-
-☐ Professional Plan
-
-☐ Enterprise Plan
-
-☐ Feature Limit Control
-
-
-# ==========================================
-# SOCIAL HUB
-# ==========================================
-
-☐ Facebook Integration
-
-☐ TikTok Integration
-
-☐ Telegram Integration
-
-☐ Instagram Integration
-
-☐ WhatsApp Integration
-
-
-# ==========================================
-# AI BUSINESS HUB
-# ==========================================
-
-☐ AI Business Assistant
-
-☐ AI Daily Brief
-
-☐ AI Sales Insight
-
-☐ AI Inventory Forecast
-
-☐ AI Recommendation
-
-
-# ==========================================
-# CHANGE LOG
-# ==========================================
-
-## 2026-07-19
-
-- Reset TODO structure.
-- Added Business OS Master Vision.
-- Added Business Super Platform roadmap.
-- Started Business Owner Homepage Phase.
 
