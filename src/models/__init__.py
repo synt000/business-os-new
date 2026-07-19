@@ -5,21 +5,22 @@ from src.models.saas_core import (
     User,
     Order,
     OrderItem,
-    AccountLedger,
     Branch,
     Supplier,
-    PurchaseOrder,
-    PurchaseItem,
-    SupplierPayable,
-    SupplierPayment,
     AIInsight,
     AIActionLog,
 )
 
-# Load domain models BEFORE Product mapper usage
 from src.domains.category.models import Category
 from src.domains.product.models import Product
 from src.domains.audit.models import AuditLog
+
+from src.domains.accounting.models import (
+    AccountLedger,
+    ProcurementLedger,
+)
+
+from src.models.login_session import LoginSession
 
 
 __all__ = [
@@ -31,14 +32,9 @@ __all__ = [
     "OrderItem",
     "AuditLog",
     "AccountLedger",
+    "ProcurementLedger",
     "Branch",
     "Supplier",
-    "PurchaseOrder",
-    "PurchaseItem",
-    "SupplierPayable",
-    "SupplierPayment",
     "AIInsight",
     "AIActionLog",
 ]
-
-from src.models.login_session import LoginSession

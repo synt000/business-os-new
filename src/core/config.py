@@ -9,8 +9,8 @@ class Settings(BaseSettings):
     DATABASE_URL: str = Field(default="sqlite:///./business.db", validation_alias="DATABASE_URL")
     SECRET_KEY: Optional[str] = Field(default=None, validation_alias="SECRET_KEY")
     ALGORITHM: str = Field(default="HS256", validation_alias="ALGORITHM")
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
-    REFRESH_TOKEN_EXPIRE_DAYS: int = 7
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 525600
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 3650
     TRIAL_DURATION_DAYS: int = 3
     TOKEN_ISSUER: str = Field(default="business-os-enterprise", validation_alias="TOKEN_ISSUER")
     TOKEN_AUDIENCE: str = Field(default="business-os-enterprise-clients", validation_alias="TOKEN_AUDIENCE")

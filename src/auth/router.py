@@ -317,7 +317,7 @@ async def register_business_owner(
     if trial_plan:
 
         subscription = Subscription(
-        id=str(uuid.uuid4()),
+            id=str(uuid.uuid4()),
             tenant_id=tenant.id,
             plan_id=trial_plan.id,
             start_date=datetime.utcnow(),
@@ -337,3 +337,45 @@ async def register_business_owner(
         "subscription": "FREE_TRIAL",
         "trial_days": 3
     }
+
+
+# ==========================================================================
+# JWT AUTO REFRESH GATEWAY
+# ==========================================================================
+
+from src.core.security import decode_token, create_access_token
+
+
+@router.post("/refresh")
+async def refresh_access_token(
+    refresh_token: str,
+):
+    try:
+        payload = decode_token(refresh_token)
+
+        if payload.get("type") != "refresh":
+            raise HTTPException(
+                status_code=401,
+                detail="INVALID_REFRESH_TOKEN"
+            )
+
+        new_access = create_access_token(
+            {
+                "user_id": payload["user_id"],
+                "tenant_id": payload["tenant_id"],
+                "role": payload["role"],
+                "business_type": payload.get("business_type"),
+                "subscription": payload.get("subscription"),
+            }
+        )
+
+        return {
+            "access_token": new_access,
+            "token_type": "bearer"
+        }
+
+    except Exception:
+        raise HTTPException(
+            status_code=401,
+            detail="REFRESH_TOKEN_EXPIRED"
+        )

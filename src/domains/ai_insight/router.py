@@ -241,7 +241,7 @@ def execute_action(
 # AI PROCUREMENT APPROVAL DASHBOARD
 # ==========================================
 
-from src.models.saas_core import PurchaseOrder
+from src.domains.purchase.models import PurchaseOrder
 
 
 @router.get("/purchases/pending")
@@ -298,7 +298,7 @@ def reject_ai_purchase(
     db: Session = Depends(get_db)
 ):
 
-    from src.models.saas_core import PurchaseOrder, AIActionLog
+    from src.domains.purchase.models import PurchaseOrder, AIActionLog
 
 
     po = (

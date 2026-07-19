@@ -158,7 +158,24 @@ from fastapi.responses import Response
 async def favicon():
     return Response(status_code=204)
 
-app.include_router(auth_router)
+app.router.include_router(auth_router)
+
+print("🔥 AUTH AFTER INCLUDE")
+print("AUTH ROUTER:", type(auth_router))
+print("AUTH ROUTES:", len(auth_router.routes))
+
+for r in app.router.routes:
+    print(
+        "APP ROUTE CHECK:",
+        type(r),
+        getattr(r,"path",None)
+    )
+
+print("🔥 AUTH ATTACHED CHECK")
+for r in app.routes:
+    if hasattr(r,"path") and r.path and "auth" in r.path:
+        print(r.path, r.methods)
+
 app.include_router(two_factor_router)
 app.include_router(session_router)
 app.include_router(refresh_router)
@@ -240,4 +257,19 @@ from fastapi.responses import Response
 @app.get("/favicon.ico", include_in_schema=False)
 async def favicon():
     return Response(status_code=204)
+
+
+
+# =====================================================
+# FORCE PURCHASE ROUTER REGISTRATION
+# =====================================================
+try:
+    app.include_router(purchase_router)
+    print("✅ PURCHASE ROUTER FORCE ATTACHED")
+    print(
+        "PURCHASE ROUTES:",
+        [r.path for r in purchase_router.routes]
+    )
+except Exception as e:
+    print("❌ PURCHASE ROUTER ATTACH ERROR:", e)
 

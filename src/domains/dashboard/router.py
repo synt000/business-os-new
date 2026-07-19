@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
+from src.domains.trial.guard import require_active_subscription
 from src.core.permissions import require_owner_role
 from src.models.saas_core import User
 
@@ -51,7 +52,7 @@ def owner_dashboard_page(
     response_model=list[DashboardMenuResponse]
 )
 def dashboard_menus(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
     return get_dashboard_menus(
@@ -62,7 +63,7 @@ def dashboard_menus(
 
 @router.get("/ceo-summary")
 def ceo_dashboard_summary(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
     return {
@@ -76,7 +77,7 @@ def ceo_dashboard_summary(
 
 @router.get("/business-health")
 def business_health(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
     return {
@@ -90,7 +91,7 @@ def business_health(
 
 @router.get("/executive-ai")
 def executive_ai(
-    current_user: User = Depends(get_current_user)
+    current_user: User = Depends(require_active_subscription)
 ):
     return {
         "status": "SUCCESS",
@@ -101,7 +102,7 @@ def executive_ai(
 
 @router.get("/sales-trend")
 def sales_trend(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
     return {
@@ -115,7 +116,7 @@ def sales_trend(
 
 @router.get("/revenue-expense")
 def revenue_expense(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
     return {
@@ -129,7 +130,7 @@ def revenue_expense(
 
 @router.get("/financial-kpi")
 def financial_kpi(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
     return {
@@ -143,7 +144,7 @@ def financial_kpi(
 
 @router.get("/finance-insight")
 def finance_insight(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
     return {

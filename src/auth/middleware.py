@@ -1,9 +1,9 @@
 from fastapi import Response
 from starlette.types import ASGIApp, Scope, Receive, Send
-from jose import jwt, JWTError
 import json
 
 from src.config import settings
+from src.core.security import verify_access_token
 
 
 class AuthMiddleware:
@@ -86,16 +86,11 @@ class AuthMiddleware:
 
         try:
 
-            payload = jwt.decode(
-                token,
-                settings.SECRET_KEY,
-                algorithms=[
-                    settings.ALGORITHM
-                ]
-            )
+            payload = verify_access_token(token)
 
-
-            scope["user"] = payload.get("sub")
+            if payload is None:
+                raise JWTError()
+            scope["user"] = payload.get("user_id")
 
             scope["tenant_id"] = payload.get(
                 "tenant_id"

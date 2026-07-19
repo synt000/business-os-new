@@ -12,14 +12,17 @@ from src.core.security import get_current_user
 from src.core.permissions.subscription_guard import require_active_subscription
 from src.domains.audit.models import AuditLog
 
+from src.domains.accounting.models import (
+    AccountLedger,
+    ProcurementLedger,
+)
+
 from src.models.saas_core import (
     User,
     Order,
     OrderItem,
-    AccountLedger,
     Branch,
     Supplier,
-    ProcurementLedger,
     Tenant,
     Customer,
     WorkspaceInvitation,
@@ -216,6 +219,19 @@ async def create_isolated_product_item(
     )
 
     db.add(new_inventory)
+
+    # Initial stock ledger entry
+    initial_movement = StockMovement(
+        tenant_id=current_user.tenant_id,
+        product_id=new_product.id,
+        movement_type="IN",
+        quantity_change=payload.stock_qty,
+        before_quantity=0,
+        after_quantity=payload.stock_qty,
+        reason="Initial product stock"
+    )
+
+    db.add(initial_movement)
 
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)
     db.commit()
@@ -564,7 +580,20 @@ async def create_isolated_supplier(payload: SupplierCreateInboundSchema, request
 
 @router.get("/suppliers")
 async def fetch_isolated_suppliers(current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
-    return {"suppliers": [{"id": s.id, "supplier_name": s.supplier_name, "phone": s.contact_phone} for s in suppliers]}
+    suppliers = db.query(Supplier).filter(
+        Supplier.tenant_id == current_user.tenant_id
+    ).all()
+
+    return {
+        "suppliers": [
+            {
+                "id": s.id,
+                "supplier_name": s.supplier_name,
+                "phone": s.contact_phone
+            }
+            for s in suppliers
+        ]
+    }
 
 @router.post("/procurements", status_code=status.HTTP_201_CREATED)
 async def create_procurement_purchase_entry(payload: ProcurementCreateInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):

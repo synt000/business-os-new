@@ -17,7 +17,7 @@ from src.domains.accounting.services.journal_service import (
 
 from src.domains.product.models import Product
 from src.domains.inventory.models import Inventory, StockMovement
-from src.models.saas_core import ProcurementLedger
+from src.domains.accounting.models import ProcurementLedger
 
 
 def generate_ai_actions(

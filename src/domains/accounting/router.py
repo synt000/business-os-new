@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
-from src.models.saas_core import User, AccountLedger
+from src.models.saas_core import User
+from src.domains.accounting.models import AccountLedger
 
 router = APIRouter(
     prefix="/accounting",

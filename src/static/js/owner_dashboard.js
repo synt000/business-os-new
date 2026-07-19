@@ -1402,3 +1402,461 @@ document.addEventListener(
 loadAIProcurement
 );
 
+
+
+// ======================================
+// ACTIVATION KEY GENERATOR
+// ======================================
+
+async function generateActivationKey(){
+
+    const plan_id = document.getElementById("keyPlan").value;
+    const duration_days = document.getElementById("keyDuration").value;
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    const res = await fetch(
+        "/subscription/key/generate",
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer " + token
+            },
+            body:JSON.stringify({
+                plan_id: plan_id,
+                duration_days: Number(duration_days)
+            })
+        }
+    );
+
+
+    const data = await res.json();
+
+
+    if(res.ok){
+
+        document.getElementById("generatedKey").innerHTML =
+        `
+        <div style="margin-top:15px;
+        padding:15px;
+        background:#0f172a;
+        border-radius:10px;">
+        ✅ KEY GENERATED
+        <br><br>
+        <b>${data.key_code || data.key}</b>
+        </div>
+        `;
+
+    }else{
+
+        document.getElementById("generatedKey").innerHTML =
+        `
+        ❌ ${JSON.stringify(data.detail)}
+        `;
+
+    }
+
+}
+
+
+
+// ======================================
+// ACTIVATION KEY HISTORY
+// ======================================
+
+async function loadActivationKeys(){
+
+    const box = document.getElementById("activationKeyHistory");
+
+    if(!box){
+        return;
+    }
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    const res = await fetch(
+        "/subscription/keys",
+        {
+            headers:{
+                "Authorization":"Bearer " + token
+            }
+        }
+    );
+
+
+    const keys = await res.json();
+
+
+    if(!res.ok){
+        box.innerHTML = "❌ Failed loading keys";
+        return;
+    }
+
+
+    if(keys.length === 0){
+        box.innerHTML = "No activation keys";
+        return;
+    }
+
+
+    box.innerHTML = keys.map(k => `
+
+        <div style="
+            margin-top:12px;
+            padding:15px;
+            background:#0f172a;
+            border-radius:12px;
+            border:1px solid #334155;
+        ">
+
+            🔑 <b>${k.key_code}</b>
+
+            <br>
+
+            📦 Plan:
+            <span style="color:#38bdf8">
+            ${k.plan_name}
+            </span>
+
+            <br>
+
+            ⏳ Duration:
+            ${k.duration_days} Days
+
+            <br>
+
+            ${
+                k.status === "REVOKED"
+                ?
+                "⚫ REVOKED"
+                :
+                k.used
+                ?
+                "🔴 USED"
+                :
+                "🟢 AVAILABLE"
+            }
+
+            <br><br>
+
+            <button
+            onclick="copyActivationKey('${k.key_code}')"
+            style="
+                padding:10px 14px;
+                border:none;
+                border-radius:8px;
+                background:#0284c7;
+                color:white;
+                cursor:pointer;
+            ">
+            📋 COPY KEY
+            </button>
+
+            ${
+                k.status === "REVOKED"
+                ?
+                ""
+                :
+                `
+                <button
+                onclick="revokeActivationKey('${k.key_code}')"
+                style="
+                    margin-left:8px;
+                    padding:10px 14px;
+                    border:none;
+                    border-radius:8px;
+                    background:#dc2626;
+                    color:white;
+                ">
+                ❌ REVOKE
+                </button>
+                `
+            }
+
+        </div>
+
+    `).join("");
+
+}
+
+
+
+// Load after dashboard ready
+
+document.addEventListener(
+    "DOMContentLoaded",
+    loadActivationKeys
+);
+
+
+// ======================================
+// COPY ACTIVATION KEY
+// ======================================
+
+function copyActivationKey(key){
+
+    navigator.clipboard.writeText(key)
+    .then(()=>{
+
+        alert(
+            "✅ Copied: " + key
+        );
+
+    });
+
+}
+
+
+
+// ======================================
+// REVOKE ACTIVATION KEY
+// ======================================
+
+async function revokeActivationKey(key){
+
+    if(!confirm("Revoke " + key + " ?")){
+        return;
+    }
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    const res = await fetch(
+        "/subscription/key/revoke/" + key,
+        {
+            method:"POST",
+            headers:{
+                "Authorization":"Bearer " + token
+            }
+        }
+    );
+
+
+    const data = await res.json();
+
+
+    if(res.ok){
+        alert("✅ KEY REVOKED");
+        loadActivationKeys();
+    }
+    else{
+        alert(
+            "❌ " + JSON.stringify(data.detail)
+        );
+    }
+
+}
+
+
+
+// ======================================
+// ACTIVATION KEY MANAGEMENT V2
+// ======================================
+
+function activationStatusBadge(status){
+
+    if(status === "AVAILABLE"){
+        return `
+        <span style="
+            background:#166534;
+            color:#86efac;
+            padding:5px 10px;
+            border-radius:20px;
+            font-size:12px;
+        ">
+        🟢 AVAILABLE
+        </span>`;
+    }
+
+
+    if(status === "USED"){
+        return `
+        <span style="
+            background:#7f1d1d;
+            color:#fca5a5;
+            padding:5px 10px;
+            border-radius:20px;
+            font-size:12px;
+        ">
+        🔴 USED
+        </span>`;
+    }
+
+
+    if(status === "REVOKED"){
+        return `
+        <span style="
+            background:#334155;
+            color:#cbd5e1;
+            padding:5px 10px;
+            border-radius:20px;
+            font-size:12px;
+        ">
+        ⚫ REVOKED
+        </span>`;
+    }
+
+
+    return status;
+
+}
+
+
+
+async function revokeActivationKey(key){
+
+    if(!confirm(
+        "Revoke this activation key?"
+    )){
+        return;
+    }
+
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    const res = await fetch(
+        `/subscription/key/revoke/${key}`,
+        {
+            method:"POST",
+            headers:{
+                "Authorization":
+                "Bearer " + token
+            }
+        }
+    );
+
+
+    const data = await res.json();
+
+
+    if(res.ok){
+
+        alert(
+            "✅ Key revoked"
+        );
+
+        loadActivationKeyHistory();
+
+    }
+    else{
+
+        alert(
+            JSON.stringify(data.detail)
+        );
+
+    }
+
+}
+
+
+
+
+function renderActivationKeys(keys){
+
+
+    const box =
+    document.getElementById(
+        "activationKeyHistory"
+    );
+
+
+    if(!box){
+        return;
+    }
+
+
+    box.innerHTML =
+    keys.map(k => `
+
+
+    <div style="
+        margin-top:12px;
+        padding:15px;
+        background:#0f172a;
+        border-radius:12px;
+        border:1px solid #334155;
+    ">
+
+
+        🔑 <b>${k.key_code}</b>
+
+        <br><br>
+
+
+        📦 Plan:
+        <span style="color:#38bdf8">
+        ${k.plan_name}
+        </span>
+
+
+        <br>
+
+
+        ⏳ ${k.duration_days} Days
+
+
+        <br><br>
+
+
+        ${activationStatusBadge(k.status)}
+
+
+        <br><br>
+
+
+        <button
+        onclick="copyActivationKey('${k.key_code}')"
+        style="
+        padding:10px 14px;
+        border-radius:8px;
+        border:none;
+        background:#2563eb;
+        color:white;
+        ">
+        📋 COPY
+        </button>
+
+
+        ${
+        k.status === "AVAILABLE"
+        ?
+        `
+        <button
+        onclick="revokeActivationKey('${k.key_code}')"
+        style="
+        margin-left:8px;
+        padding:10px 14px;
+        border-radius:8px;
+        border:none;
+        background:#dc2626;
+        color:white;
+        ">
+        🚫 REVOKE
+        </button>
+        `
+        :
+        ""
+        }
+
+
+    </div>
+
+
+    `).join("");
+
+}
+
+
+

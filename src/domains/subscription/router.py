@@ -1,4 +1,7 @@
-from fastapi import APIRouter, Depends, HTTPException
+import uuid
+from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi.responses import HTMLResponse
+from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from src.database import get_db
@@ -10,7 +13,9 @@ from src.domains.subscription.schemas import (
     StartSubscriptionRequest,
     SubscriptionResponse,
     SubscriptionPaymentCreate,
-    SubscriptionPaymentResponse
+    SubscriptionPaymentResponse,
+    ActivationRequest,
+    ActivationKeyGenerateRequest
 )
 
 from src.domains.subscription.service import (
@@ -20,16 +25,37 @@ from src.domains.subscription.service import (
     confirm_subscription_payment
 )
 
+from src.domains.subscription.activation_service import activate_key
+
 from src.domains.subscription.models import (
     SubscriptionPlan,
-    Subscription
+    Subscription,
+    ActivationKey
 )
 
+
+templates = Jinja2Templates(directory="src/templates")
 
 router = APIRouter(
     prefix="/subscription",
     tags=["Subscription"]
 )
+
+
+@router.get(
+    "/activate",
+    response_class=HTMLResponse
+)
+def activation_page(
+    request: Request
+):
+    return templates.TemplateResponse(
+        "subscription_locked.html",
+        {
+            "request": request
+        }
+    )
+
 
 
 @router.post(
@@ -108,6 +134,13 @@ def create_subscription_payment_api(
         )
 
     except Exception as e:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "code": str(e),
+                "message": str(e)
+            }
+        )
         if str(e) == "DUPLICATE_TRANSACTION_REFERENCE":
             raise HTTPException(
                 status_code=400,
@@ -223,3 +256,159 @@ def upgrade_subscription(
         "plan_id": plan_id
     }
 
+
+
+@router.get(
+    "/keys",
+    response_model=list[dict]
+)
+def list_activation_keys(
+    db: Session = Depends(get_db)
+):
+    keys = db.query(ActivationKey).all()
+
+    result = []
+
+    for k in keys:
+        plan = (
+            db.query(SubscriptionPlan)
+            .filter(SubscriptionPlan.id == k.plan_id)
+            .first()
+        )
+
+        result.append({
+            "key_code": k.key_code,
+            "plan_id": k.plan_id,
+            "plan_name": plan.name if plan else "UNKNOWN",
+            "duration_days": k.duration_days,
+            "status": "USED" if k.used else "AVAILABLE",
+            "used": k.used,
+            "tenant_id": k.tenant_id,
+            "used_at": str(k.used_at) if k.used_at else None
+        })
+
+    return result
+
+
+@router.post(
+    "/key/generate",
+    response_model=dict
+)
+def generate_activation_key(
+    payload: ActivationKeyGenerateRequest,
+    db: Session = Depends(get_db)
+):
+
+    # FREE TRIAL DOES NOT USE ACTIVATION KEY
+    FREE_TRIAL_PLAN_ID = "ea854e50-db99-4496-bdec-ac9683a77839"
+
+    if payload.plan_id == FREE_TRIAL_PLAN_ID:
+        raise HTTPException(
+            status_code=400,
+            detail="FREE_TRIAL_KEY_NOT_ALLOWED"
+        )
+
+    key_code = "ACT-" + uuid.uuid4().hex[:8].upper()
+
+    key = ActivationKey(
+        id=str(uuid.uuid4()),
+        key_code=key_code,
+        plan_id=payload.plan_id,
+        duration_days=payload.duration_days,
+        used=False
+    )
+
+    db.add(key)
+    db.commit()
+    db.refresh(key)
+
+    return {
+        "status": "SUCCESS",
+        "key": key.key_code,
+        "duration_days": key.duration_days,
+        "plan_id": key.plan_id
+    }
+
+
+
+@router.post(
+    "/key/revoke/{key_code}",
+    response_model=dict
+)
+def revoke_activation_key(
+    key_code: str,
+    db: Session = Depends(get_db)
+):
+
+    key = (
+        db.query(ActivationKey)
+        .filter(
+            ActivationKey.key_code == key_code
+        )
+        .first()
+    )
+
+    if not key:
+        raise HTTPException(
+            status_code=404,
+            detail="KEY_NOT_FOUND"
+        )
+
+    key.status = "REVOKED"
+
+    db.commit()
+
+    return {
+        "status": "SUCCESS",
+        "key": key.key_code,
+        "message": "Activation key revoked"
+    }
+
+
+@router.post(
+    "/activate",
+    response_model=dict
+)
+def activate_subscription_key(
+    payload: ActivationRequest,
+    db: Session = Depends(get_db)
+):
+    try:
+        result = activate_key(
+            db,
+            payload.key_code,
+            payload.tenant_id
+        )
+
+        return {
+            "status": "SUCCESS",
+            "message": "Subscription activated",
+            "data": {
+                "subscription_id": result.id,
+                "tenant_id": result.tenant_id,
+                "status": result.status,
+                "start_date": str(result.start_date),
+                "end_date": str(result.end_date)
+            }
+        }
+
+    except Exception as e:
+        if str(e) == "KEY_NOT_FOUND":
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "code": "KEY_NOT_FOUND",
+                    "message": "Activation key not found"
+                }
+            )
+
+        if str(e) == "KEY_ALREADY_USED":
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "code": "KEY_ALREADY_USED",
+                    "message": "Activation key already used"
+                }
+            )
+
+        raise

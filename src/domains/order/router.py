@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
+from src.domains.trial.guard import require_active_subscription
 from src.models.saas_core import User, Order
 
 from src.domains.order.schemas import (
@@ -32,7 +33,7 @@ async def list_orders():
 )
 async def create_new_order(
     data: OrderCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
     try:
@@ -61,7 +62,7 @@ async def create_new_order(
 
 @router.get("/list")
 async def get_orders(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
 
@@ -89,7 +90,7 @@ async def get_orders(
 @router.get("/detail/{order_id}")
 async def get_order_detail(
     order_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
 

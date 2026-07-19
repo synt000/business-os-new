@@ -60,3 +60,18 @@ class SubscriptionPaymentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class ActivationRequest(BaseModel):
+    key_code: str
+    tenant_id: str
+
+
+from pydantic import BaseModel
+
+
+class ActivationKeyGenerateRequest(BaseModel):
+    plan_id: str
+    duration_days: int
+
+

@@ -11,6 +11,7 @@ from src.models.saas_core import User
 from src.domains.inventory.models import StockMovement
 
 from src.core.security import get_current_user
+from src.domains.trial.guard import require_active_subscription
 from src.domains.inventory.schemas import (
     StockAdjustmentCreate,
     StockMovementResponse,
@@ -28,7 +29,7 @@ router = APIRouter(
 @router.post("/adjust")
 async def adjust_stock(
     data: StockAdjustmentCreate,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
 
@@ -91,7 +92,7 @@ async def adjust_stock(
 )
 async def get_stock_movements(
     product_id: str,
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
 
@@ -110,7 +111,7 @@ async def get_stock_movements(
     response_model=list[LowStockAlertResponse]
 )
 async def low_stock_alerts(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
 
@@ -140,7 +141,7 @@ async def low_stock_alerts(
     response_model=InventorySummaryResponse
 )
 async def inventory_summary(
-    current_user: User = Depends(get_current_user),
+    current_user: User = Depends(require_active_subscription),
     db: Session = Depends(get_db)
 ):
 

@@ -1,169 +1,120 @@
-# Business OS Master TODO Roadmap
+# BUSINESS OS - SUBSCRIPTION SYSTEM TODO
 
-📅 Current Phase:
-Customer Onboarding + Business Identity Engine
+## ✅ DONE
 
----
+### Subscription Foundation
+- [x] SubscriptionPlan Model
+- [x] FREE_TRIAL Plan Created
+- [x] STARTER Plan Created
+- [x] BUSINESS Plan Created
+- [x] ENTERPRISE Plan Created
 
-## 🌍 MASTER VISION
+### Free Trial Flow
+- [x] Register creates FREE_TRIAL subscription
+- [x] Trial service implemented
+- [x] Trial guard implemented
+- [x] TRIAL_DAYS = 7 (KEEP)
 
-Business OS က လုပ်ငန်းရှင်တွေကို Web တစ်ခုတည်းကနေ
+### Activation Key System
+- [x] ActivationKey Model
+- [x] create_test_activation_key script
+- [x] Generate test key
+- [x] Activate key successfully
 
-✅ Facebook  
-✅ TikTok  
-✅ Telegram  
-✅ Instagram  
-✅ WhatsApp  
+Test:
+ACT-135AD285
 
-တို့နဲ့ ချိတ်ဆက်ပြီး လုပ်ငန်းအားလုံးကို စီမံနိုင်တဲ့
-All-in-One Business Operating System ဖြစ်ရန်။
+Activated:
+Subscription ID:
+f36f7c36-6654-4b79-ad29-d9d351e6637c
 
----
+Status:
+ACTIVE
 
-# ✅ COMPLETED
+### Subscription Protection
+- [x] Product protected
+- [x] Order protected
+- [x] Inventory protected
+- [x] Dashboard protected
 
-[x] SaaS Core Architecture
-
-[x] Multi Tenant System
-
-[x] Permission System
-
-[x] Role Management
-
-[x] Admin Permission UI
-
-[x] Personal Permission Override
-
-[x] Business Type Mapping System
-
-[x] Feature Mapping Engine
-
-[x] Tenant Feature Assignment Service
-
-[x] JWT Authentication System
-
-[x] JWT Token Claims Upgrade
-    - user_id
-    - tenant_id
-    - role
-    - business_type
-    - subscription
-
-[x] Login Token Generation Cleanup
-
-[x] Register Schema Upgrade
-    - business_type_code added
+Using:
+require_active_subscription
 
 
----
+# 🚧 CURRENT
 
-# 🚧 CURRENT WORK
+## Step 3 - Subscription Lock Flow
 
-[x] Customer Onboarding Engine
-
-Goal:
-
-Register လုပ်တဲ့အချိန်မှာ
-
-Business Owner
-        ↓
-Select Business Type
-        ↓
-Create Tenant
-        ↓
-Attach Business Type
-        ↓
-Auto Assign Features
-        ↓
-Create Business Profile
-        ↓
-Generate Public Homepage
+- [ ] Detect expired FREE_TRIAL
+- [ ] Return TRIAL_EXPIRED response
+- [ ] Create subscription_locked.html
+- [ ] Redirect locked users to subscription page
+- [ ] Test expired tenant flow
 
 
----
+# 🔜 NEXT
 
-# NEXT STEPS
+## Step 4 - Owner Activation Key Generator
 
-[x] Register API Business Type Integration
+- [ ] Owner selects duration
 
-[x] Auto Feature Assignment During Signup
+Options:
+- [ ] 3 Days
+- [ ] 7 Days
+- [ ] 10 Days
+- [ ] 15 Days
+- [ ] 30 Days
+- [ ] 60 Days
+- [ ] 90 Days
+- [ ] 120 Days
+- [ ] 360 Days
 
-[ ] Auto BusinessProfile Creation  <-- CURRENT
-
-[ ] Business Slug Generator
-
-[ ] Public Business Homepage Upgrade
-
-[ ] Landing Website Showcase
-
-[ ] Business Rental System
-
-[ ] Subscription System
-
-
----
-
-# PROJECT RULE
-
-အလုပ်တစ်ဆင့်ပြီးတိုင်း
-
-[x] TODO.md update
-
-[x] Git commit
-
-[x] Test compile
-
-[x] Record CHANGELOG
+- [ ] Generate Activation Key
+- [ ] Key history table
+- [ ] Used / Unused status
 
 
+## Step 5 - Paid Activation Flow
 
-# ✅ Completed Checkpoints
+- [ ] Customer enters activation key
+- [ ] Validate key
+- [ ] Create paid subscription
+- [ ] Update status ACTIVE
+- [ ] Update end_date
 
-## Sprint: Business Identity + SaaS Onboarding Core
 
-### ✅ Business Type Onboarding
-- [x] BusinessType Model integration
-- [x] Business Type seed data created
-- [x] Register payload supports business_type_code
-- [x] Validate selected business type during registration
-- [x] Tenant automatically linked with business_type_id
+## Step 6 - Payment System
 
-### ✅ Auto Feature Assignment
-- [x] Feature assignment service connected
-- [x] assign_features_to_tenant() integrated into owner registration flow
-- [x] Business type based feature activation completed
+- [ ] Invoice
+- [ ] Payment tracking
+- [ ] Transaction reference
+- [ ] Owner payment confirmation
 
-### ✅ Business Profile Auto Creation
-- [x] BusinessProfile auto create during owner registration
-- [x] Tenant identity connected with BusinessProfile
-- [x] Owner information stored
-- [x] Public business profile foundation completed
 
-### ✅ Business Slug System
-- [x] Added slug generator service
-- [x] File:
-      src/domains/business_type/services/slug_service.py
-- [x] Automatic public slug generation enabled
+# ⚠️ ARCHITECTURE RULE
 
-### ✅ Free Trial Subscription Foundation
-- [x] SubscriptionPlan integration
-- [x] FREE_TRIAL subscription creation
-- [x] Trial activation during business registration
+Correct Flow:
 
----
+Register
+ ↓
+FREE_TRIAL 7 Days
+ ↓
+Expired
+ ↓
+Subscription Lock
+ ↓
+Payment
+ ↓
+Owner Generates Key
+ ↓
+Customer Activates
+ ↓
+Paid Subscription ACTIVE
 
-# 🚧 Next TODO
 
-## Trial + Device Control System
-- [ ] Create device module
-- [ ] Device fingerprint storage
-- [ ] 1 Device limit for FREE_TRIAL
-- [ ] Device activation flow
-- [ ] Device revoke management
+Never change to:
 
-## Giveaway / Promotion Engine
-- [ ] Giveaway campaign model
-- [ ] Promo code system
-- [ ] Referral reward system
-- [ ] Reward history tracking
+Register
+ ↓
+Need Activation Key
 

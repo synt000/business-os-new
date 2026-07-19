@@ -201,3 +201,116 @@ window.location.pathname === "/dashboard"
     loadDashboard();
 
 }
+
+
+// =====================================
+// JWT AUTO TOKEN HANDLER
+// =====================================
+
+function saveTokens(data){
+
+    if(data.access_token){
+        localStorage.setItem(
+            "access_token",
+            data.access_token
+        );
+    }
+
+    if(data.refresh_token){
+        localStorage.setItem(
+            "refresh_token",
+            data.refresh_token
+        );
+    }
+}
+
+
+// =====================================
+// GLOBAL API FETCH WITH JWT
+// =====================================
+
+async function apiFetch(url, options={}){
+
+    let token = localStorage.getItem(
+        "access_token"
+    );
+
+
+    options.headers = {
+        ...(options.headers || {}),
+        "Authorization":
+            "Bearer " + token,
+        "Content-Type":
+            "application/json"
+    };
+
+
+    let res = await fetch(
+        url,
+        options
+    );
+
+
+    // Access token expired
+    if(res.status === 401){
+
+        let refresh =
+            localStorage.getItem(
+                "refresh_token"
+            );
+
+
+        if(!refresh){
+            localStorage.clear();
+            window.location.href="/login";
+            return res;
+        }
+
+
+        let r = await fetch(
+            "/api/v4/auth/refresh",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+                body:JSON.stringify({
+                    refresh_token: refresh
+                })
+            }
+        );
+
+
+        if(r.ok){
+
+            let data =
+                await r.json();
+
+
+            saveTokens(data);
+
+
+            options.headers.Authorization =
+                "Bearer " +
+                data.access_token;
+
+
+            return await fetch(
+                url,
+                options
+            );
+
+        }else{
+
+            localStorage.clear();
+            window.location.href="/login";
+
+        }
+
+    }
+
+
+    return res;
+}
+

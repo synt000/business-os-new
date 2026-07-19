@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
-from src.models.saas_core import SupplierPayable, Supplier
+from src.domains.purchase.models import SupplierPayable
+from src.models.saas_core import Supplier
 
 
 def supplier_debt(

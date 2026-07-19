@@ -121,6 +121,11 @@ class ActivationKey(Base):
         default=False
     )
 
+    status = Column(
+        String,
+        default="AVAILABLE"
+    )
+
     tenant_id = Column(
         String,
         nullable=True

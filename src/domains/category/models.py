@@ -29,7 +29,4 @@ class Category(TenantModel):
         back_populates="category"
     )
 
-    tenant = relationship(
-        "Tenant",
-        back_populates="categories"
-    )
+    # tenant relationship disabled (registry fix)

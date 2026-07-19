@@ -119,3 +119,42 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
                 detail="WORKSPACE_LOCKED: TRIAL_EXPIRED"
             )
     return active_user
+
+# ==========================================================
+# JWT DECODE HELPER
+# ==========================================================
+
+def decode_token(token: str):
+    """
+    Decode JWT access/refresh token
+    """
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            audience=settings.TOKEN_AUDIENCE
+        )
+        return payload
+
+    except Exception as e:
+        print("JWT DECODE ERROR:", e)
+        return None
+
+
+
+def decode_token(token: str):
+    """
+    Decode JWT token and validate audience.
+    """
+    try:
+        payload = jwt.decode(
+            token,
+            settings.SECRET_KEY,
+            algorithms=[settings.ALGORITHM],
+            audience=settings.TOKEN_AUDIENCE
+        )
+        return payload
+
+    except Exception:
+        return None

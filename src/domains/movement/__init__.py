@@ -1,1 +1,1 @@
-from .models import StockMovement
+# deprecated movement domain

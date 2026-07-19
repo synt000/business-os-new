@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Subscription Required</title>
+
+<style>
+body{
+    margin:0;
+    background:#0f172a;
+    color:white;
+    font-family:Arial,sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.card{
+    width:90%;
+    max-width:420px;
+    background:#1e293b;
+    border-radius:18px;
+    padding:30px;
+    text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.35);
+}
+
+h1{
+    margin-top:0;
+    color:#38bdf8;
+}
+
+p{
+    color:#cbd5e1;
+    line-height:1.6;
+}
+
+.input{
+    width:100%;
+    padding:14px;
+    margin-top:18px;
+    border:none;
+    border-radius:10px;
+    background:#0f172a;
+    color:white;
+    box-sizing:border-box;
+}
+
+.btn{
+    width:100%;
+    padding:14px;
+    margin-top:16px;
+    border:none;
+    border-radius:10px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+
+.btn:hover{
+    background:#1d4ed8;
+}
+
+.msg{
+    margin-top:18px;
+    color:#22c55e;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="card">
+
+<h1>Subscription Locked</h1>
+
+<p>
+Your FREE TRIAL has expired.<br>
+Enter your Activation Key below.
+</p>
+
+<input
+id="key"
+class="input"
+placeholder="ACT-XXXXXXXX"
+/>
+
+<button
+class="btn"
+onclick="activateKey()">
+Activate
+</button>
+
+<div id="msg" class="msg"></div>
+
+</div>
+
+<script>
+
+async function activateKey(){
+
+    const key=document.getElementById("key").value.trim();
+
+    const token=
+        localStorage.getItem("access_token")||
+        localStorage.getItem("token");
+
+    const tenant=
+        localStorage.getItem("tenant_id");
+
+    const res=await fetch(
+        "/subscription/activate",
+        {
+            method:"POST",
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":"Bearer "+token
+            },
+            body:JSON.stringify({
+                key_code:key,
+                tenant_id:tenant
+            })
+        }
+    );
+
+    const data=await res.json();
+
+    if(res.ok){
+
+        document.getElementById("msg").innerHTML=
+            "✅ Subscription Activated";
+
+        setTimeout(()=>{
+            location.href="/owner";
+        },1200);
+
+    }else{
+
+        alert(
+            JSON.stringify(data.detail)
+        );
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>

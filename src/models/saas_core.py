@@ -39,15 +39,13 @@ class Tenant(Base):
     enable_ai_forecast = Column(Boolean, default=False)
 
     users = relationship("User", back_populates="tenant", cascade="all, delete-orphan")
-    products = relationship("Product", back_populates="tenant", cascade="all, delete-orphan")
-    categories = relationship("Category", back_populates="tenant", cascade="all, delete-orphan")
+    # products relationship disabled (domain tenant isolation fix)
+    # categories relationship disabled (domain tenant isolation fix)
     orders = relationship("Order", back_populates="tenant", cascade="all, delete-orphan")
     receipts = relationship("BillingReceipt", back_populates="tenant", cascade="all, delete-orphan")
     audit_logs = relationship("AuditLog", back_populates="tenant", cascade="all, delete-orphan")
-    account_ledgers = relationship("AccountLedger", back_populates="tenant", cascade="all, delete-orphan")
     branches = relationship("Branch", back_populates="tenant", cascade="all, delete-orphan")
     suppliers = relationship("Supplier", back_populates="tenant", cascade="all, delete-orphan")
-    procurements = relationship("ProcurementLedger", back_populates="tenant", cascade="all, delete-orphan")
     customers = relationship("Customer", back_populates="tenant", cascade="all, delete-orphan")
     invitations = relationship("WorkspaceInvitation", back_populates="tenant", cascade="all, delete-orphan")
 
@@ -127,22 +125,6 @@ class BillingReceipt(Base):
     tenant = relationship("Tenant", back_populates="receipts")
 
 
-class AccountLedger(Base):
-    __tablename__ = "account_ledgers"
-
-    id = Column(String, primary_key=True, default=generate_uuid, index=True)
-    entry_type = Column(String, nullable=False, index=True)
-    account_head = Column(String, nullable=False, index=True)
-    amount = Column(Float, default=0.0)
-    reference_id = Column(String, nullable=True, index=True)
-    description = Column(String, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-
-    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
-    tenant = relationship("Tenant", back_populates="account_ledgers")
-
-    __table_args__ = (Index("idx_ledger_tenant_head", "account_head", "tenant_id"),)
-
 class Branch(Base):
     __tablename__ = "branches"
 
@@ -211,26 +193,6 @@ class Supplier(Base):
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="suppliers")
-    procurements = relationship("ProcurementLedger", back_populates="supplier", cascade="all, delete-orphan")
-
-class ProcurementLedger(Base):
-    __tablename__ = "procurement_ledgers"
-
-    id = Column(String, primary_key=True, default=generate_uuid, index=True)
-    procurement_number = Column(String, nullable=False, index=True)
-    qty_purchased = Column(Integer, default=1)
-    unit_cost = Column(Float, nullable=False)
-    total_cost = Column(Float, nullable=False)
-    created_at = Column(DateTime, default=datetime.utcnow, index=True)
-
-    product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
-    product = relationship("Product", back_populates="procurements")
-    supplier_id = Column(String, ForeignKey("suppliers.id", ondelete="CASCADE"), nullable=False)
-    supplier = relationship("Supplier", back_populates="procurements")
-    tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
-    tenant = relationship("Tenant", back_populates="procurements")
-
-
 
 class AIBusinessMemory(Base):
     __tablename__ = "ai_business_memory"
@@ -973,206 +935,6 @@ class CustomerCreditAlert(Base):
 
     tenant = relationship("Tenant")
 
-
-
-class PurchaseOrder(Base):
-    __tablename__ = "purchase_orders"
-
-    id = Column(
-        String,
-        primary_key=True,
-        default=generate_uuid,
-        index=True
-    )
-
-    purchase_number = Column(
-        String,
-        nullable=False,
-        index=True
-    )
-
-    supplier_id = Column(
-        String,
-        ForeignKey("suppliers.id"),
-        nullable=False
-    )
-
-    total_amount = Column(
-        Float,
-        default=0.0
-    )
-
-    status = Column(
-        String,
-        default="DRAFT"
-    )
-
-    created_at = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
-
-    tenant_id = Column(
-        String,
-        ForeignKey("tenants.id"),
-        nullable=False
-    )
-
-
-
-
-class SupplierPayable(Base):
-    __tablename__ = "supplier_payables"
-
-    id = Column(
-        String,
-        primary_key=True,
-        default=generate_uuid,
-        index=True
-    )
-
-    purchase_order_id = Column(
-        String,
-        ForeignKey("purchase_orders.id"),
-        nullable=False
-    )
-
-    supplier_id = Column(
-        String,
-        ForeignKey("suppliers.id"),
-        nullable=False
-    )
-
-    total_amount = Column(
-        Float,
-        default=0.0
-    )
-
-    paid_amount = Column(
-        Float,
-        default=0.0
-    )
-
-    balance_amount = Column(
-        Float,
-        default=0.0
-    )
-
-    status = Column(
-        String,
-        default="OPEN"
-    )
-
-    created_at = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
-
-    tenant_id = Column(
-        String,
-        ForeignKey("tenants.id"),
-        nullable=False
-    )
-
-
-class PurchaseItem(Base):
-    __tablename__ = "purchase_items"
-
-    id = Column(
-        String,
-        primary_key=True,
-        default=generate_uuid,
-        index=True
-    )
-
-    purchase_order_id = Column(
-        String,
-        ForeignKey("purchase_orders.id"),
-        nullable=False
-    )
-
-    product_id = Column(
-        String,
-        ForeignKey("products.id"),
-        nullable=False
-    )
-
-    quantity = Column(
-        Integer,
-        nullable=False
-    )
-
-    unit_cost = Column(
-        Float,
-        nullable=False
-    )
-
-    total_cost = Column(
-        Float,
-        nullable=False
-    )
-
-    tenant_id = Column(
-        String,
-        ForeignKey("tenants.id"),
-        nullable=False
-    )
-
-
-
-class SupplierPayment(Base):
-    __tablename__ = "supplier_payments"
-
-    id = Column(
-        String,
-        primary_key=True,
-        default=generate_uuid,
-        index=True
-    )
-
-    payment_number = Column(
-        String,
-        nullable=False,
-        index=True
-    )
-
-    supplier_id = Column(
-        String,
-        ForeignKey("suppliers.id"),
-        nullable=False
-    )
-
-    payable_id = Column(
-        String,
-        ForeignKey("supplier_payables.id"),
-        nullable=False
-    )
-
-    amount = Column(
-        Float,
-        nullable=False
-    )
-
-    payment_method = Column(
-        String,
-        default="CASH"
-    )
-
-    status = Column(
-        String,
-        default="COMPLETED"
-    )
-
-    created_at = Column(
-        DateTime,
-        default=datetime.utcnow
-    )
-
-    tenant_id = Column(
-        String,
-        ForeignKey("tenants.id"),
-        nullable=False
-    )
 
 
 class BusinessProfile(Base):
