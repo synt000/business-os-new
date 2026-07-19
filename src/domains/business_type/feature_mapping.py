@@ -11,6 +11,8 @@ FEATURE_MAPPING = {
         "INVENTORY",
         "PURCHASE",
         "SUPPLIER",
+        "AI_ASSISTANT",
+        "AI_INSIGHT",
     ],
 
     "BEAUTY_SALON": [
