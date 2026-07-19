@@ -67,7 +67,11 @@ from src.domains.customer_finance.router import router as customer_finance_route
 from src.business_profile_router import router as business_profile_router
 from src.domains.subscription.router import router as subscription_router
 from src.domains.admin.router import router as admin_router
+from src.domains.permissions.router import router as permissions_router
 from src.domains.rental.router import router as rental_router
+from src.domains.ai_insight.router import router as ai_insight_router
+from src.domains.ai_assistant.router import router as ai_assistant_router
+from src.domains.device.router import router as device_router
 
 print(f"📡 [DevOps Telemetry] Loaded Cryptographic Secret Prefix: {settings.SECRET_KEY[:10]}")
 
@@ -175,8 +179,12 @@ app.include_router(public_router)
 app.include_router(business_settings_router)
 app.include_router(business_profile_router)
 app.include_router(admin_router)
+app.include_router(permissions_router)
 app.include_router(rental_router)
 app.include_router(platform_router)
+app.include_router(ai_insight_router)
+app.include_router(ai_assistant_router)
+app.include_router(device_router)
 
 app.include_router(dashboard_router)
 
