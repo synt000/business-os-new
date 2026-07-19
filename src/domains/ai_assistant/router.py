@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from src.core.database import get_db
 
 from src.core.security import get_current_user
+from src.core.features.guard import check_feature
 
 from src.models.saas_core import User
 
@@ -37,6 +38,12 @@ def chat(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
+
+    check_feature(
+        db,
+        current_user.tenant_id,
+        "AI_ASSISTANT"
+    )
 
     reply, category = ask_ai(
         db,
