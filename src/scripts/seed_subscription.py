@@ -1,13 +1,7 @@
-from datetime import datetime
 from src.core.database import SessionLocal
-
-# Load Core ORM Models First
-from src.models.saas_core import Tenant, User
-
-# Load Subscription Models
 from src.domains.subscription.models import SubscriptionPlan
-
 import uuid
+import json
 
 
 def seed_plans():
@@ -19,25 +13,56 @@ def seed_plans():
             "name": "FREE_TRIAL",
             "duration_days": 3,
             "price": 0,
-            "features_json": '{"orders":true,"products":true}'
+            "features_json": json.dumps({
+                "features": [
+                    "PRODUCT",
+                    "ORDER",
+                    "CUSTOMER"
+                ]
+            })
         },
         {
             "name": "STARTER",
             "duration_days": 30,
             "price": 10,
-            "features_json": '{"orders":true,"products":true,"reports":true}'
+            "features_json": json.dumps({
+                "features": [
+                    "PRODUCT",
+                    "ORDER",
+                    "CUSTOMER",
+                    "REPORT"
+                ]
+            })
         },
         {
             "name": "BUSINESS",
             "duration_days": 90,
             "price": 25,
-            "features_json": '{"all_modules":true}'
+            "features_json": json.dumps({
+                "features": [
+                    "PRODUCT",
+                    "ORDER",
+                    "CUSTOMER",
+                    "INVENTORY",
+                    "PAYMENT",
+                    "AI_ASSISTANT",
+                    "AI_INSIGHT"
+                ]
+            })
         },
         {
             "name": "ENTERPRISE",
             "duration_days": 360,
             "price": 100,
-            "features_json": '{"white_label":true,"api":true}'
+            "features_json": json.dumps({
+                "features": [
+                    "ALL_MODULES",
+                    "AI_ASSISTANT",
+                    "AI_INSIGHT",
+                    "API",
+                    "WHITE_LABEL"
+                ]
+            })
         }
     ]
 
@@ -52,15 +77,15 @@ def seed_plans():
             .first()
         )
 
-        if not exists:
+        if exists:
+            continue
 
-            plan = SubscriptionPlan(
-                id=str(uuid.uuid4()),
-                **p
-            )
+        plan = SubscriptionPlan(
+            id=str(uuid.uuid4()),
+            **p
+        )
 
-            db.add(plan)
-
+        db.add(plan)
 
     db.commit()
     db.close()
