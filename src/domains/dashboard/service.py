@@ -12,6 +12,10 @@ from src.domains.purchase.models import SupplierPayable
 
 
 
+
+
+
+
 def get_dashboard_menus(
     db: Session,
     tenant_id: str
@@ -620,6 +624,10 @@ def get_owner_platform_summary(
 
     from src.domains.purchase.models import SupplierPayable
 
+
+
+
+
     total_businesses = (
         db.query(Tenant)
         .count()
@@ -769,3 +777,158 @@ def get_owner_platform_summary(db: Session):
         "system_status": "ONLINE"
 
     }
+
+
+# ======================================
+# SAAS REVENUE ANALYTICS ENGINE
+# ======================================
+
+def get_saas_revenue_summary(db):
+
+    total_revenue = (
+        db.query(
+            func.coalesce(
+                func.sum(SubscriptionPayment.amount),
+                0
+            )
+        )
+        .filter(
+            SubscriptionPayment.status == "PAID"
+        )
+        .scalar()
+    )
+
+
+    active_subscriptions = (
+        db.query(Subscription)
+        .filter(
+            Subscription.status == "ACTIVE"
+        )
+        .count()
+    )
+
+
+    trial_users = (
+        db.query(Subscription)
+        .filter(
+            Subscription.is_trial == True,
+            Subscription.status == "ACTIVE"
+        )
+        .count()
+    )
+
+
+    expired_users = (
+        db.query(Subscription)
+        .filter(
+            Subscription.status == "EXPIRED"
+        )
+        .count()
+    )
+
+
+    return {
+        "total_revenue": total_revenue,
+        "active_subscriptions": active_subscriptions,
+        "trial_users": trial_users,
+        "expired_users": expired_users
+    }
+
+
+def get_saas_revenue_summary(
+    db: Session
+):
+    """
+    SaaS Monetization Analytics Engine
+    """
+
+    from src.domains.subscription.models import (
+        Subscription,
+        SubscriptionPayment,
+        SubscriptionPlan
+    )
+
+
+    active_subscribers = (
+        db.query(Subscription)
+        .filter(
+            Subscription.status == "ACTIVE"
+        )
+        .count()
+    )
+
+
+    monthly_revenue = (
+        db.query(
+            func.coalesce(
+                func.sum(SubscriptionPayment.amount),
+                0
+            )
+        )
+        .filter(
+            SubscriptionPayment.status == "PAID"
+        )
+        .scalar()
+    )
+
+
+    pending_payments = (
+        db.query(
+            SubscriptionPayment
+        )
+        .filter(
+            SubscriptionPayment.status == "PENDING"
+        )
+        .count()
+    )
+
+
+    plans = (
+        db.query(
+            SubscriptionPlan
+        )
+        .all()
+    )
+
+
+    plan_summary = []
+
+    for plan in plans:
+
+        subscribers = (
+            db.query(Subscription)
+            .filter(
+                Subscription.plan_id == plan.id,
+                Subscription.status == "ACTIVE"
+            )
+            .count()
+        )
+
+
+        plan_summary.append(
+            {
+                "plan": plan.name,
+                "price": plan.price,
+                "subscribers": subscribers
+            }
+        )
+
+
+    return {
+
+        "active_subscribers":
+            active_subscribers,
+
+        "mrr":
+            float(monthly_revenue or 0),
+
+        "arr":
+            float(monthly_revenue or 0) * 12,
+
+        "pending_payments":
+            pending_payments,
+
+        "plans":
+            plan_summary
+    }
+

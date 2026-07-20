@@ -18,6 +18,7 @@ from src.domains.dashboard.service import (
     get_financial_kpi_summary,
     get_finance_insight,
     get_owner_platform_summary,
+    get_saas_revenue_summary,
 )
 
 from src.domains.dashboard.schemas import (
@@ -183,3 +184,14 @@ def owner_platform_summary(
         "platform": get_owner_platform_summary(db)
     }
 
+
+
+@router.get("/saas-revenue")
+def saas_revenue(
+    current_user: User = Depends(require_owner_role),
+    db: Session = Depends(get_db)
+):
+    return {
+        "status": "SUCCESS",
+        "revenue": get_saas_revenue_summary(db)
+    }
