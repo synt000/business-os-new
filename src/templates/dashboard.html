@@ -1581,7 +1581,88 @@ body{
 </style>
 
 
-</head>
+
+<script>
+
+
+
+async function loadFinanceInsight(){
+
+    try{
+
+        const res = await apiFetch(
+            "/owner/finance-insight"
+        );
+
+        const data = await res.json();
+
+        console.log("FINANCE DEBUG:", data);
+
+
+        if(data.status !== "SUCCESS"){
+            return;
+        }
+
+
+        const f=data.ai_finance;
+
+
+        const revenue=document.getElementById("ceoRevenue");
+        const profit=document.getElementById("ceoProfit");
+        const health=document.getElementById("ceoHealth");
+
+
+        if(revenue){
+            revenue.innerText =
+            Number(f.revenue).toLocaleString()+" MMK";
+        }
+
+
+        if(profit){
+            profit.innerText =
+            Number(f.estimated_profit).toLocaleString()+" MMK";
+        }
+
+
+        if(health){
+            health.innerText =
+            f.finance_health+" /100";
+        }
+
+
+    }catch(e){
+
+        console.log(
+          "Finance API Error",
+          e
+        );
+
+    }
+
+}
+
+
+async function apiFetch(url, options={}){
+
+    const token =
+        localStorage.getItem("access_token");
+
+    return fetch(
+        "/api/v4" + url,
+        {
+            ...options,
+            headers:{
+                "Content-Type":"application/json",
+                "Authorization":
+                    "Bearer " + token,
+                ...(options.headers || {})
+            }
+        }
+    );
+}
+
+</script>
+\n</head>
 
 
 <body>
@@ -1760,6 +1841,69 @@ View Report
 
 
 <div id="stats-container">
+
+<!-- CEO FINANCE CARD -->
+
+<div class="stat-card">
+
+<div class="stat-icon">
+👑
+</div>
+
+<div class="stat-number">
+<span id="ceoRevenue">
+0 MMK
+</span>
+</div>
+
+<div class="stat-label">
+CEO Revenue
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-icon">
+💎
+</div>
+
+<div class="stat-number">
+<span id="ceoProfit">
+0 MMK
+</span>
+</div>
+
+<div class="stat-label">
+CEO Profit
+</div>
+
+</div>
+
+
+<div class="stat-card">
+
+<div class="stat-icon">
+📊
+</div>
+
+<div class="stat-number">
+<span id="ceoHealth">
+0 /100
+</span>
+</div>
+
+<div class="stat-label">
+Finance Health
+</div>
+
+</div>
+
+
+<!-- CEO FINANCE CARD END -->
+
+
 
 
 <div class="stats-grid">
@@ -2087,6 +2231,64 @@ Reports
 <!-- RECENT ACTIVITY START -->
 
 
+
+
+<section class="dashboard-widget-grid">
+
+<h2>📊 Business Analytics Center</h2>
+
+<div class="widget-grid">
+
+<div class="widget-card">
+<h3>📅 Today's Orders</h3>
+<strong id="today-orders">0</strong>
+</div>
+
+
+<div class="widget-card">
+<h3>💵 Today's Revenue</h3>
+<strong id="today-revenue">0</strong>
+</div>
+
+
+<div class="widget-card">
+<h3>👥 New Customers</h3>
+<strong id="new-customers">0</strong>
+</div>
+
+
+<div class="widget-card">
+<h3>📦 Low Stock</h3>
+<strong id="low-stock">0</strong>
+</div>
+
+
+<div class="widget-card">
+<h3>💬 Social Leads</h3>
+<strong id="social-leads">0</strong>
+</div>
+
+
+<div class="widget-card">
+<h3>🔔 Notifications</h3>
+<strong id="notifications">0</strong>
+</div>
+
+
+</div>
+
+
+<div class="widget-chart">
+
+<h3>📈 Revenue Trend</h3>
+
+<canvas id="salesChart"></canvas>
+
+</div>
+
+
+</section>
+
 <section class="activity-section">
 
 
@@ -2366,6 +2568,8 @@ async function loadOwnerDashboard(){
 
         const data = await res.json();
 
+          console.log("FINANCE DEBUG:", data);
+
 
         if(data.status !== "SUCCESS"){
             console.log(data);
@@ -2379,7 +2583,7 @@ async function loadOwnerDashboard(){
         document.getElementById(
             "todayRevenue"
         ).innerText =
-            d.today_revenue + " MMK";
+            formatMMK(d.today_revenue);
 
 
         document.getElementById(
@@ -2397,7 +2601,7 @@ async function loadOwnerDashboard(){
         document.getElementById(
             "totalSales"
         ).innerText =
-            d.total_sales + " MMK";
+            formatMMK(d.total_sales);
 
 
         document.getElementById(
@@ -2454,7 +2658,7 @@ async function loadOwnerDashboard(){
 
             if(revenue){
                 revenue.innerText =
-                    f.revenue + " MMK";
+                    formatMMK(f.revenue);
             }
 
 
@@ -2465,7 +2669,7 @@ async function loadOwnerDashboard(){
 
             if(profit){
                 profit.innerText =
-                    f.estimated_profit + " MMK";
+                    formatMMK(f.estimated_profit);
             }
 
 
@@ -2495,20 +2699,153 @@ async function loadOwnerDashboard(){
 
 
 
+let salesChartInstance = null;
+
+
+function formatMMK(value){
+
+    if(value === null || value === undefined){
+        return "0 MMK";
+    }
+
+    return Number(value).toLocaleString("en-US")
+        + " MMK";
+}
+
+
+
+async function loadDashboardWidgets(){
+
+    try{
+
+        const res = await apiFetch(
+            "/owner/api/v4/dashboard/widgets"
+        );
+
+        if(!res.ok){
+            return;
+        }
+
+        const data = await res.json();
+
+
+        const today = data.today || {};
+
+
+        const map = {
+            "today-orders": today.today_orders ?? 0,
+            "today-revenue": today.today_revenue ?? 0,
+            "new-customers": today.new_customers ?? 0,
+            "low-stock": today.low_stock ?? 0,
+            "social-leads": today.social_leads ?? 0,
+            "notifications": today.notifications ?? 0
+        };
+
+
+        Object.keys(map).forEach(id=>{
+
+            const el =
+            document.getElementById(id);
+
+            if(el){
+                el.innerText = map[id];
+            }
+
+        });
+
+
+        const chart =
+            data.sales_chart || {};
+
+
+        const canvas =
+            document.getElementById(
+                "salesChart"
+            );
+
+
+        if(
+            canvas &&
+            chart.labels &&
+            chart.values
+        ){
+
+            if(salesChartInstance){
+                salesChartInstance.destroy();
+            }
+
+
+            salesChartInstance = new Chart(
+                canvas,
+                {
+                    type:"line",
+
+                    data:{
+                        labels:
+                            chart.labels,
+
+                        datasets:[
+                        {
+                            label:
+                            "Revenue",
+
+                            data:
+                            chart.values
+                        }]
+                    }
+                }
+            );
+
+        }
+
+
+    }catch(e){
+
+        console.log(
+            "Widget Load Error",
+            e
+        );
+
+    }
+
+}
+
+
+
+
+
 document.addEventListener(
 "DOMContentLoaded",
 ()=>{
 
     if(typeof apiFetch === "function"){
-        loadOwnerDashboard();
+
+        setTimeout(()=>{
+
+            loadOwnerDashboard();
+            loadFinanceInsight();
+            loadDashboardWidgets();
+
+        },1000);
+
 
         setInterval(
             loadOwnerDashboard,
             30000
         );
+
+
+        setInterval(
+            loadFinanceInsight,
+            30000
+        );
+
     }
 
 });
 
 </script>
+
+
+
 

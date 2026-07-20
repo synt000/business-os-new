@@ -4,6 +4,7 @@ from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
+from src.services.dashboard_service import DashboardService
 from src.core.security import get_current_user
 from src.domains.trial.guard import require_active_subscription
 from src.core.permissions import require_owner_role
@@ -19,7 +20,10 @@ from src.domains.dashboard.service import (
     get_finance_insight,
     get_owner_platform_summary,
     get_saas_revenue_summary,
+    get_owner_renewal_summary,
 )
+
+from src.domains.social_center.service import get_social_summary
 
 from src.domains.dashboard.schemas import (
     DashboardMenuResponse
@@ -70,6 +74,10 @@ def ceo_dashboard_summary(
     return {
         "status": "SUCCESS",
         "dashboard": get_ceo_dashboard_summary(
+            db,
+            current_user.tenant_id
+        ),
+        "finance": get_finance_insight(
             db,
             current_user.tenant_id
         )
@@ -195,3 +203,67 @@ def saas_revenue(
         "status": "SUCCESS",
         "revenue": get_saas_revenue_summary(db)
     }
+
+
+# ======================================
+# OWNER RENEWAL CONTROL CENTER
+# ======================================
+
+@router.get("/renewals")
+def owner_renewal_dashboard(
+
+    db: Session = Depends(get_db)
+
+):
+
+    return get_owner_renewal_summary(
+        db
+    )
+
+
+
+# ======================================
+# SOCIAL CENTER DASHBOARD
+# ======================================
+
+@router.get("/social-summary")
+def social_summary(
+    current_user: User = Depends(require_active_subscription),
+    db: Session = Depends(get_db)
+):
+
+    return {
+        "status": "SUCCESS",
+        "social": get_social_summary(
+            db,
+            current_user.tenant_id
+        )
+    }
+
+
+
+# ======================================
+# DASHBOARD WIDGETS
+# ======================================
+
+@router.get("/api/v4/dashboard/widgets")
+async def dashboard_widgets(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    today = DashboardService.get_today_stats(
+        db,
+        current_user.tenant_id
+    )
+
+    chart = DashboardService.get_revenue_chart(
+        db,
+        current_user.tenant_id
+    )
+
+    return {
+        "today": today,
+        "sales_chart": chart
+    }
+
