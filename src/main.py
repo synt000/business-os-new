@@ -89,6 +89,14 @@ app = FastAPI(
     openapi_url="/api/v4/openapi.json"
 )
 
+@app.get("/health")
+def system_health():
+    return {
+        "status": "ok",
+        "service": "business-os",
+        "version": "5.5.0-Enterprise"
+    }
+
 from fastapi.responses import JSONResponse
 # REGISTER GLOBAL MIDDLEWARES
 app.add_middleware(
