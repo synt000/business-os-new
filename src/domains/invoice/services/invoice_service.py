@@ -3,8 +3,9 @@ from sqlalchemy.orm import Session
 from src.models.saas_core import (
     Invoice,
     Order,
-    AccountLedger,
 )
+
+from src.domains.accounting.models import AccountLedger
 
 
 def create_invoice(

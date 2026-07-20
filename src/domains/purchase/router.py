@@ -1,3 +1,4 @@
+from src.domains.accounting.models import AccountLedger
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -10,15 +11,12 @@ from src.core.security import get_current_user
 from src.models.saas_core import User
 
 from src.domains.purchase.models import (
-    PurchaseOrder,
-    PurchaseItem,
     SupplierPayable,
     SupplierPayment,
 )
 
 from src.domains.accounting.models import (
     ProcurementLedger,
-    AccountLedger,
 )
 
 from src.domains.product.models import Product
@@ -132,13 +130,13 @@ def approve_purchase(
     }
 
 
+
 @router.post("/receive/{purchase_id}")
 def receive_purchase_stock(
     purchase_id: str,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
-
     po = (
         db.query(PurchaseOrder)
         .filter(
@@ -149,18 +147,16 @@ def receive_purchase_stock(
     )
 
     if not po:
-        raise HTTPException(
-            status_code=404,
-            detail="PURCHASE_NOT_FOUND"
-        )
+        return {
+            "status": "FAILED",
+            "message": "PURCHASE_NOT_FOUND"
+        }
 
-
-    if po.status != "APPROVED":
-        raise HTTPException(
-            status_code=400,
-            detail="PURCHASE_NOT_APPROVED"
-        )
-
+    if po.status not in ["APPROVED", "CONFIRMED"]:
+        return {
+            "status": "FAILED",
+            "message": "INVALID_STATUS"
+        }
 
     items = (
         db.query(PurchaseItem)
@@ -170,26 +166,52 @@ def receive_purchase_stock(
         .all()
     )
 
-
     for item in items:
 
+        inventory = (
+            db.query(Inventory)
+            .filter(
+                Inventory.product_id == item.product_id,
+                Inventory.tenant_id == current_user.tenant_id
+            )
+            .first()
+        )
+
+        if not inventory:
+            inventory = Inventory(
+                product_id=item.product_id,
+                quantity=0,
+                tenant_id=current_user.tenant_id
+            )
+
+            db.add(inventory)
+            db.flush()
+
+        before = inventory.quantity
+
+        inventory.quantity += item.quantity
+
+        after = inventory.quantity
+
         movement = StockMovement(
-            id=str(uuid.uuid4()),
             product_id=item.product_id,
-            quantity=item.quantity,
             movement_type="PURCHASE_RECEIVE",
+            quantity_change=item.quantity,
+            before_quantity=before,
+            after_quantity=after,
+            reason=f"Purchase {po.purchase_number}",
             tenant_id=current_user.tenant_id
         )
 
         db.add(movement)
 
-
     po.status = "RECEIVED"
 
     db.commit()
 
-
     return {
-        "status":"SUCCESS",
-        "message":"STOCK_RECEIVED"
+        "status": "SUCCESS",
+        "message": "STOCK_RECEIVED",
+        "purchase_number": po.purchase_number
     }
+

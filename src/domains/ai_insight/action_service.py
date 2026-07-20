@@ -1,3 +1,4 @@
+from src.domains.purchase.models import PurchaseOrder, PurchaseItem
 from sqlalchemy.orm import Session
 
 from src.domains.ai_insight.recommendation import (
@@ -5,8 +6,6 @@ from src.domains.ai_insight.recommendation import (
 )
 
 from src.models.saas_core import (
-    PurchaseOrder,
-    PurchaseItem,
     Supplier,
     AIActionLog
 )

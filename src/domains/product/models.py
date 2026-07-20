@@ -66,7 +66,8 @@ class Product(TenantModel):
     order_items = relationship(
         "OrderItem",
         back_populates="product",
-        cascade="all, delete-orphan"
+        cascade="all, delete-orphan",
+        foreign_keys="[OrderItem.product_id]"
     )
 
     procurements = relationship(

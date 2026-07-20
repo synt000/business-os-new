@@ -4,10 +4,10 @@ from src.domains.rental.models import (
     Rental,
     RentalPayment,
 )
+from src.domains.accounting.models import AccountLedger
 
 from src.models.saas_core import (
     Invoice,
-    AccountLedger,
 )
 
 

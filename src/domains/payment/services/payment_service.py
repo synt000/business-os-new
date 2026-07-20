@@ -3,10 +3,11 @@ from sqlalchemy.orm import Session
 from src.models.saas_core import (
     Payment,
     Invoice,
-    AccountLedger,
     Receivable,
     CustomerCreditWallet,
 )
+
+from src.domains.accounting.models import AccountLedger
 
 
 def create_payment(

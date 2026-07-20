@@ -42,3 +42,4 @@ backup_*
 
 # Local scripts
 login.sh
+.access_token

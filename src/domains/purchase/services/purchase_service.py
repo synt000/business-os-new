@@ -1,3 +1,4 @@
+from src.domains.purchase.models import PurchaseOrder, PurchaseItem
 import uuid
 
 from sqlalchemy.orm import Session
@@ -7,8 +8,6 @@ from src.domains.accounting.services.journal_service import (
 )
 
 from src.models.saas_core import (
-    PurchaseOrder,
-    PurchaseItem,
     Supplier,
     SupplierPayable,
 )

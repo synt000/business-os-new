@@ -6,12 +6,13 @@ from src.domains.accounting.services.journal_service import (
     create_supplier_payment_journal,
 )
 
+from src.domains.purchase.models import SupplierPayment
+
+from src.domains.purchase.models import SupplierPayable
 from src.models.saas_core import (
-    SupplierPayment,
-    SupplierPayable,
     Supplier,
-    AccountLedger,
 )
+from src.domains.accounting.models import AccountLedger
 
 
 def create_supplier_payment(

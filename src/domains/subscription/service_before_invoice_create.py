@@ -7,7 +7,7 @@ from src.domains.subscription.models import (
     SubscriptionPayment
 )
 
-from src.models.saas_core import AccountLedger
+from src.domains.accounting.models import AccountLedger
 
 
 def create_plan(db, data):

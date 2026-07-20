@@ -6,8 +6,8 @@ from src.models.saas_core import (
     Invoice,
     Payment,
     Receivable,
-    AccountLedger,
 )
+from src.domains.accounting.models import AccountLedger
 
 
 def get_credit_wallet(

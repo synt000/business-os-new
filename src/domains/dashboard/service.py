@@ -5,19 +5,11 @@ from sqlalchemy import func
 
 from src.domains.product.models import Product
 from src.domains.inventory.models import Inventory
+from src.domains.accounting.models import AccountLedger
 
 
-from src.models.saas_core import (
-    TenantFeature,
-    DashboardMenu,
-    Order,
-    Customer,
-    Payment,
-    Supplier,
-    SupplierPayable,
-    Invoice,
-    AccountLedger,
-)
+from src.domains.purchase.models import SupplierPayable
+
 
 
 def get_dashboard_menus(
@@ -626,10 +618,7 @@ def get_owner_platform_summary(
     Platform Owner Command Center Summary
     """
 
-    from src.models.saas_core import (
-        Tenant,
-        User
-    )
+    from src.domains.purchase.models import SupplierPayable
 
     total_businesses = (
         db.query(Tenant)
@@ -640,7 +629,6 @@ def get_owner_platform_summary(
         db.query(User)
         .count()
     )
-
 
     total_orders = 0
     total_sales = 0
