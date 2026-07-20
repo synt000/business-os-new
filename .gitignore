@@ -45,3 +45,26 @@ login.sh
 .access_token
 .access_token
 .auth.json
+
+# Temporary migration snapshots
+*.before*
+*.backup*
+*.empty
+
+# Local audit scripts
+inspect_*.py
+inspect_*.sh
+patch_*.py
+patch_*.sh
+force_*.py
+cleanup_*.py
+check_*.sh
+save_*.sh
+
+# Local reports
+*_report.txt
+dependency_report.txt
+saas_module_report.txt
+
+# Local databases
+*.db.before*

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Welcome to Business OS</title>
+
+<style>
+
+*{
+box-sizing:border-box;
+}
+
+body{
+margin:0;
+font-family:Arial,sans-serif;
+background:#020617;
+color:white;
+}
+
+.container{
+max-width:520px;
+margin:auto;
+padding:25px;
+}
+
+.hero{
+text-align:center;
+padding:40px 10px;
+}
+
+.logo{
+font-size:60px;
+}
+
+h1{
+font-size:36px;
+}
+
+span{
+color:#38bdf8;
+}
+
+.tagline{
+font-size:20px;
+font-weight:bold;
+}
+
+.text{
+margin-top:15px;
+color:#cbd5e1;
+line-height:1.6;
+}
+
+.card{
+
+margin-top:25px;
+padding:25px;
+border-radius:25px;
+background:rgba(255,255,255,.08);
+
+}
+
+.card h2{
+font-size:22px;
+}
+
+.item{
+padding:8px 0;
+color:#cbd5e1;
+}
+
+
+.cta{
+
+display:block;
+margin-top:30px;
+padding:16px;
+border-radius:30px;
+background:#2563eb;
+text-align:center;
+text-decoration:none;
+color:white;
+font-weight:bold;
+
+}
+
+
+.contact{
+
+display:flex;
+justify-content:center;
+gap:20px;
+margin-top:20px;
+
+}
+
+.contact a{
+
+font-size:30px;
+text-decoration:none;
+
+}
+
+
+footer{
+
+text-align:center;
+margin-top:40px;
+color:#94a3b8;
+font-size:12px;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="container">
+
+
+<section class="hero">
+
+<div class="logo">
+🚀
+</div>
+
+
+<h1>
+Welcome to <span>Business OS</span>
+</h1>
+
+
+<div class="tagline">
+One Platform. Every Business.
+</div>
+
+
+<div class="text">
+
+Myanmar's All-in-One Business Platform.
+
+Manage your sales, inventory, customers and daily operations in one place.
+
+</div>
+
+
+</section>
+
+
+
+<div class="card">
+
+<h2>
+🚀 Pilot Phase
+</h2>
+
+<div class="item">
+✓ Business OS is currently under active development
+</div>
+
+<div class="item">
+✓ Selected Myanmar businesses are testing the platform
+</div>
+
+<div class="item">
+✓ Your feedback helps us build better tools
+</div>
+
+
+</div>
+
+
+
+
+<div class="card">
+
+<h2>
+Powerful Features
+</h2>
+
+
+<div class="item">
+📦 Inventory Management
+</div>
+
+<div class="item">
+💰 Sales Management
+</div>
+
+<div class="item">
+👥 Customer Management
+</div>
+
+<div class="item">
+📊 Business Reports
+</div>
+
+
+</div>
+
+
+
+
+{% include "components/faq.html" %}
+
+{% include "components/owner_contact.html" %}
+
+<a class="cta" href="/landing-page">
+Continue to Business OS
+</a>
+
+
+
+<footer>
+
+© 2026 Business OS Myanmar
+
+</footer>
+
+
+</div>
+
+</body>
+</html>

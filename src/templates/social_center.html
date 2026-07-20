@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Business OS Social Center</title>
+
+<style>
+body{
+background:#111827;
+color:white;
+font-family:Arial;
+padding:20px;
+}
+.card{
+background:#1f2937;
+padding:20px;
+margin-bottom:20px;
+border-radius:12px;
+}
+.lead{
+padding:12px;
+margin-top:10px;
+background:#374151;
+border-radius:8px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>💬 Social Center</h1>
+
+<div class="card">
+<h2>📊 Summary</h2>
+<div id="summary">
+Loading...
+</div>
+</div>
+
+<div class="card">
+<h2>👥 Leads</h2>
+<div id="lead-list">
+Loading...
+</div>
+</div>
+
+<script src="/static/app.js"></script>
+
+<script>
+
+async function loadSummary(){
+
+    const r=await apiFetch("/social/summary");
+
+    if(!r.ok)return;
+
+    const data=await r.json();
+
+    document.getElementById("summary").innerHTML=
+`
+Inbox : ${data.total_messages ?? 0}<br>
+Leads : ${data.total_leads ?? 0}
+`;
+
+}
+
+async function loadLeads(){
+
+    const r=await apiFetch("/social/leads");
+
+    if(!r.ok){
+
+        document.getElementById("lead-list").innerHTML=
+        "No Leads";
+
+        return;
+    }
+
+    const data=await r.json();
+
+    let html="";
+
+    data.forEach(x=>{
+
+        html+=`
+<div class="lead">
+
+<b>${x.customer_name}</b><br>
+
+Platform :
+${x.platform}<br>
+
+Status :
+${x.status}
+
+</div>
+`;
+
+    });
+
+    document.getElementById("lead-list").innerHTML=html;
+
+}
+
+window.addEventListener("DOMContentLoaded", async () => {
+    await loadSummary();
+    await loadLeads();
+});
+
+</script>
+
+</body>
+</html>
