@@ -55,7 +55,7 @@ async def read_landing_page(
 
     return templates.TemplateResponse(
         request=request,
-        name="home.html",
+        name="landing.html",
         context={
             "businesses": businesses
         }

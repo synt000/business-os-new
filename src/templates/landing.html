@@ -4,7 +4,11 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1">
 
-<title>Business OS Myanmar</title>
+<title>Business OS Myanmar - One Platform. Every Business.</title>
+
+<meta name="theme-color" content="#2563eb">
+
+<link rel="manifest" href="/static/pwa/manifest.json">
 
 <style>
 
@@ -14,101 +18,59 @@ box-sizing:border-box;
 
 body{
 margin:0;
-font-family:Arial, sans-serif;
-background:#0f172a;
+font-family:Arial,sans-serif;
+background:#020617;
 color:white;
 }
 
 .container{
-max-width:480px;
+max-width:520px;
 margin:auto;
 padding:25px;
 }
 
-.header{
+.hero{
 text-align:center;
-padding:30px 10px;
+padding:45px 10px 25px;
 }
 
-.header h1{
-font-size:34px;
-margin:0;
+.logo{
+font-size:52px;
+display:flex;
+justify-content:center;
+align-items:center;
 }
 
-.header span{
+.logo-img{
+width:90px;
+height:90px;
+object-fit:contain;
+}
+
+.hero h1{
+font-size:38px;
+margin:10px 0;
+}
+
+.hero span{
 color:#38bdf8;
 }
 
-.subtitle{
-margin-top:10px;
-color:#cbd5e1;
-font-size:15px;
-}
-
-
-.grid{
-
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:18px;
-margin-top:30px;
-
-}
-
-
-.app{
-
-background:rgba(255,255,255,0.08);
-border:1px solid rgba(255,255,255,0.15);
-border-radius:25px;
-padding:25px 15px;
-text-align:center;
-text-decoration:none;
-color:white;
-backdrop-filter:blur(15px);
-
-transition:.3s;
-
-}
-
-
-.app:hover{
-
-transform:translateY(-5px);
-
-}
-
-
-.icon{
-
-font-size:45px;
-margin-bottom:15px;
-
-}
-
-
-.name{
-
-font-size:16px;
+.tagline{
+font-size:18px;
 font-weight:bold;
-
 }
 
-
-.desc{
-
-font-size:12px;
+.subtitle{
+margin-top:15px;
 color:#cbd5e1;
-margin-top:8px;
-
+line-height:1.6;
 }
 
 
-
-.btn{
-
+.cta{
 display:block;
-margin-top:25px;
+margin-top:30px;
 padding:16px;
 border-radius:30px;
 text-align:center;
@@ -116,6 +78,74 @@ background:#2563eb;
 color:white;
 text-decoration:none;
 font-weight:bold;
+}
+
+
+.section-title{
+margin-top:45px;
+text-align:center;
+font-size:24px;
+}
+
+
+.grid{
+
+display:grid;
+grid-template-columns:repeat(1,1fr);
+gap:18px;
+margin-top:25px;
+
+}
+
+
+.card{
+
+background:rgba(255,255,255,.08);
+border:1px solid rgba(255,255,255,.15);
+border-radius:24px;
+padding:25px;
+text-align:center;
+
+}
+
+
+.icon{
+font-size:45px;
+}
+
+
+.name{
+
+font-size:20px;
+font-weight:bold;
+margin-top:10px;
+
+}
+
+
+.desc{
+
+color:#cbd5e1;
+font-size:14px;
+margin-top:8px;
+
+}
+
+
+.features{
+
+margin-top:40px;
+background:rgba(255,255,255,.05);
+padding:25px;
+border-radius:25px;
+
+}
+
+
+.features div{
+
+padding:8px 0;
+color:#cbd5e1;
 
 }
 
@@ -129,102 +159,140 @@ background:#0088cc;
 
 footer{
 
-text-align:center;
 margin-top:40px;
-font-size:12px;
+text-align:center;
 color:#94a3b8;
+font-size:12px;
 
 }
 
 
 </style>
 
-<link rel="manifest" href="/static/pwa/manifest.json">
-<meta name="theme-color" content="#2563eb">
 </head>
 
 
 <body>
 
-
 <div class="container">
 
 
-<div class="header">
+<section class="hero">
+
+<div class="logo">
+<img class="logo-img" src="/static/images/business-os-logo.png" alt="Business OS">
+</div>
 
 <h1>
-🚀 <span>Business OS</span>
+<span>Business OS</span>
 </h1>
 
-<div class="subtitle">
-Myanmar Business App Platform
+<div class="tagline">
+One Platform. Every Business.
 </div>
 
+
+<div class="subtitle">
+
+Myanmar's All-in-One Business Platform.
+
+Manage Sales, Inventory, Customers and Daily Operations in One Place.
+
 </div>
+
+
+<a class="cta" href="/signup">
+🆓 Start 30-Day Free Trial
+</a>
+
+
+</section>
+
+
+
+<h2 class="section-title">
+Built For Myanmar Businesses
+</h2>
 
 
 
 <div class="grid">
 
 
-{% for b in businesses %}
-
-<a class="app" href="/{{ b.business_slug }}">
-
+<div class="card">
 
 <div class="icon">
-
-{% if "Shop" in b.business_name or "Online" in b.business_name %}
 🛒
-
-{% elif "2D" in b.business_name %}
-🎲
-
-{% elif "Beauty" in b.business_name %}
-💇
-
-{% elif "Mart" in b.business_name %}
-🏪
-
-{% elif "Rental" in b.business_name %}
-🏠
-
-{% else %}
-🏢
-
-{% endif %}
-
 </div>
-
 
 <div class="name">
-{{ b.business_name }}
+Online Shop
 </div>
-
 
 <div class="desc">
-
-{{ b.description or "Business OS Service" }}
-
+Products, Orders, Customers and Inventory Management
 </div>
-
-
-</a>
-
-
-{% endfor %}
-
 
 </div>
 
 
 
-<a class="btn" href="/signup">
-🆓 Start Free Trial
-</a>
+<div class="card">
+
+<div class="icon">
+🎲
+</div>
+
+<div class="name">
+2D Seller
+</div>
+
+<div class="desc">
+Daily Records, Commission and Sales Tracking
+</div>
+
+</div>
 
 
-<a class="btn telegram" href="https://t.me/yourusername">
+
+<div class="card">
+
+<div class="icon">
+🏪
+</div>
+
+<div class="name">
+Mini Mart
+</div>
+
+<div class="desc">
+Stock Control, Purchase and Profit Overview
+</div>
+
+</div>
+
+
+</div>
+
+
+
+<div class="features">
+
+<h2>
+Why Business OS?
+</h2>
+
+<div>✓ Sales Management</div>
+<div>✓ Inventory Control</div>
+<div>✓ Customer Management</div>
+<div>✓ Business Reports</div>
+<div>✓ Multi Business Platform</div>
+
+</div>
+
+
+
+<a class="cta telegram" href="https://t.me/yourusername">
 ✈️ Contact Telegram
 </a>
 
@@ -241,12 +309,16 @@ Myanmar Business App Platform
 
 
 <script>
-if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/static/pwa/sw.js")
-    .then(() => console.log("Business OS PWA Ready"))
-    .catch(err => console.log("SW Error", err));
+
+if ("serviceWorker" in navigator){
+
+navigator.serviceWorker.register("/static/pwa/sw.js");
+
 }
+
 </script>
+
+
 </body>
 
 </html>

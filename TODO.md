@@ -1,120 +1,217 @@
-# BUSINESS OS - SUBSCRIPTION SYSTEM TODO
+# Business OS TODO
 
-## ✅ DONE
+## Sprint 23
+✅ Renewal Invoice Subscription Link Fixed
+✅ Invoice Model subscription_id added
+✅ Billing Engine subscription_id migration
+✅ Compile Check Passed
+✅ Git Push Completed
 
-### Subscription Foundation
-- [x] SubscriptionPlan Model
-- [x] FREE_TRIAL Plan Created
-- [x] STARTER Plan Created
-- [x] BUSINESS Plan Created
-- [x] ENTERPRISE Plan Created
+---
 
-### Free Trial Flow
-- [x] Register creates FREE_TRIAL subscription
-- [x] Trial service implemented
-- [x] Trial guard implemented
-- [x] TRIAL_DAYS = 7 (KEEP)
+# Sprint 24
+## Business OS Premium UX Polish Sprint
 
-### Activation Key System
-- [x] ActivationKey Model
-- [x] create_test_activation_key script
-- [x] Generate test key
-- [x] Activate key successfully
+## Dashboard Audit
 
-Test:
-ACT-135AD285
+### TODO-24-01 Dashboard Route Mapping
+Status: ⏳
 
-Activated:
-Subscription ID:
-f36f7c36-6654-4b79-ad29-d9d351e6637c
+Tasks:
+- [ ] Check /dashboard route
+- [ ] Check /owner route
+- [ ] Check /owner/dashboard route
+- [ ] Select primary dashboard entry
+- [ ] Remove duplicate flow
+
+---
+
+## TODO-24-02 Button Flow Audit
+
+Home Dashboard
+
+- [ ] Products
+    - [ ] Product List
+    - [ ] Add Product
+    - [ ] Stock
+    - [ ] Price
+
+- [ ] Orders
+    - [ ] New Order
+    - [ ] Pending
+    - [ ] Completed
+
+- [ ] Delivery
+    - [ ] Assign Driver
+    - [ ] Tracking
+
+- [ ] Finance
+    - [ ] Revenue
+    - [ ] Expense
+    - [ ] Profit
+
+- [ ] Subscription
+    - [ ] Plan
+    - [ ] Renewal
+
+
+---
+
+## TODO-24-03 Mobile Premium UI
+
+- [ ] Dark Theme Polish
+- [ ] Top Bar
+- [ ] Hero Card
+- [ ] Live Stats
+- [ ] Quick Actions
+- [ ] Recent Activity
+- [ ] Bottom Navigation
+- [ ] Floating Action Button
+
+
+---
+
+## TODO-24-04 Role Based Dashboard
+
+ONLINE Shop:
+- [ ] Orders
+- [ ] Products
+- [ ] Customers
+- [ ] Delivery
+- [ ] Revenue
+
+2D Seller:
+- [ ] Transactions
+- [ ] Customers
+- [ ] Balance
+- [ ] Reports
+
+Mini Mart:
+- [ ] Stock
+- [ ] Sales
+- [ ] Products
+- [ ] Profit
+
+Server:
+- [ ] Customers
+- [ ] Subscription
+- [ ] Renewal
+- [ ] Payments
+
+Delivery:
+- [ ] New Jobs
+- [ ] Assigned
+- [ ] Completed
+- [ ] Income
+
+
+---
+
+## Pilot Release Checklist
+
+- [ ] Dashboard stable
+- [ ] Mobile test
+- [ ] Button routes verified
+- [ ] Empty states
+- [ ] Loading states
+- [ ] Error handling
+- [ ] Pilot 5 businesses ready
+
+
+
+# PILOT PHASE DIRECTION (July 2026)
+
+## Main Goal
+
+Business OS ကို Myanmar Market အတွက် Real User Pilot Testing အဆင့်ရောက်အောင် တည်ဆောက်မည်။
+
+---
+
+# First Pilot Users (30 Days)
+
+## 1. Online Shop
+Priority: HIGH
+
+Required Features:
+- Product Management
+- Category Management
+- Stock Tracking
+- Customer Management
+- Sales / Orders
+- Basic Reports
+
+Goal:
+Online seller တစ်ယောက် Daily Operation ကို Business OS နဲ့ စမ်းသုံးနိုင်ရန်။
+
+---
+
+## 2. 2D / Seller Business
+Priority: HIGH
+
+Required Features:
+- Daily Transaction Recording
+- Commission Tracking
+- Customer Records
+- Sales Summary
+
+Goal:
+2D Seller တစ်ယောက် Manual Record အစား Business OS သုံးနိုင်ရန်။
+
+---
+
+## 3. Mini Mart
+Priority: HIGH
+
+Required Features:
+- Product Inventory
+- Purchase Tracking
+- Sales Management
+- Stock Movement
+- Profit Overview
+
+Goal:
+Mini Mart Owner တစ်ယောက် Stock + Sales ကို စီမံနိုင်ရန်။
+
+---
+
+# Homepage Upgrade Goal
 
 Status:
-ACTIVE
+IN PROGRESS
 
-### Subscription Protection
-- [x] Product protected
-- [x] Order protected
-- [x] Inventory protected
-- [x] Dashboard protected
+Tasks:
 
-Using:
-require_active_subscription
+- Business OS Brand Logo Integration
+- Premium SaaS Hero Section
 
+Tagline:
 
-# 🚧 CURRENT
+"One Platform. Every Business."
 
-## Step 3 - Subscription Lock Flow
+Pilot Business Showcase:
 
-- [ ] Detect expired FREE_TRIAL
-- [ ] Return TRIAL_EXPIRED response
-- [ ] Create subscription_locked.html
-- [ ] Redirect locked users to subscription page
-- [ ] Test expired tenant flow
+- Online Shop
+- 2D Seller
+- Mini Mart
 
+Marketing:
 
-# 🔜 NEXT
+- 30-Day Free Trial CTA
+- Contact Section (Owner Information Pending)
 
-## Step 4 - Owner Activation Key Generator
+---
 
-- [ ] Owner selects duration
+# Development Rule
 
-Options:
-- [ ] 3 Days
-- [ ] 7 Days
-- [ ] 10 Days
-- [ ] 15 Days
-- [ ] 30 Days
-- [ ] 60 Days
-- [ ] 90 Days
-- [ ] 120 Days
-- [ ] 360 Days
+Before adding new modules:
 
-- [ ] Generate Activation Key
-- [ ] Key history table
-- [ ] Used / Unused status
+1. Pilot User Needs first
+2. Real Feedback first
+3. Stability over New Features
 
+Avoid:
 
-## Step 5 - Paid Activation Flow
-
-- [ ] Customer enters activation key
-- [ ] Validate key
-- [ ] Create paid subscription
-- [ ] Update status ACTIVE
-- [ ] Update end_date
-
-
-## Step 6 - Payment System
-
-- [ ] Invoice
-- [ ] Payment tracking
-- [ ] Transaction reference
-- [ ] Owner payment confirmation
-
-
-# ⚠️ ARCHITECTURE RULE
-
-Correct Flow:
-
-Register
- ↓
-FREE_TRIAL 7 Days
- ↓
-Expired
- ↓
-Subscription Lock
- ↓
-Payment
- ↓
-Owner Generates Key
- ↓
-Customer Activates
- ↓
-Paid Subscription ACTIVE
-
-
-Never change to:
-
-Register
- ↓
-Need Activation Key
+- Building unused features
+- Large refactoring
+- Direction changes without validation
 
