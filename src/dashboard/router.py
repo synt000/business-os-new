@@ -42,6 +42,15 @@ async def home(request: Request):
 
 
 
+
+@router.get("/social/ui", response_class=HTMLResponse)
+async def social_center_ui(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="social_center.html"
+    )
+
+
 @router.get("/login", response_class=HTMLResponse)
 async def login(request: Request):
 
@@ -221,6 +230,42 @@ async def public_home_summary(
         "subscription": tenant.subscription_tier.value
     }
 
+
+
+
+
+@router.get("/api/v4/dashboard/today-stats")
+async def today_dashboard_stats(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    return DashboardService.get_today_stats(
+        db,
+        current_user.tenant_id
+    )
+
+
+@router.get("/api/v4/dashboard/widgets")
+async def dashboard_widgets(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    today = DashboardService.get_today_stats(
+        db,
+        current_user.tenant_id
+    )
+
+    chart = DashboardService.get_revenue_chart(
+        db,
+        current_user.tenant_id
+    )
+
+    return {
+        "today": today,
+        "sales_chart": chart
+    }
 
 
 @router.get("/api/v4/dashboard/revenue-chart")

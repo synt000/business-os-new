@@ -9,6 +9,7 @@ from src.domains.ai.services.memory_service import save_ai_memory
 from src.domains.purchase.models import (
     PurchaseOrder,
     PurchaseItem,
+    SupplierPayable,
 )
 
 from src.models.saas_core import (

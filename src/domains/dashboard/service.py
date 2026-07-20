@@ -3,12 +3,28 @@ from datetime import datetime, time
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 
+from src.models.saas_core import (
+    User,
+    Tenant,
+    Customer,
+    Supplier,
+    Payment,
+    Invoice,
+)
+
+from src.domains.order.models import Order
+
+
+from src.domains.purchase.models import (
+    SupplierPayable,
+)
+
 from src.domains.product.models import Product
 from src.domains.inventory.models import Inventory
 from src.domains.accounting.models import AccountLedger
 
 
-from src.domains.purchase.models import SupplierPayable
+
 
 
 
@@ -509,9 +525,10 @@ def get_finance_insight(
     AI Finance Insight Engine
     """
 
-    from sqlalchemy import func
+
 
     # Revenue
+    # Priority 1: Completed Payments
     revenue = (
         db.query(
             func.coalesce(
@@ -525,6 +542,22 @@ def get_finance_insight(
         )
         .scalar()
     )
+
+
+    # Priority 2: Order Sales fallback
+    if revenue == 0:
+        revenue = (
+            db.query(
+                func.coalesce(
+                    func.sum(Order.total_amount),
+                    0
+                )
+            )
+            .filter(
+                Order.tenant_id == tenant_id
+            )
+            .scalar()
+        )
 
 
     # Supplier Payable
@@ -622,7 +655,7 @@ def get_owner_platform_summary(
     Platform Owner Command Center Summary
     """
 
-    from src.domains.purchase.models import SupplierPayable
+
 
 
 
@@ -681,9 +714,8 @@ def get_owner_platform_summary(
     db,
     tenant_id=None
 ):
-    from src.models.saas_core import User, Tenant
-    from src.domains.order.models import Order
-    from sqlalchemy import func
+    
+
 
     tenants = db.query(func.count(Tenant.id)).scalar() or 0
 
@@ -711,9 +743,8 @@ def get_owner_platform_summary(db: Session):
     Owner SaaS Platform Summary V2
     """
 
-    from src.models.saas_core import User, Tenant
-    from src.domains.order.models import Order
-    from sqlalchemy import func
+    
+
 
 
     total_users = (
@@ -930,5 +961,85 @@ def get_saas_revenue_summary(
 
         "plans":
             plan_summary
+    }
+
+
+
+# ======================================
+# OWNER RENEWAL CONTROL CENTER
+# ======================================
+
+def get_owner_renewal_summary(db: Session):
+
+    from src.domains.subscription.models import Subscription
+    from datetime import datetime, timedelta
+
+
+
+    now = datetime.utcnow()
+
+    expiring_7_days = (
+        db.query(Subscription)
+        .filter(
+            Subscription.status == "ACTIVE",
+            Subscription.end_date <= now + timedelta(days=7),
+            Subscription.end_date >= now
+        )
+        .count()
+    )
+
+
+    expiring_30_days = (
+        db.query(Subscription)
+        .filter(
+            Subscription.status == "ACTIVE",
+            Subscription.end_date <= now + timedelta(days=30),
+            Subscription.end_date >= now
+        )
+        .count()
+    )
+
+
+    expired = (
+        db.query(Subscription)
+        .filter(
+            Subscription.status == "EXPIRED"
+        )
+        .count()
+    )
+
+
+    active = (
+        db.query(Subscription)
+        .filter(
+            Subscription.status == "ACTIVE"
+        )
+        .count()
+    )
+
+
+    renewal_rate = 0
+
+    total = active + expired
+
+    if total:
+        renewal_rate = round(
+            (active / total) * 100,
+            2
+        )
+
+
+    return {
+
+        "expiring_7_days": expiring_7_days,
+
+        "expiring_30_days": expiring_30_days,
+
+        "expired": expired,
+
+        "active_subscriptions": active,
+
+        "renewal_rate": renewal_rate
+
     }
 
