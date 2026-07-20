@@ -89,7 +89,8 @@ class DashboardService:
             )
             .filter(
                 AccountLedger.tenant_id == tenant_id,
-                AccountLedger.entry_type == "CREDIT"
+                AccountLedger.entry_type == "CREDIT",
+                AccountLedger.account_head == "SALES_REVENUE"
             )
             .group_by(
                 func.date(AccountLedger.created_at)
@@ -146,6 +147,7 @@ class DashboardService:
             .filter(
                 AccountLedger.tenant_id == tenant_id,
                 AccountLedger.entry_type == "CREDIT",
+                AccountLedger.account_head == "SALES_REVENUE",
                 func.date(AccountLedger.created_at) == today
             )
             .scalar()
