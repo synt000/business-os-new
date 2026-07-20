@@ -39,6 +39,15 @@ from src.domains.subscription.models import (
     ActivationKey
 )
 
+from src.domains.subscription.scheduler import (
+    run_subscription_scheduler,
+    scheduler_health_check,
+)
+
+from src.domains.subscription.renewal_worker import (
+    renewal_worker_health_check,
+)
+
 
 templates = Jinja2Templates(directory="src/templates")
 
@@ -481,5 +490,31 @@ def renewal_confirm(
         "status": "RENEWED",
         "subscription_id": subscription.id,
         "new_end_date": subscription.end_date
+    }
+
+
+
+# =====================================================
+# RENEWAL AUTOMATION OPERATIONS API
+# =====================================================
+
+@router.get("/automation/health")
+def renewal_automation_health():
+
+    return {
+        "status": "ONLINE",
+        "scheduler": scheduler_health_check(),
+        "worker": renewal_worker_health_check(),
+    }
+
+
+@router.post("/automation/run")
+def renewal_automation_manual_run():
+
+    result = run_subscription_scheduler()
+
+    return {
+        "status": "MANUAL_RENEWAL_RUN_COMPLETED",
+        "result": result,
     }
 
