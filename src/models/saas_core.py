@@ -1091,7 +1091,8 @@ class Employee(Base):
 
     id = Column(
         String,
-        primary_key=True
+        primary_key=True,
+        default=generate_uuid
     )
 
     employee_code = Column(
@@ -1149,3 +1150,59 @@ class Employee(Base):
         DateTime,
         default=datetime.utcnow
     )
+
+
+# ======================================
+# SOCIAL SALES LEAD
+# ======================================
+
+class SocialLead(Base):
+    __tablename__ = "social_leads"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid
+    )
+
+    customer_name = Column(
+        String,
+        nullable=True
+    )
+
+    customer_phone = Column(
+        String,
+        nullable=True
+    )
+
+    source = Column(
+        String,
+        default="SOCIAL"
+    )
+
+    platform = Column(
+        String,
+        nullable=False
+    )
+
+    message_id = Column(
+        String,
+        nullable=True
+    )
+
+    status = Column(
+        String,
+        default="NEW"
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
