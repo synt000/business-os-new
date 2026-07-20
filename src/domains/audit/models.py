@@ -31,12 +31,4 @@ class AuditLog(TenantModel):
         nullable=True
     )
 
-    user = relationship(
-        "User",
-        back_populates="audit_logs"
-    )
 
-    tenant = relationship(
-        "Tenant",
-        back_populates="audit_logs"
-    )

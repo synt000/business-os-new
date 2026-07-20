@@ -348,8 +348,10 @@ from src.core.security import decode_token, create_access_token
 
 @router.post("/refresh")
 async def refresh_access_token(
-    refresh_token: str,
-):
+    payload: dict,
+): 
+    refresh_token = payload.get("refresh_token")
+
     try:
         payload = decode_token(refresh_token)
 
