@@ -43,7 +43,7 @@ def check_expiring_subscriptions(
         exists = (
             db.query(Invoice)
             .filter(
-                Invoice.order_id == sub.id,
+                Invoice.subscription_id == sub.id,
                 Invoice.status == "PENDING"
             )
             .first()
@@ -58,7 +58,7 @@ def check_expiring_subscriptions(
             invoice_number=f"RENEW-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
             amount=0,
             status="PENDING",
-            order_id=sub.id,
+            subscription_id=sub.id,
             tenant_id=sub.tenant_id
         )
 

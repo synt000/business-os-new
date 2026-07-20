@@ -43,7 +43,7 @@ class Tenant(Base):
     # categories relationship disabled (domain tenant isolation fix)
     orders = relationship("Order", back_populates="tenant", cascade="all, delete-orphan")
     receipts = relationship("BillingReceipt", back_populates="tenant", cascade="all, delete-orphan")
-    audit_logs = relationship("AuditLog", back_populates="tenant", cascade="all, delete-orphan")
+    # audit_logs relationship disabled (registry fix)
     branches = relationship("Branch", back_populates="tenant", cascade="all, delete-orphan")
     suppliers = relationship("Supplier", back_populates="tenant", cascade="all, delete-orphan")
     customers = relationship("Customer", back_populates="tenant", cascade="all, delete-orphan")
@@ -68,7 +68,7 @@ class User(Base):
 
     tenant_id = Column(String, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     tenant = relationship("Tenant", back_populates="users")
-    audit_logs = relationship("AuditLog", back_populates="user", cascade="all, delete-orphan")
+    # user audit_logs relationship disabled (registry fix)
 
 
 class Order(Base):
@@ -662,6 +662,17 @@ class Invoice(Base):
 
     order = relationship(
         "Order"
+    )
+
+    subscription_id = Column(
+        String,
+        ForeignKey("subscriptions.id", ondelete="CASCADE"),
+        nullable=True,
+        index=True
+    )
+
+    subscription = relationship(
+        "Subscription"
     )
 
     tenant_id = Column(
