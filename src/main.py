@@ -47,6 +47,7 @@ from src.auth.two_factor import router as two_factor_router
 from src.auth.session_router import router as session_router
 from src.auth.refresh_router import router as refresh_router
 from src.product.router import router as product_router
+from src.domains.social.router import router as social_webhook_router
 from src.domains.dashboard.router import router as dashboard_router
 from src.domains.platform.router import router as platform_router
 from src.public_router import router as public_router
@@ -64,6 +65,7 @@ from src.domains.invoice.router import router as invoice_router
 from src.domains.receivable.router import router as receivable_router
 from src.domains.payment.router import router as payment_router
 from src.domains.customer_finance.router import router as customer_finance_router
+from src.domains.finance.router import router as finance_router
 from src.business_profile_router import router as business_profile_router
 from src.domains.subscription.router import router as subscription_router
 from src.domains.trial.router import router as trial_router
@@ -73,6 +75,7 @@ from src.domains.rental.router import router as rental_router
 from src.domains.ai_insight.router import router as ai_insight_router
 from src.domains.ai_assistant.router import router as ai_assistant_router
 from src.domains.device.router import router as device_router
+from src.domains.payment_gateway.router import router as payment_gateway_router
 
 print(f"📡 [DevOps Telemetry] Loaded Cryptographic Secret Prefix: {settings.SECRET_KEY[:10]}")
 
@@ -86,27 +89,6 @@ app = FastAPI(
 )
 
 from fastapi.responses import JSONResponse
-#@app.middleware("http")
-async def test_auth_interceptor(request, call_next):
-    if request.url.path == "/api/v4/auth/token" or request.url.path == "/api/v4/auth/login":
-        body = await request.body()
-        if b"owner@test.com" in body or b"admin@businessos.com" in body:
-            # Generate stable mock token compliant with validation layer
-            return JSONResponse({
-                "access_token": "MOCK_INTEGRATION_TEST_TOKEN_VALID_2026",
-                "refresh_token": "MOCK_REFRESH_TOKEN",
-                "token_type": "bearer",
-                "workspace_id": "test-tenant-123",
-                "role_profile": "ADMIN"
-            })
-    if "Authorization" in request.headers and "MOCK_INTEGRATION_TEST_TOKEN" in request.headers["Authorization"]:
-        # Safe dummy response to pass integration pipeline without breaking database state
-        if "/products" in request.url.path:
-            return JSONResponse({"tenant_id": "test-tenant-123", "total_items": 1, "products": [{"id": 1, "name": "Test Product", "sku": "TST-001", "barcode": "123456", "stock_qty": 100, "purchase_price": 5000, "retail_price": 7500}]})
-        if "/procurements" in request.url.path:
-            return JSONResponse({"status": "SUCCESS", "detail": "PROCUREMENT_LOGGED_AND_STOCK_INCREMENTED"})
-    return await call_next(request)
-
 # REGISTER GLOBAL MIDDLEWARES
 app.add_middleware(
     CORSMiddleware,
@@ -158,7 +140,7 @@ from fastapi.responses import Response
 async def favicon():
     return Response(status_code=204)
 
-app.router.include_router(auth_router)
+app.include_router(auth_router)
 
 print("🔥 AUTH AFTER INCLUDE")
 print("AUTH ROUTER:", type(auth_router))
@@ -194,6 +176,7 @@ app.include_router(invoice_router)
 app.include_router(receivable_router)
 app.include_router(payment_router)
 app.include_router(customer_finance_router)
+app.include_router(finance_router)
 app.include_router(public_router)
 app.include_router(business_settings_router)
 app.include_router(business_profile_router)
@@ -204,23 +187,46 @@ app.include_router(platform_router)
 app.include_router(ai_insight_router)
 app.include_router(ai_assistant_router)
 app.include_router(device_router)
+app.include_router(payment_gateway_router)
 
 app.include_router(dashboard_router)
 
 app.include_router(public_page_router)
-print("=== PLATFORM ROUTER ===")
-print([r.path for r in platform_router.routes])
-print("BEFORE:", [getattr(r,"path",None) for r in app.routes])
-app.include_router(platform_router)
-print("AFTER:", [getattr(r,"path",None) for r in app.routes])
-print("🔥 BEFORE CHECK:", len(app.routes))
-print("🔥 RENTAL ATTACHED:", [r.path for r in rental_router.routes])
 
-print("🔥 AFTER CHECK:", len(app.routes))
+from src.domains.website_settings.router import router as website_settings_router
+app.include_router(website_settings_router)
 
-print("🔥 ALL ROUTES:")
-for r in app.routes:
-    print("ROUTE:", getattr(r, "path", None))
+# =====================================================
+# FORCE EXPAND _IncludedRouter (FastAPI 0.118+/Py3.14)
+# =====================================================
+from fastapi.routing import _IncludedRouter
+
+def _force_expand_routes(application):
+    changed = True
+    while changed:
+        changed = False
+        expanded = []
+
+        for route in application.router.routes:
+            if isinstance(route, _IncludedRouter):
+                router = route.original_router
+                ctx = route.include_context
+                prefix = ctx.prefix or ""
+
+                for child in router.routes:
+                    if hasattr(child, "path"):
+                        child.path = prefix + child.path
+                    expanded.append(child)
+
+                changed = True
+            else:
+                expanded.append(route)
+
+        application.router.routes = expanded
+
+_force_expand_routes(app)
+print("✅ IncludedRouter auto-expanded at startup")
+
 
 # DYNAMIC COMPATIBILITY INJECTOR FOR CORE ANALYTICS INTEGRATION
 @app.get("/api/v4/dashboard/summary", tags=["Infrastructure Telemetry"])
@@ -258,18 +264,5 @@ from fastapi.responses import Response
 async def favicon():
     return Response(status_code=204)
 
-
-
-# =====================================================
-# FORCE PURCHASE ROUTER REGISTRATION
-# =====================================================
-try:
-    app.include_router(purchase_router)
-    print("✅ PURCHASE ROUTER FORCE ATTACHED")
-    print(
-        "PURCHASE ROUTES:",
-        [r.path for r in purchase_router.routes]
-    )
-except Exception as e:
-    print("❌ PURCHASE ROUTER ATTACH ERROR:", e)
-
+# Social Commerce Webhook
+app.include_router(social_webhook_router)

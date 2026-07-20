@@ -2,8 +2,10 @@ from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from src.core.database import get_db
 from src.database_mega_upgrade import SocialWebhookLog
+from src.models.saas_core import SocialMessage
 from src.domains.inventory.models import Inventory
 import json
+import uuid
 
 router = APIRouter(prefix="/social", tags=["Social Commerce Webhook"])
 
@@ -32,6 +34,20 @@ async def handle_social_webhook(tenant_id: str, request: Request, db: Session = 
         db.add(webhook_entry)
         db.commit()
         db.refresh(webhook_entry)
+
+        message_entry = SocialMessage(
+            id=str(uuid.uuid4()),
+            platform=platform_source.upper(),
+            customer_name=payload_json.get("customer_name"),
+            customer_id=payload_json.get("customer_id"),
+            message=payload_json.get("message"),
+            message_type="TEXT",
+            status="NEW",
+            tenant_id=tenant_id
+        )
+
+        db.add(message_entry)
+        db.commit()
         
         # 3. Automated Inventory Deduction Simulation Engine if SKU matches inside payload
         # e.g. Expecting format: {"target_product_id": "uuid", "order_qty": 5}
