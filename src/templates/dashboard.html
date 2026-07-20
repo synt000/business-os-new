@@ -2353,3 +2353,162 @@ Profile
 
 </body>
 </html>
+
+<script>
+
+async function loadOwnerDashboard(){
+
+    try{
+
+        const res = await apiFetch(
+            "/owner/ceo-summary"
+        );
+
+        const data = await res.json();
+
+
+        if(data.status !== "SUCCESS"){
+            console.log(data);
+            return;
+        }
+
+
+        const d = data.dashboard;
+
+
+        document.getElementById(
+            "todayRevenue"
+        ).innerText =
+            d.today_revenue + " MMK";
+
+
+        document.getElementById(
+            "todayOrders"
+        ).innerText =
+            d.today_orders;
+
+
+        document.getElementById(
+            "totalOrders"
+        ).innerText =
+            d.total_orders;
+
+
+        document.getElementById(
+            "totalSales"
+        ).innerText =
+            d.total_sales + " MMK";
+
+
+        document.getElementById(
+            "totalProducts"
+        ).innerText =
+            d.total_products;
+
+
+        document.getElementById(
+            "totalCustomers"
+        ).innerText =
+            d.total_customers;
+
+
+        document.getElementById(
+            "totalSuppliers"
+        ).innerText =
+            d.total_suppliers;
+
+
+        document.getElementById(
+            "lowStock"
+        ).innerText =
+            d.low_stock;
+
+
+        document.getElementById(
+            "completedPayments"
+        ).innerText =
+            d.completed_payments;
+
+
+        // ================================
+        // CEO FINANCE INSIGHT
+        // ================================
+
+        const financeRes = await apiFetch(
+            "/owner/finance-insight"
+        );
+
+        const financeData =
+            await financeRes.json();
+
+
+        if(financeData.status === "SUCCESS"){
+
+            const f = financeData.ai_finance;
+
+
+            const revenue =
+                document.getElementById(
+                    "ceoRevenue"
+                );
+
+            if(revenue){
+                revenue.innerText =
+                    f.revenue + " MMK";
+            }
+
+
+            const profit =
+                document.getElementById(
+                    "ceoProfit"
+                );
+
+            if(profit){
+                profit.innerText =
+                    f.estimated_profit + " MMK";
+            }
+
+
+            const health =
+                document.getElementById(
+                    "ceoHealth"
+                );
+
+            if(health){
+                health.innerText =
+                    f.finance_health + "/100";
+            }
+
+        }
+
+
+    }catch(e){
+
+        console.log(
+            "Dashboard API Error",
+            e
+        );
+
+    }
+
+}
+
+
+
+document.addEventListener(
+"DOMContentLoaded",
+()=>{
+
+    if(typeof apiFetch === "function"){
+        loadOwnerDashboard();
+
+        setInterval(
+            loadOwnerDashboard,
+            30000
+        );
+    }
+
+});
+
+</script>
+
