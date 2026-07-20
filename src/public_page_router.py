@@ -36,6 +36,21 @@ templates = Jinja2Templates(
 )
 
 
+
+
+# ================================
+# WELCOME PAGE
+# ================================
+@router.get("/welcome", response_class=HTMLResponse)
+async def welcome_page(
+    request: Request
+):
+    return templates.TemplateResponse(
+        request=request,
+        name="welcome.html"
+    )
+
+
 # ================================
 # MAIN HOMEPAGE
 # ================================
