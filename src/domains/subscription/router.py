@@ -27,6 +27,12 @@ from src.domains.subscription.service import (
 
 from src.domains.subscription.activation_service import activate_key
 
+from src.domains.subscription.renewal_service import (
+    find_renewal_candidates,
+    create_renewal_payment,
+    renew_subscription
+)
+
 from src.domains.subscription.models import (
     SubscriptionPlan,
     Subscription,
@@ -412,3 +418,68 @@ def activate_subscription_key(
             )
 
         raise
+
+# ======================================
+# AUTO RENEWAL API
+# ======================================
+
+@router.get("/renewals/candidates")
+def renewal_candidates(
+    db: Session = Depends(get_db)
+):
+
+    subscriptions = find_renewal_candidates(
+        db
+    )
+
+    return [
+        {
+            "subscription_id": s.id,
+            "tenant_id": s.tenant_id,
+            "plan_id": s.plan_id,
+            "expire_date": s.end_date
+        }
+        for s in subscriptions
+    ]
+
+
+
+@router.post("/renewals/{subscription_id}/create-payment")
+def renewal_payment(
+    subscription_id: str,
+    method: str = "KBZPAY",
+    db: Session = Depends(get_db)
+):
+
+    payment = create_renewal_payment(
+        db,
+        subscription_id,
+        method
+    )
+
+    return {
+        "status": "PENDING",
+        "payment_id": payment.id,
+        "amount": payment.amount,
+        "method": payment.method
+    }
+
+
+
+@router.post("/renewals/{subscription_id}/confirm")
+def renewal_confirm(
+    subscription_id: str,
+    db: Session = Depends(get_db)
+):
+
+    subscription = renew_subscription(
+        db,
+        subscription_id
+    )
+
+    return {
+        "status": "RENEWED",
+        "subscription_id": subscription.id,
+        "new_end_date": subscription.end_date
+    }
+
