@@ -48,6 +48,7 @@ from src.auth.session_router import router as session_router
 from src.auth.refresh_router import router as refresh_router
 from src.product.router import router as product_router
 from src.domains.social.router import router as social_webhook_router
+from src.domains.social_center.router import router as social_center_router
 from src.domains.dashboard.router import router as dashboard_router
 from src.domains.platform.router import router as platform_router
 from src.public_router import router as public_router
@@ -188,6 +189,7 @@ app.include_router(ai_insight_router)
 app.include_router(ai_assistant_router)
 app.include_router(device_router)
 app.include_router(payment_gateway_router)
+app.include_router(social_center_router)
 
 app.include_router(dashboard_router)
 
@@ -266,3 +268,7 @@ async def favicon():
 
 # Social Commerce Webhook
 app.include_router(social_webhook_router)
+
+from src.domains.social_center.router import router as social_center_router
+app.include_router(social_center_router)
+

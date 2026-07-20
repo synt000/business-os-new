@@ -5,7 +5,8 @@ from sqlalchemy.orm import Session
 from src.models.saas_core import (
     BusinessProfile,
     SocialAccount,
-    SocialMessage
+    SocialMessage,
+    SocialLead
 )
 
 
@@ -166,3 +167,184 @@ def get_social_summary(
             for item in platforms
         }
     }
+
+
+# ======================================
+# SOCIAL MESSAGE INBOX
+# ======================================
+
+def get_social_messages(
+    db: Session,
+    tenant_id: str,
+    limit: int = 50
+):
+
+    return (
+        db.query(SocialMessage)
+        .filter(
+            SocialMessage.tenant_id == tenant_id
+        )
+        .order_by(
+            SocialMessage.created_at.desc()
+        )
+        .limit(limit)
+        .all()
+    )
+
+
+
+# ======================================
+# SOCIAL MESSAGE CUSTOMER LINKER
+# ======================================
+
+from src.domains.social.services.customer_matcher import find_customer_match
+
+
+
+def link_social_messages_to_customers(
+    db: Session,
+    tenant_id: str
+):
+    messages = (
+        db.query(SocialMessage)
+        .filter(
+            SocialMessage.tenant_id == tenant_id,
+            SocialMessage.customer_id == None
+        )
+        .all()
+    )
+
+    linked = 0
+    leads = 0
+
+    for message in messages:
+
+        customer = find_customer_match(
+            db=db,
+            tenant_id=tenant_id,
+            customer_name=message.customer_name
+        )
+
+        if customer:
+            message.customer_id = customer.id
+            linked += 1
+
+        else:
+            existing = (
+                db.query(SocialLead)
+                .filter(
+                    SocialLead.message_id == message.id
+                )
+                .first()
+            )
+
+            if not existing:
+                lead = SocialLead(
+                    id=str(uuid.uuid4()),
+                    customer_name=message.customer_name,
+                    customer_phone=None,
+                    platform=message.platform,
+                    message_id=message.id,
+                    status="NEW",
+                    tenant_id=tenant_id
+                )
+
+                db.add(lead)
+                leads += 1
+
+    db.commit()
+
+    return {
+        "processed": len(messages),
+        "linked": linked,
+        "leads_created": leads
+    }
+
+
+
+# ======================================
+# SOCIAL LEADS
+# ======================================
+
+def get_social_leads(
+    db: Session,
+    tenant_id: str,
+    limit: int = 50
+):
+    return (
+        db.query(SocialLead)
+        .filter(
+            SocialLead.tenant_id == tenant_id
+        )
+        .order_by(
+            SocialLead.created_at.desc()
+        )
+        .limit(limit)
+        .all()
+    )
+
+
+# ======================================
+# SOCIAL LEAD STATUS UPDATE
+# ======================================
+
+from src.models.saas_core import SocialLead
+
+
+def update_social_lead_status(
+    db: Session,
+    tenant_id: str,
+    lead_id: str,
+    status: str
+):
+    lead = (
+        db.query(SocialLead)
+        .filter(
+            SocialLead.id == lead_id,
+            SocialLead.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+    if not lead:
+        return None
+
+    lead.status = status
+
+    db.commit()
+    db.refresh(lead)
+
+    return lead
+
+
+# ======================================
+# SOCIAL LEAD STATUS UPDATE
+# ======================================
+
+from src.models.saas_core import SocialLead
+
+
+def update_social_lead_status(
+    db: Session,
+    tenant_id: str,
+    lead_id: str,
+    status: str
+):
+    lead = (
+        db.query(SocialLead)
+        .filter(
+            SocialLead.id == lead_id,
+            SocialLead.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+    if not lead:
+        return None
+
+    lead.status = status
+
+    db.commit()
+    db.refresh(lead)
+
+    return lead
