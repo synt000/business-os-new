@@ -125,11 +125,26 @@ async function login(
         data.access_token
     );
 
+    localStorage.setItem(
+        "refresh_token",
+        data.refresh_token
+    );
 
+    localStorage.setItem(
+        "workspace_id",
+        data.workspace_id || ""
+    );
     localStorage.setItem(
         "role_profile",
         data.role_profile || "USER"
     );
+
+    saveAuth({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        workspace_id: data.workspace_id || "",
+        role_profile: data.role_profile || "USER"
+    });
 
 
     let role = data.role_profile;
@@ -225,92 +240,106 @@ function saveTokens(data){
 }
 
 
-// =====================================
-// GLOBAL API FETCH WITH JWT
-// =====================================
+// ===============================
+// JWT AUTO REFRESH MANAGER
+// ===============================
 
-async function apiFetch(url, options={}){
+const AUTH_KEY = "business_os_auth";
 
-    let token = localStorage.getItem(
-        "access_token"
+
+function saveAuth(data) {
+    localStorage.setItem(
+        AUTH_KEY,
+        JSON.stringify(data)
     );
+}
 
+
+function getAuth() {
+    const data = localStorage.getItem(AUTH_KEY);
+    return data ? JSON.parse(data) : null;
+}
+
+
+function clearAuth() {
+    localStorage.removeItem(AUTH_KEY);
+}
+
+
+// Auto authenticated fetch
+async function apiFetch(url, options = {}) {
+
+    let auth = getAuth();
+
+    // fallback for login flow
+    if(!auth){
+        auth = {
+            access_token:
+                localStorage.getItem("access_token"),
+            refresh_token:
+                localStorage.getItem("refresh_token")
+        };
+    }
 
     options.headers = {
         ...(options.headers || {}),
         "Authorization":
-            "Bearer " + token,
+            auth?.access_token
+            ? `Bearer ${auth.access_token}`
+            : "",
         "Content-Type":
             "application/json"
     };
 
 
-    let res = await fetch(
-        url,
-        options
-    );
+    let response = await fetch(url, options);
 
 
-    // Access token expired
-    if(res.status === 401){
+    // Token expired
+    if (response.status === 401 && auth?.refresh_token) {
 
-        let refresh =
-            localStorage.getItem(
-                "refresh_token"
+        const refreshResponse =
+            await fetch(
+                "/api/v4/auth/refresh?refresh_token="
+                + encodeURIComponent(auth.refresh_token),
+                {
+                    method: "POST"
+                }
             );
 
 
-        if(!refresh){
-            localStorage.clear();
-            window.location.href="/login";
-            return res;
-        }
+        if (refreshResponse.ok) {
+
+            const refreshed =
+                await refreshResponse.json();
 
 
-        let r = await fetch(
-            "/api/v4/auth/refresh",
-            {
-                method:"POST",
-                headers:{
-                    "Content-Type":
-                    "application/json"
-                },
-                body:JSON.stringify({
-                    refresh_token: refresh
-                })
-            }
-        );
+            auth.access_token =
+                refreshed.access_token;
 
 
-        if(r.ok){
-
-            let data =
-                await r.json();
-
-
-            saveTokens(data);
+            saveAuth(auth);
 
 
             options.headers.Authorization =
-                "Bearer " +
-                data.access_token;
+                `Bearer ${auth.access_token}`;
 
 
-            return await fetch(
-                url,
-                options
-            );
-
-        }else{
-
-            localStorage.clear();
-            window.location.href="/login";
-
+            response =
+                await fetch(url, options);
         }
 
+        else {
+            clearAuth();
+            window.location.href="/login";
+        }
     }
 
 
-    return res;
+    return response;
 }
 
+
+console.log(
+    "✅ JWT Auto Refresh Manager Loaded"
+);
