@@ -382,3 +382,94 @@ One Business OS Dashboard Engine.
 
 ---
 
+
+---
+
+# Retail / Wholesale Dashboard
+
+Status: Planned
+
+## Sales Analytics
+
+- Total Sales
+- Gross Profit
+- Retail vs Wholesale Ratio
+- Average Ticket Value
+
+
+## Inventory Intelligence
+
+- Total Inventory Value
+- Low Stock Alert
+- Near-Expiry Items
+- Damaged Items
+- Bulk Stock Alert
+
+
+## Customer & Wholesale Management
+
+- Wholesale Client Ledger
+- Active Retail Customers
+- Top Wholesalers
+- Credit Limit Alerts
+
+
+## Supplier & Procurement
+
+- Supplier Debt
+- Purchase Orders Status
+- Stock In / GRN
+  - Goods Received Note
+
+
+## Sales Operations
+
+### B2B
+
+- Wholesale Billing
+- Wholesale Pricing
+- Bulk Customer Management
+- Credit Sales
+
+
+### B2C
+
+- Retail POS
+- Walk-in Sales
+- Customer Checkout
+
+
+## Pricing Management
+
+- Adjust Bulk Price
+- Wholesale Price Rules
+- Retail Price Rules
+
+
+---
+
+# Retail / Wholesale Architecture
+
+Business Type:
+
+RETAIL_WHOLESALE
+
+        |
+        ↓
+
+Dashboard Engine
+
+        |
+        +---- Sales Widgets
+        |
+        +---- Inventory Widgets
+        |
+        +---- Wholesale Widgets
+        |
+        +---- POS Widgets
+        |
+        +---- Finance Widgets
+
+
+---
+
