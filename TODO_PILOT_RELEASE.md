@@ -473,3 +473,227 @@ Dashboard Engine
 
 ---
 
+
+
+---
+
+# Social Command Center
+
+Status: Planned / Strategic Module
+
+
+## Purpose
+
+Control all business social channels from Business OS.
+
+
+## Supported Platforms
+
+- Facebook
+- TikTok
+- Instagram
+- Telegram
+- WhatsApp
+
+
+## Facebook Integration
+
+- Connect Facebook Page
+- Messenger Inbox
+- Auto Reply
+- Comment Management
+- Facebook Orders
+- Customer Lead Capture
+- Ads ROI Tracking
+
+
+## TikTok Integration
+
+- TikTok Shop Connection
+- TikTok Orders
+- Product Sync
+- Customer Messages
+- Campaign Analytics
+
+
+## Telegram Integration
+
+- Channel Management
+- Customer Chat
+- Bot Integration
+- Order Notifications
+
+
+## Instagram Integration
+
+- DM Management
+- Comment Management
+- Product Showcase
+
+
+## WhatsApp Integration
+
+- Customer Support Chat
+- Order Confirmation
+- COD Reminder
+
+
+---
+
+# Dashboard Engine Upgrade
+
+Current:
+
+Business Type
+        |
+        ↓
+Widget List
+
+
+Future:
+
+Business Type
+        |
+        ↓
+Widget Registry
+        |
+        ↓
+Permission Engine
+        |
+        ↓
+Dashboard Renderer
+
+
+Widget Metadata:
+
+- Title
+- Category
+- Permission
+- API Endpoint
+- Business Type
+
+
+---
+
+
+---
+
+# Social Command Center
+
+Status: Planned
+
+## Unified Social Management
+
+- Facebook Page Integration
+- TikTok Shop Integration
+- Telegram Channel Integration
+- Instagram Business Integration
+- WhatsApp Business Integration
+
+## Customer Communication
+
+- Unified Inbox
+- Customer Messages
+- Auto Reply
+- Saved Replies
+- Customer History
+
+## Order Sync
+
+- Social Order Import
+- Customer Profile Sync
+- Product Sync
+- Inventory Sync
+- Order Status Update
+
+## Marketing Intelligence
+
+- Campaign Tracking
+- Message Response Time
+- Customer Conversion Rate
+- Ad Spend vs ROI
+
+## Automation
+
+- AI Reply Assistant
+- Lead Detection
+- Customer Follow Up
+- Marketing Suggestions
+
+Architecture:
+
+Business OS
+      |
+      |
+Social Center Engine
+      |
+      + Facebook
+      + TikTok
+      + Telegram
+      + Instagram
+      + WhatsApp
+
+---
+
+
+---
+
+# Sprint 24.1 Dashboard Engine Expansion
+
+## Completed
+
+[x] Single Dashboard Engine Architecture
+[x] Business Type Widget Resolver
+[x] Online Shop Widget Mapping
+[x] 2D Seller Widget Mapping
+[x] Mini Mart Widget Mapping
+[x] Beauty Salon Widget Mapping
+[x] Retail Wholesale Widget Mapping
+
+
+## Next Development
+
+[ ] Convert Widget Config to Database Driven System
+
+[ ] Dashboard Widget Registry
+    [ ] Widget Metadata
+    [ ] Widget Permission
+    [ ] Widget Component Mapping
+
+
+[ ] Social Media Command Center
+
+    [ ] Facebook Integration
+    [ ] TikTok Integration
+    [ ] Telegram Integration
+    [ ] WhatsApp Integration
+
+
+[ ] Social Features
+
+    [ ] Customer Messages
+    [ ] Comments Management
+    [ ] Social Orders
+    [ ] Campaign Tracking
+    [ ] Marketing Analytics
+
+
+[ ] Business Type Dashboard UI
+
+    [ ] Online Shop Dashboard
+    [ ] 2D Seller Dashboard
+    [ ] Mini Mart Dashboard
+    [ ] Beauty Salon Dashboard
+    [ ] Retail Wholesale Dashboard
+
+
+[ ] AI Business Intelligence
+
+    [ ] Sales Prediction
+    [ ] Stock Prediction
+    [ ] Customer Risk Detection
+    [ ] Marketing Recommendation
+
+
+---
+
