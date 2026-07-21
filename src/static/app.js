@@ -180,7 +180,7 @@ async function login(
 
     if(role === "OWNER"){
 
-        location="/owner";
+        location="/dashboard";
 
     }
     else if(role === "ADMIN"){

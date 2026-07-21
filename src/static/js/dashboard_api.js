@@ -8,7 +8,7 @@ localStorage.getItem("token");
 
 
 const res = await fetch(
-"/ceo-summary",
+"/api/v4/dashboard/summary",
 {
 headers:{
 "Authorization":"Bearer "+token

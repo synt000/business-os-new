@@ -1,79 +1,148 @@
+
 async function loadCEOStats(){
 
-const token =
-localStorage.getItem("access_token") ||
-localStorage.getItem("token");
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+    try{
+
+        const res = await fetch(
+            "/api/v4/dashboard/summary",
+            {
+                headers:{
+                    "Authorization":"Bearer " + token
+                }
+            }
+        );
+
+        const data = await res.json();
+
+        console.log(
+            "BUSINESS DASHBOARD",
+            data
+        );
+
+        if(data){
+
+            const d = data.dashboard || data;
 
 
-try{
+            const revenue =
+                document.getElementById("revenue");
 
-const res = await fetch(
-"/ceo-summary",
-{
-headers:{
-"Authorization":"Bearer "+token
+            const customers =
+                document.getElementById("customers");
+
+            const products =
+                document.getElementById("products");
+
+            const heroSales =
+                document.getElementById("heroSales");
+
+            const heroOrders =
+                document.getElementById("heroOrders");
+
+
+            if(revenue){
+                revenue.innerText =
+                    Number(d.revenue || 0)
+                    .toLocaleString()+" MMK";
+            }
+
+
+            if(customers){
+                customers.innerText =
+                    d.customers || 0;
+            }
+
+
+            if(products){
+                products.innerText =
+                    d.products || 0;
+            }
+
+
+            if(heroSales){
+                heroSales.innerText =
+                    Number(d.revenue || 0)
+                    .toLocaleString()+" MMK";
+            }
+
+
+            if(heroOrders){
+                heroOrders.innerText =
+                    d.orders || 0;
+            }
+
+
+            const todayOrders =
+                document.getElementById("today-orders");
+
+            const todayRevenue =
+                document.getElementById("today-revenue");
+
+            const newCustomers =
+                document.getElementById("new-customers");
+
+            const lowStock =
+                document.getElementById("low-stock");
+
+            const socialLeads =
+                document.getElementById("social-leads");
+
+            const notifications =
+                document.getElementById("notifications");
+
+
+            if(todayOrders){
+                todayOrders.innerText =
+                    d.today_orders || 0;
+            }
+
+            if(todayRevenue){
+                todayRevenue.innerText =
+                    Number(d.today_revenue || 0)
+                    .toLocaleString();
+            }
+
+            if(newCustomers){
+                newCustomers.innerText =
+                    d.customers || 0;
+            }
+
+            if(lowStock){
+                lowStock.innerText =
+                    d.low_stock || 0;
+            }
+
+            if(socialLeads){
+                socialLeads.innerText =
+                    d.social_leads || 0;
+            }
+
+            if(notifications){
+                notifications.innerText =
+                    d.notifications || 0;
+            }
+
+        }
+
+
+    }catch(e){
+
+        console.error(
+            "BUSINESS DASHBOARD ERROR",
+            e
+        );
+
+    }
+
 }
-}
-);
-
-
-const data = await res.json();
-
-
-console.log(
-"CEO DASHBOARD",
-data
-);
-
-
-if(data.status==="SUCCESS"){
-
-const d=data.dashboard;
-
-
-if(document.getElementById("revenue")){
-document.getElementById("revenue").innerText =
-Number(d.today_revenue).toLocaleString()+" MMK";
-}
-
-
-if(document.getElementById("orders")){
-document.getElementById("orders").innerText =
-d.today_orders;
-}
-
-
-if(document.getElementById("customers")){
-document.getElementById("customers").innerText =
-d.total_customers;
-}
-
-
-if(document.getElementById("products")){
-document.getElementById("products").innerText =
-d.total_products;
-}
-
-
-}
-
-
-}catch(e){
-
-console.error(
-"CEO DASHBOARD ERROR",
-e
-);
-
-}
-
-
-}
-
 
 document.addEventListener(
-"DOMContentLoaded",
-loadCEOStats
+    "DOMContentLoaded",
+    loadCEOStats
 );
 
 

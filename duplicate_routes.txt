@@ -1,0 +1,284 @@
+     24 get /suppliers/ui
+     24 get /customers/ui
+     22 get /
+     11 get /dashboard
+     10 get /products/ui
+     10 get /orders/ui
+     10 get /login
+     10 get /inventory/ui
+      8 get /{business_slug}
+      7 get /landing-page
+      6 post /suppliers
+      6 get /suppliers
+      6 get /api/v4/dashboard/widgets
+      6 get /api/public/home-summary
+      5 get /sales-trend
+      5 get /revenue-expense
+      5 get /orders
+      5 get /financial-kpi
+      5 get /finance-insight
+      5 get /executive-ai
+      5 get /ceo-summary
+      5 get /business-health
+      5 get /api/v4/dashboard/revenue-chart
+      4 post /register
+      4 post /customers
+      4 post /
+      4 get /social/ui
+      4 get /saas-revenue
+      4 get /register
+      4 get /products
+      4 get /platform-summary
+      4 get /customers
+      4 get /api/v4/dashboard/today-stats
+      4 get /api/public/home-revenue-chart
+      4 get /api/public/home-dashboard
+      3 put /suppliers/{supplier_id}
+      3 put /products/{product_id}
+      3 put /customers/{customer_id}
+      3 put /categories/{category_id}
+      3 post /workspace/invite-user
+      3 post /upgrade
+      3 post /products
+      3 post /procurements
+      3 post /orders
+      3 post /categories
+      3 post /branches
+      3 patch /orders/{order_id}/status
+      3 get /summary
+      3 get /status/{tenant_id}
+      3 get /renewals
+      3 get /categories
+      3 get /branches
+      3 get /billing/usage-meters
+      3 get /api/public/home-health
+      3 get /api/public/home-activity
+      3 get /accounting/profit-loss
+      3 delete /products/{product_id}
+      3 delete /customers/{customer_id}
+      3 delete /categories/{category_id}
+      2 post /webhook/{provider}
+      2 post /token
+      2 post /renewals/{subscription_id}/create-payment
+      2 post /renewals/{subscription_id}/confirm
+      2 post /refresh
+      2 post /receive/{purchase_id}
+      2 post /profile
+      2 post /login
+      2 post /approve/{purchase_id}
+      2 post /accounts
+      2 get /social-summary
+      2 get /renewals/candidates
+      2 get /orders/{order_id}/invoice
+      2 get /openapi.json
+      2 get /list
+      2 get /history
+      2 get /health
+      2 get /docs
+      2 get /actions
+      1 src/domains/supplier_payment/router.py:25:@router.post(
+      1 src/domains/supplier/router.py:25:@router.post(
+      1 src/domains/subscription/router_before_error_fix.py:92:@router.post(
+      1 src/domains/subscription/router_before_error_fix.py:75:@router.get(
+      1 src/domains/subscription/router_before_error_fix.py:58:@router.post(
+      1 src/domains/subscription/router_before_error_fix.py:47:@router.get(
+      1 src/domains/subscription/router_before_error_fix.py:35:@router.post(
+      1 src/domains/subscription/router_before_error_fix.py:110:@router.post(
+      1 src/domains/subscription/router.py:99:@router.post(
+      1 src/domains/subscription/router.py:88:@router.get(
+      1 src/domains/subscription/router.py:76:@router.post(
+      1 src/domains/subscription/router.py:60:@router.get(
+      1 src/domains/subscription/router.py:383:@router.post(
+      1 src/domains/subscription/router.py:349:@router.post(
+      1 src/domains/subscription/router.py:308:@router.post(
+      1 src/domains/subscription/router.py:276:@router.get(
+      1 src/domains/subscription/router.py:180:@router.post(
+      1 src/domains/subscription/router.py:133:@router.post(
+      1 src/domains/subscription/router.py:116:@router.get(
+      1 src/domains/subscription/router.py.before_sprint22:90:@router.post(
+      1 src/domains/subscription/router.py.before_sprint22:79:@router.get(
+      1 src/domains/subscription/router.py.before_sprint22:67:@router.post(
+      1 src/domains/subscription/router.py.before_sprint22:51:@router.get(
+      1 src/domains/subscription/router.py.before_sprint22:374:@router.post(
+      1 src/domains/subscription/router.py.before_sprint22:340:@router.post(
+      1 src/domains/subscription/router.py.before_sprint22:299:@router.post(
+      1 src/domains/subscription/router.py.before_sprint22:267:@router.get(
+      1 src/domains/subscription/router.py.before_sprint22:171:@router.post(
+      1 src/domains/subscription/router.py.before_sprint22:124:@router.post(
+      1 src/domains/subscription/router.py.before_sprint22:107:@router.get(
+      1 src/domains/subscription/router.py.before_renewal_api:84:@router.post(
+      1 src/domains/subscription/router.py.before_renewal_api:73:@router.get(
+      1 src/domains/subscription/router.py.before_renewal_api:61:@router.post(
+      1 src/domains/subscription/router.py.before_renewal_api:45:@router.get(
+      1 src/domains/subscription/router.py.before_renewal_api:368:@router.post(
+      1 src/domains/subscription/router.py.before_renewal_api:334:@router.post(
+      1 src/domains/subscription/router.py.before_renewal_api:293:@router.post(
+      1 src/domains/subscription/router.py.before_renewal_api:261:@router.get(
+      1 src/domains/subscription/router.py.before_renewal_api:165:@router.post(
+      1 src/domains/subscription/router.py.before_renewal_api:118:@router.post(
+      1 src/domains/subscription/router.py.before_renewal_api:101:@router.get(
+      1 src/domains/social_center/router.py:95:@router.get(
+      1 src/domains/social_center/router.py:76:@router.get(
+      1 src/domains/social_center/router.py:207:@router.get(
+      1 src/domains/social_center/router.py:171:@router.get(
+      1 src/domains/social_center/router.py:149:@router.patch(
+      1 src/domains/social_center/router.py:131:@router.get(
+      1 src/domains/social_center/router.py.before_message_api:64:@router.get(
+      1 src/domains/receivable/router.py:73:@router.post(
+      1 src/domains/receivable/router.py:104:@router.get(
+      1 src/domains/product/router.py:17:@router.get("")
+      1 src/domains/permissions/router.py:79:@router.delete(
+      1 src/domains/permissions/router.py:50:@router.get(
+      1 src/domains/permissions/router.py:20:@router.post(
+      1 src/domains/permissions/router.py:116:@router.get(
+      1 src/domains/order/router.py:50:@router.post(
+      1 src/domains/order/router.py.bak:30:@router.post(
+      1 src/domains/invoice/router.py:69:@router.get(
+      1 src/domains/invoice/router.py:43:@router.get(
+      1 src/domains/invoice/router.py:25:@router.post(
+      1 src/domains/inventory/router.py:89:@router.get(
+      1 src/domains/inventory/router.py:139:@router.get(
+      1 src/domains/inventory/router.py:109:@router.get(
+      1 src/domains/dashboard/router.py:55:@router.get(
+      1 src/domains/dashboard/router.py:43:@router.get("", response_class=HTMLResponse)
+      1 src/domains/dashboard/router.py:169:@router.get(
+      1 src/domains/dashboard/router.py.before_ui_merge:55:@router.get(
+      1 src/domains/dashboard/router.py.before_ui_merge:43:@router.get("", response_class=HTMLResponse)
+      1 src/domains/dashboard/router.py.before_ui_merge:169:@router.get(
+      1 src/domains/dashboard/router.py.before_sprint24:52:@router.get(
+      1 src/domains/dashboard/router.py.before_sprint24:40:@router.get("", response_class=HTMLResponse)
+      1 src/domains/dashboard/router.py.before_sprint24:166:@router.get(
+      1 src/domains/dashboard/router.py.before_renewal_api:51:@router.get(
+      1 src/domains/dashboard/router.py.before_renewal_api:39:@router.get("", response_class=HTMLResponse)
+      1 src/domains/dashboard/router.py.before_renewal_api:161:@router.get(
+      1 src/domains/dashboard/router.py.bak:33:@router.get(
+      1 src/domains/dashboard/router.py.bak:143:@router.get(
+      1 src/domains/customer/router.py:40:@router.get(
+      1 src/domains/customer/router.py:24:@router.post(
+      1 src/domains/category/router.py:16:@router.get("")
+      1 src/domains/ai_assistant/router.py:32:@router.post(
+      1 src/domains/admin/router.py:251:@router.get(
+      1 src/domains/admin/router.py:204:@router.delete(
+      1 src/domains/admin/router.py:153:@router.post(
+      1 src/dashboard/router_before_route_cleanup.py:65:@router.get(
+      1 src/dashboard/router_before_public_home_api.py:65:@router.get(
+      1 src/dashboard/router_before_home_dynamic.py:65:@router.get(
+      1 src/dashboard/router_before_home_data_binding.py:65:@router.get(
+      1 src/dashboard/router_before_chart.py:65:@router.get(
+      1 src/dashboard/router.py:74:@router.get(
+      1 src/dashboard/router.py.before_ui_cleanup:74:@router.get(
+      1 src/dashboard/router.py.before_social_ui:65:@router.get(
+      1 src/dashboard/router.py.before_route_cleanup_v6:74:@router.get(
+      1 src/dashboard/router.py.before_duplicate_cleanup:74:@router.get(
+      1 src/business_profile_router.py:57:@router.get(
+      1 src/business_profile_router.py:22:@router.post(
+      1 src/business_profile_router.py.bak:57:@router.get(
+      1 src/business_profile_router.py.bak:22:@router.post(
+      1 put /settlement/{rental_id}/close
+      1 put /settings
+      1 put /plans/{plan_id}
+      1 put /orders/{order_id}/payment
+      1 put /orders/{order_id}/complete
+      1 put /maintenance/{maintenance_id}/complete
+      1 put /
+      1 post /{customer_id}/credit/use
+      1 post /{customer_id}/credit/topup
+      1 post /{customer_id}/credit/refund
+      1 post /{customer_id}/credit-risk/recalculate
+      1 post /{customer_id}/credit-decision/apply
+      1 post /{customer_id}/credit-decision
+      1 post /{customer_id}/credit-alert
+      1 post /webhook/{tenant_id}
+      1 post /verify
+      1 post /tenants/{tenant_id}/billing
+      1 post /status/update
+      1 post /setup
+      1 post /returns/{rental_id}
+      1 post /rentals
+      1 post /register-branch
+      1 post /purchases/reject/{purchase_id}
+      1 post /products/{product_id}/stock
+      1 post /plans/{plan_id}/features
+      1 post /plans
+      1 post /payments
+      1 post /maintenance
+      1 post /logout-all
+      1 post /log
+      1 post /items
+      1 post /forecast/{tenant_id}/{product_id}
+      1 post /employees
+      1 post /disable
+      1 post /deposits/{deposit_id}/refund
+      1 post /deposits
+      1 post /create-purchase-order
+      1 post /connect
+      1 post /automation/run
+      1 post /alerts/{alert_id}/resolve
+      1 post /adjust
+      1 post /actions/{action_id}/execute
+      1 post /actions/{action_id}
+      1 patch /{order_id}/status
+      1 patch /{customer_id}/credit-limit
+      1 get /{order_id}
+      1 get /{customer_id}/statement
+      1 get /{customer_id}/credit/history
+      1 get /{customer_id}/credit-risk
+      1 get /{customer_id}/credit-history
+      1 get /{customer_id}/credit-behavior
+      1 get /{customer_id}/credit
+      1 get /{customer_id}/balance
+      1 get /welcome
+      1 get /users/{user_id}/permissions
+      1 get /users
+      1 get /trial-balance
+      1 get /tenants/{tenant_id}
+      1 get /tenants
+      1 get /stock-movements
+      1 get /stock-analytics
+      1 get /status
+      1 get /shared-products/{dropshipper_id}
+      1 get /settlement/{rental_id}
+      1 get /settings
+      1 get /sessions
+      1 get /reports/sales/pdf
+      1 get /reports/sales
+      1 get /reports/profit-loss
+      1 get /rentals/{rental_id}
+      1 get /rentals
+      1 get /recommendations
+      1 get /purchases/pending
+      1 get /profit-margin
+      1 get /profit-loss
+      1 get /plans/{plan_id}
+      1 get /plans
+      1 get /payments/{rental_id}
+      1 get /payment/ui
+      1 get /orders/{order_id}/invoice/pdf
+      1 get /maintenance
+      1 get /ledger
+      1 get /items
+      1 get /invoice/{rental_id}/pdf
+      1 get /invoice/{rental_id}
+      1 get /invoice/ui
+      1 get /inventory-summary
+      1 get /insights
+      1 get /hq-monitor/{hq_id}
+      1 get /employees
+      1 get /detail/{order_id}
+      1 get /deposits/{rental_id}
+      1 get /dashboard/summary
+      1 get /dashboard/report/pdf
+      1 get /dashboard/kpi
+      1 get /customers/{customer_id}/orders
+      1 get /ceo-score
+      1 get /ceo-brief
+      1 get /cash-flow
+      1 get /balance-sheet
+      1 get /automation/health
+      1 get /audit
+      1 get /analytics/high-risk-customers
+      1 get /analytics/credit-summary
+      1 get /analytics/credit-risk-dashboard
+      1 get /alerts
+      1 get /accounting/ui
+      1 delete /plans/{plan_id}

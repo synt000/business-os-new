@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Business OS Dashboard</title>
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/style.css?v=2">
 </head>
 
 <body>
@@ -59,30 +59,30 @@ Your Business OS workspace is running normally.
 </header>
 
 
-<section class="cards">
+<section class="cards premium-cards">
 
-<div class="card">
+<div class="card premium-card">
 <h3>💰 Revenue</h3>
 <strong id="revenue-value">Loading...</strong>
 <span>+14.2% stability</span>
 </div>
 
 
-<div class="card">
+<div class="card premium-card">
 <h3>📦 Orders</h3>
 <strong id="orders-value">Loading...</strong>
 <span>Processed</span>
 </div>
 
 
-<div class="card">
+<div class="card premium-card">
 <h3>📋 Inventory</h3>
 <strong id="products-value">Loading...</strong>
 <span>Active SKU</span>
 </div>
 
 
-<div class="card">
+<div class="card premium-card">
 <h3>💳 Subscription</h3>
 <strong id="subscription-value">Loading...</strong>
 <span>Active Plan</span>
@@ -144,45 +144,50 @@ Your Business OS workspace is running normally.
 </div>
 
 
-<script>
 
+<script>
 fetch("/api/public/home-health")
 .then(r => r.json())
 .then(data => {
 
-const box = document.getElementById("healthBox");
+    console.log("HOME HEALTH:", data);
 
-box.innerHTML = `
+    const box = document.getElementById("healthBox");
 
-<div>
-🟢 Database
-<br>
-<small>${data.database}</small>
-</div>
+    if(!box) return;
 
-<div>
-🟢 Accounting
-<br>
-<small>${data.accounting}</small>
-</div>
+    box.innerHTML = `
+        <div>
+        🟢 Database
+        <br>
+        <small>${data.database ?? "Unknown"}</small>
+        </div>
 
-<div>
-🟢 Subscription
-<br>
-<small>${data.subscription}</small>
-</div>
+        <div>
+        🟢 Accounting
+        <br>
+        <small>${data.accounting ?? "Unknown"}</small>
+        </div>
 
-<div>
-🔐 Security
-<br>
-<small>${data.security}</small>
-</div>
+        <div>
+        🟢 Subscription
+        <br>
+        <small>${data.subscription ?? "Unknown"}</small>
+        </div>
 
-`;
+        <div>
+        🔐 Security
+        <br>
+        <small>${data.security ?? "Unknown"}</small>
+        </div>
+    `;
 
+})
+.catch(err=>{
+    console.log("Health Error:",err);
 });
-
 </script>
+
 
 
 
@@ -350,50 +355,6 @@ fetch("/api/public/home-revenue-chart")
 </div>
 
 
-<script>
-async function loadDashboardData(){
-
-    try {
-
-        const res = await fetch('/api/v4/dashboard/summary');
-
-        if(!res.ok){
-            console.log("Dashboard API unavailable");
-            return;
-        }
-
-        const data = await res.json();
-
-        const cards = document.querySelectorAll('.card');
-
-        if(cards.length >= 4){
-
-            cards[0].querySelector('strong').innerText =
-                Number(data.revenue || 0).toLocaleString() + " MMK";
-
-            cards[1].querySelector('strong').innerText =
-                data.orders || 0;
-
-            cards[2].querySelector('strong').innerText =
-                data.products || 0;
-
-            cards[3].querySelector('strong').innerText =
-                "ACTIVE";
-        }
-
-    } catch(e){
-
-        console.log(e);
-
-    }
-
-}
-
-loadDashboardData();
-</script>
-
-</body>
-</html>
 
 <script>
 
@@ -406,25 +367,30 @@ async function loadHomeSummary(){
         const data = await res.json();
 
 
-        document.querySelector("#revenue-value").innerText =
-            Number(data.revenue).toLocaleString() + " MMK";
+        document.getElementById("revenue-value").innerText =
+            Number(data.revenue || 0)
+            .toLocaleString()
+            + " MMK";
 
 
-        document.querySelector("#orders-value").innerText =
-            data.orders;
+        document.getElementById("orders-value").innerText =
+            data.orders || 0;
 
 
-        document.querySelector("#products-value").innerText =
-            data.products;
+        document.getElementById("products-value").innerText =
+            data.products || 0;
 
 
-        document.querySelector("#subscription-value").innerText =
-            data.subscription;
+        document.getElementById("subscription-value").innerText =
+            data.subscription || "FREE_TRIAL";
 
 
     }catch(error){
 
-        console.log("Dashboard KPI Load Failed", error);
+        console.log(
+            "HOME SUMMARY ERROR:",
+            error
+        );
 
     }
 
@@ -436,35 +402,6 @@ loadHomeSummary();
 </script>
 
 
-<script>
-async function loadDashboardData(){
+</body>
 
-    try{
-        const res = await fetch("/api/public/home-dashboard");
-        const data = await res.json();
-
-        const cards = document.querySelectorAll(".card strong");
-
-        if(cards.length >= 4){
-            cards[0].innerText =
-                Number(data.revenue).toLocaleString() + " MMK";
-
-            cards[1].innerText =
-                data.orders;
-
-            cards[2].innerText =
-                data.products;
-
-            cards[3].innerText =
-                data.subscription;
-        }
-
-    }catch(err){
-        console.log("Dashboard API Error:", err);
-    }
-
-}
-
-loadDashboardData();
-</script>
-
+</html>

@@ -1,0 +1,719 @@
+src/templates/index.html:7:<link rel="stylesheet" href="/static/style.css?v=2">
+src/templates/index.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index.html:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index.html:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index.html:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index.html:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index.html:27:<a href="/social/ui">💬 Social Center</a>
+src/templates/index.html:28:<a href="/settings">⚙ Settings</a>
+src/templates/index.html:100:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index.html:102:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index.html:104:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index.html:106:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/login.html:68:<button onclick="login()">
+src/templates/login.html:154:    location.href="/owner";
+src/templates/login.html:157:    location.href="/admin";
+src/templates/login.html:160:    location.href="/dashboard";
+src/templates/register.html:8:    <link href="https://googleapis.com" rel="stylesheet">
+src/templates/dashboard.html:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/products.html:329:<button onclick="addProduct()">
+src/templates/products.html:503:<button class="save" onclick="quickRestock('${p.id}',${((p.reorder_level || 5) - p.stock_qty)})">
+src/templates/products.html:550:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html:554:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html:628:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html:631:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html:1087:<button class="save" onclick="saveEdit()">
+src/templates/products.html:1091:<button class="close" onclick="closeEdit()">
+src/templates/inventory.html:17:<button onclick="stockIn()">Stock In</button>
+src/templates/movements.html:10:    <link rel="stylesheet" href="https://cloudflare.com">
+src/templates/movements.html:32:            <a href="/dashboard" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/movements.html:35:            <a href="/products/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/movements.html:38:            <a href="/inventory/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/movements.html:41:            <a href="/movements/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition active-menu">
+src/templates/orders.html:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html:347:onclick="updateOrderStatus('${o.id}','CONFIRMED')"
+src/templates/orders.html:355:onclick="updateOrderStatus('${o.id}','COMPLETED')"
+src/templates/orders.html:497:.onclick=loadOrders;
+src/templates/workspace.html:5:<link rel="stylesheet" href="/static/style.css">
+src/templates/workspace.html:58:<button onclick="location.href='/products'">
+src/templates/workspace.html:62:<button onclick="location.href='/inventory'">
+src/templates/workspace.html:66:<button onclick="location.href='/orders'">
+src/templates/workspace.html:70:<button onclick="logout()">
+src/templates/products.html.backup:84:<button onclick="addProduct()">
+src/templates/products.html.backup:186: onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup:191:onclick="deleteProduct('${p.id}')">
+src/templates/inventory.html.debug:17:<button onclick="stockIn()">Stock In</button>
+src/templates/dashboard.html.backup_sprint15_final:8:<link rel="stylesheet" href="/static/app.css">
+src/templates/dashboard.html.backup_sprint15_final:132:<a href="/products/ui" class="btn">
+src/templates/dashboard.html.backup_sprint15_final:136:<a href="/inventory/ui" class="btn">
+src/templates/dashboard.html.backup_sprint15_final:140:<a href="/orders/ui" class="btn">
+src/templates/dashboard.html.backup_sprint15_final:144:<a href="/customers/ui" class="btn">
+src/templates/dashboard.html.backup_sprint15_final:148:<a href="/suppliers/ui" class="btn">
+src/templates/dashboard.html.backup_sprint15_final:152:<a href="#" onclick="logout()" class="btn logout">
+src/templates/customers.html:10:<link rel="stylesheet" href="/static/app.css">
+src/templates/customers.html:40:<a href="/dashboard">
+src/templates/suppliers.html:11:<link rel="stylesheet" href="/static/app.css">
+src/templates/suppliers.html:53:<a href="/dashboard">
+src/templates/customers.html.backup_sprint15_1:11:<link rel="stylesheet" href="/static/app.css">
+src/templates/customers.html.backup_sprint15_1:45:<a href="/dashboard">
+src/templates/suppliers.html.backup_sprint15_1:11:<link rel="stylesheet" href="/static/app.css">
+src/templates/suppliers.html.backup_sprint15_1:49:<a href="/dashboard">
+src/templates/orders.html.backup_final:10:    <link rel="stylesheet" href="https://cloudflare.com">
+src/templates/orders.html.backup_final:32:            <a href="/dashboard" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_final:35:            <a href="/products/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_final:38:            <a href="/inventory/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_final:41:            <a href="/movements/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_final:44:            <a href="/orders/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition active-menu">
+src/templates/orders.html.backup_order_fix:10:    <link rel="stylesheet" href="https://cloudflare.com">
+src/templates/orders.html.backup_order_fix:32:            <a href="/dashboard" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_order_fix:35:            <a href="/products/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_order_fix:38:            <a href="/inventory/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_order_fix:41:            <a href="/movements/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_order_fix:44:            <a href="/api/v4/business/ordersui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition active-menu">
+src/templates/orders.html.backup_payload_fix:10:    <link rel="stylesheet" href="https://cloudflare.com">
+src/templates/orders.html.backup_payload_fix:32:            <a href="/dashboard" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_payload_fix:35:            <a href="/products/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_payload_fix:38:            <a href="/inventory/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_payload_fix:41:            <a href="/movements/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_payload_fix:44:            <a href="/api/v4/business/ordersui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition active-menu">
+src/templates/orders.html.backup_table_fix:10:    <link rel="stylesheet" href="https://cloudflare.com">
+src/templates/orders.html.backup_table_fix:32:            <a href="/dashboard" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_table_fix:35:            <a href="/products/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_table_fix:38:            <a href="/inventory/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_table_fix:41:            <a href="/movements/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_table_fix:44:            <a href="/api/v4/business/ordersui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition active-menu">
+src/templates/orders.html.backup_ui_color:10:    <link rel="stylesheet" href="https://cloudflare.com">
+src/templates/orders.html.backup_ui_color:32:            <a href="/dashboard" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_ui_color:35:            <a href="/products/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_ui_color:38:            <a href="/inventory/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_ui_color:41:            <a href="/movements/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_ui_color:44:            <a href="/api/v4/business/ordersui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition active-menu">
+src/templates/orders.html.backup_dropdown_upgrade:10:    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_dropdown_upgrade:32:            <a href="/dashboard" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_dropdown_upgrade:35:            <a href="/products/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_dropdown_upgrade:38:            <a href="/inventory/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_dropdown_upgrade:41:            <a href="/movements/ui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition">
+src/templates/orders.html.backup_dropdown_upgrade:44:            <a href="/api/v4/business/ordersui" class="flex items-center px-4 py-3 rounded-xl text-sm font-medium text-gray-400 hover:text-white transition active-menu">
+src/templates/orders.html.backup_v2:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_status_button:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_status_button:474:.onclick=loadOrders;
+src/templates/orders.html.backup_final_ui:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_final_ui:356:onclick="updateOrderStatus('${o.id}','CONFIRMED')"
+src/templates/orders.html.backup_final_ui:483:.onclick=loadOrders;
+src/templates/orders.html.backup_status_fix2:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_status_fix2:356:onclick="updateOrderStatus('${o.id}','CONFIRMED')"
+src/templates/orders.html.backup_status_fix2:483:.onclick=loadOrders;
+src/templates/orders.html.backup_duplicate_product:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_duplicate_product:371:onclick="updateOrderStatus('${o.id}','CONFIRMED')"
+src/templates/orders.html.backup_duplicate_product:498:.onclick=loadOrders;
+src/templates/orders.html.backup_status_ui:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_status_ui:344:onclick="updateOrderStatus('${o.id}','CONFIRMED')"
+src/templates/orders.html.backup_status_ui:471:.onclick=loadOrders;
+src/templates/orders.html.backup_status_final:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_status_final:347:onclick="updateOrderStatus('${o.id}','CONFIRMED')"
+src/templates/orders.html.backup_status_final:355:onclick="updateOrderStatus('${o.id}','COMPLETED')"
+src/templates/orders.html.backup_status_final:485:.onclick=loadOrders;
+src/templates/dashboard.html.backup:8:<link rel="stylesheet" href="/static/app.css">
+src/templates/dashboard.html.backup:132:<a href="/products/ui" class="btn">
+src/templates/dashboard.html.backup:136:<a href="/inventory/ui" class="btn">
+src/templates/dashboard.html.backup:140:<a href="/orders/ui" class="btn">
+src/templates/dashboard.html.backup:144:<a href="/customers/ui" class="btn">
+src/templates/dashboard.html.backup:148:<a href="/suppliers/ui" class="btn">
+src/templates/dashboard.html.backup:152:<a href="#" onclick="logout()" class="btn logout">
+src/templates/orders.html.backup_before_order_fix:13:href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+src/templates/orders.html.backup_before_order_fix:347:onclick="updateOrderStatus('${o.id}','CONFIRMED')"
+src/templates/orders.html.backup_before_order_fix:355:onclick="updateOrderStatus('${o.id}','COMPLETED')"
+src/templates/orders.html.backup_before_order_fix:485:.onclick=loadOrders;
+src/templates/dashboard.html.backup_ai_panel:123:<a href="/products/ui">
+src/templates/dashboard.html.backup_ai_panel:127:<a href="/orders/ui">
+src/templates/dashboard.html.backup_ai_panel:131:<a href="/customers/ui">
+src/templates/dashboard.html.backup_ai_panel:135:<a href="/suppliers/ui">
+src/templates/dashboard.html.backup_ceo_api_fix:137:<a href="/products/ui">
+src/templates/dashboard.html.backup_ceo_api_fix:141:<a href="/orders/ui">
+src/templates/dashboard.html.backup_ceo_api_fix:145:<a href="/customers/ui">
+src/templates/dashboard.html.backup_ceo_api_fix:149:<a href="/suppliers/ui">
+src/templates/dashboard.html.backup_kpi_fix:137:<a href="/products/ui">
+src/templates/dashboard.html.backup_kpi_fix:141:<a href="/orders/ui">
+src/templates/dashboard.html.backup_kpi_fix:145:<a href="/customers/ui">
+src/templates/dashboard.html.backup_kpi_fix:149:<a href="/suppliers/ui">
+src/templates/dashboard.html.backup_before_chart:137:<a href="/products/ui">
+src/templates/dashboard.html.backup_before_chart:141:<a href="/orders/ui">
+src/templates/dashboard.html.backup_before_chart:145:<a href="/customers/ui">
+src/templates/dashboard.html.backup_before_chart:149:<a href="/suppliers/ui">
+src/templates/dashboard.html.backup_before_ceo_upgrade:319:<a href="/products/ui">
+src/templates/dashboard.html.backup_before_ceo_upgrade:323:<a href="/orders/ui">
+src/templates/dashboard.html.backup_before_ceo_upgrade:327:<a href="/customers/ui">
+src/templates/dashboard.html.backup_before_ceo_upgrade:331:<a href="/suppliers/ui">
+src/templates/dashboard.html.backup_before_ceo_score_ui:319:<a href="/products/ui">
+src/templates/dashboard.html.backup_before_ceo_score_ui:323:<a href="/orders/ui">
+src/templates/dashboard.html.backup_before_ceo_score_ui:327:<a href="/customers/ui">
+src/templates/dashboard.html.backup_before_ceo_score_ui:331:<a href="/suppliers/ui">
+src/templates/dashboard.html.backup_before_score_upgrade:319:<a href="/products/ui">
+src/templates/dashboard.html.backup_before_score_upgrade:323:<a href="/orders/ui">
+src/templates/dashboard.html.backup_before_score_upgrade:327:<a href="/customers/ui">
+src/templates/dashboard.html.backup_before_score_upgrade:331:<a href="/suppliers/ui">
+src/templates/dashboard.html.backup_before_ceo_score_upgrade2:319:<a href="/products/ui">
+src/templates/dashboard.html.backup_before_ceo_score_upgrade2:323:<a href="/orders/ui">
+src/templates/dashboard.html.backup_before_ceo_score_upgrade2:327:<a href="/customers/ui">
+src/templates/dashboard.html.backup_before_ceo_score_upgrade2:331:<a href="/suppliers/ui">
+src/templates/dashboard.html.backup_before_ceo_v2_ui:319:<a href="/products/ui">
+src/templates/dashboard.html.backup_before_ceo_v2_ui:323:<a href="/orders/ui">
+src/templates/dashboard.html.backup_before_ceo_v2_ui:327:<a href="/customers/ui">
+src/templates/dashboard.html.backup_before_ceo_v2_ui:331:<a href="/suppliers/ui">
+src/templates/owner_dashboard.html:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/owner_dashboard.html:414:<button onclick="generateActivationKey()">
+src/templates/owner_dashboard.html.backup_step13:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/owner_dashboard.html.backup_before_permission_html:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/landing.html:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html:234:<a class="cta" href="/signup">
+src/templates/landing.html:325:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/landing.html:342:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html:347:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html:352:<a href="viber://chat?number=+959686563395">
+src/templates/landing.html:357:<a href="tel:09686563395">
+src/templates/index_before_home_dashboard.html:7:    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+src/templates/index_before_home_dashboard.html:156:                <li><a href="#features">Features</a></li>
+src/templates/index_before_home_dashboard.html:157:                <li><a href="#solutions">Solutions</a></li>
+src/templates/index_before_home_dashboard.html:158:                <li><a href="#pricing">Pricing</a></li>
+src/templates/index_before_home_dashboard.html:159:                <li><a href="/api/v4/docs">Resources</a></li>
+src/templates/index_before_home_dashboard.html:163:                <a href="/auth/login" class="monochrome-logo" style="font-size: 12px; color: var(--text-muted);">Contact Sales</a>
+src/templates/index_before_home_dashboard.html:164:                <a href="/auth/register" class="btn-p" style="height: 36px; padding: 0 16px; border-radius: 8px; font-size: 12px;">Start Free</a>
+src/templates/index_before_home_dashboard.html:235:            <a href="/auth/register" class="btn-p">Start Free Trial <i class="bi bi-arrow-right-short" style="font-size: 16px;"></i></a>
+src/templates/index_before_home_dashboard.html:236:            <a href="#preview-mockup" class="btn-s"><i class="bi bi-play-circle" style="color: var(--primary);"></i> Watch Demo</a>
+src/templates/index_before_home_dashboard.html:361:                <a href="/auth/register" class="btn-s" style="width: 100%; height: 40px; font-size: 12px; border-radius: 8px; margin-top: 20px;">Deploy Basic Stack</a>
+src/templates/index_before_home_dashboard.html:367:                <a href="/auth/register" class="btn-p" style="width: 100%; height: 40px; font-size: 12px; border-radius: 8px; margin-top: 20px; box-shadow: none;">Deploy Scale Trial</a>
+src/templates/index_before_home_dashboard.html:378:                    <li><a href="#features" style="color: var(--text-muted); text-decoration: none;">Industry Modules</a></li>
+src/templates/index_before_home_dashboard.html:379:                    <li><a href="/api/v4/docs" style="color: var(--text-muted); text-decoration: none;">Kernel Core API</a></li>
+src/templates/index_before_home_dashboard.html:380:                    <li><a href="#pricing" style="color: var(--text-muted); text-decoration: none;">SaaS Pricing Plans</a></li>
+src/templates/index_before_home_dashboard.html:386:                    <li><a href="/auth/login" style="color: var(--text-muted); text-decoration: none;">Contact Sales</a></li>
+src/templates/index_before_home_dashboard.html:387:                    <li><a href="/api/v4/docs" style="color: var(--text-muted); text-decoration: none;">Infrastructure Status</a></li>
+src/templates/index_before_home_dashboard.html:388:                    <li><a href="#stats" style="color: var(--text-muted); text-decoration: none;">Enterprise SLA Trust</a></li>
+src/templates/index_before_user_dashboard_upgrade.html:8:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_user_dashboard_upgrade.html:23:<a class="active" href="/">
+src/templates/index_before_user_dashboard_upgrade.html:27:<a href="/dashboard">
+src/templates/index_before_user_dashboard_upgrade.html:31:<a href="#">
+src/templates/index_before_user_dashboard_upgrade.html:35:<a href="#">
+src/templates/index_before_user_dashboard_upgrade.html:39:<a href="#">
+src/templates/index_before_user_dashboard_upgrade.html:43:<a href="#">
+src/templates/index_before_user_dashboard_upgrade.html:47:<a href="#">
+src/templates/index_before_user_home_upgrade.html:8:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_user_home_upgrade.html:23:<a class="active" href="/">
+src/templates/index_before_user_home_upgrade.html:27:<a href="/dashboard">
+src/templates/index_before_user_home_upgrade.html:31:<a href="#">
+src/templates/index_before_user_home_upgrade.html:35:<a href="#">
+src/templates/index_before_user_home_upgrade.html:39:<a href="#">
+src/templates/index_before_user_home_upgrade.html:43:<a href="#">
+src/templates/index_before_user_home_upgrade.html:47:<a href="#">
+src/templates/index_before_dynamic_kpi.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_dynamic_kpi.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_dynamic_kpi.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_dynamic_kpi.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_dynamic_kpi.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_dynamic_kpi.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_dynamic_kpi.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_dynamic_kpi.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_dynamic_fetch.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_dynamic_fetch.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_dynamic_fetch.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_dynamic_fetch.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_dynamic_fetch.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_dynamic_fetch.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_dynamic_fetch.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_dynamic_fetch.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_chart_ui.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_chart_ui.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_chart_ui.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_chart_ui.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_chart_ui.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_chart_ui.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_chart_ui.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_chart_ui.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_dynamic_full.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_dynamic_full.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_dynamic_full.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_dynamic_full.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_dynamic_full.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_dynamic_full.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_dynamic_full.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_dynamic_full.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_live_dashboard.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_live_dashboard.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_live_dashboard.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_live_dashboard.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_live_dashboard.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_live_dashboard.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_live_dashboard.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_live_dashboard.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_chart_upgrade.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_chart_upgrade.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_chart_upgrade.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_chart_upgrade.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_chart_upgrade.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_chart_upgrade.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_chart_upgrade.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_chart_upgrade.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_activity_dynamic.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_activity_dynamic.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_activity_dynamic.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_activity_dynamic.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_activity_dynamic.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_activity_dynamic.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_activity_dynamic.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_activity_dynamic.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_activity_ui.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_activity_ui.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_activity_ui.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_activity_ui.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_activity_ui.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_activity_ui.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_activity_ui.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_activity_ui.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_health_dynamic.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_health_dynamic.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_health_dynamic.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_health_dynamic.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_health_dynamic.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_health_dynamic.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_health_dynamic.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_health_dynamic.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_health_ui.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_health_ui.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_health_ui.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_health_ui.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_health_ui.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_health_ui.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_health_ui.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_health_ui.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_quick_actions.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_quick_actions.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_quick_actions.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_quick_actions.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_quick_actions.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_quick_actions.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_quick_actions.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_quick_actions.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_sidebar_routes.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_sidebar_routes.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_sidebar_routes.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_sidebar_routes.html:23:<a href="#">📦 Inventory</a>
+src/templates/index_before_sidebar_routes.html:24:<a href="#">💰 Accounting</a>
+src/templates/index_before_sidebar_routes.html:25:<a href="#">🧾 Invoice</a>
+src/templates/index_before_sidebar_routes.html:26:<a href="#">👥 Team</a>
+src/templates/index_before_sidebar_routes.html:27:<a href="#">⚙ Settings</a>
+src/templates/index_before_sidebar_routes.html:99:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index_before_sidebar_routes.html:101:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index_before_sidebar_routes.html:103:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index_before_sidebar_routes.html:105:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/login.html.backup:68:<button onclick="login()">
+src/templates/login.html.backup:133:location.href="/dashboard";
+src/templates/login.html.before_json_fix:68:<button onclick="login()">
+src/templates/login.html.before_json_fix:131:location.href="/dashboard";
+src/templates/login.html.backup_before_json_fix:68:<button onclick="login()">
+src/templates/login.html.backup_before_json_fix:131:location.href="/dashboard";
+src/templates/products.html.backup_add_debug:84:<button onclick="addProduct()">
+src/templates/products.html.backup_add_debug:186:onclick="deleteProduct('${p.id}')">
+src/templates/products_ui_backup.html:123:<button onclick="addProduct()">
+src/templates/products_ui_backup.html:225: onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_ui_backup.html:230:onclick="deleteProduct('${p.id}')">
+src/templates/products_ui_v2_backup.html:124:<button onclick="addProduct()">
+src/templates/products_ui_v2_backup.html:226: onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_ui_v2_backup.html:231:onclick="deleteProduct('${p.id}')">
+src/templates/products_edit_backup.html:124:<button onclick="addProduct()">
+src/templates/products_edit_backup.html:202:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_edit_backup.html:205:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products_modal_backup.html:124:<button onclick="addProduct()">
+src/templates/products_modal_backup.html:202:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_modal_backup.html:205:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products_stock_backup.html:156:<button onclick="addProduct()">
+src/templates/products_stock_backup.html:234:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_stock_backup.html:237:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products_stock_backup.html:440:<button class="save" onclick="saveEdit()">
+src/templates/products_stock_backup.html:444:<button class="close" onclick="closeEdit()">
+src/templates/products_before_stock_modal.html:156:<button onclick="addProduct()">
+src/templates/products_before_stock_modal.html:232:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products_before_stock_modal.html:236:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products_before_stock_modal.html:245:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_before_stock_modal.html:248:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products_before_stock_modal.html:485:<button class="save" onclick="saveEdit()">
+src/templates/products_before_stock_modal.html:489:<button class="close" onclick="closeEdit()">
+src/templates/products_stock_fix_backup.html:156:<button onclick="addProduct()">
+src/templates/products_stock_fix_backup.html:232:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products_stock_fix_backup.html:236:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products_stock_fix_backup.html:245:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_stock_fix_backup.html:248:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products_stock_fix_backup.html:529:<button class="save" onclick="saveEdit()">
+src/templates/products_stock_fix_backup.html:533:<button class="close" onclick="closeEdit()">
+src/templates/products_lowstock_backup.html:156:<button onclick="addProduct()">
+src/templates/products_lowstock_backup.html:232:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products_lowstock_backup.html:236:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products_lowstock_backup.html:245:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_lowstock_backup.html:248:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products_lowstock_backup.html:502:<button class="save" onclick="saveEdit()">
+src/templates/products_lowstock_backup.html:506:<button class="close" onclick="closeEdit()">
+src/templates/products_dashboard_backup.html:156:<button onclick="addProduct()">
+src/templates/products_dashboard_backup.html:247:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products_dashboard_backup.html:251:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products_dashboard_backup.html:260:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_dashboard_backup.html:263:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products_dashboard_backup.html:517:<button class="save" onclick="saveEdit()">
+src/templates/products_dashboard_backup.html:521:<button class="close" onclick="closeEdit()">
+src/templates/products_history_backup.html:206:<button onclick="addProduct()">
+src/templates/products_history_backup.html:317:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products_history_backup.html:321:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products_history_backup.html:330:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products_history_backup.html:333:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products_history_backup.html:587:<button class="save" onclick="saveEdit()">
+src/templates/products_history_backup.html:591:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_inventory_card:261:<button onclick="addProduct()">
+src/templates/products.html.backup_inventory_card:404:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_inventory_card:408:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_inventory_card:417:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_inventory_card:420:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_inventory_card:757:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_inventory_card:761:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_chart:283:<button onclick="addProduct()">
+src/templates/products.html.backup_chart:426:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_chart:430:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_chart:439:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_chart:442:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_chart:814:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_chart:818:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_profit:296:<button onclick="addProduct()">
+src/templates/products.html.backup_profit:439:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_profit:443:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_profit:452:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_profit:455:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_profit:884:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_profit:888:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_product_profit:317:<button onclick="addProduct()">
+src/templates/products.html.backup_product_profit:504:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_product_profit:508:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_product_profit:517:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_product_profit:520:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_product_profit:949:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_product_profit:953:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_cost_fix2:317:<button onclick="addProduct()">
+src/templates/products.html.backup_cost_fix2:504:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_cost_fix2:508:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_cost_fix2:543:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_cost_fix2:546:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_cost_fix2:975:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_cost_fix2:979:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_reorder_ui:317:<button onclick="addProduct()">
+src/templates/products.html.backup_reorder_ui:504:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_reorder_ui:508:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_reorder_ui:563:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_reorder_ui:566:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_reorder_ui:995:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_reorder_ui:999:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_restock_card:317:<button onclick="addProduct()">
+src/templates/products.html.backup_restock_card:504:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_restock_card:508:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_restock_card:582:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_restock_card:585:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_restock_card:1014:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_restock_card:1018:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_restock_count:324:<button onclick="addProduct()">
+src/templates/products.html.backup_restock_count:511:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_restock_count:515:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_restock_count:589:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_restock_count:592:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_restock_count:1021:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_restock_count:1025:<button class="close" onclick="closeEdit()">
+src/templates/products.html.backup_quick_restock:329:<button onclick="addProduct()">
+src/templates/products.html.backup_quick_restock:546:<button class="save" onclick="changeStock('${p.id}',1)">
+src/templates/products.html.backup_quick_restock:550:<button class="delete" onclick="changeStock('${p.id}',-1)">
+src/templates/products.html.backup_quick_restock:624:<button class="edit" onclick="editProduct('${p.id}','${p.name}',${p.retail_price})">
+src/templates/products.html.backup_quick_restock:627:<button class="delete" onclick="deleteProduct('${p.id}')">
+src/templates/products.html.backup_quick_restock:1056:<button class="save" onclick="saveEdit()">
+src/templates/products.html.backup_quick_restock:1060:<button class="close" onclick="closeEdit()">
+src/templates/landing.html.backup_customer_phase:96:href="https://t.me/yourusername">
+src/templates/landing.html.backup_customer_phase:104:href="/signup">
+src/templates/index.html.backup_health_fix:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index.html.backup_health_fix:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index.html.backup_health_fix:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index.html.backup_health_fix:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index.html.backup_health_fix:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index.html.backup_health_fix:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index.html.backup_health_fix:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index.html.backup_health_fix:27:<a href="/settings">⚙ Settings</a>
+src/templates/index.html.backup_health_fix:99:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index.html.backup_health_fix:101:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index.html.backup_health_fix:103:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index.html.backup_health_fix:105:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/landing_backup_before_pro_design.html:96:href="https://t.me/yourusername">
+src/templates/landing_backup_before_pro_design.html:104:href="/signup">
+src/templates/landing_backup_before_pro.html:96:href="https://t.me/yourusername">
+src/templates/landing_backup_before_pro.html:104:href="/signup">
+src/templates/landing_backup_v2_before_dashboard_preview.html:254:href="https://t.me/yourusername">
+src/templates/landing_backup_v2_before_dashboard_preview.html:262:href="/signup">
+src/templates/landing_backup_v2_before_dashboard_preview.html:486:href="/signup">
+src/templates/landing_backup_before_business_showcase.html:417:href="https://t.me/yourusername">
+src/templates/landing_backup_before_business_showcase.html:426:href="/signup">
+src/templates/landing_backup_before_business_showcase.html:742:href="/signup">
+src/templates/landing_before_app_ui.html:417:href="https://t.me/yourusername">
+src/templates/landing_before_app_ui.html:426:href="/signup">
+src/templates/landing_before_app_ui.html:677:<a class="btn" href="#">
+src/templates/landing_before_app_ui.html:698:<a class="btn" href="#">
+src/templates/landing_before_app_ui.html:719:<a class="btn" href="#">
+src/templates/landing_before_app_ui.html:740:<a class="btn" href="#">
+src/templates/landing_before_app_ui.html:761:<a class="btn" href="#">
+src/templates/landing_before_app_ui.html:877:href="/signup">
+src/templates/landing_before_mobile_app_style.html:417:href="https://t.me/yourusername">
+src/templates/landing_before_mobile_app_style.html:426:href="/signup">
+src/templates/landing_before_mobile_app_style.html:677:<a class="btn" href="#">
+src/templates/landing_before_mobile_app_style.html:698:<a class="btn" href="#">
+src/templates/landing_before_mobile_app_style.html:719:<a class="btn" href="#">
+src/templates/landing_before_mobile_app_style.html:740:<a class="btn" href="#">
+src/templates/landing_before_mobile_app_style.html:761:<a class="btn" href="#">
+src/templates/landing_before_mobile_app_style.html:877:href="/signup">
+src/templates/landing_before_dynamic_app_cards.html:217:<a class="app-card" href="/my-online-shop">
+src/templates/landing_before_dynamic_app_cards.html:235:<a class="app-card" href="/golden-2d">
+src/templates/landing_before_dynamic_app_cards.html:253:<a class="app-card" href="/beauty-glow">
+src/templates/landing_before_dynamic_app_cards.html:271:<a class="app-card" href="/shwe-mini-mart">
+src/templates/landing_before_dynamic_app_cards.html:289:<a class="app-card" href="/smart-rental-service">
+src/templates/landing_before_dynamic_app_cards.html:313:<a class="button" href="/signup">
+src/templates/landing_before_dynamic_app_cards.html:320:<a class="button telegram" href="https://t.me/yourusername">
+src/templates/landing_before_mobile_launcher_upgrade.html:212:<a class="app" href="/{{ b.business_slug }}">
+src/templates/landing_before_mobile_launcher_upgrade.html:264:<a class="btn" href="/signup">
+src/templates/landing_before_mobile_launcher_upgrade.html:271:<a class="btn telegram" href="https://t.me/yourusername">
+src/templates/landing_before_pwa.html:170:<a class="app" href="/{{ b.business_slug }}">
+src/templates/landing_before_pwa.html:220:<a class="btn" href="/signup">
+src/templates/landing_before_pwa.html:225:<a class="btn telegram" href="https://t.me/yourusername">
+src/templates/dashboard.html.backup_before_ai_procurement:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/owner_dashboard.backup_before_ai_procurement_card:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/subscription_locked.html:94:onclick="activateKey()">
+src/templates/subscription_locked.html:138:            location.href="/owner";
+src/templates/owner_dashboard.html.backup_key_generator:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/dashboard.html.backup_finance_ui:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/dashboard_backup_before_finance_fix.html:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/owner_dashboard.before_sprint24_ux.html:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/owner_dashboard.before_sprint24_ux.html:414:<button onclick="generateActivationKey()">
+src/templates/landing.html.before_homepage_upgrade:142:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_homepage_upgrade:172:<a class="app" href="/{{ b.business_slug }}">
+src/templates/landing.html.before_homepage_upgrade:222:<a class="btn" href="/signup">
+src/templates/landing.html.before_homepage_upgrade:227:<a class="btn telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_logo_css:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_logo_css:195:<a class="cta" href="/signup">
+src/templates/landing.html.before_logo_css:286:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_logo_asset:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_logo_asset:204:<a class="cta" href="/signup">
+src/templates/landing.html.before_logo_asset:295:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/home.html.before_pilot_switch:282:<a class="login" href="/login">
+src/templates/home.html.before_pilot_switch:316:<a class="btn" href="/register">
+src/templates/home.html.before_pilot_switch:422:<a href="/{{ b.business_slug }}">
+src/templates/landing.html.before_owner_contact:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_owner_contact:204:<a class="cta" href="/signup">
+src/templates/landing.html.before_owner_contact:295:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_owner_contact:309:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_owner_contact:316:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_owner_contact:323:<a href="tel:09686563395">
+src/templates/landing.html.before_owner_contact:330:<a href="tel:09686563395">
+src/templates/landing.html.before_owner_contact:371:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_owner_contact:378:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_owner_contact:385:<a href="tel:09686563395">
+src/templates/landing.html.before_owner_contact:392:<a href="tel:09686563395">
+src/templates/welcome.html:213:<a class="cta" href="/landing-page">
+src/templates/welcome.html.before_structure_upgrade:246:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/welcome.html.before_structure_upgrade:250:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/welcome.html.before_structure_upgrade:254:<a href="viber://chat?number=+959686563395">
+src/templates/welcome.html.before_structure_upgrade:258:<a href="tel:09686563395">
+src/templates/welcome.html.before_structure_upgrade:270:<a class="cta" href="/">
+src/templates/index.html.before_social_menu:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index.html.before_social_menu:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index.html.before_social_menu:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index.html.before_social_menu:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index.html.before_social_menu:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index.html.before_social_menu:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index.html.before_social_menu:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index.html.before_social_menu:27:<a href="/settings">⚙ Settings</a>
+src/templates/index.html.before_social_menu:99:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index.html.before_social_menu:101:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index.html.before_social_menu:103:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index.html.before_social_menu:105:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/social_center.html.backup_step2:10:<link rel="stylesheet" href="/static/style.css">
+src/templates/dashboard.html.backup_chart_fix:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/index_dashboard_backup_current.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_dashboard_backup_current.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_dashboard_backup_current.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_dashboard_backup_current.html:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index_dashboard_backup_current.html:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index_dashboard_backup_current.html:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index_dashboard_backup_current.html:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index_dashboard_backup_current.html:27:<a href="/social/ui">💬 Social Center</a>
+src/templates/index_dashboard_backup_current.html:28:<a href="/settings">⚙ Settings</a>
+src/templates/index_dashboard_backup_current.html:100:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index_dashboard_backup_current.html:102:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index_dashboard_backup_current.html:104:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index_dashboard_backup_current.html:106:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/dashboard.html.before_dashboard_engine_fix:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/index_before_health_cleanup.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_health_cleanup.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_health_cleanup.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_health_cleanup.html:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index_before_health_cleanup.html:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index_before_health_cleanup.html:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index_before_health_cleanup.html:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index_before_health_cleanup.html:27:<a href="/social/ui">💬 Social Center</a>
+src/templates/index_before_health_cleanup.html:28:<a href="/settings">⚙ Settings</a>
+src/templates/index_before_health_cleanup.html:100:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index_before_health_cleanup.html:102:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index_before_health_cleanup.html:104:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index_before_health_cleanup.html:106:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/index_before_health_cleanup2.html:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index_before_health_cleanup2.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_health_cleanup2.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_health_cleanup2.html:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index_before_health_cleanup2.html:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index_before_health_cleanup2.html:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index_before_health_cleanup2.html:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index_before_health_cleanup2.html:27:<a href="/social/ui">💬 Social Center</a>
+src/templates/index_before_health_cleanup2.html:28:<a href="/settings">⚙ Settings</a>
+src/templates/index_before_health_cleanup2.html:100:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index_before_health_cleanup2.html:102:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index_before_health_cleanup2.html:104:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index_before_health_cleanup2.html:106:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/index_before_premium_mobile.html:7:<link rel="stylesheet" href="/static/style.css?v=2">
+src/templates/index_before_premium_mobile.html:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index_before_premium_mobile.html:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index_before_premium_mobile.html:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index_before_premium_mobile.html:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index_before_premium_mobile.html:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index_before_premium_mobile.html:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index_before_premium_mobile.html:27:<a href="/social/ui">💬 Social Center</a>
+src/templates/index_before_premium_mobile.html:28:<a href="/settings">⚙ Settings</a>
+src/templates/index_before_premium_mobile.html:100:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index_before_premium_mobile.html:102:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index_before_premium_mobile.html:104:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index_before_premium_mobile.html:106:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/index.html.before_kpi_fix:7:<link rel="stylesheet" href="/static/style.css?v=2">
+src/templates/index.html.before_kpi_fix:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index.html.before_kpi_fix:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index.html.before_kpi_fix:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index.html.before_kpi_fix:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index.html.before_kpi_fix:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index.html.before_kpi_fix:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index.html.before_kpi_fix:27:<a href="/social/ui">💬 Social Center</a>
+src/templates/index.html.before_kpi_fix:28:<a href="/settings">⚙ Settings</a>
+src/templates/index.html.before_kpi_fix:100:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index.html.before_kpi_fix:102:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index.html.before_kpi_fix:104:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index.html.before_kpi_fix:106:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/dashboard.html.backup_owner_api:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/home.html:282:<a class="login" href="/login">
+src/templates/home.html:316:<a class="btn" href="/register">
+src/templates/home.html:422:<a href="/{{ b.business_slug }}">
+src/templates/landing.html.backup_before_business_page:142:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.backup_before_business_page:172:<a class="app" href="/{{ b.business_slug }}">
+src/templates/landing.html.backup_before_business_page:222:<a class="btn" href="/signup">
+src/templates/landing.html.backup_before_business_page:227:<a class="btn telegram" href="https://t.me/yourusername">
+src/templates/business.html:196:href="{{ business.telegram_url }}">
+src/templates/business.html:207:href="{{ business.facebook_url }}">
+src/templates/business.html:216:href="/login">
+src/templates/dashboard.html.backup_dashboard_api_fix:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/login.html.backup_before_owner_redirect_fix:68:<button onclick="login()">
+src/templates/login.html.backup_before_owner_redirect_fix:131:location.href="/dashboard";
+src/templates/owner_dashboard.html.backup_ai_panel:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/owner_dashboard.html.backup_ai_action_ui:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/owner_dashboard.backup_before_ai_procurement_ui:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/owner_dashboard.backup_before_ai_procurement_upgrade:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/owner_dashboard.html.backup_key_generator_v1:9:<link rel="stylesheet" href="/static/css/owner_dashboard.css">
+src/templates/dashboard.html.backup_finance:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/dashboard.html.backup_kpi_ids:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/dashboard_before_dom_fix.html:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/dashboard_before_dom_fix2.html:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/landing.html.before_sprint24:142:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_sprint24:172:<a class="app" href="/{{ b.business_slug }}">
+src/templates/landing.html.before_sprint24:222:<a class="btn" href="/signup">
+src/templates/landing.html.before_sprint24:227:<a class="btn telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_pilot_cards:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_pilot_cards:204:<a class="cta" href="/signup">
+src/templates/landing.html.before_pilot_cards:295:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_phase2:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_phase2:204:<a class="cta" href="/signup">
+src/templates/landing.html.before_phase2:295:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_contact_section:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_contact_section:204:<a class="cta" href="/signup">
+src/templates/landing.html.before_contact_section:295:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_contact_section:334:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_contact_section:341:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_contact_section:348:<a href="tel:09686563395">
+src/templates/landing.html.before_contact_section:355:<a href="tel:09686563395">
+src/templates/components/contact_owner.html:7:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/components/contact_owner.html:11:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/components/contact_owner.html:15:<a href="viber://chat?number=+959686563395">
+src/templates/components/contact_owner.html:19:<a href="tel:09686563395">
+src/templates/components/owner_contact.html:10:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/components/owner_contact.html:19:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/components/owner_contact.html:28:<a href="tel:09686563395">
+src/templates/components/owner_contact.html:37:<a href="viber://chat?number=09686563395">
+src/templates/landing.html.before_structure_upgrade:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_structure_upgrade:234:<a class="cta" href="/signup">
+src/templates/landing.html.before_structure_upgrade:325:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_structure_upgrade:339:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_structure_upgrade:346:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_structure_upgrade:353:<a href="tel:09686563395">
+src/templates/landing.html.before_structure_upgrade:360:<a href="tel:09686563395">
+src/templates/landing.html.before_structure_upgrade:378:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_structure_upgrade:383:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_structure_upgrade:388:<a href="viber://chat?number=+959686563395">
+src/templates/landing.html.before_structure_upgrade:393:<a href="tel:09686563395">
+src/templates/landing.html.before_structure_upgrade:436:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_structure_upgrade:443:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_structure_upgrade:450:<a href="tel:09686563395">
+src/templates/landing.html.before_structure_upgrade:457:<a href="tel:09686563395">
+src/templates/welcome.html.before_components:246:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/welcome.html.before_components:250:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/welcome.html.before_components:254:<a href="viber://chat?number=+959686563395">
+src/templates/welcome.html.before_components:258:<a href="tel:09686563395">
+src/templates/welcome.html.before_components:270:<a class="cta" href="/">
+src/templates/welcome.html.before_component_refactor:246:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/welcome.html.before_component_refactor:250:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/welcome.html.before_component_refactor:254:<a href="viber://chat?number=+959686563395">
+src/templates/welcome.html.before_component_refactor:258:<a href="tel:09686563395">
+src/templates/welcome.html.before_component_refactor:270:<a class="cta" href="/">
+src/templates/dashboard.html.backup_sprint25_widgets:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/landing.html.before_remove_orphan_contact:11:<link rel="manifest" href="/static/pwa/manifest.json">
+src/templates/landing.html.before_remove_orphan_contact:234:<a class="cta" href="/signup">
+src/templates/landing.html.before_remove_orphan_contact:325:<a class="cta telegram" href="https://t.me/yourusername">
+src/templates/landing.html.before_remove_orphan_contact:339:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_remove_orphan_contact:346:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_remove_orphan_contact:353:<a href="tel:09686563395">
+src/templates/landing.html.before_remove_orphan_contact:360:<a href="tel:09686563395">
+src/templates/landing.html.before_remove_orphan_contact:378:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_remove_orphan_contact:383:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_remove_orphan_contact:388:<a href="viber://chat?number=+959686563395">
+src/templates/landing.html.before_remove_orphan_contact:393:<a href="tel:09686563395">
+src/templates/landing.html.before_remove_orphan_contact:436:<a href="mailto:sawyannaing054540@gmail.com">
+src/templates/landing.html.before_remove_orphan_contact:443:<a href="https://t.me/Leekyitarlarkomaykoloe">
+src/templates/landing.html.before_remove_orphan_contact:450:<a href="tel:09686563395">
+src/templates/landing.html.before_remove_orphan_contact:457:<a href="tel:09686563395">
+src/templates/dashboard.html.before_js_cleanup:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/dashboard.html.before_inline_dashboard_disable:13:<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+src/templates/index.html.before_health_cleanup:7:<link rel="stylesheet" href="/static/style.css">
+src/templates/index.html.before_health_cleanup:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index.html.before_health_cleanup:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index.html.before_health_cleanup:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index.html.before_health_cleanup:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index.html.before_health_cleanup:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index.html.before_health_cleanup:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index.html.before_health_cleanup:27:<a href="/social/ui">💬 Social Center</a>
+src/templates/index.html.before_health_cleanup:28:<a href="/settings">⚙ Settings</a>
+src/templates/index.html.before_health_cleanup:100:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index.html.before_health_cleanup:102:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index.html.before_health_cleanup:104:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index.html.before_health_cleanup:106:<a class="action-btn" href="/payment/ui">+ Record Payment</a>
+src/templates/index.html.before_kpi_clean:7:<link rel="stylesheet" href="/static/style.css?v=2">
+src/templates/index.html.before_kpi_clean:21:<a class="active" href="/">🏠 Home</a>
+src/templates/index.html.before_kpi_clean:22:<a href="/dashboard">📊 Dashboard</a>
+src/templates/index.html.before_kpi_clean:23:<a href="/inventory/ui">📦 Inventory</a>
+src/templates/index.html.before_kpi_clean:24:<a href="/accounting/ui">💰 Accounting</a>
+src/templates/index.html.before_kpi_clean:25:<a href="/invoice/ui">🧾 Invoice</a>
+src/templates/index.html.before_kpi_clean:26:<a href="/customers/ui">👥 Team</a>
+src/templates/index.html.before_kpi_clean:27:<a href="/social/ui">💬 Social Center</a>
+src/templates/index.html.before_kpi_clean:28:<a href="/settings">⚙ Settings</a>
+src/templates/index.html.before_kpi_clean:100:<a class="action-btn" href="/invoice/ui">+ Create Invoice</a>
+src/templates/index.html.before_kpi_clean:102:<a class="action-btn" href="/products/ui">+ Add Product</a>
+src/templates/index.html.before_kpi_clean:104:<a class="action-btn" href="/customers/ui">+ New Customer</a>
+src/templates/index.html.before_kpi_clean:106:<a class="action-btn" href="/payment/ui">+ Record Payment</a>

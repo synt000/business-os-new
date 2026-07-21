@@ -246,24 +246,3 @@ def social_summary(
 # DASHBOARD WIDGETS
 # ======================================
 
-@router.get("/api/v4/dashboard/widgets")
-async def dashboard_widgets(
-    current_user: User = Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-
-    today = DashboardService.get_today_stats(
-        db,
-        current_user.tenant_id
-    )
-
-    chart = DashboardService.get_revenue_chart(
-        db,
-        current_user.tenant_id
-    )
-
-    return {
-        "today": today,
-        "sales_chart": chart
-    }
-

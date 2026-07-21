@@ -243,20 +243,6 @@ _force_expand_routes(app)
 print("✅ IncludedRouter auto-expanded at startup")
 
 
-# DYNAMIC COMPATIBILITY INJECTOR FOR CORE ANALYTICS INTEGRATION
-@app.get("/api/v4/dashboard/summary", tags=["Infrastructure Telemetry"])
-def fetch_dynamic_dashboard_telemetry_summary():
-    """Bypasses legacy core shards to feed the real-time front-end metrics panel natively."""
-    return {
-        "status": "SUCCESS",
-        "total_revenue_usd": 0.00,
-        "active_tenants": 1,
-        "operational_nodes_health": "100%"
-    }
-
-# ==========================================================================
-# 4. HIGH-AVAILABILITY CLOUDFLARE CDN SWAGGER UI DOCS PORTAL INGRESS
-# ==========================================================================
 @app.get("/api/v4/docs", include_in_schema=False)
 async def custom_swagger_ui_portal_ingress():
     return get_swagger_ui_html(
@@ -282,6 +268,4 @@ async def favicon():
 # Social Commerce Webhook
 app.include_router(social_webhook_router)
 
-from src.domains.social_center.router import router as social_center_router
-app.include_router(social_center_router)
 

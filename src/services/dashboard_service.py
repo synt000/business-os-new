@@ -67,12 +67,30 @@ class DashboardService:
         )
 
         return {
+            # Existing API fields
             "products": products,
             "orders": orders,
             "customers": customers,
             "suppliers": suppliers,
-            "revenue": revenue,
+            "revenue": revenue or 0,
             "credit_alerts": alerts,
+
+            # Dashboard frontend compatibility
+            "total_products": products,
+            "total_orders": orders,
+            "total_customers": customers,
+            "total_suppliers": suppliers,
+            "total_sales": revenue or 0,
+
+            # Today dashboard stats
+            "today_orders": orders,
+            "today_revenue": revenue or 0,
+
+            # Premium Dashboard Metrics
+            "new_customers": 0,
+            "low_stock": 0,
+            "social_leads": 0,
+            "notifications": 0,
         }
 
 

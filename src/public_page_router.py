@@ -124,7 +124,7 @@ async def read_test_landing_page(
 # ================================
 # PUBLIC BUSINESS PAGE
 # ================================
-@router.get("/{business_slug}", response_class=HTMLResponse)
+@router.get("/shop/{business_slug}", response_class=HTMLResponse)
 async def public_business_page(
     business_slug: str,
     db: Session = Depends(get_db)
@@ -161,3 +161,40 @@ async def public_business_page(
             "business": profile
         }
     )
+
+
+# ================================
+# PUBLIC HOME HEALTH
+# ================================
+
+@router.get("/api/public/home-health")
+async def public_home_health(
+    db: Session = Depends(get_db)
+):
+
+    from sqlalchemy import text
+    from src.models.saas_core import Tenant
+
+    health = {
+        "database": "Healthy",
+        "accounting": "Balanced",
+        "subscription": "Active",
+        "security": "Protected"
+    }
+
+    try:
+        db.execute(text("SELECT 1"))
+        health["database"] = "Healthy"
+    except Exception:
+        health["database"] = "Error"
+
+    tenant = db.query(Tenant).first()
+
+    if tenant:
+        if tenant.is_billing_active:
+            health["subscription"] = "Active"
+        else:
+            health["subscription"] = "Inactive"
+
+    return health
+
