@@ -1,0 +1,15 @@
+@router.get("/api/public/home-summary")
+async def public_home_summary(
+    db: Session = Depends(get_db)
+):
+
+    from sqlalchemy import func
+    from src.models.saas_core import Tenant, Order
+    from src.domains.accounting.models import AccountLedger
+    from src.domains.product.models import Product
+
+    tenant = (
+        db.query(Tenant)
+        .order_by(Tenant.created_at.asc())
+        .first()
+    )

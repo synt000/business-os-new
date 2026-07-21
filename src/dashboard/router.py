@@ -135,38 +135,41 @@ async def suppliers_ui(request: Request):
     )
 
 
-@router.get("/customers/ui", response_class=HTMLResponse)
-async def customers_ui(request: Request):
+
+
+
+
+
+@router.get("/accounting/ui", response_class=HTMLResponse)
+async def accounting_ui(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name="customers.html"
+        name="accounting.html"
     )
 
 
-@router.get("/suppliers/ui", response_class=HTMLResponse)
-async def suppliers_ui(request: Request):
+@router.get("/invoice/ui", response_class=HTMLResponse)
+async def invoice_ui(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name="suppliers.html"
+        name="invoice.html"
     )
 
 
-@router.get("/customers/ui", response_class=HTMLResponse)
-async def customers_ui(request: Request):
+@router.get("/payment/ui", response_class=HTMLResponse)
+async def payment_ui(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name="customers.html"
+        name="payment.html"
     )
 
 
-@router.get("/suppliers/ui", response_class=HTMLResponse)
-async def suppliers_ui(request: Request):
+@router.get("/settings", response_class=HTMLResponse)
+async def settings_ui(request: Request):
     return templates.TemplateResponse(
         request=request,
-        name="suppliers.html"
+        name="settings.html"
     )
-
-
 
 @router.get("/api/public/home-summary")
 async def public_home_summary(
@@ -174,7 +177,8 @@ async def public_home_summary(
 ):
 
     from sqlalchemy import func
-    from src.models.saas_core import Tenant, Order, AccountLedger
+    from src.models.saas_core import Tenant, Order
+    from src.domains.accounting.models import AccountLedger
     from src.domains.product.models import Product
 
 

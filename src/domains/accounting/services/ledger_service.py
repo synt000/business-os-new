@@ -25,6 +25,29 @@ def create_ledger_entry(
     - AI Automation
     """
 
+    # ==============================
+    # DUPLICATE LEDGER PROTECTION
+    # ==============================
+
+    existing = (
+        db.query(AccountLedger)
+        .filter(
+            AccountLedger.tenant_id == tenant_id,
+            AccountLedger.reference_id == reference_id,
+            AccountLedger.account_head == account_head.upper(),
+            AccountLedger.entry_type == entry_type.upper(),
+        )
+        .first()
+    )
+
+    if existing:
+        return existing
+
+
+    if amount < 0:
+        raise Exception("NEGATIVE_LEDGER_AMOUNT")
+
+
     entry = AccountLedger(
         tenant_id=tenant_id,
         entry_type=entry_type.upper(),

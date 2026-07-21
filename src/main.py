@@ -50,6 +50,7 @@ from src.product.router import router as product_router
 from src.domains.social.router import router as social_webhook_router
 from src.domains.social_center.router import router as social_center_router
 from src.domains.dashboard.router import router as dashboard_router
+from src.dashboard.router import router as ui_dashboard_router
 from src.domains.platform.router import router as platform_router
 from src.public_router import router as public_router
 from src.public_page_router import router as public_page_router
@@ -67,6 +68,8 @@ from src.domains.receivable.router import router as receivable_router
 from src.domains.payment.router import router as payment_router
 from src.domains.customer_finance.router import router as customer_finance_router
 from src.domains.finance.router import router as finance_router
+from src.domains.accounting.router import router as accounting_router
+
 from src.business_profile_router import router as business_profile_router
 from src.domains.subscription.router import router as subscription_router
 from src.domains.trial.router import router as trial_router
@@ -186,6 +189,7 @@ app.include_router(receivable_router)
 app.include_router(payment_router)
 app.include_router(customer_finance_router)
 app.include_router(finance_router)
+app.include_router(accounting_router)
 app.include_router(public_router)
 app.include_router(business_settings_router)
 app.include_router(business_profile_router)
@@ -200,6 +204,7 @@ app.include_router(payment_gateway_router)
 app.include_router(social_center_router)
 
 app.include_router(dashboard_router)
+app.include_router(ui_dashboard_router)
 
 app.include_router(public_page_router)
 

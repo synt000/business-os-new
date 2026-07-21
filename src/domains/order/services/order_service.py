@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.models.saas_core import Order, OrderItem
+from src.domains.product.models import Product
 from src.domains.inventory.services.stock_service import reduce_stock
 from src.domains.accounting.services.accounting_service import create_sale_journal
 
@@ -34,13 +35,48 @@ def create_order(
 
     for item in items:
 
+        product_id = (
+            item['product_id']
+            if isinstance(item, dict)
+            else item.product_id
+        )
+
+        print("DEBUG ITEM TYPE:", type(item))
+        print("DEBUG ITEM:", item)
+
+        product_id = (
+            item['product_id']
+            if isinstance(item, dict)
+            else item.product_id
+        )
+
+        print("DEBUG PRODUCT ID:", product_id)
+        print("DEBUG TENANT:", tenant_id)
+
         product = (
             db.query(Product)
             .filter(
-                Product.id == item['product_id'] if isinstance(item, dict) else Product.id == item.product_id
+                Product.id == str(product_id),
+                Product.tenant_id == tenant_id
             )
             .first()
         )
+        print("DEBUG FOUND PRODUCT:", product)
+
+        print(
+            "DEBUG SAME ID COUNT:",
+            db.query(Product)
+            .filter(Product.id == product_id)
+            .count()
+        )
+
+        print(
+            "DEBUG TENANT COUNT:",
+            db.query(Product)
+            .filter(Product.tenant_id == tenant_id)
+            .count()
+        )
+
         if not product:
             raise Exception("PRODUCT_NOT_FOUND")
 
@@ -76,7 +112,10 @@ def create_order(
 
         product = (
             db.query(Product)
-            .filter(Product.id == product_id)
+            .filter(
+                Product.id == str(product_id),
+                Product.tenant_id == tenant_id
+            )
             .first()
         )
 

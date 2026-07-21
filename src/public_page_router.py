@@ -9,18 +9,36 @@ from src.models.business_profile import BusinessProfile
 
 BLOCKED_PUBLIC_PATHS = {
     "favicon.ico",
+
+    # frontend/system
     "dashboard",
     "login",
     "logout",
+
+    # api/system
     "api",
     "docs",
     "openapi.json",
+
+    # business modules
+    "products",
+    "orders",
+    "customers",
+    "suppliers",
+    "inventory",
+    "payments",
+    "invoices",
+    "accounting",
+
+    # dashboard api
     "business-health",
     "ceo-summary",
     "financial-kpi",
     "finance-insight",
     "executive-ai",
     "menus",
+
+    # owner
     "owner"
 }
 

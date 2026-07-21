@@ -1,217 +1,168 @@
-# Business OS TODO
+# Business OS v5.5 TODO Roadmap
 
-## Sprint 23
-✅ Renewal Invoice Subscription Link Fixed
-✅ Invoice Model subscription_id added
-✅ Billing Engine subscription_id migration
-✅ Compile Check Passed
-✅ Git Push Completed
+## ✅ COMPLETED
 
----
+### Foundation
+- [x] FastAPI architecture
+- [x] SQLAlchemy ORM setup
+- [x] Multi-tenant architecture
+- [x] Tenant isolation
+- [x] JWT Authentication
+- [x] Workspace system
+- [x] Docker / Deployment foundation
 
-# Sprint 24
-## Business OS Premium UX Polish Sprint
+### Core ERP
+- [x] User & Role foundation
+- [x] Category Module
+- [x] Product Module
+- [x] Product API integration
+- [x] Dynamic category loading
+- [x] Inventory Module
+- [x] Inventory relation fix
+- [x] Stock Movement Ledger
 
-## Dashboard Audit
+### Purchase / Stock
+- [x] Purchase Receive flow
+- [x] Stock increase
+- [x] Stock movement audit
 
-### TODO-24-01 Dashboard Route Mapping
-Status: ⏳
+### Sales
+- [x] Order creation API
+- [x] Order Item
+- [x] Product validation
+- [x] Tenant-based product filtering
+- [x] Reduce stock after order
+- [x] OUT Stock Movement creation
 
-Tasks:
-- [ ] Check /dashboard route
-- [ ] Check /owner route
-- [ ] Check /owner/dashboard route
-- [ ] Select primary dashboard entry
-- [ ] Remove duplicate flow
-
----
-
-## TODO-24-02 Button Flow Audit
-
-Home Dashboard
-
-- [ ] Products
-    - [ ] Product List
-    - [ ] Add Product
-    - [ ] Stock
-    - [ ] Price
-
-- [ ] Orders
-    - [ ] New Order
-    - [ ] Pending
-    - [ ] Completed
-
-- [ ] Delivery
-    - [ ] Assign Driver
-    - [ ] Tracking
-
-- [ ] Finance
-    - [ ] Revenue
-    - [ ] Expense
-    - [ ] Profit
-
-- [ ] Subscription
-    - [ ] Plan
-    - [ ] Renewal
+### Accounting Foundation
+- [x] Accounting service foundation
+- [x] Sales journal hook
 
 
----
+# 🚀 PRIVATE BETA (5 USERS)
 
-## TODO-24-03 Mobile Premium UI
+## Priority Fixes
 
-- [ ] Dark Theme Polish
-- [ ] Top Bar
-- [ ] Hero Card
-- [ ] Live Stats
-- [ ] Quick Actions
-- [ ] Recent Activity
-- [ ] Bottom Navigation
-- [ ] Floating Action Button
-
-
----
-
-## TODO-24-04 Role Based Dashboard
-
-ONLINE Shop:
-- [ ] Orders
-- [ ] Products
-- [ ] Customers
-- [ ] Delivery
-- [ ] Revenue
-
-2D Seller:
-- [ ] Transactions
-- [ ] Customers
-- [ ] Balance
-- [ ] Reports
-
-Mini Mart:
-- [ ] Stock
-- [ ] Sales
-- [ ] Products
-- [ ] Profit
-
-Server:
-- [ ] Customers
-- [ ] Subscription
-- [ ] Renewal
-- [ ] Payments
-
-Delivery:
-- [ ] New Jobs
-- [ ] Assigned
-- [ ] Completed
-- [ ] Income
-
-
----
-
-## Pilot Release Checklist
-
-- [ ] Dashboard stable
-- [ ] Mobile test
-- [ ] Button routes verified
-- [ ] Empty states
-- [ ] Loading states
-- [ ] Error handling
-- [ ] Pilot 5 businesses ready
-
-
-
-# PILOT PHASE DIRECTION (July 2026)
-
-## Main Goal
-
-Business OS ကို Myanmar Market အတွက် Real User Pilot Testing အဆင့်ရောက်အောင် တည်ဆောက်မည်။
-
----
-
-# First Pilot Users (30 Days)
-
-## 1. Online Shop
-Priority: HIGH
-
-Required Features:
-- Product Management
-- Category Management
-- Stock Tracking
-- Customer Management
-- Sales / Orders
-- Basic Reports
-
-Goal:
-Online seller တစ်ယောက် Daily Operation ကို Business OS နဲ့ စမ်းသုံးနိုင်ရန်။
-
----
-
-## 2. 2D / Seller Business
-Priority: HIGH
-
-Required Features:
-- Daily Transaction Recording
-- Commission Tracking
-- Customer Records
-- Sales Summary
-
-Goal:
-2D Seller တစ်ယောက် Manual Record အစား Business OS သုံးနိုင်ရန်။
-
----
-
-## 3. Mini Mart
-Priority: HIGH
-
-Required Features:
-- Product Inventory
-- Purchase Tracking
-- Sales Management
-- Stock Movement
-- Profit Overview
-
-Goal:
-Mini Mart Owner တစ်ယောက် Stock + Sales ကို စီမံနိုင်ရန်။
-
----
-
-# Homepage Upgrade Goal
+### Order System
+- [ ] Order Cancel API
+- [ ] Restore stock after cancellation
+- [ ] Return stock movement
+- [ ] Order status workflow
 
 Status:
-IN PROGRESS
 
-Tasks:
+PENDING
+CONFIRMED
+PROCESSING
+SHIPPED
+COMPLETED
+CANCELLED
 
-- Business OS Brand Logo Integration
-- Premium SaaS Hero Section
 
-Tagline:
+### Error Handling
+- [ ] Replace raw errors with user-friendly messages
+- [ ] Global exception handler
+- [ ] Validation improvements
 
-"One Platform. Every Business."
 
-Pilot Business Showcase:
+### Beta Monitoring
+- [ ] Collect user feedback
+- [ ] Record bugs
+- [ ] Track missing features
+- [ ] Improve UI based on feedback
 
-- Online Shop
-- 2D Seller
-- Mini Mart
 
-Marketing:
+# 📦 ERP Expansion
 
-- 30-Day Free Trial CTA
-- Contact Section (Owner Information Pending)
+## Purchase Module
+- [ ] Supplier management
+- [ ] Purchase Order
+- [ ] Purchase Invoice
+- [ ] Supplier Ledger
 
----
 
-# Development Rule
+## Accounting Module
+- [ ] Chart of Accounts
+- [ ] Double Entry Journal
+- [ ] Accounts Receivable
+- [ ] Accounts Payable
+- [ ] Profit & Loss Report
+- [ ] Balance Sheet
 
-Before adding new modules:
 
-1. Pilot User Needs first
-2. Real Feedback first
-3. Stability over New Features
+## Dashboard
+- [ ] Sales KPI
+- [ ] Revenue chart
+- [ ] Stock summary
+- [ ] Top selling products
+- [ ] Business analytics
 
-Avoid:
 
-- Building unused features
-- Large refactoring
-- Direction changes without validation
+# 🎨 Frontend
+
+- [ ] Product UI final polish
+- [ ] Order Management UI
+- [ ] Inventory UI
+- [ ] Purchase UI
+- [ ] Accounting UI
+- [ ] Reports UI
+- [ ] Mobile responsive improvements
+
+
+# 🔐 Production Readiness
+
+- [ ] HTTPS deployment
+- [ ] Database backup system
+- [ ] Restore testing
+- [ ] Rate limiting
+- [ ] Security audit
+- [ ] Audit Log UI
+- [ ] Notification system
+
+
+# SaaS Features
+
+- [ ] Subscription plans
+- [ ] Usage limits
+- [ ] Billing system
+- [ ] Tenant management UI
+- [ ] Admin control panel
+
+
+# Beta Feedback Log
+
+## User 1
+- Date:
+- Business Type:
+- Feedback:
+- Bugs:
+
+
+## User 2
+- Date:
+- Business Type:
+- Feedback:
+- Bugs:
+
+
+## User 3
+- Date:
+- Business Type:
+- Feedback:
+- Bugs:
+
+
+## User 4
+- Date:
+- Business Type:
+- Feedback:
+- Bugs:
+
+
+## User 5
+- Date:
+- Business Type:
+- Feedback:
+- Bugs:
+
 

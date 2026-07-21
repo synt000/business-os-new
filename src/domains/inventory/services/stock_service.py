@@ -11,13 +11,20 @@ def reduce_stock(
     reason: str = "Customer Order"
 ):
 
-    if product.stock_qty < quantity:
+    inventory = product.inventory
+
+    if not inventory:
+        raise Exception("INVENTORY_NOT_FOUND")
+
+
+    if inventory.quantity < quantity:
         raise Exception("INSUFFICIENT_STOCK")
 
 
-    before = product.stock_qty
+    before = inventory.quantity
 
-    product.stock_qty -= quantity
+
+    inventory.quantity -= quantity
 
 
     movement = StockMovement(
@@ -26,7 +33,7 @@ def reduce_stock(
         movement_type="OUT",
         quantity_change=quantity,
         before_quantity=before,
-        after_quantity=product.stock_qty,
+        after_quantity=inventory.quantity,
         reason=reason
     )
 

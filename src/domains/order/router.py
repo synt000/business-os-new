@@ -5,6 +5,7 @@ from src.core.database import get_db
 from src.core.security import get_current_user
 from src.domains.trial.guard import require_active_subscription
 from src.models.saas_core import User, Order
+from src.domains.product.models import Product
 
 from src.domains.order.schemas import (
     OrderCreate,
@@ -21,10 +22,29 @@ router = APIRouter(
 
 
 @router.get("/")
-async def list_orders():
-    return {
-        "status": "ORDER_MODULE_READY"
-    }
+async def list_orders(
+    current_user: User = Depends(require_active_subscription),
+    db: Session = Depends(get_db)
+):
+    orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == current_user.tenant_id
+        )
+        .order_by(Order.created_at.desc())
+        .all()
+    )
+
+    return [
+        {
+            "id": o.id,
+            "order_number": o.order_number,
+            "status": o.order_status,
+            "total_amount": o.total_amount,
+            "created_at": o.created_at,
+        }
+        for o in orders
+    ]
 
 
 @router.post(

@@ -52,7 +52,7 @@ def create_sale_journal(
         db=db,
         tenant_id=tenant_id,
         entry_type="DEBIT",
-        account_head="COGS",
+        account_head="COGS_EXPENSE",
         amount=inventory_cost,
         reference_id=order_id,
         description="Inventory Cost",
