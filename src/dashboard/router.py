@@ -9,6 +9,8 @@ from src.core.database import get_db
 from src.core.security import get_current_user
 from src.services.dashboard_service import DashboardService
 from src.models.saas_core import User
+from src.models.business_profile import BusinessProfile
+from src.dashboard.widgets.resolver import get_dashboard_widgets
 
 
 router = APIRouter(
@@ -101,7 +103,31 @@ async def dashboard_widgets(
         current_user.tenant_id
     )
 
+
+    business = (
+        db.query(BusinessProfile)
+        .filter(
+            BusinessProfile.tenant_id == current_user.tenant_id
+        )
+        .first()
+    )
+
+
+    business_type = (
+        business.business_type_code
+        if business
+        else None
+    )
+
+
+    widgets = get_dashboard_widgets(
+        business_type
+    )
+
+
     return {
+        "business_type": business_type,
+        "widgets": widgets,
         "today": today,
         "sales_chart": chart,
         "health": {
