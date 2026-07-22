@@ -8,9 +8,10 @@ from sqlalchemy.orm import Session
 from src.core.database import get_db
 from src.core.security import get_current_user
 from src.services.dashboard_service import DashboardService
-from src.models.saas_core import User
+from src.models.saas_core import User, BusinessType
 from src.models.business_profile import BusinessProfile
 from src.dashboard.widgets.resolver import get_dashboard_widgets
+from src.dashboard.widgets.service import resolve_widget_data
 
 
 router = APIRouter(
@@ -104,13 +105,26 @@ async def dashboard_widgets(
     )
 
 
-    business = (
+    businesses = (
         db.query(BusinessProfile)
         .filter(
             BusinessProfile.tenant_id == current_user.tenant_id
         )
-        .first()
+        .all()
     )
+
+    business = next(
+        (
+            b
+            for b in businesses
+            if b.business_type_code
+        ),
+        businesses[0] if businesses else None
+    )
+
+    
+
+    
 
 
     business_type = (
@@ -119,16 +133,53 @@ async def dashboard_widgets(
         else None
     )
 
+    # Tenant fallback for SaaS onboarding
+    if not business_type and current_user.tenant:
+        bt = (
+            db.query(BusinessType)
+            .filter(
+                BusinessType.id == current_user.tenant.business_type_id
+            )
+            .first()
+        )
 
-    widgets = get_dashboard_widgets(
-        business_type
+        if bt:
+            business_type = bt.code
+
+    
+    
+
+
+    widgets = resolve_widget_data(
+        business_type,
+        db,
+        current_user.tenant_id
     )
 
+    sales_data = widgets.get(
+        "sales",
+        {}
+    )
+
+    social_data = widgets.get(
+        "social",
+        {}
+    )
+
+    trends = today.get(
+        "trends",
+        {
+            "revenue_growth": 0,
+            "orders_growth": 0,
+            "customer_growth": 0,
+        },
+    )
 
     return {
         "business_type": business_type,
         "widgets": widgets,
         "today": today,
+        "trends": trends,
         "sales_chart": chart,
         "health": {
             "database": "ONLINE",
@@ -287,8 +338,6 @@ async def public_home_summary(
         "products": products,
         "subscription": tenant.subscription_tier.value
     }
-
-
 
 
 
