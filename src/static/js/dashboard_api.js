@@ -1,4 +1,4 @@
-async function loadDashboardSummary(){
+async function loadDashboardWidgets(){
 
 try{
 
@@ -8,7 +8,7 @@ localStorage.getItem("token");
 
 
 const res = await fetch(
-"/api/v4/dashboard/summary",
+"/api/v4/dashboard/widgets",
 {
 headers:{
 "Authorization":"Bearer "+token
@@ -19,44 +19,53 @@ headers:{
 
 const data = await res.json();
 
-console.log("CEO DASHBOARD",data);
+console.log("BUSINESS DASHBOARD",data);
 
 
-if(data.dashboard){
-
-const d=data.dashboard;
+const widgets = data.widgets || {};
+const today = data.today || {};
 
 
 if(document.getElementById("revenue")){
 document.getElementById("revenue").innerText =
-Number(d.today_revenue).toLocaleString()+" MMK";
+Number(
+today.today_revenue || 0
+).toLocaleString()+" MMK";
 }
 
 
 if(document.getElementById("orders")){
 document.getElementById("orders").innerText =
-d.today_orders+" Orders";
-}
-
-
-if(document.getElementById("products")){
-document.getElementById("products").innerText =
-d.total_products;
+(today.today_orders || 0)+" Orders";
 }
 
 
 if(document.getElementById("customers")){
 document.getElementById("customers").innerText =
-d.total_customers;
+(today.new_customers || 0);
 }
 
+
+if(document.getElementById("products")){
+
+let inventory =
+widgets.inventory ||
+widgets.low_stock ||
+{};
+
+document.getElementById("products").innerText =
+inventory.total_products ||
+inventory.count ||
+0;
+
 }
+
 
 }
 catch(e){
 
 console.error(
-"DASHBOARD API ERROR",
+"DASHBOARD WIDGET API ERROR",
 e
 );
 
@@ -67,6 +76,5 @@ e
 
 document.addEventListener(
 "DOMContentLoaded",
-loadDashboardSummary
+loadDashboardWidgets
 );
-
