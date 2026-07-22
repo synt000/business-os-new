@@ -11,6 +11,19 @@ from src.dashboard.widgets.providers.ad_roi import ad_roi_widget
 from src.dashboard.widgets.providers.customer import customer_widget
 from src.dashboard.widgets.providers.receivable import receivable_widget
 
+from src.dashboard.widgets.providers.beauty_salon import (
+    appointments_widget,
+    staff_schedule_widget,
+    services_sold_widget,
+    customer_return_rate_widget,
+    top_staff_widget,
+    product_sales_widget,
+    revenue_widget,
+    no_show_rate_widget,
+    back_bar_inventory_widget,
+    walk_in_checkout_widget,
+)
+
 from src.dashboard.widgets.providers.mini_mart import (
     fast_moving_items_widget,
     supplier_debt_widget,
@@ -70,6 +83,18 @@ WIDGET_PROVIDERS = {
     "expiry_alert": expiry_alert_widget,
     "dead_stock": dead_stock_widget,
     "pos_terminal": pos_terminal_widget,
+
+    # BEAUTY_SALON
+    "appointments": appointments_widget,
+    "staff_schedule": staff_schedule_widget,
+    "services_sold": services_sold_widget,
+    "customer_return_rate": customer_return_rate_widget,
+    "top_staff": top_staff_widget,
+    "product_sales": product_sales_widget,
+    "revenue": revenue_widget,
+    "no_show_rate": no_show_rate_widget,
+    "back_bar_inventory": back_bar_inventory_widget,
+    "walk_in_checkout": walk_in_checkout_widget,
 }
 
 
