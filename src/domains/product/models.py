@@ -3,7 +3,6 @@ from sqlalchemy.orm import relationship, mapped_column
 
 from src.database import TenantModel
 from src.domains.category.models import Category
-from src.domains.inventory.models import Inventory
 
 
 class Product(TenantModel):
@@ -59,16 +58,13 @@ class Product(TenantModel):
     )
 
     inventory = relationship(
-        Inventory,
+        "Inventory",
         back_populates="product",
         uselist=False
     )
 
-    order_items = relationship(
-        "OrderItem",
-        back_populates="product",
-        cascade="all, delete-orphan"
-    )
+    # order_items relationship removed
+    # Order domain owns OrderItem relationship
 
     procurements = relationship(
         "ProcurementLedger",

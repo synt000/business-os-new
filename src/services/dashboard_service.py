@@ -146,9 +146,19 @@ class DashboardService:
         tenant_id: str
     ):
 
-        from datetime import date
+        from datetime import date, timedelta
 
-        today = date.today()
+        latest_sale_date = (
+            db.query(func.max(func.date(AccountLedger.created_at)))
+            .filter(
+                AccountLedger.tenant_id == tenant_id,
+                AccountLedger.entry_type == "CREDIT",
+                AccountLedger.account_head == "SALES_REVENUE",
+            )
+            .scalar()
+        )
+
+        today = latest_sale_date or date.today()
 
         today_orders = (
             db.query(Order)
@@ -211,12 +221,85 @@ class DashboardService:
         notifications = 0
 
 
+        from datetime import datetime
+
+        if isinstance(today, str):
+            today = datetime.strptime(today, "%Y-%m-%d").date()
+
+        previous_sale_date = (
+            db.query(
+                func.max(
+                    func.date(AccountLedger.created_at)
+                )
+            )
+            .filter(
+                AccountLedger.tenant_id == tenant_id,
+                AccountLedger.entry_type == "CREDIT",
+                AccountLedger.account_head == "SALES_REVENUE",
+                func.date(AccountLedger.created_at) < today
+            )
+            .scalar()
+        )
+
+        yesterday = previous_sale_date
+
+        if isinstance(yesterday, str):
+            yesterday = datetime.strptime(
+                yesterday,
+                "%Y-%m-%d"
+            ).date()
+
+        yesterday_orders = (
+            db.query(Order)
+            .filter(
+                Order.tenant_id == tenant_id,
+                func.date(Order.created_at) == yesterday
+            )
+            .count()
+        )
+
+
+        yesterday_revenue = (
+            db.query(func.sum(AccountLedger.amount))
+            .filter(
+                AccountLedger.tenant_id == tenant_id,
+                AccountLedger.entry_type == "CREDIT",
+                AccountLedger.account_head == "SALES_REVENUE",
+                func.date(AccountLedger.created_at) == yesterday
+            )
+            .scalar()
+            or 0
+        )
+
+
+        revenue_growth = (
+            ((float(today_revenue) - float(yesterday_revenue))
+            / float(yesterday_revenue) * 100)
+            if yesterday_revenue else 0
+        )
+
+
+        orders_growth = (
+            ((today_orders - yesterday_orders)
+            / yesterday_orders * 100)
+            if yesterday_orders else 0
+        )
+
+
+        trends = {
+            "revenue_growth": round(revenue_growth,1),
+            "orders_growth": round(orders_growth,1),
+            "customer_growth": 0
+        }
+
+
         return {
             "today_orders": today_orders,
             "today_revenue": float(today_revenue),
             "new_customers": new_customers,
             "low_stock": low_stock,
             "social_leads": social_leads,
-            "notifications": notifications
+            "notifications": notifications,
+            "trends": trends
         }
 

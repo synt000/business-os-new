@@ -111,7 +111,9 @@ class OrderItem(Base):
     order_id = Column(String, ForeignKey("orders.id", ondelete="CASCADE"), nullable=False)
     order = relationship("Order", back_populates="items")
     product_id = Column(String, ForeignKey("products.id", ondelete="CASCADE"), nullable=False)
-    product = relationship("Product", back_populates="order_items")
+
+    # product relationship removed
+    # Product domain no longer owns OrderItem
 
 class BillingReceipt(Base):
     __tablename__ = "billing_receipts"

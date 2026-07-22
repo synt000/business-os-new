@@ -13,7 +13,6 @@ from sqlalchemy import (
 )
 
 from src.core.database import Base
-from src.domains.product.models import Product
 
 
 def generate_uuid():
@@ -123,7 +122,7 @@ class ProcurementLedger(Base):
     )
 
     product = relationship(
-        Product,
+        "Product",
         back_populates="procurements"
     )
 

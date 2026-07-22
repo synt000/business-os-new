@@ -1,4 +1,6 @@
 from src.domains.accounting.models import AccountLedger
+from src.domains.inventory.models import Inventory, StockMovement
+
 import uuid
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -11,6 +13,8 @@ from src.core.security import get_current_user
 from src.models.saas_core import User
 
 from src.domains.purchase.models import (
+    PurchaseOrder,
+    PurchaseItem,
     SupplierPayable,
     SupplierPayment,
 )
@@ -60,6 +64,7 @@ def list_purchase_orders(
 
 
 @router.post("/approve/{purchase_id}")
+@router.post("/approve-ai-po/{purchase_id}")
 def approve_purchase(
     purchase_id: str,
     current_user: User = Depends(get_current_user),
@@ -94,12 +99,29 @@ def approve_purchase(
     po.status = "APPROVED"
 
 
+    items = (
+        db.query(PurchaseItem)
+        .filter(
+            PurchaseItem.purchase_order_id == po.id
+        )
+        .all()
+    )
+
+    if not items:
+        raise HTTPException(
+            status_code=400,
+            detail="PURCHASE_ITEMS_NOT_FOUND"
+        )
+
+    item = items[0]
+
     ledger = ProcurementLedger(
         id=str(uuid.uuid4()),
         procurement_number=po.purchase_number,
-        qty_purchased=1,
-        unit_cost=po.total_amount,
-        total_cost=po.total_amount,
+        qty_purchased=item.quantity,
+        unit_cost=item.unit_cost,
+        total_cost=item.total_cost,
+        product_id=item.product_id,
         supplier_id=po.supplier_id,
         tenant_id=current_user.tenant_id
     )
