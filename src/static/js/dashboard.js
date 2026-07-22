@@ -30,6 +30,7 @@ const today = data.today || {};
             const trends = data.trends || {};
 
             bindDynamicKPI(data);
+            renderSalesChart(data);
 
 
             const revenue =
@@ -130,6 +131,7 @@ const today = data.today || {};
                     today.notifications || 0;
 
             bindDynamicKPI(data);
+            renderSalesChart(data);
             }
 
         }
@@ -430,4 +432,47 @@ btn.onclick = ()=>{
 }
 
 });
+
+
+
+function renderSalesChart(data){
+
+    const canvas = document.getElementById(
+        "salesChart"
+    );
+
+    if(!canvas) return;
+
+
+    const chartData =
+        data.sales_chart || {};
+
+
+    new Chart(
+        canvas,
+        {
+            type:"line",
+
+            data:{
+                labels:
+                    chartData.labels || [],
+
+                datasets:[
+                    {
+                        label:"Revenue",
+
+                        data:
+                            chartData.values || [],
+
+                        tension:0.4
+                    }
+                ]
+            },
+
+            options:{
+                responsive:true
+            }
+        }
+    );
+}
 
