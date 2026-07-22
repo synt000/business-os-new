@@ -61,6 +61,92 @@ inventory.count ||
 }
 
 
+
+// ===============================
+// Dynamic Business Widget Renderer
+// ===============================
+
+const grid = document.getElementById(
+    "dynamic-widget-grid"
+);
+
+if(grid && widgets){
+
+    grid.innerHTML = "";
+
+    Object.entries(widgets).forEach(
+        ([key,value])=>{
+
+            let title =
+                key
+                .replaceAll("_"," ")
+                .replace(/\b\w/g,
+                c=>c.toUpperCase()
+                );
+
+
+            let display = "";
+
+            if(typeof value === "object"){
+
+                if(value.status){
+                    display=value.status;
+                }
+                else if(value.items){
+                    display =
+                    value.items.length +
+                    " items";
+                }
+                else if(value.amount !== undefined){
+                    display =
+                    Number(value.amount)
+                    .toLocaleString()
+                    +" MMK";
+                }
+                else if(value.revenue !== undefined){
+                    display =
+                    Number(value.revenue)
+                    .toLocaleString()
+                    +" MMK";
+                }
+                else if(value.count !== undefined){
+                    display=value.count;
+                }
+                else{
+                    display="READY";
+                }
+
+            }else{
+
+                display=value;
+
+            }
+
+
+            grid.innerHTML += `
+
+            <div class="widget-card">
+
+            <h3>
+            ${title}
+            </h3>
+
+            <strong>
+            ${display}
+            </strong>
+
+            </div>
+
+            `;
+
+
+        }
+    );
+
+}
+
+
+
 }
 catch(e){
 
