@@ -198,3 +198,73 @@ async def public_home_health(
 
     return health
 
+
+@router.get("/api/public/home-revenue-chart")
+async def public_home_revenue_chart(
+    db: Session = Depends(get_db)
+):
+    from sqlalchemy import func
+    from src.domains.accounting.models import AccountLedger
+
+    rows = (
+        db.query(
+            func.date(AccountLedger.created_at),
+            func.sum(AccountLedger.amount)
+        )
+        .filter(
+            AccountLedger.entry_type == "CREDIT"
+        )
+        .group_by(
+            func.date(AccountLedger.created_at)
+        )
+        .order_by(
+            func.date(AccountLedger.created_at)
+        )
+        .all()
+    )
+
+    return {
+        "labels": [str(r[0]) for r in rows],
+        "values": [float(r[1] or 0) for r in rows]
+    }
+
+
+@router.get("/api/public/home-activity")
+async def public_home_activity(
+    db: Session = Depends(get_db)
+):
+    from src.domains.accounting.models import AccountLedger
+    from src.models.saas_core import Order
+
+    activities = []
+
+    payments = (
+        db.query(AccountLedger)
+        .order_by(AccountLedger.created_at.desc())
+        .limit(5)
+        .all()
+    )
+
+    for item in payments:
+        activities.append({
+            "title": item.account_head,
+            "detail": f"{item.amount} MMK",
+            "type": item.entry_type
+        })
+
+    orders = (
+        db.query(Order)
+        .order_by(Order.created_at.desc())
+        .limit(3)
+        .all()
+    )
+
+    for order in orders:
+        activities.append({
+            "title": "Order Created",
+            "detail": order.order_number,
+            "type": "ORDER"
+        })
+
+    return activities[:5]
+
