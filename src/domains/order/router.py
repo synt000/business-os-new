@@ -6,6 +6,7 @@ from src.core.security import get_current_user
 from src.domains.trial.guard import require_active_subscription
 from src.models.saas_core import User, Order
 from src.domains.product.models import Product
+from src.domains.inventory.services.stock_service import restore_stock
 
 from src.domains.order.schemas import (
     OrderCreate,
@@ -16,7 +17,7 @@ from src.domains.order.schemas import (
 from src.domains.order.services.order_service import create_order
 
 router = APIRouter(
-    prefix="/orders",
+    prefix="/api/v4/business/orders",
     tags=["Orders"]
 )
 
@@ -160,4 +161,85 @@ async def get_order_detail(
         "status": order.order_status,
         "total_amount": order.total_amount,
         "items": items,
+    }
+
+
+@router.patch("/{order_id}/status")
+async def update_order_status(
+    order_id: str,
+    data: OrderStatusUpdate,
+    current_user: User = Depends(require_active_subscription),
+    db: Session = Depends(get_db)
+):
+
+    order = (
+        db.query(Order)
+        .filter(
+            Order.id == order_id,
+            Order.tenant_id == current_user.tenant_id
+        )
+        .first()
+    )
+
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="ORDER_NOT_FOUND"
+        )
+
+
+    allowed = [
+        "PENDING",
+        "CONFIRMED",
+        "PACKING",
+        "SHIPPED",
+        "COMPLETED",
+        "CANCELLED"
+    ]
+
+
+    if data.status not in allowed:
+        raise HTTPException(
+            status_code=400,
+            detail="INVALID_STATUS"
+        )
+
+
+    old_status = order.order_status
+
+
+    if (
+        data.status == "CANCELLED"
+        and old_status != "CANCELLED"
+    ):
+
+        for item in order.items:
+
+            product = (
+                db.query(Product)
+                .filter(
+                    Product.id == item.product_id,
+                    Product.tenant_id == current_user.tenant_id
+                )
+                .first()
+            )
+
+            if product:
+
+                restore_stock(
+                    db,
+                    product,
+                    item.quantity,
+                    "Order Cancel"
+                )
+
+
+    order.order_status = data.status
+
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "id": order.id,
+        "status": order.order_status
     }
