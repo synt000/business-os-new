@@ -135,16 +135,11 @@ async def dashboard_widgets(
 
     # Tenant fallback for SaaS onboarding
     if not business_type and current_user.tenant:
-        bt = (
-            db.query(BusinessType)
-            .filter(
-                BusinessType.id == current_user.tenant.business_type_id
-            )
-            .first()
+        business_type = getattr(
+            current_user.tenant,
+            "business_type_code",
+            None
         )
-
-        if bt:
-            business_type = bt.code
 
     
     
