@@ -11,6 +11,17 @@ from src.dashboard.widgets.providers.ad_roi import ad_roi_widget
 from src.dashboard.widgets.providers.customer import customer_widget
 from src.dashboard.widgets.providers.receivable import receivable_widget
 
+from src.dashboard.widgets.providers.two_d import (
+    two_d_result_widget,
+    commission_widget,
+    agent_sales_widget,
+    winning_numbers_widget,
+    hot_numbers_widget,
+    ticket_sales_widget,
+    agent_management_widget,
+    financial_ledger_widget,
+)
+
 
 WIDGET_PROVIDERS = {
     "sales": sales_widget,
@@ -26,6 +37,16 @@ WIDGET_PROVIDERS = {
     "ad_roi": ad_roi_widget,
     "customer": customer_widget,
     "receivable": receivable_widget,
+
+    # TWO_D_SELLER
+    "two_d_result": two_d_result_widget,
+    "commission": commission_widget,
+    "agent_sales": agent_sales_widget,
+    "winning_numbers": winning_numbers_widget,
+    "hot_numbers": hot_numbers_widget,
+    "ticket_sales": ticket_sales_widget,
+    "agent_management": agent_management_widget,
+    "financial_ledger": financial_ledger_widget,
 }
 
 
