@@ -56,6 +56,27 @@ async function loadDashboard(){
     const suppliers =
     document.getElementById("suppliers");
 
+    const revenue =
+    document.getElementById("revenue");
+
+    const todayRevenue =
+    document.getElementById("today-revenue");
+
+    const todayOrders =
+    document.getElementById("today-orders");
+
+    const newCustomers =
+    document.getElementById("new-customers");
+
+    const lowStock =
+    document.getElementById("low-stock");
+
+    const socialLeads =
+    document.getElementById("social-leads");
+
+    const notifications =
+    document.getElementById("notifications");
+
 
     if(products)
         products.innerText =
@@ -75,6 +96,41 @@ async function loadDashboard(){
     if(suppliers)
         suppliers.innerText =
         data.suppliers ?? 0;
+
+
+    if(revenue)
+        revenue.innerText =
+        (data.revenue ?? 0) + " MMK";
+
+
+    if(todayRevenue)
+        todayRevenue.innerText =
+        (data.today_revenue ?? 0) + " MMK";
+
+
+    if(todayOrders)
+        todayOrders.innerText =
+        data.today_orders ?? 0;
+
+
+    if(newCustomers)
+        newCustomers.innerText =
+        data.new_customers ?? 0;
+
+
+    if(lowStock)
+        lowStock.innerText =
+        data.low_stock ?? 0;
+
+
+    if(socialLeads)
+        socialLeads.innerText =
+        data.social_leads ?? 0;
+
+
+    if(notifications)
+        notifications.innerText =
+        data.notifications ?? 0;
 
 }
 

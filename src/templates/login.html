@@ -65,7 +65,7 @@ button{
 <input id="password" type="password" placeholder="Password">
 
 
-<button onclick="login()">
+<button id="loginBtn" type="button">
 Login
 </button>
 
@@ -77,105 +77,26 @@ Login
 
 
 
+
 <script>
+document.getElementById("loginBtn").onclick=function(){
 
+    const email =
+    document.getElementById("email").value;
 
-async function login(){
+    const password =
+    document.getElementById("password").value;
 
+    login(email,password);
 
-let email =
-document.getElementById("email").value;
-
-
-let password =
-document.getElementById("password").value;
-
-
-
-let body = {
-    email: email,
-    password: password
 };
-
-
-
-let res =
-await fetch(
-"/api/v4/auth/login",
-{
-method:"POST",
-headers:{
-"Content-Type":
-"application/json"
-},
-body:JSON.stringify(body)
-}
-);
-
-
-
-let data =
-await res.json();
-
-
-
-if(data.access_token){
-
-
-localStorage.setItem(
-"access_token",
-data.access_token
-);
-
-
-localStorage.setItem(
-"role_profile",
-data.role_profile || "USER"
-);
-
-let role = data.role_profile;
-
-if(!role && data.access_token){
-    try{
-        let payload = JSON.parse(
-            atob(data.access_token.split(".")[1])
-        );
-        role = payload.role;
-        localStorage.setItem(
-            "role_profile",
-            role
-        );
-    }catch(e){
-        console.log(e);
-    }
-}
-
-if(role === "OWNER"){
-    location.href="/dashboard";
-}
-else if(role === "ADMIN"){
-    location.href="/admin";
-}
-else{
-    location.href="/dashboard";
-}
-
-
-}else{
-
-
-document.getElementById("msg").innerText =
-"Login Failed";
-
-
-}
-
-
-}
-
-
 </script>
 
 
+
+
+<script src="/static/app.js?v=5"></script>
+
 </body>
+
 </html>

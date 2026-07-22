@@ -8,7 +8,7 @@ async function loadCEOStats(){
     try{
 
         const res = await fetch(
-            "/api/v4/dashboard/summary",
+            "/api/v4/dashboard/widgets",
             {
                 headers:{
                     "Authorization":"Bearer " + token
@@ -25,7 +25,11 @@ async function loadCEOStats(){
 
         if(data){
 
-            const d = data.dashboard || data;
+            const d = data.widgets || {};
+const today = data.today || {};
+            const trends = data.trends || {};
+
+            bindDynamicKPI(data);
 
 
             const revenue =
@@ -46,33 +50,33 @@ async function loadCEOStats(){
 
             if(revenue){
                 revenue.innerText =
-                    Number(d.revenue || 0)
+                    Number(d.sales?.monthly_revenue || 0)
                     .toLocaleString()+" MMK";
             }
 
 
             if(customers){
                 customers.innerText =
-                    d.customers || 0;
+                    d.customer?.total_customers || 0;
             }
 
 
             if(products){
                 products.innerText =
-                    d.products || 0;
+                    d.inventory?.total_products || 0;
             }
 
 
             if(heroSales){
                 heroSales.innerText =
-                    Number(d.revenue || 0)
+                    Number(d.sales?.monthly_revenue || 0)
                     .toLocaleString()+" MMK";
             }
 
 
             if(heroOrders){
                 heroOrders.innerText =
-                    d.orders || 0;
+                    today.today_orders || 0;
             }
 
 
@@ -97,33 +101,35 @@ async function loadCEOStats(){
 
             if(todayOrders){
                 todayOrders.innerText =
-                    d.today_orders || 0;
+                    today.today_orders || 0;
             }
 
             if(todayRevenue){
                 todayRevenue.innerText =
-                    Number(d.today_revenue || 0)
+                    Number(today.today_revenue || 0)
                     .toLocaleString();
             }
 
             if(newCustomers){
                 newCustomers.innerText =
-                    d.customers || 0;
+                    d.customer?.total_customers || 0;
             }
 
             if(lowStock){
                 lowStock.innerText =
-                    d.low_stock || 0;
+                    d.inventory?.low_stock || 0;
             }
 
             if(socialLeads){
                 socialLeads.innerText =
-                    d.social_leads || 0;
+                    today.social_leads || 0;
             }
 
             if(notifications){
                 notifications.innerText =
-                    d.notifications || 0;
+                    today.notifications || 0;
+
+            bindDynamicKPI(data);
             }
 
         }
@@ -140,9 +146,52 @@ async function loadCEOStats(){
 
 }
 
+
+
+function bindDynamicKPI(data){
+
+    const growthRate =
+        document.getElementById("growth-rate");
+
+    const orderGrowth =
+        document.getElementById("order-growth");
+
+    const customerGrowth =
+        document.getElementById("customer-growth");
+
+    const trends = data?.trends || {};
+
+
+    if(growthRate){
+        growthRate.innerText =
+            "↑ " + (trends.revenue_growth || 0) + "% Growth";
+    }
+
+
+    if(orderGrowth){
+
+        const growth =
+            Number(trends.orders_growth || 0);
+
+        orderGrowth.innerText =
+            growth >= 0
+            ? "↑ " + growth + "% Today"
+            : "↓ " + Math.abs(growth) + "% Today";
+    }
+
+
+    if(customerGrowth){
+        customerGrowth.innerText =
+            "↑ " + (trends.customer_growth || 0) + "% New";
+    }
+
+}
+
 document.addEventListener(
     "DOMContentLoaded",
-    loadCEOStats
+    ()=>{
+        loadCEOStats();
+    }
 );
 
 
@@ -308,4 +357,77 @@ document.addEventListener(
 "DOMContentLoaded",
 loadAIProcurement
 );
+
+
+
+
+// BUSINESS OS THEME SWITCH
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+const btn =
+    document.getElementById("themeToggle");
+
+
+const applyThemeButton = ()=>{
+
+    if(!btn) return;
+
+    btn.textContent = "";
+
+    btn.append(
+        document.createTextNode(
+            document.body.classList.contains(
+                "light-theme"
+            )
+            ? "🌙 Dark"
+            : "☀️ Light"
+        )
+    );
+
+};
+
+
+if(
+    localStorage.getItem(
+        "businessos_theme"
+    )==="light"
+){
+
+    document.body.classList.add(
+        "light-theme"
+    );
+
+}
+
+
+applyThemeButton();
+
+
+if(btn){
+
+btn.onclick = ()=>{
+
+    document.body.classList.toggle(
+        "light-theme"
+    );
+
+
+    localStorage.setItem(
+        "businessos_theme",
+        document.body.classList.contains(
+            "light-theme"
+        )
+        ? "light"
+        : "dark"
+    );
+
+
+    applyThemeButton();
+
+};
+
+}
+
+});
 
