@@ -148,6 +148,90 @@ if(grid && widgets){
 
 
 }
+
+
+
+// ===============================
+// Dynamic Revenue Trend Chart
+// ===============================
+
+if(
+    window.Chart &&
+    document.getElementById("salesChart") &&
+    data.sales_chart
+){
+
+    const chartData=data.sales_chart;
+
+
+    const ctx =
+    document
+    .getElementById("salesChart")
+    .getContext("2d");
+
+
+    if(window.salesTrendChart){
+        window.salesTrendChart.destroy();
+    }
+
+
+    window.salesTrendChart =
+    new Chart(ctx,{
+
+        type:"line",
+
+        data:{
+
+            labels:
+            chartData.labels || [],
+
+            datasets:[{
+
+                label:"Revenue MMK",
+
+                data:
+                chartData.values || [],
+
+
+                borderWidth:3,
+
+                tension:0.4,
+
+                fill:true
+
+            }]
+
+        },
+
+
+        options:{
+
+            responsive:true,
+
+            plugins:{
+
+                legend:{
+                    display:true
+                }
+
+            },
+
+            scales:{
+
+                y:{
+                    beginAtZero:true
+                }
+
+            }
+
+        }
+
+    });
+
+}
+
+
+
 catch(e){
 
 console.error(
