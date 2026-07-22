@@ -1,0 +1,44 @@
+from src.dashboard.widgets.providers.sales import sales_widget
+from src.dashboard.widgets.providers.social import social_widget
+from src.dashboard.widgets.providers.products import top_products_widget
+from src.dashboard.widgets.providers.packing import packing_pending_widget
+from src.dashboard.widgets.providers.delivery import delivery_pending_widget
+from src.dashboard.widgets.providers.cod import cod_collection_widget
+from src.dashboard.widgets.providers.inventory import inventory_widget
+from src.dashboard.widgets.providers.low_stock import low_stock_widget
+from src.dashboard.widgets.providers.profit import profit_widget
+from src.dashboard.widgets.providers.ad_roi import ad_roi_widget
+from src.dashboard.widgets.providers.customer import customer_widget
+from src.dashboard.widgets.providers.receivable import receivable_widget
+
+
+WIDGET_PROVIDERS = {
+    "sales": sales_widget,
+    "social": social_widget,
+    "delivery_pending": delivery_pending_widget,
+    "cod_collection": cod_collection_widget,
+    "top_products": top_products_widget,
+    "inventory": inventory_widget,
+    "low_stock": low_stock_widget,
+    "profit": profit_widget,
+    "packing_pending": packing_pending_widget,
+    "parcel_tracking": delivery_pending_widget,
+    "ad_roi": ad_roi_widget,
+    "customer": customer_widget,
+    "receivable": receivable_widget,
+}
+
+
+def get_widget_provider(name):
+    return WIDGET_PROVIDERS.get(name)
+
+
+def validate_widgets(widget_names):
+    return {
+        name: (
+            "AVAILABLE"
+            if name in WIDGET_PROVIDERS
+            else "MISSING_PROVIDER"
+        )
+        for name in widget_names
+    }
