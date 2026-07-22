@@ -1,11 +1,13 @@
-from fastapi import FastAPI
+"""
+Business OS Application Entry Point
 
-from apps.email_api import router as email_router
-from apps.health_api import router as health_router
-from apps.dashboard.api import router as dashboard_router
+Production entry delegates to src.main:
+- Auth
+- Orders
+- Products
+- Inventory
+- Accounting
+- SaaS modules
+"""
 
-app = FastAPI(title="Business OS")
-
-app.include_router(email_router)
-app.include_router(health_router)
-app.include_router(dashboard_router)
+from src.main import app

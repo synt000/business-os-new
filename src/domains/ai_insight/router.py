@@ -298,7 +298,8 @@ def reject_ai_purchase(
     db: Session = Depends(get_db)
 ):
 
-    from src.domains.purchase.models import PurchaseOrder, AIActionLog
+    from src.domains.purchase.models import PurchaseOrder
+    from src.models.saas_core import AIActionLog
 
 
     po = (
