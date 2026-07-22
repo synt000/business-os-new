@@ -1,24 +1,23 @@
 """
 Business OS Dashboard Widget Configuration
-
-Single Dashboard Engine
-Multiple Business Types
 """
 
 BUSINESS_DASHBOARD_WIDGETS = {
 
     "ONLINE_SHOP": [
         "sales",
-        "facebook_orders",
-        "tiktok_orders",
+        "social",
+        "customer",
+        "receivable",
         "delivery_pending",
         "cod_collection",
         "top_products",
+        "inventory",
+        "profit",
         "packing_pending",
         "parcel_tracking",
         "ad_roi",
     ],
-
 
     "TWO_D_SELLER": [
         "two_d_result",
@@ -30,7 +29,6 @@ BUSINESS_DASHBOARD_WIDGETS = {
         "agent_management",
         "financial_ledger",
     ],
-
 
     "MINI_MART": [
         "fast_moving_items",
@@ -45,7 +43,6 @@ BUSINESS_DASHBOARD_WIDGETS = {
         "pos_terminal",
     ],
 
-
     "BEAUTY_SALON": [
         "appointments",
         "staff_schedule",
@@ -58,7 +55,6 @@ BUSINESS_DASHBOARD_WIDGETS = {
         "back_bar_inventory",
         "walk_in_checkout",
     ],
-
 
     "RETAIL_WHOLESALE": [
         "total_sales",
@@ -76,5 +72,4 @@ BUSINESS_DASHBOARD_WIDGETS = {
         "bulk_price",
         "stock_in_grn",
     ],
-
 }
