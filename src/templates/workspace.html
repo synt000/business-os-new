@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html>
 <head>
 <title>Business OS</title>
@@ -12,23 +11,33 @@
 <div class="grid">
 
 <div class="card">
-<h2 id="products">0</h2>
+<h2 id="products">Loading...</h2>
 <p>Products</p>
 </div>
 
 <div class="card">
-<h2 id="orders">0</h2>
+<h2 id="orders">Loading...</h2>
 <p>Orders</p>
 </div>
 
 <div class="card">
-<h2 id="customers">0</h2>
+<h2 id="customers">Loading...</h2>
 <p>Customers</p>
 </div>
 
 <div class="card">
-<h2 id="suppliers">0</h2>
-<p>Suppliers</p>
+<h2 id="revenue">Loading...</h2>
+<p>Revenue</p>
+</div>
+
+<div class="card">
+<h2 id="profit">Loading...</h2>
+<p>Profit</p>
+</div>
+
+<div class="card">
+<h2 id="inventoryValue">Loading...</h2>
+<p>Inventory Value</p>
 </div>
 
 </div>
@@ -50,31 +59,41 @@ Tenant:
 <span id="tenantId">-</span>
 </p>
 
+<p id="errorBox"></p>
+
 </div>
 
 
 <div class="menu">
 
-<button onclick="location.href='/products'">
-Products
+<button onclick="location.href='/products/ui'">
+Add Product
 </button>
 
-<button onclick="location.href='/inventory'">
-Inventory
+<button onclick="location.href='/inventory/ui'">
+Stock
 </button>
 
-<button onclick="location.href='/orders'">
-Orders
+<button onclick="location.href='/orders/ui'">
+New Order
 </button>
 
-<button onclick="logout()">
+<button onclick="location.href='/invoice/ui'">
+Invoice
+</button>
+
+<button onclick="location.href='/payment/ui'">
+Payment
+</button>
+
+<button id="logoutBtn">
 Logout
 </button>
 
 </div>
 
 
-<script src="/static/app.js?v=8"></script>
+<script src="/static/app.js?v=10"></script>
 
 
 <script>
@@ -84,8 +103,87 @@ localStorage.getItem("access_token")
 ?"JWT Authenticated"
 :"Not Logged";
 
+
 document.getElementById("tenantId").innerText =
 localStorage.getItem("tenant_id") || "-";
+
+
+
+async function loadDashboardKPI(){
+
+    const token = localStorage.getItem("access_token");
+
+    if(!token){
+        document.getElementById("errorBox").innerText =
+        "Login required";
+        return;
+    }
+
+
+    try{
+
+        const res = await fetch(
+            "/api/v4/business/dashboard/kpi",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
+
+        if(!res.ok){
+            const text = await res.text();
+            throw new Error("API ERROR: " + res.status + " " + text);
+        }
+
+
+        const data = await res.json();
+
+
+        document.getElementById("products").innerText =
+        data.products ?? 0;
+
+
+        document.getElementById("orders").innerText =
+        data.orders ?? 0;
+
+
+        document.getElementById("customers").innerText =
+        data.customers ?? 0;
+
+
+        document.getElementById("revenue").innerText =
+        "$ " + (data.revenue ?? 0);
+
+
+        document.getElementById("profit").innerText =
+        "$ " + (data.profit ?? 0);
+
+
+        document.getElementById("inventoryValue").innerText =
+        "$ " + (data.inventory_value ?? 0);
+
+
+    }catch(err){
+
+        document.getElementById("errorBox").innerText =
+        "Unable to load dashboard";
+
+        console.log(err);
+
+    }
+
+}
+
+
+window.onload = function(){
+
+    loadDashboardKPI();
+
+};
+
 
 </script>
 

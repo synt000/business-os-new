@@ -425,3 +425,59 @@ def admin_assign_plan_features(
         "plan_id": plan.id,
         "features": payload.features
     }
+
+
+# ======================================
+# FEEDBACK MANAGEMENT
+# ======================================
+
+@router.get("/feedbacks")
+def admin_feedbacks(
+    db: Session = Depends(get_db)
+):
+
+    from .service import list_feedbacks
+
+    data = list_feedbacks(db)
+
+    return [
+        {
+            "id": f.id,
+            "tenant_id": f.tenant_id,
+            "user_id": f.user_id,
+            "type": f.feedback_type,
+            "subject": f.subject,
+            "message": f.message,
+            "status": f.status,
+            "created_at": f.created_at
+        }
+        for f in data
+    ]
+
+
+@router.patch("/feedbacks/{feedback_id}/status")
+def admin_update_feedback_status(
+    feedback_id: int,
+    status: str,
+    db: Session = Depends(get_db)
+):
+
+    from .service import update_feedback_status
+
+    feedback = update_feedback_status(
+        db,
+        feedback_id,
+        status
+    )
+
+    if not feedback:
+        raise HTTPException(
+            status_code=404,
+            detail="Feedback not found"
+        )
+
+    return {
+        "status":"updated",
+        "feedback_id": feedback.id,
+        "new_status": feedback.status
+    }

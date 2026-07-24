@@ -188,3 +188,55 @@ def assign_plan_features(db: Session, plan_id: str, features):
     db.refresh(plan)
 
     return plan
+
+
+# =====================================
+# FEEDBACK MANAGEMENT
+# =====================================
+
+def list_feedbacks(db: Session):
+
+    from src.feedback.models import Feedback
+
+    return (
+        db.query(Feedback)
+        .order_by(
+            Feedback.created_at.desc()
+        )
+        .all()
+    )
+
+
+def get_feedback(db: Session, feedback_id: int):
+
+    from src.feedback.models import Feedback
+
+    return (
+        db.query(Feedback)
+        .filter(
+            Feedback.id == feedback_id
+        )
+        .first()
+    )
+
+
+def update_feedback_status(
+    db: Session,
+    feedback_id: int,
+    status: str
+):
+
+    feedback = get_feedback(
+        db,
+        feedback_id
+    )
+
+    if not feedback:
+        return None
+
+    feedback.status = status
+
+    db.commit()
+    db.refresh(feedback)
+
+    return feedback

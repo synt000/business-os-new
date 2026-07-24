@@ -186,6 +186,16 @@ async def dashboard_widgets(
 
 
 
+
+
+@router.get("/workspace", response_class=HTMLResponse)
+async def workspace(request: Request):
+
+    return templates.TemplateResponse(
+        request=request,
+        name="workspace.html"
+    )
+
 @router.get("/products/ui", response_class=HTMLResponse)
 async def products_ui(request: Request):
 

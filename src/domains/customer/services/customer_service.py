@@ -10,10 +10,9 @@ def create_customer(
 ):
     customer = Customer(
         tenant_id=tenant_id,
-        full_name=data.full_name,
-        phone=data.phone,
-        email=data.email,
-        address=data.address,
+        customer_name=data.full_name,
+        customer_phone=data.phone,
+        customer_email=data.email,
     )
 
     db.add(customer)

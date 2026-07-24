@@ -81,6 +81,8 @@ from src.domains.ai_assistant.router import router as ai_assistant_router
 from src.domains.device.router import router as device_router
 from src.domains.payment_gateway.router import router as payment_gateway_router
 
+from src.feedback.router import router as feedback_router
+
 print(f"📡 [DevOps Telemetry] Loaded Cryptographic Secret Prefix: {settings.SECRET_KEY[:10]}")
 
 app = FastAPI(
@@ -205,6 +207,7 @@ app.include_router(social_center_router)
 
 app.include_router(dashboard_router)
 app.include_router(ui_dashboard_router)
+app.include_router(feedback_router)
 
 app.include_router(public_page_router)
 

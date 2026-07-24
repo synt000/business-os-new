@@ -67,8 +67,7 @@ class FranchiseNetwork(Base):
     joined_at = Column(DateTime, default=datetime.utcnow)
 
 # Execution Routine to Auto-Generate Tables inside Relational Engine
-try:
-    Base.metadata.create_all(bind=engine)
-    print("✓ SUCCESS: Database Mega Schema Tables Generated Cleanly without structural failure!")
-except Exception as e:
-    print(f"✗ CRITICAL SCHEMA FAULT: {e}")
+# Database schema is managed by Alembic migrations.
+# Disabled automatic table creation for production SaaS architecture.
+
+print("✓ MEGA ERP SAAS ARCHITECTURE UPGRADE ENGINE LOADED")

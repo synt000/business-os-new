@@ -992,3 +992,22 @@ body.light-theme small{
 
 
 
+
+
+/* Premium KPI Growth Colors */
+
+.stat-growth.positive {
+    color: #16a34a;
+    font-weight: 700;
+}
+
+.stat-growth.negative {
+    color: #dc2626;
+    font-weight: 700;
+}
+
+.stat-growth.neutral {
+    color: #64748b;
+    font-weight: 600;
+}
+

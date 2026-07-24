@@ -49,23 +49,14 @@ const today = data.today || {};
                 document.getElementById("heroOrders");
 
 
-            if(revenue){
-                revenue.innerText =
-                    Number(d.sales?.monthly_revenue || 0)
-                    .toLocaleString()+" MMK";
-            }
+            // KPI handled by dashboard_api.js
+            // prevent overwrite
 
 
-            if(customers){
-                customers.innerText =
-                    d.customer?.total_customers || 0;
-            }
+            // KPI handled by dashboard_api.js
 
 
-            if(products){
-                products.innerText =
-                    d.inventory?.total_products || 0;
-            }
+            // KPI handled by dashboard_api.js
 
 
             if(heroSales){

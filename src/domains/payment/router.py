@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
-from src.domains.payment.services.payment_service import create_payment
+from src.domains.payment.services.payment_service import create_payment, get_payments
 from src.domains.payment.schemas import PaymentCreate
 
 
@@ -51,3 +51,14 @@ def create_payment_api(
             status_code=500,
             detail=str(e)
         )
+
+
+@router.get("/list")
+def list_payments(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+    return get_payments(
+        db,
+        current_user.tenant_id
+    )

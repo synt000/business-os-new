@@ -225,3 +225,19 @@ def create_payment(
     db.refresh(payment)
 
     return payment
+
+
+def get_payments(
+    db: Session,
+    tenant_id: str,
+):
+    return (
+        db.query(Payment)
+        .filter(
+            Payment.tenant_id == tenant_id
+        )
+        .order_by(
+            Payment.created_at.desc()
+        )
+        .all()
+    )

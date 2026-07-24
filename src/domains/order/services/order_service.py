@@ -66,7 +66,7 @@ def create_order(
         print(
             "DEBUG SAME ID COUNT:",
             db.query(Product)
-            .filter(Product.id == product_id)
+            .filter(Product.id == str(product_id))
             .count()
         )
 

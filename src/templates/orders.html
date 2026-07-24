@@ -25,6 +25,63 @@ backdrop-filter:blur(12px);
 }
 </style>
 
+
+<style>
+.order-modal {
+    display:none;
+    position:fixed;
+    z-index:9999;
+    left:0;
+    top:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.55);
+    backdrop-filter:blur(5px);
+}
+
+.order-modal-card {
+    background:#111827;
+    color:white;
+    width:90%;
+    max-width:500px;
+    margin:8% auto;
+    padding:25px;
+    border-radius:18px;
+    box-shadow:0 20px 50px rgba(0,0,0,.4);
+    font-family:Inter,Arial;
+}
+
+.order-modal-card h2 {
+    font-size:22px;
+    margin-bottom:15px;
+    color:#60a5fa;
+}
+
+.order-info {
+    line-height:1.8;
+    font-size:16px;
+}
+
+.order-items {
+    margin-top:15px;
+    padding:15px;
+    background:#1f2937;
+    border-radius:12px;
+}
+
+.order-close {
+    margin-top:20px;
+    width:100%;
+    padding:12px;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    font-size:16px;
+    cursor:pointer;
+}
+</style>
+
 </head>
 
 
@@ -193,11 +250,13 @@ Status
 <script>
 
 document.addEventListener("DOMContentLoaded",()=>{
+console.log("ORDERS JS START");
 
 const token=localStorage.getItem("access_token"); console.log("ERP TOKEN:", token);
 
 const product=document.getElementById("product");
 const customer=document.getElementById("customer_id");
+console.log("CUSTOMER ELEMENT:", customer);
 const price=document.getElementById("price");
 const stock=document.getElementById("stock");
 
@@ -205,6 +264,10 @@ let products=[];
 
 
 async function loadProducts(){
+
+console.log("PRODUCT FETCH START");
+
+try{
 
 const res=await fetch(
 "/api/v4/business/products",
@@ -214,7 +277,11 @@ headers:{
 }
 });
 
+console.log("PRODUCT STATUS:", res.status);
+
 const data=await res.json();
+
+console.log("PRODUCT DATA:", data);
 
 products=data.products||[];
 
@@ -240,6 +307,14 @@ product.appendChild(o);
 
 updateProduct();
 
+console.log("PRODUCT DATA:",data);
+
+}catch(err){
+
+console.log("PRODUCT LOAD ERROR:",err);
+
+}
+
 }
 
 
@@ -263,22 +338,77 @@ product.onchange=updateProduct;
 
 async function loadCustomers(){
 
+if(!token){
+
+customer.innerHTML="";
+
+let o=document.createElement("option");
+
+o.textContent="Login required";
+
+customer.appendChild(o);
+
+return;
+
+}
+
+try{
+
 const res=await fetch(
 "/api/v4/business/customers",
 {
 headers:{
 "Authorization":"Bearer "+token
 }
-});
+}
+);
 
 
 const data=await res.json();
+
+console.log("CUSTOMER DATA:", data);
+console.log("CUSTOMER STATUS:", res.status);
+
+console.log("CUSTOMER STATUS:", res.status);
+console.log("CUSTOMER RESPONSE:", data);
 
 
 customer.innerHTML="";
 
 
-(data.customers||[]).forEach(c=>{
+if(!res.ok){
+
+let o=document.createElement("option");
+
+o.textContent="Customer API Error";
+
+customer.appendChild(o);
+
+console.log("CUSTOMER ERROR:", data);
+
+return;
+
+}
+
+
+const customers=data.customers || [];
+
+
+if(customers.length===0){
+
+let o=document.createElement("option");
+
+o.value="";
+
+o.textContent="No customers yet";
+
+customer.appendChild(o);
+
+
+}else{
+
+
+customers.forEach(c=>{
 
 let o=document.createElement("option");
 
@@ -290,17 +420,34 @@ customer.appendChild(o);
 
 });
 
+console.log("CUSTOMERS LOADED COUNT:", customers.length);
 
 }
 
 
+}catch(err){
 
+customer.innerHTML="";
+
+let o=document.createElement("option");
+
+o.textContent="Customer Load Failed";
+
+customer.appendChild(o);
+
+console.log(err);
+
+}
+
+}
 
 
 async function loadOrders(){
 
+try{
+
 const res=await fetch(
-"/orders/list",
+"/api/v4/business/orders/list",
 {
 headers:{
 "Authorization":"Bearer "+token
@@ -316,7 +463,26 @@ const table=document.getElementById("orders-table");
 table.innerHTML="";
 
 
-(data.orders || data || []).forEach(o=>{
+const orders = data.orders || data || [];
+
+
+if(orders.length === 0){
+
+table.innerHTML = `
+<tr>
+<td colspan="4" class="py-8 text-center text-gray-500">
+🛒 No orders yet.<br>
+Create your first order to start selling.
+</td>
+</tr>
+`;
+
+return;
+
+}
+
+
+orders.forEach(o=>{
 
 
 table.innerHTML += `
@@ -325,10 +491,13 @@ table.innerHTML += `
 
 <td class="py-3">
 ${o.order_number}
+<button onclick="viewOrder('${o.id}')">
+Detail
+</button>
 </td>
 
 <td>
-${o.customer || "Customer"}
+${o.customer_name || o.customer || "Customer"}
 </td>
 
 <td>
@@ -369,10 +538,15 @@ Complete
 });
 
 
+
+
+}catch(err){
+
+console.log("ORDER LOAD ERROR:",err);
+
 }
 
-
-
+}
 
 document
 .getElementById("order-form")
@@ -389,6 +563,8 @@ order_number:
 "ORD-"+Date.now(),
 
 platform_channel:"POS",
+
+customer_id:customer.value,
 
 customer_name:
 customer.options[customer.selectedIndex]?.text
@@ -422,7 +598,7 @@ document.getElementById("price").value
 
 const res=await fetch(
 
-"/orders/",
+"/api/v4/business/orders/",
 
 {
 
@@ -509,40 +685,87 @@ loadOrders();
 });
 
 
+
 </script>
-
-</body>
-
-</html>
 
 
 <script>
+function closeOrderModal(){
+    const modal = document.getElementById("orderModal");
+    if(modal){
+        modal.style.display="none";
+    }
+}
+</script>
+</body>
+</html>
 
-async function updateOrderStatus(id,status){
+<script>
+
+async function viewOrder(id){
 
 const token = localStorage.getItem("access_token");
 
-
-
 const res = await fetch(
-"/orders/"+id+"/status",
+"/api/v4/business/orders/detail/"+id,
 {
-method:"PATCH",
 headers:{
-"Content-Type":"application/json",
 "Authorization":"Bearer "+token
-},
-body:JSON.stringify({
-status:status
-})
+}
 }
 );
 
-const data=await res.json();
+const data = await res.json();
 
-alert(data.status || data.detail);
+document.getElementById("orderDetail").innerHTML = `
 
-loadOrders();
+<h3 style="font-size:20px;font-weight:700">
+${data.order_number}
+</h3>
+
+<p>
+Customer: ${data.customer_name || ""}
+</p>
+
+<p>
+Status: ${data.status || ""}
+</p>
+
+<p>
+Total: ${data.total_amount || 0}
+</p>
+
+<h4 style="margin-top:15px;font-weight:bold">
+Items
+</h4>
+
+${
+(data.items || []).map(i=>`
+
+<div>
+${i.product_name || "Product"}
+ x ${i.quantity}
+ -
+ ${i.price}
+</div>
+
+`).join("")
+}
+
+`;
+
+document.getElementById("orderModal").style.display="block";
+
+}
+
+
+function closeOrderModal(){
+
+const modal=document.getElementById("orderModal");
+
+if(modal){
+modal.style.display="none";
+}
 
 }
 

@@ -1536,6 +1536,127 @@ body{
 
 
 
+
+
+
+/* FEEDBACK MODAL */
+
+.feedback-modal{
+
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.65);
+z-index:9999;
+align-items:center;
+justify-content:center;
+
+}
+
+
+.feedback-modal-card{
+
+background:#111827;
+width:90%;
+max-width:420px;
+padding:20px;
+border-radius:20px;
+border:1px solid #334155;
+
+}
+
+
+.feedback-modal-card h3{
+
+color:#00e5ff;
+margin-bottom:15px;
+
+}
+
+
+.feedback-input{
+
+width:100%;
+padding:12px;
+margin-bottom:12px;
+border-radius:12px;
+border:1px solid #334155;
+background:#0f172a;
+color:white;
+
+}
+
+
+.feedback-submit{
+
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+background:#2563eb;
+color:white;
+cursor:pointer;
+
+}
+
+
+.feedback-close{
+
+margin-top:10px;
+text-align:center;
+color:#94a3b8;
+cursor:pointer;
+
+}
+
+/* FEEDBACK CENTER */
+
+.feedback-section{
+    margin-top:20px;
+}
+
+.feedback-card{
+    background:#111827;
+    border-radius:18px;
+    padding:16px;
+    border:1px solid #1f2937;
+}
+
+.feedback-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:12px;
+    margin-top:15px;
+}
+
+.feedback-btn{
+    background:#0f172a;
+    border:1px solid #334155;
+    padding:14px;
+    border-radius:14px;
+    color:white;
+    text-align:center;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.feedback-btn:hover{
+    transform:translateY(-3px);
+    border-color:#00e5ff;
+}
+
+.feedback-icon{
+    font-size:24px;
+    margin-bottom:8px;
+}
+
+.feedback-text{
+    font-size:13px;
+}
+
 /* AI PROCUREMENT PANEL */
 
 .ai-section{
@@ -1700,6 +1821,20 @@ R
 </div>
 
 
+<div id="dashboard-error"
+style="
+display:none;
+margin:15px 0;
+padding:12px 16px;
+border-radius:12px;
+background:#3f1d1d;
+color:#ffaaaa;
+border:1px solid #ef4444;
+font-size:14px;
+">
+</div>
+
+
 <h1 class="hero-title">
 
 Grow Your <span>Business</span> Faster
@@ -1855,7 +1990,7 @@ Revenue
 
 <div class="stat-growth" id="growth-rate">
 
-↑ 0% Growth
+0% Growth
 
 </div>
 
@@ -1958,7 +2093,7 @@ Products
 </div>
 
 
-<div class="stat-growth">
+<div class="stat-growth" id="product-growth">
 
 Stock Ready
 
@@ -2122,6 +2257,76 @@ Reports
 
 
 <!-- QUICK ACTIONS END -->
+
+
+
+<!-- FEEDBACK CENTER START -->
+
+<section class="feedback-section">
+
+<div class="section-header">
+
+<h2 class="section-title">
+💬 Feedback Center
+</h2>
+
+</div>
+
+
+<div class="feedback-card">
+
+<div class="feedback-grid">
+
+
+<div class="feedback-btn" id="reportBugBtn">
+
+<div class="feedback-icon">
+🐞
+</div>
+
+<div class="feedback-text">
+Report Bug
+</div>
+
+</div>
+
+
+
+<div class="feedback-btn" id="featureBtn">
+
+<div class="feedback-icon">
+💡
+</div>
+
+<div class="feedback-text">
+Suggest Feature
+</div>
+
+</div>
+
+
+
+<div class="feedback-btn" id="rateBtn">
+
+<div class="feedback-icon">
+⭐
+</div>
+
+<div class="feedback-text">
+Rate Experience
+</div>
+
+</div>
+
+
+</div>
+
+</div>
+
+</section>
+
+
+<!-- FEEDBACK CENTER END -->
 
 
 <!-- RECENT ACTIVITY START -->
@@ -2411,99 +2616,59 @@ Profile
 <!-- BOTTOM NAVIGATION END -->
 
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<script src="/static/js/dashboard.js?v=5.7"></script>
-<script src="/static/js/dashboard_api.js?v=6.1"></script>
+<!-- FEEDBACK MODAL START -->
+
+<div class="feedback-modal" id="feedbackModal">
+
+
+<div class="feedback-modal-card">
+
+
+<h3 id="feedbackTitle">
+Feedback
+</h3>
+
+
+<input 
+class="feedback-input"
+id="feedbackSubject"
+placeholder="Subject">
+
+
+<textarea
+class="feedback-input"
+id="feedbackMessage"
+rows="5"
+placeholder="Write your feedback..."></textarea>
+
+
+<button class="feedback-submit">
+Send Feedback
+</button>
+
+
+<div class="feedback-close">
+Close
+</div>
+
+
+</div>
+
+
+</div>
+
+
+<!-- FEEDBACK MODAL END -->
+
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+
+<script src="/static/js/feedback.js"></script>
+
+<script src="/static/js/dashboard_api.js?v=7.3"></script>
 
 <script src="/static/app.js?v=5"></script>
-</body>
-</html>
-
-<script>
-
-async function loadOwnerDashboard(){
-
-    try{
-
-        const res = await apiFetch(
-            "/api/v4/dashboard/summary"
-        );
-
-        const data = await res.json();
-
-          console.log("FINANCE DEBUG:", data);
-
-
-        if(data.status !== "SUCCESS"){
-            console.log(data);
-            return;
-        }
-
-
-        const d = data.dashboard;
-
-
-        document.getElementById(
-            "todayRevenue"
-        ).innerText =
-            formatMMK(d.today_revenue);
-
-
-        document.getElementById(
-            "todayOrders"
-        ).innerText =
-            d.today_orders;
-
-
-        document.getElementById(
-            "totalOrders"
-        ).innerText =
-            d.total_orders;
-
-
-        document.getElementById(
-            "totalSales"
-        ).innerText =
-            formatMMK(d.total_sales);
-
-
-        document.getElementById(
-            "totalProducts"
-        ).innerText =
-            d.total_products;
-
-
-        document.getElementById(
-            "totalCustomers"
-        ).innerText =
-            d.total_customers;
-
-
-        document.getElementById(
-            "totalSuppliers"
-        ).innerText =
-            d.total_suppliers;
-
-
-        document.getElementById(
-            "lowStock"
-        ).innerText =
-            d.low_stock;
-
-
-        document.getElementById(
-            "completedPayments"
-        ).innerText =
-            d.completed_payments;
-
-
-        // ================================
-        </script>
-
-
-
-
-
 </body>
 </html>

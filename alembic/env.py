@@ -11,6 +11,7 @@ sys.path.insert(0, BASE_DIR)
 
 from src.database import Base
 import src.models.saas_core
+import src.feedback.models
 
 config = context.config
 

@@ -167,7 +167,7 @@ def finance_insight(
 
 
 @router.get(
-    "/owner/dashboard",
+    "/dashboard",
     response_class=HTMLResponse
 )
 def owner_dashboard(

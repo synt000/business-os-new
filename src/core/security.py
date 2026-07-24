@@ -140,3 +140,55 @@ def decode_token(token: str):
     except JWTError as e:
         print("JWT DECODE ERROR:", e)
         return None
+
+# ==========================================================
+# FEEDBACK AUTH BYPASS SUBSCRIPTION GUARD
+# ==========================================================
+
+
+# ==========================================================
+# FEEDBACK AUTH BYPASS SUBSCRIPTION GUARD
+# ==========================================================
+
+async def get_authenticated_user(
+    token: str = Depends(oauth2_scheme),
+    db: Session = Depends(get_db)
+) -> User:
+
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="COULD_NOT_VALIDATE_SECURE_JWT_CREDENTIALS",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+
+    if not token:
+        raise credentials_exception
+
+    payload = verify_access_token(token)
+
+    if payload is None:
+        raise credentials_exception
+
+    user_id = payload.get("user_id")
+    tenant_id = payload.get("tenant_id")
+
+    if not user_id or not tenant_id:
+        raise credentials_exception
+
+    active_user = (
+        db.query(User)
+        .filter(
+            User.id == user_id,
+            User.tenant_id == tenant_id,
+            User.is_active == True
+        )
+        .first()
+    )
+
+    if not active_user:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="ACCOUNT_SUSPENDED_OR_INACTIVE"
+        )
+
+    return active_user

@@ -70,7 +70,7 @@ class UserPermission(Base):
     )
 
     user_id = Column(
-        Integer,
+        String,
         ForeignKey(
             "users.id",
             ondelete="CASCADE"

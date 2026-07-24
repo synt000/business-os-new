@@ -286,8 +286,25 @@ async def update_isolated_product_item(
     update_data = payload.dict(exclude_unset=True)
     for key, value in update_data.items():
         setattr(target_product, key, value)
-    log_security_audit_action(db, current_user.id, current_user.tenant_id, "UPDATE", "PRODUCTS", f"Modified item fields for product ID {product_id}", request)
-    return {"status": "PRODUCT_SUCCESSFULLY_UPDATED", "product_id": product_id}
+
+    db.commit()
+    db.refresh(target_product)
+
+    log_security_audit_action(
+        db,
+        current_user.id,
+        current_user.tenant_id,
+        "UPDATE",
+        "PRODUCTS",
+        f"Modified item fields for product ID {product_id}",
+        request
+    )
+
+    return {
+        "status": "PRODUCT_SUCCESSFULLY_UPDATED",
+        "product_id": product_id,
+        "retail_price": target_product.retail_price
+    }
 
 
 
@@ -1145,7 +1162,11 @@ async def sales_report(
 ):
     orders = db.query(Order).filter(
         Order.tenant_id == current_user.tenant_id,
-        Order.order_status == "COMPLETED"
+        Order.order_status.in_([
+            "CONFIRMED",
+            "PROCESSING",
+            "COMPLETED"
+        ])
     ).all()
 
     total_sales = sum(o.total_amount for o in orders)
@@ -1172,7 +1193,11 @@ async def profit_loss_report(
 ):
     orders = db.query(Order).filter(
         Order.tenant_id == current_user.tenant_id,
-        Order.order_status == "COMPLETED"
+        Order.order_status.in_([
+            "CONFIRMED",
+            "PROCESSING",
+            "COMPLETED"
+        ])
     ).all()
 
     revenue = sum(o.total_amount for o in orders)
@@ -1200,50 +1225,70 @@ async def profit_loss_report(
     }
 
 
+
 @router.get("/dashboard/kpi")
 async def dashboard_kpi(
     current_user: User = Depends(require_active_subscription()),
     db: Session = Depends(get_db)
 ):
-    total_customers = db.query(Customer).filter(
-        Customer.tenant_id == current_user.tenant_id
-    ).count()
 
-    total_products = db.query(Product).filter(
-        Product.tenant_id == current_user.tenant_id
-    ).count()
+    tenant_id = current_user.tenant_id
 
-    total_orders = db.query(Order).filter(
-        Order.tenant_id == current_user.tenant_id
-    ).count()
+    total_customers = (
+        db.query(Customer)
+        .filter(Customer.tenant_id == tenant_id)
+        .count()
+    )
 
-    completed_orders = db.query(Order).filter(
-        Order.tenant_id == current_user.tenant_id,
-        Order.order_status == "COMPLETED"
-    ).all()
+    total_products = (
+        db.query(Product)
+        .filter(Product.tenant_id == tenant_id)
+        .count()
+    )
 
-    revenue = sum(o.total_amount for o in completed_orders)
+    total_orders = (
+        db.query(Order)
+        .filter(Order.tenant_id == tenant_id)
+        .count()
+    )
 
-    cost = 0
-    for order in completed_orders:
-        items = db.query(OrderItem).filter(
-            OrderItem.order_id == order.id
-        ).all()
+    from src.models.saas_core import Invoice, Payment
 
-        for item in items:
-            product = db.query(Product).filter(
-                Product.id == item.product_id
-            ).first()
+    revenue = (
+        db.query(func.sum(Payment.amount))
+        .filter(
+            Payment.tenant_id == tenant_id,
+            Payment.status == "COMPLETED"
+        )
+        .scalar()
+        or 0
+    )
 
-            if product:
-                cost += product.purchase_price * item.quantity
+    expenses = 0
+
+    inventory_value = 0
+
+    products = (
+        db.query(Product)
+        .filter(Product.tenant_id == tenant_id)
+        .all()
+    )
+
+    for product in products:
+        if product.inventory:
+            inventory_value += (
+                product.purchase_price *
+                product.inventory.quantity
+            )
 
     return {
         "customers": total_customers,
         "products": total_products,
         "orders": total_orders,
         "revenue": revenue,
-        "profit": revenue - cost
+        "expenses": expenses,
+        "profit": revenue - expenses,
+        "inventory_value": inventory_value
     }
 
 
@@ -1328,7 +1373,11 @@ async def export_sales_report_pdf(
 
     orders = db.query(Order).filter(
         Order.tenant_id == current_user.tenant_id,
-        Order.order_status == "COMPLETED"
+        Order.order_status.in_([
+            "CONFIRMED",
+            "PROCESSING",
+            "COMPLETED"
+        ])
     ).all()
 
     styles = getSampleStyleSheet()

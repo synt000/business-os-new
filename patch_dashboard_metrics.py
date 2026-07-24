@@ -1,41 +1,59 @@
 from pathlib import Path
 
-p=Path("src/static/app.js")
-t=p.read_text()
+p = Path("src/static/js/dashboard_api.js")
 
-start=t.find("async function loadDashboard(){")
-end=t.find("}\n\nasync function login", start)
+s = p.read_text()
 
-new="""async function loadDashboard(){
+insert = r'''
 
-    const token = localStorage.getItem("access_token");
+// PREMIUM DASHBOARD METRICS
+const widgets = data.widgets || {};
 
-    const r = await fetch(API + "/dashboard/summary", {
-        headers:{
-            "Authorization":"Bearer " + token
-        }
-    });
+const revenueValue =
+    today.today_revenue ||
+    (widgets.sales && widgets.sales.today_revenue) ||
+    0;
 
-    const d = await r.json();
+const ordersValue =
+    today.today_orders ||
+    (widgets.sales && widgets.sales.today_orders) ||
+    0;
 
-    console.log("DASHBOARD DATA", d);
+const customerValue =
+    today.new_customers ||
+    (widgets.customer && widgets.customer.total_customers) ||
+    0;
 
-    const cards = document.querySelectorAll(".text-xl.font-bold.text-white");
+const productValue =
+    (widgets.inventory && widgets.inventory.total_products) ||
+    0;
 
-    if(cards.length >= 3){
 
-        cards[0].innerText = "$" + d.total_revenue_usd;
-        cards[1].innerText = d.active_tenants;
-        cards[2].innerText = d.operational_nodes_health;
-
-    }
-
+if(document.getElementById("revenue")){
+    document.getElementById("revenue").innerText =
+    Number(revenueValue).toLocaleString()+" MMK";
 }
-"""
 
-if start != -1 and end != -1:
-    t=t[:start]+new+t[end+2:]
-    p.write_text(t)
-    print("dashboard binding patched")
-else:
-    print("target not found")
+if(document.getElementById("orders")){
+    document.getElementById("orders").innerText =
+    ordersValue;
+}
+
+if(document.getElementById("customers")){
+    document.getElementById("customers").innerText =
+    customerValue;
+}
+
+if(document.getElementById("products")){
+    document.getElementById("products").innerText =
+    productValue;
+}
+
+'''
+
+if "PREMIUM DASHBOARD METRICS" not in s:
+    s += insert
+
+p.write_text(s)
+
+print("premium metrics patched")

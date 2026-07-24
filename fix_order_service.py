@@ -1,21 +1,14 @@
 from pathlib import Path
 
 p = Path("src/domains/order/services/order_service.py")
-text = p.read_text()
 
-old = """)
-    ).first()"""
+s = p.read_text()
 
-# remove broken empty chain pattern
-text = text.replace(
-"""    product = (
-    ).first()""",
-"""    product = (
-        db.query(Product)
-        .filter(Product.id == item.product_id)
-        .first()
-    )"""
+s = s.replace(
+    ".filter(Product.id == product_id)",
+    ".filter(Product.id == str(product_id))"
 )
 
-p.write_text(text)
-print("order_service fixed check ✅")
+p.write_text(s)
+
+print("ORDER SERVICE UUID FIX DONE")

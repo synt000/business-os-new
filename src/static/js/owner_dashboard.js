@@ -185,6 +185,94 @@ async function loadAdminPermissionPanel(){
 
 
 
+async function loadFeedbackCenter(){
+
+    const box =
+        document.getElementById("feedbackList");
+
+    if(!box){
+        return;
+    }
+
+
+    const token =
+        localStorage.getItem("access_token") ||
+        localStorage.getItem("token");
+
+
+    try{
+
+        const res = await fetch(
+            "/admin/feedbacks",
+            {
+                headers:{
+                    "Authorization":
+                    "Bearer " + token
+                }
+            }
+        );
+
+
+        const data = await res.json();
+
+
+        if(!Array.isArray(data) || data.length === 0){
+
+            box.innerHTML =
+            "No feedback found";
+
+            return;
+        }
+
+
+        box.innerHTML =
+        data.map(f=>`
+
+        <div class="feedback-card">
+
+            <h3>
+            ${f.type.toUpperCase()}
+            </h3>
+
+            <b>
+            ${f.subject}
+            </b>
+
+            <p>
+            ${f.message}
+            </p>
+
+            <small>
+            Status: ${f.status}
+            </small>
+
+            <br>
+
+            <small>
+            ${f.created_at}
+            </small>
+
+        </div>
+
+        `).join("");
+
+
+    }
+    catch(e){
+
+        console.error(
+            "FEEDBACK LOAD ERROR",
+            e
+        );
+
+        box.innerHTML =
+        "Feedback Service Error";
+
+    }
+
+}
+
+
 
 document.addEventListener(
     "DOMContentLoaded",
@@ -193,6 +281,8 @@ document.addEventListener(
         loadOwnerDashboard();
 
         loadAdminPermissionPanel();
+
+        loadFeedbackCenter();
 
     }
 );
