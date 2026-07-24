@@ -1683,19 +1683,267 @@ cursor:pointer;
     font-size:16px;
 }
 
-.ai-btn{
-    margin-top:12px;
-    margin-right:8px;
-    padding:8px 14px;
-    border-radius:10px;
-    border:none;
-    color:white;
-    background:#2563eb;
-    cursor:pointer;
+
+
+
+.widget-chart{
+
+background:#111827;
+
+padding:16px;
+
+border-radius:16px;
+
+margin-top:16px;
+
+overflow:hidden;
+
+width:100%;
+
+box-sizing:border-box;
+
 }
 
-.ai-btn:last-child{
-    background:#dc2626;
+
+.widget-chart h3{
+
+font-size:16px;
+
+font-weight:700;
+
+color:#f8fafc;
+
+margin-bottom:16px;
+
+}
+
+
+.widget-chart canvas{
+
+width:100% !important;
+
+height:280px !important;
+
+display:block;
+
+}
+
+
+.widget-chart h3{
+    color:#f8fafc;
+    font-size:16px;
+    font-weight:700;
+    margin-bottom:16px;
+}
+
+.widget-chart canvas{
+    width:100% !important;
+    max-height:320px;
+}
+
+
+.ai-btn{
+
+width:100%;
+
+padding:14px 18px;
+
+margin:8px 0;
+
+border:none;
+
+border-radius:16px;
+
+background:linear-gradient(
+135deg,
+#2563eb,
+#1d4ed8
+);
+
+color:white;
+
+font-weight:700;
+
+font-size:15px;
+
+cursor:pointer;
+
+transition:
+transform .12s ease,
+box-shadow .12s ease,
+opacity .12s ease;
+
+box-shadow:
+0 8px 18px rgba(37,99,235,.35);
+
+-webkit-tap-highlight-color:transparent;
+
+}
+
+
+.ai-btn:active{
+
+transform:scale(.94);
+
+opacity:.75;
+
+box-shadow:
+0 2px 8px rgba(0,0,0,.3);
+
+}
+
+
+.ai-btn:hover{
+
+transform:translateY(-2px);
+
+opacity:.95;
+
+}
+
+
+
+
+/* ===============================
+   PREMIUM CARD TOUCH EFFECT
+================================ */
+
+.stat-card,
+.ai-action-box,
+.ai-card,
+.analytics-card,
+.quick-card{
+
+transition:
+transform .15s ease,
+box-shadow .15s ease,
+border .15s ease;
+
+-webkit-tap-highlight-color:transparent;
+
+}
+
+
+.stat-card:active,
+.ai-action-box:active,
+.ai-card:active,
+.analytics-card:active,
+.quick-card:active{
+
+transform:scale(.97);
+
+box-shadow:
+0 4px 15px rgba(0,0,0,.25);
+
+}
+
+
+/* Glass Effect */
+
+.stat-card,
+.ai-action-box,
+.ai-card{
+
+backdrop-filter:blur(12px);
+
+-webkit-backdrop-filter:blur(12px);
+
+}
+
+
+
+
+/* ===============================
+ BUSINESS OS DESIGN SYSTEM v1
+ =============================== */
+
+:root{
+
+--font-main:'Inter',sans-serif;
+
+--bg:#0b1220;
+
+--card:#111827;
+
+--text:#f8fafc;
+
+--muted:#A3AED0;
+
+--primary:#2563eb;
+
+--success:#4ADE80;
+
+--radius:16px;
+
+--gap:16px;
+
+}
+
+
+body{
+
+font-family:var(--font-main)!important;
+
+}
+
+
+.card,
+.stat-card,
+.ai-action-box,
+.analytics-card,
+.quick-card{
+
+border-radius:var(--radius)!important;
+
+padding:16px!important;
+
+margin-bottom:16px!important;
+
+}
+
+
+h1,h2,h3{
+
+font-family:var(--font-main)!important;
+
+font-weight:700;
+
+}
+
+
+.metric-value{
+
+font-size:24px!important;
+
+font-weight:700;
+
+}
+
+
+.metric-label{
+
+font-size:12px!important;
+
+color:var(--muted)!important;
+
+}
+
+
+.small-text{
+
+font-size:12px;
+
+color:var(--muted);
+
+}
+
+
+.success-text{
+
+color:var(--success)!important;
+
+font-weight:700;
+
 }
 
 
@@ -1727,7 +1975,40 @@ async function apiFetch(url, options={}){
 }
 
 </script>
-\n</head>
+\n
+
+<style>
+
+*{
+font-family:'Inter',sans-serif !important;
+}
+
+body{
+font-family:'Inter',sans-serif;
+}
+
+h1,h2,h3,h4,h5,h6{
+font-weight:700;
+letter-spacing:-0.02em;
+}
+
+p,span,div{
+font-weight:400;
+}
+
+.metric-value{
+font-size:24px;
+font-weight:800;
+}
+
+.metric-label{
+font-size:12px;
+color:#A3AED0;
+}
+
+</style>
+
+</head>
 
 
 <body>
@@ -2147,6 +2428,30 @@ Loading AI Purchases...
 <div class="section-header">
 
 <h2 class="section-title">
+
+
+<div class="ai-action-box">
+
+<div style="font-weight:700;margin-bottom:10px;">
+🧠 Growth Actions
+</div>
+
+<button id="growth_plan_btn" class="ai-btn">
+🚀 Generate Growth Plan
+</button>
+
+<div id="growth_plan_content"></div>
+
+
+<button id="smart_restock_btn" class="ai-btn">
+📦 Smart Restock
+</button>
+
+<button id="ceo_report_btn" class="ai-btn">
+📊 CEO Report
+</button>
+
+</div>
 
 Quick Actions
 
@@ -2670,5 +2975,148 @@ Close
 <script src="/static/js/dashboard_api.js?v=7.3"></script>
 
 <script src="/static/app.js?v=5"></script>
+
+
+<!-- SMART RESTOCK MODAL -->
+
+<div id="restock_modal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.65);
+z-index:9999;
+">
+
+<div style="
+background:#111827;
+color:white;
+margin:12% auto;
+padding:25px;
+width:85%;
+border-radius:20px;
+">
+
+<h3>📦 Smart Restock AI</h3>
+
+<hr>
+
+<div id="restock_content">
+Loading...
+</div>
+
+<br>
+
+<button onclick="closeRestockModal()"
+style="
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+background:#ef4444;
+color:white;
+">
+Close
+</button>
+
+</div>
+</div>
+
+
+<!-- CEO REPORT MODAL -->
+
+<div id="ceo_modal"
+style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.65);
+z-index:9999;
+">
+
+<div style="
+background:#111827;
+color:white;
+margin:12% auto;
+padding:25px;
+width:85%;
+border-radius:20px;
+">
+
+<h3>📊 AI CEO Daily Report</h3>
+
+<hr>
+
+<div id="ceo_content">
+Loading...
+</div>
+
+<br>
+
+<button onclick="closeCEOReport()"
+style="
+width:100%;
+padding:12px;
+border:none;
+border-radius:12px;
+background:#ef4444;
+color:white;
+">
+Close
+</button>
+
+</div>
+</div>
+
 </body>
 </html>
+
+<style>
+
+.card,
+.stat-card,
+.ai-card,
+.dashboard-card,
+.ai-action-box{
+
+border-radius:16px !important;
+
+padding:16px !important;
+
+}
+
+</style>
+
+
+<style>
+
+button,
+.ai-btn{
+
+cursor:pointer;
+
+-webkit-tap-highlight-color:transparent;
+
+transition:
+transform .15s ease,
+box-shadow .15s ease;
+
+}
+
+
+button:active,
+.ai-btn:active{
+
+transform:scale(.97);
+
+}
+
+
+</style>
+

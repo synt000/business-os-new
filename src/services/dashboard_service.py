@@ -2,6 +2,9 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 
 from src.models.saas_core import (
+    Invoice,
+    Payment,
+    Receivable,
     Order,
     Customer,
     Supplier,
@@ -60,6 +63,58 @@ class DashboardService:
             or 0
         )
 
+        expense = (
+            db.query(func.sum(AccountLedger.amount))
+            .filter(
+                AccountLedger.tenant_id == tenant_id,
+                AccountLedger.entry_type == "DEBIT",
+                AccountLedger.account_head.in_([
+                    "PURCHASE_EXPENSE",
+                    "OPERATING_EXPENSE",
+                    "EXPENSE"
+                ])
+            )
+            .scalar()
+            or 0
+        )
+
+        profit = revenue - expense
+
+
+        invoices_total = (
+            db.query(Invoice)
+            .filter(Invoice.tenant_id == tenant_id)
+            .count()
+        )
+
+        invoices_paid = (
+            db.query(Invoice)
+            .filter(
+                Invoice.tenant_id == tenant_id,
+                Invoice.status == "PAID"
+            )
+            .count()
+        )
+
+        invoices_unpaid = invoices_total - invoices_paid
+
+
+        payments_total = (
+            db.query(func.sum(Payment.amount))
+            .filter(Payment.tenant_id == tenant_id)
+            .scalar()
+            or 0
+        )
+
+
+        receivable_balance = (
+            db.query(func.sum(Receivable.balance_amount))
+            .filter(Receivable.tenant_id == tenant_id)
+            .scalar()
+            or 0
+        )
+
+
         alerts = (
             db.query(CustomerCreditAlert)
             .filter(CustomerCreditAlert.tenant_id == tenant_id)
@@ -83,7 +138,18 @@ class DashboardService:
             "customers": customers,
             "suppliers": suppliers,
             "revenue": revenue or 0,
+            "expense": expense or 0,
+            "profit": (revenue - expense) or 0,
+            "expense": expense or 0,
+            "profit": profit or 0,
             "credit_alerts": alerts,
+
+            # Finance KPI
+            "total_invoice": invoices_total,
+            "paid_invoice": invoices_paid,
+            "unpaid_invoice": invoices_unpaid,
+            "total_payment": payments_total,
+            "receivable_balance": receivable_balance,
 
             # Dashboard frontend compatibility
             "total_products": products,

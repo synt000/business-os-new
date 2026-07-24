@@ -12,7 +12,7 @@ from src.models.saas_core import (
     Invoice,
 )
 
-from src.domains.order.models import Order
+from src.domains.order.models import Order, OrderItem
 
 
 from src.domains.purchase.models import (
@@ -517,134 +517,69 @@ def get_financial_kpi_summary(
     }
 
 
+
 def get_finance_insight(
     db: Session,
     tenant_id: str
 ):
     """
     AI Finance Insight Engine
+    Synced with Dashboard Summary
     """
 
+    from src.services.dashboard_service import DashboardService
 
-
-    # Revenue
-    # Priority 1: Completed Payments
-    revenue = (
-        db.query(
-            func.coalesce(
-                func.sum(Payment.amount),
-                0
-            )
-        )
-        .filter(
-            Payment.tenant_id == tenant_id,
-            Payment.status == "COMPLETED"
-        )
-        .scalar()
+    summary = DashboardService.get_summary(
+        db,
+        tenant_id
     )
 
+    revenue = float(summary.get("revenue", 0) or 0)
+    expense = float(summary.get("expense", 0) or 0)
+    profit = float(summary.get("profit", 0) or 0)
 
-    # Priority 2: Order Sales fallback
-    if revenue == 0:
-        revenue = (
-            db.query(
-                func.coalesce(
-                    func.sum(Order.total_amount),
-                    0
-                )
-            )
-            .filter(
-                Order.tenant_id == tenant_id
-            )
-            .scalar()
-        )
-
-
-    # Supplier Payable
-    supplier_payable = (
-        db.query(
-            func.coalesce(
-                func.sum(SupplierPayable.balance_amount),
-                0
-            )
-        )
-        .filter(
-            SupplierPayable.tenant_id == tenant_id
-        )
-        .scalar()
-    )
-
-
-    # Invoice Receivable
-    customer_receivable = (
-        db.query(
-            func.coalesce(
-                func.sum(Invoice.amount),
-                0
-            )
-        )
-        .filter(
-            Invoice.tenant_id == tenant_id
-        )
-        .scalar()
-    )
-
-
-    # Cash Ledger
-    cash_balance = (
-        db.query(
-            func.coalesce(
-                func.sum(AccountLedger.amount),
-                0
-            )
-        )
-        .filter(
-            AccountLedger.tenant_id == tenant_id,
-            AccountLedger.account_head == "CASH_ASSET"
-        )
-        .scalar()
-    )
-
-
-    purchase_cost = (
-        db.query(
-            func.coalesce(
-                func.sum(AccountLedger.amount),
-                0
-            )
-        )
-        .filter(
-            AccountLedger.tenant_id == tenant_id,
-            AccountLedger.account_head == "INVENTORY_ASSET"
-        )
-        .scalar()
-    )
-
-
-    profit = revenue - purchase_cost
-
-
-    health = 50
-
-    if profit > 0:
-        health += 30
-
-    if cash_balance > supplier_payable:
-        health += 20
-
+    if revenue > 0:
+        health = round((profit / revenue) * 100)
+    else:
+        health = 0
 
     if health > 100:
         health = 100
 
-
     return {
-        "cash_balance": float(cash_balance),
-        "supplier_payable": float(supplier_payable),
-        "customer_receivable": float(customer_receivable),
-        "revenue": float(revenue),
-        "purchase_cost": float(purchase_cost),
-        "estimated_profit": float(profit),
-        "finance_health": health
+        "cash_balance": float(
+            summary.get("total_payment",0) or 0
+        ),
+        "supplier_payable": 0,
+        "customer_receivable": float(
+            summary.get("receivable_balance",0) or 0
+        ),
+        "revenue": revenue,
+        "purchase_cost": expense,
+        "estimated_profit": profit,
+        "finance_health": health,
+
+        # AI FINANCE V2
+        "margin": round(
+            (profit / revenue * 100)
+            if revenue > 0 else 0,
+            2
+        ),
+
+        "status":
+            "Healthy"
+            if profit > 0
+            else "Warning",
+
+        "risk":
+            "No expense data detected"
+            if expense == 0
+            else "Expense monitoring required",
+
+        "ai_action":
+            "Increase marketing to grow sales."
+            if profit > 0
+            else "Reduce expenses immediately."
     }
 
 
@@ -1040,6 +975,810 @@ def get_owner_renewal_summary(db: Session):
         "active_subscriptions": active,
 
         "renewal_rate": renewal_rate
+
+    }
+
+
+
+# ======================================
+# AI DECISION ENGINE v8
+# ======================================
+
+
+def get_ai_decision_engine(
+    db: Session,
+    tenant_id: str
+):
+
+    finance = get_finance_insight(
+        db,
+        tenant_id
+    )
+
+    revenue = finance.get("revenue", 0)
+    profit = finance.get("estimated_profit", 0)
+    expense = finance.get("purchase_cost", 0)
+
+    orders = (
+        db.query(Order)
+        .filter(Order.tenant_id == tenant_id)
+        .count()
+    )
+
+    low_stock = (
+        db.query(Product)
+        .join(Inventory)
+        .filter(
+            Product.tenant_id == tenant_id,
+            Inventory.quantity <= Product.reorder_level
+        )
+        .count()
+    )
+
+    score = 50
+    reasons = []
+    actions = []
+
+    if revenue > 0:
+        score += 15
+        reasons.append("✅ Revenue activity detected")
+    else:
+        reasons.append("⚠️ No revenue activity")
+
+    if profit > 0:
+        score += 15
+        reasons.append("✅ Business is profitable")
+    else:
+        reasons.append("⚠️ Profit needs improvement")
+
+    if low_stock == 0:
+        score += 10
+        reasons.append("✅ Inventory healthy")
+    else:
+        actions.append("📦 Restock fast moving products")
+
+    if orders > 0:
+        actions.append("👥 Improve customer retention")
+
+    if revenue > expense:
+        actions.append("🚀 Increase marketing budget")
+
+    if score >= 80:
+        status = "EXPANSION READY"
+        decision = "🚀 Scale business and increase customer acquisition."
+    elif score >= 60:
+        status = "GROWING"
+        decision = "📈 Continue growth strategy and optimize operations."
+    else:
+        status = "NEEDS ATTENTION"
+        decision = "⚠️ Review sales, cost and inventory."
+
+    return {
+        "business_score": score,
+        "status": status,
+        "reasons": reasons,
+        "recommended_actions": actions,
+        "ceo_decision": decision
+    }
+
+
+# ======================================
+# AI GROWTH PLAN ENGINE v1
+# ======================================
+
+def get_ai_growth_plan(
+    db: Session,
+    tenant_id: str
+):
+
+    total_sales = (
+        db.query(func.coalesce(func.sum(Order.total_amount), 0))
+        .filter(
+            Order.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+    total_orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == tenant_id
+        )
+        .count()
+    )
+
+    if total_sales > 0:
+
+        status = "GROWTH"
+
+        summary = (
+            f"Business generated {total_sales:.0f} MMK "
+            f"from {total_orders} orders. "
+            "Focus on expansion."
+        )
+
+    else:
+
+        status = "START"
+
+        summary = (
+            "No sales activity detected. "
+            "Focus on customer acquisition."
+        )
+
+
+    return {
+
+        "status": status,
+
+        "summary": summary,
+
+        "weekly_plan":[
+
+            {
+                "week":"Week 1",
+                "action":"🚀 Promote best selling products"
+            },
+
+            {
+                "week":"Week 2",
+                "action":"👥 Improve customer retention"
+            },
+
+            {
+                "week":"Week 3",
+                "action":"📦 Optimize inventory level"
+            },
+
+            {
+                "week":"Week 4",
+                "action":"📊 Review profit and scale strategy"
+            }
+
+        ]
+
+    }
+
+
+# ======================================
+# SMART RESTOCK AI ENGINE v1
+# ======================================
+
+def get_smart_restock(
+    db: Session,
+    tenant_id: str
+):
+
+    low_stock_items = (
+        db.query(Inventory)
+        .join(Product)
+        .filter(
+            Inventory.tenant_id == tenant_id,
+            Inventory.quantity <= Inventory.low_stock_threshold
+        )
+        .all()
+    )
+
+
+    recommendations = []
+
+
+    for item in low_stock_items:
+
+        recommendations.append({
+
+            "product":
+            item.product.name,
+
+            "current_stock":
+            item.quantity,
+
+            "threshold":
+            item.low_stock_threshold,
+
+            "recommended_purchase":
+            "Increase stock",
+
+            "reason":
+            "Stock below safety level"
+
+        })
+
+
+    if recommendations:
+
+        health = "⚠️ Low stock items detected."
+
+        message = (
+            "Monitor low stock products "
+            "and replenish inventory."
+        )
+
+    else:
+
+        health = "✅ Stock level appears stable."
+
+        message = (
+            "Inventory is healthy. "
+            "No urgent restock needed."
+        )
+
+
+    return {
+
+        "status":
+        "ANALYZED",
+
+        "inventory_health":
+        health,
+
+        "recommendations":
+        recommendations,
+
+        "ai_message":
+        message
+
+    }
+
+
+# ======================================
+# AI CEO REPORT ENGINE v1
+# ======================================
+
+
+def get_ceo_report(
+    db: Session,
+    tenant_id: str
+):
+
+    revenue = (
+        db.query(
+            func.coalesce(
+                func.sum(Order.total_amount),
+                0
+            )
+        )
+        .filter(
+            Order.tenant_id == tenant_id
+        )
+        .scalar()
+    )
+
+
+    orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == tenant_id
+        )
+        .count()
+    )
+
+
+    products = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == tenant_id
+        )
+        .count()
+    )
+
+
+    customers = (
+        db.query(Customer)
+        .filter(
+            Customer.tenant_id == tenant_id
+        )
+        .count()
+    )
+
+
+    low_stock_items = (
+        db.query(Product)
+        .join(Inventory)
+        .filter(
+            Product.tenant_id == tenant_id,
+            Inventory.quantity <= Product.reorder_level
+        )
+        .all()
+    )
+
+
+    low_stock_count = len(low_stock_items)
+
+
+    estimated_profit = revenue * 0.3
+
+
+    if revenue > 0 and orders > 0:
+        score = 90
+        status = "EXPANSION READY"
+    elif revenue > 0:
+        score = 70
+        status = "STABLE"
+    else:
+        score = 40
+        status = "NEEDS SALES"
+
+
+    if low_stock_count > 0:
+
+        warning = (
+            f"⚠️ {low_stock_count} products need restock."
+        )
+
+    else:
+
+        warning = (
+            "✅ Inventory risk is low."
+        )
+
+
+    if revenue > 0:
+
+        recommendation = [
+            "🚀 Increase marketing budget",
+            "👥 Improve customer retention",
+            "📦 Keep fast moving products available"
+        ]
+
+    else:
+
+        recommendation = [
+            "📢 Start promotion campaign",
+            "🎯 Acquire first customers"
+        ]
+
+
+    return {
+
+        "title":
+        "AI CEO Daily Report v3",
+
+
+        "greeting":
+        "👋 Good Morning Owner",
+
+
+        "business_health":
+        {
+            "score": score,
+            "status": status
+        },
+
+
+        "kpi":
+        {
+            "revenue": revenue,
+            "orders": orders,
+            "products": products,
+            "customers": customers,
+            "estimated_profit": round(
+                estimated_profit,
+                2
+            )
+        },
+
+
+        "inventory_ai":
+        {
+            "low_stock_count": low_stock_count,
+            "warning": warning
+        },
+
+
+        "ai_strategy":
+        recommendation,
+
+
+        "ceo_decision":
+        "🚀 Scale business and optimize growth."
+    }
+
+
+# ======================================
+# AI SALES FORECAST ENGINE v1
+# ======================================
+
+def get_sales_forecast(
+    db: Session,
+    tenant_id: str
+):
+
+    from datetime import datetime, timedelta
+
+
+    thirty_days_ago = (
+        datetime.utcnow()
+        -
+        timedelta(days=30)
+    )
+
+
+    total_revenue = (
+        db.query(
+            func.coalesce(
+                func.sum(Order.total_amount),
+                0
+            )
+        )
+        .filter(
+            Order.tenant_id == tenant_id,
+            Order.created_at >= thirty_days_ago
+        )
+        .scalar()
+    )
+
+
+    total_orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == tenant_id,
+            Order.created_at >= thirty_days_ago
+        )
+        .count()
+    )
+
+
+    if total_orders > 0:
+
+        avg_order = (
+            total_revenue / total_orders
+        )
+
+        forecast = (
+            total_revenue * 1.15
+        )
+
+        trend = "🟢 Growing"
+
+        advice = (
+            "🚀 Sales trend is positive. "
+            "Increase marketing and stock availability."
+        )
+
+    else:
+
+        avg_order = 0
+        forecast = 0
+
+        trend = "⚠️ No sales data"
+
+        advice = (
+            "📊 Need more customer activity."
+        )
+
+
+    return {
+
+        "period":
+        "Last 30 Days",
+
+        "revenue":
+        total_revenue,
+
+        "orders":
+        total_orders,
+
+        "average_order_value":
+        round(avg_order,2),
+
+        "next_period_forecast":
+        round(forecast,2),
+
+        "trend":
+        trend,
+
+        "ai_advice":
+        advice
+
+    }
+
+
+
+# ======================================
+# AI TOP PRODUCT INTELLIGENCE ENGINE v1
+# ======================================
+
+def get_top_product_intelligence(
+    db: Session,
+    tenant_id: str
+):
+
+    from sqlalchemy import func
+
+    top_product = (
+        db.query(
+            Product.name,
+            func.sum(OrderItem.quantity).label("sold_qty"),
+            func.sum(
+                OrderItem.quantity * OrderItem.price_at_sale
+            ).label("revenue")
+        )
+        .join(
+            OrderItem,
+            OrderItem.product_id == Product.id
+        )
+        .join(
+            Order,
+            Order.id == OrderItem.order_id
+        )
+        .filter(
+            Product.tenant_id == tenant_id
+        )
+        .group_by(
+            Product.id
+        )
+        .order_by(
+            func.sum(OrderItem.quantity).desc()
+        )
+        .first()
+    )
+
+
+    if not top_product:
+
+        return {
+            "status":"NO_DATA",
+            "message":"No sales data available."
+        }
+
+
+    revenue = float(top_product.revenue or 0)
+
+
+    return {
+
+        "status":"ANALYZED",
+
+        "top_product":{
+            "name":top_product.name,
+            "units_sold":top_product.sold_qty,
+            "revenue":revenue
+        },
+
+
+        "ai_analysis":{
+
+            "performance":
+            "🔥 Best selling product detected.",
+
+            "recommendation":
+            "Increase stock and promote this product.",
+
+            "growth_action":[
+
+                "🚀 Increase marketing",
+                "📦 Maintain inventory",
+                "👥 Create customer retention campaign"
+
+            ]
+
+        }
+
+    }
+
+
+
+# ======================================
+# AI CUSTOMER INTELLIGENCE ENGINE v1
+# ======================================
+
+
+def get_customer_intelligence(
+    db: Session,
+    tenant_id: str
+):
+
+    from datetime import datetime, timedelta
+    from src.models.saas_core import Customer
+    from src.domains.order.models import Order
+
+
+    total_customers = (
+        db.query(Customer)
+        .filter(
+            Customer.tenant_id == tenant_id
+        )
+        .count()
+    )
+
+
+    total_orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == tenant_id
+        )
+        .count()
+    )
+
+
+    recent_date = (
+        datetime.utcnow()
+        - timedelta(days=30)
+    )
+
+
+    recent_orders = (
+        db.query(Order)
+        .filter(
+            Order.tenant_id == tenant_id,
+            Order.created_at >= recent_date
+        )
+        .count()
+    )
+
+
+    inactive_customers = max(
+        0,
+        total_customers - recent_orders
+    )
+
+
+    retention_score = 0
+
+    if total_customers > 0:
+        retention_score = min(
+            100,
+            int(
+                (total_orders / total_customers) * 30
+            )
+        )
+
+
+    if retention_score >= 70:
+        health = "🟢 HEALTHY"
+    elif retention_score >= 40:
+        health = "🟡 NEED ATTENTION"
+    else:
+        health = "🔴 AT RISK"
+
+
+    return {
+
+        "status":
+        "ANALYZED",
+
+        "customer_health":
+        health,
+
+        "metrics":
+        {
+            "total_customers": total_customers,
+            "total_orders": total_orders,
+            "recent_orders_30_days": recent_orders,
+            "inactive_customers": inactive_customers
+        },
+
+        "retention_score":
+        {
+            "score": retention_score,
+            "status": health
+        },
+
+        "ai_insight":
+        [
+            "👥 Improve customer retention",
+            "🎁 Create loyalty rewards",
+            "📩 Follow up inactive customers",
+            "🚀 Increase repeat purchase rate"
+        ],
+
+        "ai_message":
+        "Customer growth optimization recommended."
+    }
+
+
+
+# ======================================
+# AI EXECUTIVE DASHBOARD ENGINE v1
+# ======================================
+
+def get_ai_dashboard(
+    db: Session,
+    tenant_id: str
+):
+
+    decision = get_ai_decision_engine(
+        db,
+        tenant_id
+    )
+
+    forecast = get_sales_forecast(
+        db,
+        tenant_id
+    )
+
+    top_product = get_top_product_intelligence(
+        db,
+        tenant_id
+    )
+
+    customer = get_customer_intelligence(
+        db,
+        tenant_id
+    )
+
+    ceo = get_ceo_report(
+        db,
+        tenant_id
+    )
+
+
+    return {
+
+        "business_health":
+            {
+                "score":
+                    decision.get(
+                        "business_score",
+                        0
+                    ),
+
+                "status":
+                    decision.get(
+                        "status",
+                        "UNKNOWN"
+                    )
+            },
+
+
+        "revenue":
+            {
+                "current":
+                    forecast.get(
+                        "revenue",
+                        0
+                    ),
+
+                "forecast":
+                    forecast.get(
+                        "next_period_forecast",
+                        0
+                    ),
+
+                "trend":
+                    forecast.get(
+                        "trend",
+                        "UNKNOWN"
+                    )
+            },
+
+
+        "top_product":
+            top_product.get(
+                "top_product",
+                {}
+            ),
+
+
+        "customer":
+            {
+                "metrics":
+                    customer.get(
+                        "metrics",
+                        {}
+                    ),
+
+                "retention":
+                    customer.get(
+                        "retention_score",
+                        {}
+                    )
+            },
+
+
+        "ceo_action":
+            ceo.get(
+                "ai_strategy",
+                []
+            ),
+
+
+        "final_decision":
+            ceo.get(
+                "ceo_decision",
+                "Analyze business"
+            )
 
     }
 

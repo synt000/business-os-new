@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<title>Payment - Business OS</title>
+<title>Payment Center - Business OS</title>
+
 <style>
 body{
 background:#020617;
@@ -9,22 +11,214 @@ color:white;
 font-family:Arial;
 padding:30px;
 }
-.box{
+
+.card{
 background:#1e293b;
 padding:25px;
 border-radius:18px;
+margin-bottom:20px;
+}
+
+input,select{
+width:100%;
+padding:12px;
+margin:8px 0;
+border-radius:10px;
+border:0;
+}
+
+button{
+background:#2563eb;
+color:white;
+padding:12px 20px;
+border:0;
+border-radius:10px;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+td,th{
+padding:12px;
+border-bottom:1px solid #334155;
+}
+
+.badge{
+background:#16a34a;
+padding:5px 12px;
+border-radius:20px;
 }
 </style>
+
 </head>
+
 
 <body>
 
-<h1>💳 Payment Center</h1>
+<h1>💰 Payment Center</h1>
 
-<div class="box">
-<h2>Payment Records</h2>
-<p>Payment tracking UI.</p>
+
+<div class="card">
+
+<h2>➕ New Payment</h2>
+
+<input id="payment_number" placeholder="Payment Number">
+
+<input id="invoice_id" placeholder="Invoice ID">
+
+<input id="amount" placeholder="Amount">
+
+<select id="method">
+<option>CASH</option>
+<option>KBZPAY</option>
+<option>WAVE</option>
+</select>
+
+<button onclick="createPayment()">
+Save Payment
+</button>
+
 </div>
+
+
+<div class="card">
+
+<h2>Payment History</h2>
+
+
+<table>
+
+<thead>
+<tr>
+<th>No</th>
+<th>Amount</th>
+<th>Method</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="paymentTable">
+
+</tbody>
+
+</table>
+
+</div>
+
+
+<script>
+
+async function createPayment(){
+
+const token = localStorage.getItem("access_token");
+
+
+const body = {
+
+payment_number:
+document.getElementById("payment_number").value,
+
+invoice_id:
+document.getElementById("invoice_id").value,
+
+amount:
+Number(document.getElementById("amount").value),
+
+payment_method:
+document.getElementById("method").value
+
+};
+
+
+const res = await fetch(
+"/payments/",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+token
+},
+body:JSON.stringify(body)
+});
+
+
+if(res.ok){
+
+alert("Payment Saved");
+
+loadPayments();
+
+}else{
+
+alert(await res.text());
+
+}
+
+}
+
+
+
+async function loadPayments(){
+
+const token =
+localStorage.getItem("access_token");
+
+
+const res = await fetch(
+"/payments/list",
+{
+headers:{
+"Authorization":
+"Bearer "+token
+}
+});
+
+
+const data = await res.json();
+
+
+let html="";
+
+
+data.forEach(p=>{
+
+html += `
+
+<tr>
+
+<td>${p.payment_number}</td>
+
+<td>${p.amount}</td>
+
+<td>${p.payment_method}</td>
+
+<td>
+<span class="badge">
+${p.status}
+</span>
+</td>
+
+</tr>
+
+`;
+
+});
+
+
+document.getElementById(
+"paymentTable"
+).innerHTML=html;
+
+
+}
+
+
+loadPayments();
+
+</script>
+
 
 </body>
 </html>

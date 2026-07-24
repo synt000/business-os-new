@@ -15,6 +15,8 @@ from src.domains.order.schemas import (
 )
 
 from src.domains.order.services.order_service import create_order
+from src.domains.invoice.schemas import InvoiceCreate
+from src.domains.invoice.services.invoice_service import create_invoice
 
 router = APIRouter(
     prefix="/api/v4/business/orders",
@@ -67,6 +69,17 @@ async def create_new_order(
             data.customer_id,
             data.customer_name,
             data.customer_phone,
+        )
+
+        invoice_data = InvoiceCreate(
+            order_id=order.id,
+            invoice_number=f"INV-{order.order_number}"
+        )
+
+        create_invoice(
+            db,
+            current_user.tenant_id,
+            invoice_data,
         )
 
         return order

@@ -1,3 +1,4 @@
+from .service import get_ai_decision_engine, get_ai_growth_plan, get_smart_restock, get_sales_forecast, get_ceo_report, get_top_product_intelligence, get_customer_intelligence, get_ai_dashboard
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -245,4 +246,196 @@ def social_summary(
 # ======================================
 # DASHBOARD WIDGETS
 # ======================================
+
+
+
+# ======================================
+# AI DECISION ENGINE API v8
+# ======================================
+
+@router.get("/ai-decision")
+def ai_decision(
+    current_user: User = Depends(require_active_subscription),
+    db: Session = Depends(get_db)
+):
+
+    return {
+        "status": "SUCCESS",
+        "ai_decision": get_ai_decision_engine(
+            db,
+            current_user.tenant_id
+        )
+    }
+
+
+
+# ======================================
+# AI GROWTH PLAN API
+# ======================================
+
+@router.get("/growth-plan")
+def growth_plan(
+
+    current_user: User = Depends(require_active_subscription),
+
+    db: Session = Depends(get_db)
+
+):
+
+    return {
+
+        "status":"SUCCESS",
+
+        "growth_plan":
+        get_ai_growth_plan(
+            db,
+            current_user.tenant_id
+        )
+
+    }
+
+
+
+
+# ======================================
+# SMART RESTOCK API
+# ======================================
+
+@router.get("/smart-restock")
+def smart_restock(
+
+    current_user: User = Depends(require_active_subscription),
+
+    db: Session = Depends(get_db)
+
+):
+
+    return {
+
+        "status":"SUCCESS",
+
+        "smart_restock":
+        get_smart_restock(
+            db,
+            current_user.tenant_id
+        )
+
+    }
+
+
+
+
+# ======================================
+# CEO REPORT API
+# ======================================
+
+@router.get("/ceo-report")
+def ceo_report(
+
+    current_user: User = Depends(require_active_subscription),
+
+    db: Session = Depends(get_db)
+
+):
+
+    return {
+
+        "status":"SUCCESS",
+
+        "ceo_report":
+        get_ceo_report(
+            db,
+            current_user.tenant_id
+        )
+
+    }
+
+
+
+
+# ======================================
+# AI SALES FORECAST API
+# ======================================
+
+@router.get("/sales-forecast")
+def sales_forecast(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+
+    return {
+        "status": "SUCCESS",
+        "sales_forecast": get_sales_forecast(
+            db,
+            current_user.tenant_id
+        )
+    }
+
+
+
+# ======================================
+# AI TOP PRODUCT API
+# ======================================
+
+@router.get("/top-products")
+def top_products(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+
+    return {
+        "status": "SUCCESS",
+        "top_product": get_top_product_intelligence(
+            db,
+            current_user.tenant_id
+        )
+    }
+
+
+# ======================================
+# ======================================
+# AI CUSTOMER INTELLIGENCE API
+# ======================================
+
+@router.get("/customer-intelligence")
+def customer_intelligence(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+
+    return {
+
+        "status":
+        "SUCCESS",
+
+        "customer_intelligence":
+        get_customer_intelligence(
+            db,
+            current_user.tenant_id
+        )
+
+    }
+
+# ======================================
+# AI EXECUTIVE DASHBOARD API
+# ======================================
+
+@router.get("/ai-dashboard")
+def ai_dashboard(
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+):
+
+    return {
+
+        "status":
+        "SUCCESS",
+
+        "executive_dashboard":
+            get_ai_dashboard(
+                db,
+                current_user.tenant_id
+            )
+
+    }
 
