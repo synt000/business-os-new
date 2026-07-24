@@ -1859,7 +1859,7 @@ backdrop-filter:blur(12px);
 
 :root{
 
---font-main:'Inter',sans-serif;
+--font-main:'Inter',Arial,sans-serif;
 
 --bg:#0b1220;
 
@@ -1947,6 +1947,18 @@ font-weight:700;
 }
 
 
+
+
+[data-lucide]{
+    width:20px;
+    height:20px;
+    stroke-width:2;
+    vertical-align:middle;
+    margin-right:8px;
+    display:inline-block;
+}
+
+
 </style>
 
 
@@ -2007,6 +2019,8 @@ color:#A3AED0;
 }
 
 </style>
+
+<script src="https://unpkg.com/lucide@latest"></script>
 
 </head>
 
@@ -2175,7 +2189,7 @@ Track sales, manage inventory and control your entire business from one smart pl
 
 <div class="float-card">
 
-📊
+<i data-lucide="bar-chart-3"></i>
 
 </div>
 
@@ -2226,7 +2240,7 @@ View Report
 
 <div class="stat-icon">
 
-💰
+<i data-lucide="wallet"></i>
 
 </div>
 
@@ -2285,7 +2299,7 @@ Revenue
 
 <div class="stat-icon">
 
-📦
+<i data-lucide="package"></i>
 
 </div>
 
@@ -2320,7 +2334,7 @@ Orders
 
 <div class="stat-icon">
 
-👥
+<i data-lucide="users"></i>
 
 </div>
 
@@ -2355,7 +2369,7 @@ Customers
 
 <div class="stat-icon">
 
-🏬
+<i data-lucide="store"></i>
 
 </div>
 
@@ -2403,7 +2417,7 @@ Stock Ready
 
 <div class="section-header">
 <h2 class="section-title">
-🤖 AI Procurement
+<i data-lucide="bot"></i> AI Procurement
 </h2>
 </div>
 
@@ -2433,7 +2447,7 @@ Loading AI Purchases...
 <div class="ai-action-box">
 
 <div style="font-weight:700;margin-bottom:10px;">
-🧠 Growth Actions
+<i data-lucide="trending-up"></i> Growth Actions
 </div>
 
 <button id="growth_plan_btn" class="ai-btn">
@@ -2444,11 +2458,11 @@ Loading AI Purchases...
 
 
 <button id="smart_restock_btn" class="ai-btn">
-📦 Smart Restock
+<i data-lucide="package-search"></i> Smart Restock
 </button>
 
 <button id="ceo_report_btn" class="ai-btn">
-📊 CEO Report
+<i data-lucide="file-chart-column"></i> CEO Report
 </button>
 
 </div>
@@ -2470,7 +2484,7 @@ Quick Actions
 
 <div class="action-icon">
 
-➕
+<i data-lucide="plus-circle"></i>
 
 </div>
 
@@ -2491,7 +2505,7 @@ Product
 
 <div class="action-icon">
 
-🛒
+<i data-lucide="shopping-cart"></i>
 
 </div>
 
@@ -2512,7 +2526,7 @@ Order
 
 <div class="action-icon">
 
-📦
+<i data-lucide="package"></i>
 
 </div>
 
@@ -2533,7 +2547,7 @@ Stock
 
 <div class="action-icon">
 
-📊
+<i data-lucide="bar-chart-3"></i>
 
 </div>
 
@@ -2641,7 +2655,7 @@ Rate Experience
 
 <section class="dashboard-widget-grid">
 
-<h2>📊 Business Analytics Center</h2>
+<h2><i data-lucide="bar-chart-3"></i> Business Analytics Center</h2>
 
 <div class="widget-grid" id="dynamic-widget-grid">
 
@@ -2650,7 +2664,7 @@ Rate Experience
 
 <div class="widget-chart">
 
-<h3>📈 Revenue Trend</h3>
+<h3><i data-lucide="chart-line"></i> Revenue Trend</h3>
 
 <canvas id="salesChart"></canvas>
 
@@ -2690,7 +2704,7 @@ View All
 
 <div class="activity-icon">
 
-🛒
+<i data-lucide="shopping-cart"></i>
 
 </div>
 
@@ -2733,7 +2747,7 @@ Completed
 
 <div class="activity-icon">
 
-💰
+<i data-lucide="wallet"></i>
 
 </div>
 
@@ -2767,7 +2781,7 @@ Payment Received
 
 <div class="activity-icon">
 
-📦
+<i data-lucide="package"></i>
 
 </div>
 
@@ -2836,7 +2850,7 @@ No recent activity
 <div class="fab-ring"></div>
 
 
-➕
+<i data-lucide="plus-circle"></i>
 
 </div>
 
@@ -2854,7 +2868,7 @@ No recent activity
 
 <span class="nav-icon">
 
-🏠
+<i data-lucide="home"></i>
 
 </span>
 
@@ -2867,7 +2881,7 @@ Home
 
 <span class="nav-icon">
 
-🛒
+<i data-lucide="shopping-cart"></i>
 
 </span>
 
@@ -2880,7 +2894,7 @@ Orders
 
 <span class="nav-icon">
 
-📦
+<i data-lucide="package"></i>
 
 </span>
 
@@ -2893,7 +2907,7 @@ Products
 
 <span class="nav-icon">
 
-📈
+<i data-lucide="chart-line"></i>
 
 </span>
 
@@ -2906,7 +2920,7 @@ Analytics
 
 <span class="nav-icon">
 
-👤
+<i data-lucide="user"></i>
 
 </span>
 
@@ -3000,7 +3014,7 @@ width:85%;
 border-radius:20px;
 ">
 
-<h3>📦 Smart Restock AI</h3>
+<h3><i data-lucide="package-search"></i> Smart Restock AI</h3>
 
 <hr>
 
@@ -3049,7 +3063,7 @@ width:85%;
 border-radius:20px;
 ">
 
-<h3>📊 AI CEO Daily Report</h3>
+<h3><i data-lucide="bar-chart-3"></i> AI CEO Daily Report</h3>
 
 <hr>
 
@@ -3073,6 +3087,13 @@ Close
 
 </div>
 </div>
+
+
+<script>
+if(window.lucide){
+    lucide.createIcons();
+}
+</script>
 
 </body>
 </html>
@@ -3117,6 +3138,54 @@ transform:scale(.97);
 
 }
 
+
+
+
+/* ===============================
+   PREMIUM CARD INTERACTION v1
+   =============================== */
+
+.card,
+.stat-card,
+.ai-card,
+.dashboard-card,
+.ai-action-box{
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;
+
+    border:1px solid rgba(148,163,184,.08);
+}
+
+
+.card:hover,
+.stat-card:hover,
+.ai-card:hover,
+.dashboard-card:hover,
+.ai-action-box:hover{
+
+    transform:translateY(-4px);
+
+    border-color:rgba(37,99,235,.35);
+
+    box-shadow:
+        0 12px 35px rgba(0,0,0,.35),
+        0 0 25px rgba(37,99,235,.12);
+
+}
+
+
+.card:active,
+.stat-card:active,
+.ai-card:active,
+.dashboard-card:active,
+.ai-action-box:active{
+
+    transform:scale(.98);
+
+}
 
 </style>
 
