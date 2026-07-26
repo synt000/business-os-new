@@ -1397,13 +1397,13 @@ def get_sales_forecast(
     total_revenue = (
         db.query(
             func.coalesce(
-                func.sum(Order.total_amount),
+                func.sum(Invoice.amount),
                 0
             )
         )
         .filter(
-            Order.tenant_id == tenant_id,
-            Order.created_at >= thirty_days_ago
+            Invoice.tenant_id == tenant_id,
+            Invoice.status == "PAID"
         )
         .scalar()
     )
@@ -1509,7 +1509,9 @@ def get_top_product_intelligence(
             Product.id
         )
         .order_by(
-            func.sum(OrderItem.quantity).desc()
+            func.sum(
+                OrderItem.quantity * OrderItem.price_at_sale
+            ).desc()
         )
         .first()
     )
@@ -1725,9 +1727,13 @@ def get_ai_dashboard(
         "revenue":
             {
                 "current":
-                    forecast.get(
-                        "revenue",
-                        0
+                    (
+                        db.query(func.sum(Invoice.amount))
+                        .filter(
+                            Invoice.tenant_id == tenant_id
+                        )
+                        .scalar()
+                        or 0
                     ),
 
                 "forecast":
@@ -1748,6 +1754,12 @@ def get_ai_dashboard(
             top_product.get(
                 "top_product",
                 {}
+            ),
+
+        "fast_moving_product":
+            get_fast_moving_product(
+                db,
+                tenant_id
             ),
 
 
@@ -1782,3 +1794,41 @@ def get_ai_dashboard(
 
     }
 
+
+
+def get_fast_moving_product(
+    db: Session,
+    tenant_id: str
+):
+    product = (
+        db.query(
+            Product.name,
+            func.sum(OrderItem.quantity).label("qty")
+        )
+        .join(
+            OrderItem,
+            OrderItem.product_id == Product.id
+        )
+        .join(
+            Order,
+            Order.id == OrderItem.order_id
+        )
+        .filter(
+            Product.tenant_id == tenant_id
+        )
+        .group_by(
+            Product.id
+        )
+        .order_by(
+            func.sum(OrderItem.quantity).desc()
+        )
+        .first()
+    )
+
+    if not product:
+        return {}
+
+    return {
+        "name": product.name,
+        "units_sold": product.qty
+    }

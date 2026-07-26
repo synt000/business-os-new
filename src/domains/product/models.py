@@ -2,7 +2,8 @@ from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import relationship, mapped_column
 
 from src.database import TenantModel
-from src.domains.category.models import Category
+
+from src.domains.accounting.models import ProcurementLedger
 
 
 class Product(TenantModel):
@@ -53,9 +54,12 @@ class Product(TenantModel):
     )
 
     category = relationship(
-        Category,
+        "Category",
         back_populates="products"
     )
+
+    # inventory relationship disabled temporarily
+
 
     inventory = relationship(
         "Inventory",
@@ -66,8 +70,5 @@ class Product(TenantModel):
     # order_items relationship removed
     # Order domain owns OrderItem relationship
 
-    procurements = relationship(
-        "ProcurementLedger",
-        back_populates="product"
-    )
+    # procurements relationship disabled temporarily
 # tenant relationship disabled (registry fix)

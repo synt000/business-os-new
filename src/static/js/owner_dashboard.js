@@ -214,6 +214,7 @@ async function loadFeedbackCenter(){
 
 
         const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
 
 
         if(!Array.isArray(data) || data.length === 0){
@@ -279,6 +280,7 @@ document.addEventListener(
     ()=>{
 
         loadOwnerDashboard();
+        loadOwnerCashflow();
 
         loadAdminPermissionPanel();
 
@@ -690,6 +692,7 @@ async function loadAIInsights(){
 
 
         const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
 
 
         if(!Array.isArray(data)){
@@ -777,6 +780,7 @@ async function loadAIRecommendations(){
 
 
         const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
 
 
         if(!Array.isArray(data)){
@@ -1092,6 +1096,7 @@ async function loadAIHistory(){
 
 
         const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
 
 
         if(!Array.isArray(data)){
@@ -1334,6 +1339,7 @@ async function loadAIProcurement(){
 
 
         const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
 
 
         if(data.status !== "SUCCESS"){
@@ -1525,6 +1531,7 @@ async function generateActivationKey(){
 
 
     const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
 
 
     if(res.ok){
@@ -1732,6 +1739,7 @@ async function revokeActivationKey(key){
 
 
     const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
 
 
     if(res.ok){
@@ -1829,6 +1837,7 @@ async function revokeActivationKey(key){
 
 
     const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
 
 
     if(res.ok){
@@ -1949,4 +1958,67 @@ function renderActivationKeys(keys){
 }
 
 
+
+
+
+async function loadOwnerCashflow(){
+    alert("CASHFLOW RUNNING");
+    console.log('CASHFLOW FUNCTION START');
+
+const token =
+localStorage.getItem("access_token") ||
+localStorage.getItem("token");
+
+if(!token) return;
+
+try{
+
+const res = await fetch(
+"/api/v4/owner/cashflow",
+{
+headers:{
+"Authorization":"Bearer "+token
+}
+}
+);
+
+const data = await res.json();
+        console.log('CASHFLOW DATA:', data);
+
+
+document.getElementById("cash_collected").innerText =
+"Ks "+Number(data.total_collected||0).toLocaleString();
+
+
+document.getElementById("cash_pending").innerText =
+"Ks "+Number(data.pending_receivable||0).toLocaleString();
+
+
+document.getElementById("wave_amount").innerText = "Ks "+Number(data.payment_methods?.WAVE || 0).toLocaleString();
+
+document.getElementById("cash_amount").innerText =
+"Ks "+Number(data.payment_methods?.CASH || 0).toLocaleString();
+
+document.getElementById("bank_amount").innerText =
+"Ks "+Number(data.payment_methods?.BANK || 0).toLocaleString();
+
+document.getElementById("kbz_amount").innerText =
+"Ks "+Number(data.payment_methods?.KBZPAY || 0).toLocaleString();
+
+"$"+Number(data.payment_methods?.WAVE||0).toLocaleString();
+
+
+}catch(e){
+console.log("Cashflow Error",e);
+}
+
+}
+
+
+document.addEventListener(
+ "DOMContentLoaded",
+ ()=>{
+    setTimeout(loadOwnerCashflow,500);
+ }
+);
 

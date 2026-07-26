@@ -102,3 +102,130 @@ h1{
 }
 
 }
+
+
+.menu{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    margin-top:20px;
+}
+
+
+.menu button{
+    padding:12px 18px;
+    border-radius:10px;
+    border:none;
+    cursor:pointer;
+    background:#1f2937;
+    color:white;
+    font-size:15px;
+}
+
+
+.menu button:hover{
+    opacity:0.8;
+}
+
+
+
+
+#dynamicMenu{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:15px;
+}
+
+
+#dynamicMenu button{
+    padding:12px 18px;
+    border-radius:12px;
+    border:1px solid #374151;
+    background:#111827;
+    color:#fff;
+    font-size:15px;
+    cursor:pointer;
+}
+
+
+#dynamicMenu button:hover{
+    background:#2563eb;
+}
+
+
+#logoutBtn{
+    padding:12px 18px;
+    border-radius:12px;
+    margin-top:10px;
+}
+
+
+
+
+.menu-buttons{
+    display:flex;
+    flex-wrap:wrap;
+    gap:12px;
+    margin-bottom:15px;
+}
+
+
+.menu-buttons button{
+    padding:12px 18px;
+    border-radius:12px;
+    border:none;
+    background:#111827;
+    color:white;
+    cursor:pointer;
+}
+
+
+
+
+.menu-buttons{
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap;
+    gap:15px;
+    margin-top:20px;
+}
+
+
+.menu-buttons button{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    padding:12px 20px;
+    min-width:120px;
+    border-radius:12px;
+    background:#111827;
+    color:white;
+    border:1px solid #374151;
+    font-size:16px;
+}
+
+
+
+#dynamicMenu{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    margin-top:20px;
+}
+
+#dynamicMenu button{
+    width:220px;
+    padding:14px;
+    border-radius:12px;
+    border:none;
+    background:#1f2937;
+    color:white;
+    font-size:16px;
+    text-align:left;
+}
+
+#dynamicMenu button:hover{
+    background:#2563eb;
+}
+

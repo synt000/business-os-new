@@ -1,79 +1,123 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-<title>Payment Center - Business OS</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Payment Center</title>
 
 <style>
 body{
-background:#020617;
-color:white;
-font-family:Arial;
-padding:30px;
+    margin:0;
+    background:#020617;
+    color:#fff;
+    font-family:Arial,sans-serif;
 }
-
+.container{
+    width:95%;
+    max-width:1300px;
+    margin:auto;
+    padding:20px;
+}
 .card{
-background:#1e293b;
-padding:25px;
-border-radius:18px;
-margin-bottom:20px;
+    background:#1e293b;
+    border-radius:15px;
+    padding:20px;
+    margin-bottom:20px;
 }
-
+h1,h2{
+    margin-top:0;
+}
 input,select{
-width:100%;
-padding:12px;
-margin:8px 0;
-border-radius:10px;
-border:0;
+    width:100%;
+    padding:12px;
+    margin-top:8px;
+    margin-bottom:15px;
+    border:none;
+    border-radius:8px;
+    background:#334155;
+    color:#fff;
 }
-
 button{
-background:#2563eb;
-color:white;
-padding:12px 20px;
-border:0;
-border-radius:10px;
+    background:#2563eb;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
 }
-
+button:hover{
+    background:#1d4ed8;
+}
+.info{
+    margin:15px 0;
+    padding:15px;
+    background:#0f172a;
+    border-radius:10px;
+}
 table{
-width:100%;
-border-collapse:collapse;
+    width:100%;
+    border-collapse:collapse;
 }
-
-td,th{
-padding:12px;
-border-bottom:1px solid #334155;
+th,td{
+    padding:12px;
+    border-bottom:1px solid #334155;
+    text-align:left;
 }
-
 .badge{
-background:#16a34a;
-padding:5px 12px;
-border-radius:20px;
+    background:#16a34a;
+    padding:5px 10px;
+    border-radius:20px;
 }
 </style>
 
 </head>
 
-
 <body>
 
-<h1>💰 Payment Center</h1>
+<div class="container">
 
+<h1>💰 Payment Center</h1>
 
 <div class="card">
 
 <h2>➕ New Payment</h2>
 
-<input id="payment_number" placeholder="Payment Number">
+<input
+id="payment_number"
+placeholder="Payment Number">
 
-<input id="invoice_id" placeholder="Invoice ID">
+<select
+id="invoice_id"
+onchange="loadInvoiceInfo()">
 
-<input id="amount" placeholder="Amount">
+<option value="">
+Select Invoice
+</option>
+
+</select>
+
+<div class="info">
+
+<div id="invoiceAmount">
+Invoice Amount: 0
+</div>
+
+<div id="invoiceStatus">
+Invoice Status: -
+</div>
+
+</div>
+
+<input
+id="amount"
+placeholder="Payment Amount">
 
 <select id="method">
+
 <option>CASH</option>
 <option>KBZPAY</option>
 <option>WAVE</option>
+
 </select>
 
 <button onclick="createPayment()">
@@ -82,21 +126,27 @@ Save Payment
 
 </div>
 
-
 <div class="card">
 
-<h2>Payment History</h2>
-
+<h2>📜 Payment History</h2>
 
 <table>
 
 <thead>
+
 <tr>
-<th>No</th>
+
+<th>Payment No</th>
+<th>Invoice</th>
+<th>Customer</th>
 <th>Amount</th>
 <th>Method</th>
 <th>Status</th>
+<th>Balance</th>
+<th>Date</th>
+
 </tr>
+
 </thead>
 
 <tbody id="paymentTable">
@@ -107,48 +157,144 @@ Save Payment
 
 </div>
 
-
 <script>
+
+let invoices=[];
+async function loadInvoices(){
+
+    const token = localStorage.getItem("access_token");
+
+    const res = await fetch("/invoices/",{
+        headers:{
+            "Authorization":"Bearer "+token
+        }
+    });
+
+    const data = await res.json();
+
+    invoices = data.invoices || [];
+
+    const select = document.getElementById("invoice_id");
+
+    if(!select){
+        return;
+    }
+
+    select.innerHTML = `
+        <option value="">Select Invoice</option>
+    `;
+
+    invoices.forEach(inv=>{
+
+        select.innerHTML += `
+        <option value="${inv.id}">
+            ${inv.invoice_number} - ${inv.amount}
+        </option>
+        `;
+
+    });
+
+}
+
+async function loadInvoiceInfo(){
+
+const id =
+document.getElementById("invoice_id").value;
+
+if(!id){
+
+document.getElementById(
+"invoiceAmount"
+).innerHTML =
+"Invoice Amount: 0";
+
+document.getElementById(
+"invoiceStatus"
+).innerHTML =
+"Invoice Status: -";
+
+return;
+
+}
+
+const token =
+localStorage.getItem("access_token");
+
+const res =
+await fetch("/invoices/"+id,{
+headers:{
+"Authorization":
+"Bearer "+token
+}
+});
+
+const inv = await res.json();
+
+document.getElementById(
+"invoiceAmount"
+).innerHTML =
+"Invoice Amount: "+inv.amount;
+
+document.getElementById(
+"invoiceStatus"
+).innerHTML =
+"Invoice Status: "+inv.status;
+
+}
 
 async function createPayment(){
 
-const token = localStorage.getItem("access_token");
-
+const token =
+localStorage.getItem("access_token");
 
 const body = {
 
 payment_number:
-document.getElementById("payment_number").value,
+document.getElementById(
+"payment_number"
+).value,
 
 invoice_id:
-document.getElementById("invoice_id").value,
+document.getElementById(
+"invoice_id"
+).value,
 
-amount:
-Number(document.getElementById("amount").value),
+amount:Number(
+document.getElementById(
+"amount"
+).value
+),
 
 payment_method:
-document.getElementById("method").value
+document.getElementById(
+"method"
+).value
 
 };
 
+const res =
+await fetch("/payments/",{
 
-const res = await fetch(
-"/payments/",
-{
 method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization":"Bearer "+token
-},
-body:JSON.stringify(body)
-});
 
+headers:{
+"Authorization":
+"Bearer "+token,
+"Content-Type":
+"application/json"
+},
+
+body:
+JSON.stringify(body)
+
+});
 
 if(res.ok){
 
 alert("Payment Saved");
 
 loadPayments();
+loadInvoices();
 
 }else{
 
@@ -157,68 +303,55 @@ alert(await res.text());
 }
 
 }
-
-
-
 async function loadPayments(){
 
 const token =
 localStorage.getItem("access_token");
 
-
-const res = await fetch(
-"/payments/list",
-{
+const res =
+await fetch("/payments/list",{
 headers:{
-"Authorization":
-"Bearer "+token
+"Authorization":"Bearer "+token
 }
 });
 
-
 const data = await res.json();
 
-
 let html="";
-
 
 data.forEach(p=>{
 
 html += `
-
 <tr>
-
 <td>${p.payment_number}</td>
-
+<td>${p.invoice_number}</td>
+<td>${p.customer_name}</td>
 <td>${p.amount}</td>
-
 <td>${p.payment_method}</td>
-
-<td>
-<span class="badge">
-${p.status}
-</span>
-</td>
-
+<td><span class="badge">${p.status}</span></td>
+<td>${p.remaining_balance}</td>
+<td>${new Date(p.created_at).toLocaleDateString()}</td>
 </tr>
-
 `;
 
 });
 
-
 document.getElementById(
 "paymentTable"
-).innerHTML=html;
-
+).innerHTML = html;
 
 }
 
+window.onload = function(){
+    loadInvoices();
+    loadPayments();
 
+loadInvoices();
 loadPayments();
 
-</script>
+};
 
+</script>
 
 </body>
 </html>

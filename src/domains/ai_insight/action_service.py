@@ -101,13 +101,25 @@ def execute_ai_action(
 
     if action_id == "CREATE_PURCHASE_ORDER":
 
-        product = (
+        products = (
             db.query(Product)
             .filter(
                 Product.tenant_id == tenant_id
             )
-            .first()
+            .all()
         )
+
+        product = None
+
+        for pdt in products:
+            stock = 0
+
+            if pdt.inventory:
+                stock = pdt.inventory.quantity
+
+            if stock <= (pdt.reorder_level or 0):
+                product = pdt
+                break
 
         supplier = (
             db.query(Supplier)
@@ -147,53 +159,6 @@ def execute_ai_action(
         )
 
         db.add(item)
-
-
-        # ===== AI PURCHASE STOCK RECEIVE =====
-
-        inventory = (
-            db.query(Inventory)
-            .filter(
-                Inventory.product_id == product.id,
-                Inventory.tenant_id == tenant_id
-            )
-            .first()
-        )
-
-        if inventory:
-            before_qty = inventory.quantity
-            inventory.quantity += 10
-            after_qty = inventory.quantity
-        else:
-            before_qty = 0
-            inventory = Inventory(
-                product_id=product.id,
-                quantity=10,
-                tenant_id=tenant_id
-            )
-            db.add(inventory)
-            after_qty = 10
-
-
-        movement = StockMovement(
-            product_id=product.id,
-            movement_type="PURCHASE_RECEIVE",
-            quantity_change=10,
-            before_quantity=before_qty,
-            after_quantity=after_qty,
-            reason="AI Auto Purchase Receive",
-            tenant_id=tenant_id
-        )
-
-        db.add(movement)
-
-
-        create_purchase_journal(
-            db=db,
-            tenant_id=tenant_id,
-            purchase_id=purchase.id,
-            purchase_amount=purchase.total_amount
-        )
 
 
         db.commit()

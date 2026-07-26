@@ -84,7 +84,7 @@ async def choose_business_page(
         name="choose_business.html"
     )
 
-# ================================
+\n# ================================
 # MAIN HOMEPAGE
 # ================================
 @router.get("/", response_class=HTMLResponse)
@@ -135,22 +135,6 @@ async def read_test_landing_page(
         }
     )
 
-
-
-
-# ================================
-# SIGNUP PAGE
-# ================================
-
-@router.get("/signup", response_class=HTMLResponse)
-async def signup_page(
-    request: Request
-):
-
-    return templates.TemplateResponse(
-        request=request,
-        name="signup.html"
-    )
 
 # ================================
 # PUBLIC BUSINESS PAGE

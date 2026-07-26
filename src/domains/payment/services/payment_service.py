@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 
 from src.models.saas_core import (
@@ -156,6 +157,7 @@ def create_payment(
         invoice.status = "PAID"
     else:
         receivable.status = "PARTIAL"
+        invoice.status = "PARTIAL"
 
 
 
@@ -198,7 +200,7 @@ def create_payment(
     existing_ledger = (
         db.query(AccountLedger)
         .filter(
-            AccountLedger.reference_id == invoice.id,
+            AccountLedger.reference_id == data.payment_number,
             AccountLedger.account_head == "SALES_PAYMENT",
             AccountLedger.tenant_id == tenant_id,
         )
@@ -212,14 +214,15 @@ def create_payment(
             entry_type="INCOME",
             account_head="SALES_PAYMENT",
             amount=data.amount,
-            reference_id=invoice.id,
+            reference_id=data.payment_number,
             description=f"Payment received {data.payment_number}",
             tenant_id=tenant_id,
         )
 
 
     db.add(payment)
-    db.add(ledger)
+    if ledger:
+        db.add(ledger)
 
     db.commit()
     db.refresh(payment)
@@ -227,11 +230,13 @@ def create_payment(
     return payment
 
 
+
 def get_payments(
     db: Session,
     tenant_id: str,
 ):
-    return (
+
+    payments = (
         db.query(Payment)
         .filter(
             Payment.tenant_id == tenant_id
@@ -241,3 +246,67 @@ def get_payments(
         )
         .all()
     )
+
+    result = []
+
+    for p in payments:
+
+        invoice = (
+            db.query(Invoice)
+            .filter(
+                Invoice.id == p.invoice_id,
+                Invoice.tenant_id == tenant_id
+            )
+            .first()
+        )
+
+        customer_name = ""
+
+        if invoice and invoice.order:
+            customer_name = invoice.order.customer_name or ""
+
+        remaining = 0
+
+        if invoice:
+
+            paid = (
+                db.query(func.sum(Payment.amount))
+                .filter(
+                    Payment.invoice_id == invoice.id,
+                    Payment.status == "COMPLETED"
+                )
+                .scalar()
+                or 0
+            )
+
+            remaining = invoice.amount - paid
+
+        result.append({
+
+            "payment_number": p.payment_number,
+
+            "invoice_number":
+                invoice.invoice_number
+                if invoice else "",
+
+            "customer_name":
+                customer_name,
+
+            "amount": p.amount,
+
+            "payment_method":
+                p.payment_method,
+
+            "status":
+                p.status,
+
+            "remaining_balance":
+                remaining,
+
+            "created_at":
+                p.created_at
+
+        })
+
+    return result
+

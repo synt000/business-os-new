@@ -1,4 +1,5 @@
 from datetime import datetime
+import uuid
 
 from sqlalchemy.orm import Session
 
@@ -16,6 +17,7 @@ def create_login_session(
     session = LoginSession(
         tenant_id=user.tenant_id,
         user_id=user.id,
+        session_key=str(uuid.uuid4()),
         ip_address=ip_address,
         user_agent=user_agent,
         device_name=device_name,

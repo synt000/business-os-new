@@ -121,10 +121,7 @@ class ProcurementLedger(Base):
         nullable=False,
     )
 
-    product = relationship(
-        "Product",
-        back_populates="procurements"
-    )
+    # product relationship disabled temporarily
 
     supplier_id = Column(
         String,

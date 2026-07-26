@@ -1,37 +1,59 @@
-from fastapi import Depends, HTTPException, status
-from sqlalchemy.orm import Session
-
-from src.core.database import get_db
-from src.core.security import get_current_user
-from src.models.saas_core import User, TenantFeature
+from src.models.saas_core import BusinessFeature
+from src.domains.subscription.models import TenantSubscription
 
 
-def require_feature(feature_code: str):
+def tenant_has_feature(db, tenant_id, feature_code):
 
-    def feature_checker(
-        current_user: User = Depends(get_current_user),
-        db: Session = Depends(get_db)
-    ):
-
-        feature = (
-            db.query(TenantFeature)
-            .filter(
-                TenantFeature.tenant_id == current_user.tenant_id,
-                TenantFeature.feature_code == feature_code,
-                TenantFeature.enabled == True
-            )
-            .first()
+    subscription = (
+        db.query(TenantSubscription)
+        .filter(
+            TenantSubscription.tenant_id == tenant_id
         )
+        .first()
+    )
 
-        if not feature:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail={
-                    "error": "FEATURE_LOCKED",
-                    "feature": feature_code
-                }
-            )
+    if not subscription:
+        return False
 
-        return True
 
-    return feature_checker
+    feature = (
+        db.query(BusinessFeature)
+        .filter(
+            BusinessFeature.business_type_id == subscription.business_type_id,
+            BusinessFeature.feature_code == feature_code,
+            BusinessFeature.enabled == True
+        )
+        .first()
+    )
+
+    return feature is not None
+
+
+
+def get_tenant_features(db, tenant_id):
+
+    subscription = (
+        db.query(TenantSubscription)
+        .filter(
+            TenantSubscription.tenant_id == tenant_id
+        )
+        .first()
+    )
+
+    if not subscription:
+        return []
+
+
+    features = (
+        db.query(BusinessFeature)
+        .filter(
+            BusinessFeature.business_type_id == subscription.business_type_id,
+            BusinessFeature.enabled == True
+        )
+        .all()
+    )
+
+    return [
+        x.feature_code
+        for x in features
+    ]

@@ -668,7 +668,7 @@ class Invoice(Base):
 
     subscription_id = Column(
         String,
-        ForeignKey("subscriptions.id", ondelete="CASCADE"),
+        ForeignKey("tenant_subscriptions.id", ondelete="CASCADE"),
         nullable=True,
         index=True
     )

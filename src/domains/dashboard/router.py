@@ -1,4 +1,6 @@
 from .service import get_ai_decision_engine, get_ai_growth_plan, get_smart_restock, get_sales_forecast, get_ceo_report, get_top_product_intelligence, get_customer_intelligence, get_ai_dashboard
+from src.domains.dashboard.services.cashflow_service import get_cashflow_dashboard
+
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
@@ -425,17 +427,24 @@ def ai_dashboard(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
+    dashboard = get_ai_dashboard(
+        db,
+        current_user.tenant_id
+    )
+
 
     return {
-
-        "status":
-        "SUCCESS",
-
-        "executive_dashboard":
-            get_ai_dashboard(
-                db,
-                current_user.tenant_id
-            )
-
+        "status": "SUCCESS",
+        "executive_dashboard": dashboard
     }
 
+
+@router.get("/cashflow")
+def cashflow_dashboard(
+    db=Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    return get_cashflow_dashboard(
+        db,
+        current_user.tenant_id
+    )

@@ -1,7 +1,7 @@
 <html>
 <head>
 <title>Business OS</title>
-<link rel="stylesheet" href="/static/style.css">
+<link rel="stylesheet" href="/static/style.css?v=21">
 </head>
 
 <body>
@@ -64,27 +64,9 @@ Tenant:
 </div>
 
 
-<div class="menu">
+<div id="dynamicMenu" class="menu-buttons">
 
-<button onclick="location.href='/products/ui'">
-Add Product
-</button>
-
-<button onclick="location.href='/inventory/ui'">
-Stock
-</button>
-
-<button onclick="location.href='/orders/ui'">
-New Order
-</button>
-
-<button onclick="location.href='/invoice/ui'">
-Invoice
-</button>
-
-<button onclick="location.href='/payment/ui'">
-Payment
-</button>
+<div class="menu-buttons" id="dynamicMenu"></div>
 
 <button id="logoutBtn">
 Logout
@@ -93,7 +75,7 @@ Logout
 </div>
 
 
-<script src="/static/app.js?v=10"></script>
+<script src="/static/app.js?v=11"></script>
 
 
 <script>

@@ -6,7 +6,7 @@ const token = localStorage.getItem("access_token");
 console.log("REVENUE TOKEN CHECK:", token);
 
 const res = await fetch(
-"/owner/revenue-expense",
+"/api/v4/owner/revenue-expense",
 {
 headers:{
 "Authorization":"Bearer " + token
@@ -105,6 +105,7 @@ borderRadius:8
 options:{
 
 responsive:true,
+maintainAspectRatio:false,
 
 animation:false,
 

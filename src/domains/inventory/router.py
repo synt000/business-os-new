@@ -9,6 +9,7 @@ from src.domains.inventory.schemas import (
 )
 from src.models.saas_core import User
 from src.domains.inventory.models import StockMovement
+from src.domains.product.models import Product
 
 from src.core.security import get_current_user
 from src.domains.trial.guard import require_active_subscription
@@ -35,6 +36,11 @@ async def adjust_stock(
 
 
 
+    product = db.query(Product).filter(
+        Product.id == data.product_id,
+        Product.tenant_id == current_user.tenant_id
+    ).first()
+
     if not product:
         raise HTTPException(
             status_code=404,
@@ -42,7 +48,7 @@ async def adjust_stock(
         )
 
 
-    old_qty = product.stock_qty
+    old_qty = product.inventory.quantity
     new_qty = old_qty + data.adjustment
 
 
@@ -54,7 +60,7 @@ async def adjust_stock(
 
 
     # Update current stock
-    product.stock_qty = new_qty
+    product.inventory.quantity = new_qty
 
 
     # Create inventory history record
@@ -81,7 +87,7 @@ async def adjust_stock(
         "product_id": product.id,
         "old_quantity": old_qty,
         "adjustment": data.adjustment,
-        "new_quantity": product.stock_qty,
+        "new_quantity": product.inventory.quantity,
         "reason": data.reason
     }
 
@@ -118,8 +124,7 @@ async def low_stock_alerts(
     products = (
         db.query(Product)
         .filter(
-            Product.tenant_id == current_user.tenant_id,
-            Product.stock_qty <= Product.low_stock_threshold
+            Product.tenant_id == current_user.tenant_id
         )
         .all()
     )
@@ -128,11 +133,12 @@ async def low_stock_alerts(
         {
             "product_id": p.id,
             "product_name": p.name,
-            "current_stock": p.stock_qty,
-            "threshold": p.low_stock_threshold,
+            "current_stock": p.inventory.quantity if p.inventory else 0,
+            "threshold": p.reorder_level,
             "status": "LOW_STOCK"
         }
         for p in products
+        if (p.inventory.quantity if p.inventory else 0) <= 10
     ]
 
 
@@ -157,19 +163,19 @@ async def inventory_summary(
     total_products = len(products)
 
     total_stock_units = sum(
-        p.stock_qty for p in products
+        p.inventory.quantity if p.inventory else 0 for p in products
     )
 
 
     low_stock_count = len([
         p for p in products
-        if p.stock_qty <= p.low_stock_threshold
+        if (p.inventory.quantity if p.inventory else 0) <= 10
     ])
 
 
     out_of_stock_count = len([
         p for p in products
-        if p.stock_qty == 0
+        if (p.inventory.quantity if p.inventory else 0) == 0
     ])
 
 

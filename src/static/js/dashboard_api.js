@@ -1,3 +1,16 @@
+async function apiFetch(path){
+    const token = localStorage.getItem("access_token");
+    const res = await fetch("/api/v4" + path,{
+        headers:{
+            "Authorization":"Bearer " + token
+        }
+    });
+    if(!res.ok){
+        throw new Error(await res.text());
+    }
+    return await res.json();
+}
+
 console.log("DASHBOARD_API_LOADED");
 
 async function loadDashboardWidgets(){
@@ -133,7 +146,7 @@ console.log("FINANCE KPI LOADED", {
 try{
 
 const financeRes = await fetch(
-    "/owner/finance-insight",
+    "/api/v4/owner/finance-insight",
     {
         headers:{
             "Authorization":"Bearer "+token
@@ -646,6 +659,7 @@ ${lowStock} items need restock
 Create Purchase
 </button>
 </div>
+</div>
 `;
 
 }
@@ -656,6 +670,7 @@ document.getElementById("aiPurchaseList").innerHTML = `
 <b>✅ Stock Healthy</b>
 <br>
 No purchase needed
+</div>
 </div>
 `;
 
@@ -700,7 +715,10 @@ if(
 
         Chart.register(ChartDataLabels);
 
-        new Chart(
+        if(window.salesTrendChartInstance){
+            window.salesTrendChartInstance.destroy();
+        }
+        window.salesTrendChartInstance = new Chart(
             ctx,
             {
                 type:"line",
@@ -731,8 +749,8 @@ if(
                                         backgroundColor:gradient,
                                         fill:true,
                                         tension:0.45,
-                                        pointRadius:5,
-                                        pointHoverRadius:8,
+                                        pointRadius:3,
+                                        pointHoverRadius:5,
 
                                         datalabels:{
                                             display:true,
@@ -782,15 +800,15 @@ if(
 
                       layout:{
                           padding:{
-                              top:20,
+                              top:8,
                               right:16,
-                              bottom:10,
+                              bottom:5,
                               left:16
                           }
                       },
 
                       animation:{
-                          duration:1200
+                          duration:700
                       },
 
                       interaction:{
@@ -804,7 +822,7 @@ if(
                                   color:"rgba(148,163,184,0.12)"
                               },
                               ticks:{
-                                  color:"#A3AED0"
+                                  color:"#A3AED0",maxTicksLimit:5,autoSkip:true
                               }
                           },
                           y:{
@@ -830,7 +848,12 @@ if(
                           tooltip:{
                               backgroundColor:"#111827",
                               titleColor:"#ffffff",
-                              bodyColor:"#E5E7EB"
+                              bodyColor:"#E5E7EB",
+callbacks:{
+label:function(context){
+return context.dataset.label + ": " + Number(context.raw).toLocaleString() + " MMK";
+}
+}
                           }
                       }
                   }
@@ -872,7 +895,7 @@ async function loadRevenueExpense(){
         const token = localStorage.getItem("access_token");
 
         const res = await fetch(
-            "/owner/revenue-expense",
+            "/api/v4/owner/revenue-expense",
             {
                 headers:{
                     "Authorization":"Bearer " + token
@@ -955,7 +978,7 @@ const token = localStorage.getItem("access_token");
 
 
 const res = await fetch(
-"/owner/finance-insight",
+"/api/v4/owner/finance-insight",
 {
 headers:{
 "Authorization":"Bearer "+token
@@ -1111,7 +1134,7 @@ const token = localStorage.getItem("access_token");
 
 
 const res = await fetch(
-"/owner/revenue-expense",
+"/api/v4/owner/revenue-expense",
 {
 headers:{
 "Authorization":"Bearer "+token
@@ -1140,7 +1163,11 @@ document.getElementById(
 if(canvas){
 
 
-new Chart(
+        if(window.revenueExpenseChartInstance){
+            window.revenueExpenseChartInstance.destroy();
+        }
+
+        window.revenueExpenseChartInstance = new Chart(
 canvas,
 {
 
@@ -1270,252 +1297,11 @@ console.log(
 
 
 
-// =====================================
-// REVENUE EXPENSE CHART BINDING
-// =====================================
 
-async function loadRevenueExpenseChart(){
 
-try{
 
-const token = localStorage.getItem("access_token");
 
-const res = await fetch(
-"/owner/revenue-expense",
-{
-headers:{
-"Authorization":"Bearer " + token
-}
-}
-);
 
-
-if(!res.ok){
-console.error(
-"Revenue Expense Chart API Failed",
-res.status
-);
-return;
-}
-
-
-const data = await res.json();
-
-console.log(
-"REVENUE EXPENSE CHART DATA",
-data
-);
-
-
-const summary = data.summary || {};
-
-
-const canvas =
-document.getElementById(
-"revenueExpenseChart"
-);
-
-
-if(!canvas){
-console.error(
-"Chart canvas missing"
-);
-return;
-}
-
-
-new Chart(
-canvas,
-{
-type:"bar",
-
-data:{
-
-labels:[
-"Revenue",
-"Expense",
-"Profit"
-],
-
-datasets:[{
-
-label:"MMK",
-
-data:[
-
-summary.revenue || 0,
-
-summary.expense || 0,
-
-summary.profit || 0
-
-]
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-plugins:{
-
-legend:{
-display:false
-}
-
-}
-
-}
-
-}
-
-);
-
-
-}catch(e){
-
-console.error(
-"REVENUE EXPENSE CHART ERROR",
-e
-);
-
-}
-
-}
-
-
-document.addEventListener(
-"DOMContentLoaded",
-loadRevenueExpenseChart
-);
-
-
-console.log(
-"REVENUE EXPENSE CHART BINDING LOADED"
-);
-
-
-
-// =================================
-// REVENUE EXPENSE CHART BINDING
-// =================================
-
-async function loadRevenueExpenseChart(){
-
-try{
-
-const res = await fetch(
-"/owner/revenue-expense"
-);
-
-if(!res.ok){
-console.error(
-"Revenue Expense Chart API Failed",
-res.status
-);
-return;
-}
-
-
-const data = await res.json();
-
-console.log(
-"CHART DATA",
-data
-);
-
-
-const summary = data.summary || {};
-
-
-const canvas =
-document.getElementById(
-"revenueExpenseChart"
-);
-
-
-if(!canvas){
-console.log(
-"Chart canvas not found"
-);
-return;
-}
-
-
-new Chart(
-canvas,
-{
-
-type:"bar",
-
-data:{
-
-labels:[
-"Revenue",
-"Expense",
-"Profit"
-],
-
-datasets:[{
-
-label:"MMK",
-
-data:[
-
-summary.revenue || 0,
-
-summary.expense || 0,
-
-summary.profit || 0
-
-]
-
-}]
-
-},
-
-options:{
-
-responsive:true,
-
-plugins:{
-
-legend:{
-display:false
-}
-
-}
-
-}
-
-}
-
-);
-
-
-}catch(e){
-
-console.error(
-"REVENUE EXPENSE CHART ERROR",
-e
-);
-
-}
-
-}
-
-
-document.addEventListener(
-"DOMContentLoaded",
-loadRevenueExpenseChart
-);
-
-
-console.log(
-"REVENUE EXPENSE CHART LOADED"
-);
 
 
 
@@ -1649,7 +1435,7 @@ const token = localStorage.getItem("access_token");
 
 
 const res = await fetch(
-    "/owner/ai-decision",
+    "/api/v4/owner/ai-decision",
     {
         headers:{
             "Authorization":"Bearer "+token
@@ -1736,576 +1522,335 @@ loadAIDecision();
 
 
 
+function openAIModalNearButton(modal,btn){
+
+if(!modal || !btn) return;
+
+const rect = btn.getBoundingClientRect();
+
+openAIModalNearButton(modal, growthBtn);
+modal.style.position="absolute";
+
+const box = modal.querySelector(".ceo-modal-box");
+
+if(box){
+
+box.style.position="absolute";
+
+box.style.left =
+(rect.left + window.scrollX) + "px";
+
+box.style.top =
+(rect.bottom + window.scrollY + 10) + "px";
+
+}
+
+}
+
+
+
+
+
 // ======================================
-// AI GROWTH PLAN BUTTON ENGINE
+// ======================================
+// FINAL AI ACTION SINGLE CONTROLLER
 // ======================================
 
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
+document.addEventListener("DOMContentLoaded",()=>{
 
 
-const growthBtn =
-document.getElementById(
+function closeAIModals(){
+
+[
+"growth_modal",
+"restock_modal",
+"ceo_modal"
+
+].forEach(id=>{
+
+let m=document.getElementById(id);
+
+if(m){
+m.style.display="none";
+}
+
+});
+
+}
+
+
+// =====================
+// GROWTH PLAN
+// =====================
+
+let growth=document.getElementById(
 "growth_plan_btn"
 );
 
 
-if(growthBtn){
+if(growth){
+
+growth.onclick=async()=>{
 
 
-growthBtn.addEventListener(
-"click",
-async ()=>{
+closeAIModals();
 
 
-try{
-
-
-const token =
-localStorage.getItem(
-"access_token"
+let modal=document.getElementById(
+"growth_modal"
 );
 
-
-
-const res =
-await fetch(
-"/owner/growth-plan",
-{
-headers:{
-"Authorization":
-"Bearer "+token
-}
-}
-);
-
-
-
-const data =
-await res.json();
-
-
-
-const plan =
-data.growth_plan;
-
-
-let box =
-document.getElementById(
+let box=document.getElementById(
 "growth_plan_content"
 );
 
 
-if(!box){
-console.log("Growth Plan container missing");
-return;
+if(modal){
+modal.style.display="flex";
 }
 
 
-let html =
-`
-<div style="
-background:#111827;
-color:white;
-padding:20px;
-border-radius:18px;
-margin:10px 0;
-">
-
-<h2>🚀 AI Growth Plan</h2>
-
-<p>
-<b>Status:</b>
-${plan.status}
-</p>
-
-<hr>
-
-<h3>📌 Business Summary</h3>
-
-<p>
-${plan.summary}
-</p>
-
-<hr>
-
-<h3>📅 Weekly Action Plan</h3>
-
-`;
-
-plan.weekly_plan.forEach(
-w=>{
-
-html +=
-`
-<div style="
-background:#1f2937;
-padding:12px;
-margin:8px 0;
-border-radius:10px;
-">
-
-<b>${w.week}</b>
-
-<br>
-
-${w.action}
-
-</div>
-`;
-
-});
-
-html +=
-`
-</div>
-`;
-
-box.innerHTML=html;
-
-}
-catch(e){
-
-console.log(
-"Growth Plan Error",
-e
-);
-
-}
-
-}
-);
-
-}
-});
-
-
-
-// ======================================
-// AI EXECUTIVE DASHBOARD V4
-// ======================================
-
-async function loadAIExecutiveDashboard(){
-
-try{
-
-const ai = await apiFetch("/owner/ai-dashboard");
-
-let aiBox = document.getElementById("aiExecutiveDashboard");
-
-if(!aiBox){
-
-aiBox = document.createElement("div");
-aiBox.id="aiExecutiveDashboard";
-
-aiBox.style.marginTop="20px";
-
-document.body.appendChild(aiBox);
-
-}
-
-
-const d = ai.executive_dashboard;
-
-
-aiBox.innerHTML = `
-
-<div style="
-background:#111827;
-color:white;
-padding:20px;
-border-radius:18px;
-margin-top:20px;
-">
-
-<h2>
-🤖 AI CEO Executive Dashboard
-</h2>
-
-
-<h3>
-Business Health:
-${d.business_health.score}/100
-</h3>
-
-<p>
-Status:
-<b>${d.business_health.status}</b>
-</p>
-
-
-<hr>
-
-
-<h3>
-💰 Revenue Intelligence
-</h3>
-
-<p>
-Current:
-<b>${d.revenue.current}</b>
-</p>
-
-<p>
-Forecast:
-<b>${d.revenue.forecast}</b>
-</p>
-
-
-<hr>
-
-
-<h3>
-🏆 Top Product
-</h3>
-
-<p>
-${d.top_product.name}
-</p>
-
-<p>
-Units Sold:
-${d.top_product.units_sold}
-</p>
-
-
-<hr>
-
-
-<h3>
-👥 Customer Intelligence
-</h3>
-
-<p>
-Retention:
-${d.customer.retention.score}
-</p>
-
-<p>
-${d.customer.retention.status}
-</p>
-
-
-<hr>
-
-
-<h3>
-🚀 CEO Decision
-</h3>
-
-<p>
-${d.final_decision}
-</p>
-
-
-</div>
-
-`;
-
-}catch(e){
-
-console.log(
-"AI Executive Dashboard Error",
-e
-);
-
-}
-
-
-
-
-
-
-
-}
-
-loadAIExecutiveDashboard();
-
-
-
-
-// ======================================
-// CEO REPORT POPUP ENGINE
-// ======================================
-
-
-function closeCEOReport(){
-
-let modal =
-document.getElementById(
-"ceo_modal"
-);
-
-if(modal)
-modal.style.display="none";
-
-}
-
-
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-
-let btn =
-document.getElementById(
-"ceo_report_btn"
-);
-
-
-
-if(btn){
-
-
-btn.onclick=async()=>{
-
-
-let modal =
-document.getElementById(
-"ceo_modal"
-);
-
-
-let box =
-document.getElementById(
-"ceo_content"
-);
-
-
-modal.style.display="block";
-
+if(box)
+box.innerHTML="🚀 Loading Growth Plan...";
 
 
 try{
 
 
-let res =
-await fetch(
-"/owner/ceo-report",
+let res=await fetch(
+"/api/v4/owner/growth-plan",
 {
 headers:{
 "Authorization":
 "Bearer "+
-localStorage.getItem(
-"access_token"
-)
+localStorage.getItem("access_token")
 }
+});
+
+
+let data=await res.json();
+
+
+if(box){
+
+box.innerHTML=`
+
+<h2>🚀 AI Growth Plan</h2>
+
+<br>
+
+${data.growth_plan?.summary || 
+data.growth_plan?.status ||
+"Growth analysis ready"}
+
+`;
+
 }
+
+
+}catch(e){
+
+if(box)
+box.innerHTML="❌ Growth Plan Error";
+
+}
+
+
+};
+
+}
+
+
+
+// =====================
+// SMART RESTOCK
+// =====================
+
+let restock=document.getElementById(
+"smart_restock_btn"
 );
 
 
+if(restock){
 
-let data =
-await res.json();
-
-
-let r =
-data.ceo_report;
+restock.onclick=async()=>{
 
 
-
-let html =
-`
-${r.greeting}
-
-<br><br>
-
-📊 Business Summary
-
-<br>
-
-💰 Revenue:
-${r.kpi.revenue}
-
-<br>
-
-🛒 Orders:
-${r.kpi.orders}
-
-<br>
-
-📦 Inventory:
-${r.inventory_ai.warning}
-
-<br><br>
-
-🧠 AI Analysis:
-
-<br>
-${r.business_health.status}
-
-<br><br>
-
-🎯 CEO Strategy:
-
-<br>
-`;
+closeAIModals();
 
 
+let modal=document.getElementById(
+"restock_modal"
+);
 
-r.ai_strategy.forEach(
-x=>{
-
-html +=
-x+
-"<br>";
-
-}
+let box=document.getElementById(
+"restock_content"
 );
 
 
-
-html +=
-`
-<br>
-🏆 CEO Decision:
-
-<br>
-${r.ceo_decision}
-`;
+if(modal){
+modal.style.display="flex";
+}
 
 
+if(box)
+box.innerHTML="📦 Loading Smart Restock AI...";
 
-box.innerHTML=html;
-
-
-// ======================================
-// AI EXECUTIVE DASHBOARD V4
-// ======================================
 
 try{
 
-const ai = await apiFetch("/owner/ai-dashboard");
 
-let aiBox = document.getElementById("aiExecutiveDashboard");
-
-if(!aiBox){
-
-aiBox = document.createElement("div");
-aiBox.id="aiExecutiveDashboard";
-
-aiBox.style.marginTop="20px";
-
-document.body.appendChild(aiBox);
-
+let res=await fetch(
+"/api/v4/owner/smart-restock",
+{
+headers:{
+"Authorization":
+"Bearer "+
+localStorage.getItem("access_token")
 }
+});
 
 
-const d = ai.executive_dashboard;
+let data=await res.json();
+
+let ai=data.smart_restock;
 
 
-aiBox.innerHTML = `
+if(box){
 
-<div style="
-background:#111827;
-color:white;
-padding:20px;
-border-radius:18px;
-margin-top:20px;
-">
+box.innerHTML=`
 
-<h2>
-🤖 AI CEO Executive Dashboard
-</h2>
+<h2>📦 Smart Restock AI</h2>
 
+<br>
 
-<h3>
-Business Health:
-${d.business_health.score}/100
-</h3>
+${ai.inventory_health || ""}
 
-<p>
-Status:
-<b>${d.business_health.status}</b>
-</p>
+<br><br>
 
-
-<hr>
-
-
-<h3>
-💰 Revenue Intelligence
-</h3>
-
-<p>
-Current:
-<b>${d.revenue.current}</b>
-</p>
-
-<p>
-Forecast:
-<b>${d.revenue.forecast}</b>
-</p>
-
-
-<hr>
-
-
-<h3>
-🏆 Top Product
-</h3>
-
-<p>
-${d.top_product.name}
-</p>
-
-<p>
-Units Sold:
-${d.top_product.units_sold}
-</p>
-
-
-<hr>
-
-
-<h3>
-👥 Customer Intelligence
-</h3>
-
-<p>
-Retention:
-${d.customer.retention.score}
-</p>
-
-<p>
-${d.customer.retention.status}
-</p>
-
-
-<hr>
-
-
-<h3>
-🚀 CEO Decision
-</h3>
-
-<p>
-${d.final_decision}
-</p>
-
-
-</div>
+${
+(ai.recommendations||[])
+.map(x=>
+`
+🏆 ${x.product}<br>
+📉 Stock: ${x.current_stock}<br>
+📦 ${x.recommended_purchase}<br>
+💡 ${x.reason}<br><br>
+`
+).join("")
+}
 
 `;
 
+}
+
+
 }catch(e){
 
-console.log(
-"AI Executive Dashboard Error",
-e
-);
+if(box)
+box.innerHTML="❌ Smart Restock Error";
+
+}
+
+
+};
 
 }
 
 
 
+// =====================
+// CEO REPORT
+// =====================
+
+let ceo=document.getElementById(
+"ceo_report_btn"
+);
+
+
+if(ceo){
+
+ceo.onclick=async()=>{
+
+
+closeAIModals();
+
+
+let modal=document.getElementById(
+"ceo_modal"
+);
+
+let box=document.getElementById(
+"ceo_content"
+);
+
+
+if(modal){
+modal.style.display="flex";
+}
+
+
+if(box)
+box.innerHTML="📊 Loading CEO Report...";
+
+
+try{
+
+
+let res=await fetch(
+"/api/v4/owner/ceo-report",
+{
+headers:{
+"Authorization":
+"Bearer "+
+localStorage.getItem("access_token")
+}
+});
+
+
+let data=await res.json();
+
+let r=data.ceo_report;
+
+
+if(box){
+
+box.innerHTML=`
+
+<h2>📊 CEO Report</h2>
+
+<br>
+
+${r.greeting || ""}
+
+<br><br>
+
+🧠 ${r.analysis || ""}
+
+<br><br>
+
+🎯 Strategy
+
+<br>
+
+${
+(r.strategy||[])
+.join("<br>")
+}
+
+<br><br>
+
+🏆 ${r.decision || ""}
+
+`;
+
+}
+
 
 }catch(e){
 
-box.innerHTML=
-"❌ CEO Report Error";
+if(box)
+box.innerHTML="❌ CEO Report Error";
 
 }
 
@@ -2316,115 +1861,72 @@ box.innerHTML=
 }
 
 
+
 });
+
+
+
+
 // ======================================
-// SMART RESTOCK POPUP ENGINE
+// AI MODAL CLOSE FIX
 // ======================================
 
-function closeRestockModal(){
+document.addEventListener("DOMContentLoaded",()=>{
 
-let modal =
-document.getElementById(
-"restock_modal"
+const closeButtons =
+document.querySelectorAll(
+".ceo-modal button, .ceo-modal span"
 );
+
+
+closeButtons.forEach(btn=>{
+
+btn.addEventListener(
+"click",
+()=>{
+
+const modal =
+btn.closest(".ceo-modal");
 
 if(modal){
 modal.style.display="none";
 }
 
-}
-
-document.addEventListener(
-"DOMContentLoaded",
-()=>{
-
-let btn =
-document.getElementById(
-"smart_restock_btn"
-);
-
-if(btn){
-
-btn.onclick = async()=>{
-
-let modal =
-document.getElementById(
-"restock_modal"
-);
-
-let box =
-document.getElementById(
-"restock_content"
-);
-
-modal.style.display="block";
-
-try{
-
-let res =
-await fetch(
-"/owner/smart-restock",
-{
-headers:{
-"Authorization":
-"Bearer "+
-localStorage.getItem("access_token")
-}
-}
-);
-
-let data =
-await res.json();
-
-let ai =
-data.smart_restock;
-
-let html =
-`
-📦 Inventory Health:
-<br>
-${ai.inventory_health}
-
-<br><br>
-`;
-
-ai.recommendations.forEach(
-r=>{
-
-html +=
-`
-🏆 Product:
-${r.product}
-
-<br>
-
-📉 Current Stock:
-${r.current_stock}
-
-<br>
-
-📦 Recommendation:
-${r.recommended_purchase}
-
-<br>
-
-💡 Reason:
-${r.reason}
-
-<br><br>
-`;
+});
 
 });
 
-html +=
-"🤖 " + ai.ai_message;
 
-box.innerHTML=html;
+window.addEventListener(
+"click",
+(e)=>{
 
-}catch(e){
+if(e.target.classList.contains("ceo-modal")){
 
-box.innerHTML="❌ Smart Restock Error";
+e.target.style.display="none";
 
+}
+
+});
+
+
+});
+
+
+
+// CEO CLOSE BUTTON FIX
+document.addEventListener("DOMContentLoaded",()=>{
+
+const btn=document.getElementById("ceo_close_btn");
+
+if(btn){
+
+btn.onclick=()=>{
+
+const modal=document.getElementById("ceo_modal");
+
+if(modal){
+modal.style.display="none";
 }
 
 };

@@ -45,6 +45,27 @@ class LoginSession(Base):
         nullable=True
     )
 
+    user_agent = Column(
+        String,
+        nullable=True
+    )
+
+    refresh_jti = Column(
+        String,
+        nullable=True,
+        index=True
+    )
+
+    login_at = Column(
+        DateTime,
+        nullable=True
+    )
+
+    last_seen = Column(
+        DateTime,
+        nullable=True
+    )
+
 
     ip_address = Column(
         String,

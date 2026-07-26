@@ -58,3 +58,146 @@ document.addEventListener("DOMContentLoaded", function(){
     }
 
 });
+
+
+// =====================================
+// GLOBAL API FETCH WITH JWT
+// =====================================
+
+async function apiFetch(url, options={}){
+
+    const token = localStorage.getItem(
+        "access_token"
+    );
+
+
+    options.headers = {
+        ...(options.headers || {}),
+        "Authorization":
+            "Bearer " + token,
+        "Content-Type":
+            "application/json"
+    };
+
+
+    let res = await fetch(
+        "/api/v4" + url,
+        options
+    );
+
+
+    if(res.status === 401){
+
+        const refresh =
+            localStorage.getItem(
+                "refresh_token"
+            );
+
+
+        if(!refresh){
+
+            localStorage.clear();
+
+            window.location.href="/login";
+
+            return res;
+
+        }
+
+
+        const refreshRes =
+        await fetch(
+            "/api/v4/auth/refresh",
+            {
+                method:"POST",
+                headers:{
+                    "Content-Type":
+                    "application/json"
+                },
+                body:
+                JSON.stringify({
+                    refresh_token:
+                    refresh
+                })
+            }
+        );
+
+
+        if(refreshRes.ok){
+
+            const data =
+            await refreshRes.json();
+
+
+            if(data.access_token){
+
+                localStorage.setItem(
+                    "access_token",
+                    data.access_token
+                );
+
+
+                return fetch(
+                    "/api/v4"+url,
+                    options
+                );
+
+            }
+
+        }
+
+    }
+
+
+    return res;
+
+}
+
+
+async function loadWorkspaceMenu(){
+
+    const token = localStorage.getItem("access_token");
+
+    if(!token) return;
+
+    const res = await fetch(
+        "/api/workspace/menu",
+        {
+            headers:{
+                "Authorization":"Bearer " + token
+            }
+        }
+    );
+
+    if(!res.ok) return;
+
+    const data = await res.json();
+
+    const box=document.getElementById("dynamicMenu");
+
+    if(!box) return;
+
+    data.menu.forEach(item=>{
+
+        const btn=document.createElement("button");
+
+        btn.innerText=item.name;
+
+        btn.onclick=function(){
+            location.href=item.url;
+        };
+
+        box.appendChild(btn);
+
+    });
+
+}
+
+
+document.addEventListener(
+"DOMContentLoaded",
+function(){
+    loadWorkspaceMenu();
+}
+);
+

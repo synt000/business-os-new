@@ -12,6 +12,7 @@ from src.models.saas_core import User, BusinessType
 from src.models.business_profile import BusinessProfile
 from src.dashboard.widgets.resolver import get_dashboard_widgets
 from src.dashboard.widgets.service import resolve_widget_data
+from src.core.menu_service import get_sidebar_menu
 
 
 router = APIRouter(
@@ -188,13 +189,19 @@ async def dashboard_widgets(
 
 
 
-@router.get("/workspace", response_class=HTMLResponse)
-async def workspace(request: Request):
 
+@router.get("/workspace", response_class=HTMLResponse)
+async def workspace(
+    request: Request
+):
     return templates.TemplateResponse(
         request=request,
-        name="workspace.html"
+        name="workspace.html",
+        context={
+            "menu": []
+        }
     )
+
 
 @router.get("/products/ui", response_class=HTMLResponse)
 async def products_ui(request: Request):
@@ -347,4 +354,19 @@ async def public_home_summary(
 
 
 
+
+
+
+@router.get("/api/workspace/menu")
+async def workspace_menu(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    return {
+        "menu": get_sidebar_menu(
+            db,
+            current_user.tenant.business_type_id,
+            current_user.role
+        )
+    }
 
