@@ -1,3 +1,4 @@
+from src.telegram_bot.webhook import router as telegram_router
 
 # ===== DOMAIN MODEL REGISTRY LOAD =====
 # import src.domains.product.models
@@ -249,5 +250,8 @@ async def favicon():
 
 # Social Commerce Webhook
 app.include_router(social_webhook_router)
+
+# Telegram CEO Bot Webhook
+app.include_router(telegram_router)
 
 
