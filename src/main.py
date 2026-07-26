@@ -1,3 +1,10 @@
+
+# ===== DOMAIN MODEL REGISTRY LOAD =====
+# import src.domains.product.models
+# import src.domains.inventory.models
+# import src.domains.purchase.models
+# import src.domains.accounting.models
+
 import os
 
 # ==========================================================================
@@ -77,6 +84,7 @@ from src.domains.admin.router import router as admin_router
 from src.domains.permissions.router import router as permissions_router
 from src.domains.rental.router import router as rental_router
 from src.domains.ai_insight.router import router as ai_insight_router
+from src.domains.ai_insight.dashboard_router import router as ai_dashboard_router
 from src.domains.ai_assistant.router import router as ai_assistant_router
 from src.domains.device.router import router as device_router
 from src.domains.payment_gateway.router import router as payment_gateway_router
@@ -127,27 +135,6 @@ if os.path.exists(static_directory_path):
 # ==========================================================================
 # 2. AUTOMATED BACKWARD COMPATIBILITY: FRONTEND HTML INLINE PAGES DIRECTORS
 # ==========================================================================
-@app.get("/login", response_class=HTMLResponse, include_in_schema=False)
-def serve_production_hybrid_login_page():
-    """Serves the central user entry gateway panel directly from the atomic persistent storage template layers."""
-    template_file = "src/templates/login.html"
-    if os.path.exists(template_file):
-        with open(template_file, "r", encoding="utf-8") as f:
-            return HTMLResponse(content=f.read(), status_code=200)
-    return HTMLResponse(content="<html><body><h2>Business OS Login Gate</h2><p>Template file not found. System Core Active.</p></body></html>", status_code=200)
-
-@app.get("/dashboard", response_class=HTMLResponse, include_in_schema=False)
-def serve_production_hybrid_dashboard_panel():
-    """Serves the interactive multi-tenant command console directly from template layers safely."""
-    template_file = "src/templates/dashboard.html"
-    if os.path.exists(template_file):
-        with open(template_file, "r", encoding="utf-8") as f:
-            return HTMLResponse(content=f.read(), status_code=200)
-    return HTMLResponse(content="<html><body><h2>Business OS Operations Dashboard</h2><p>Template file not found. System Core Active.</p></body></html>", status_code=200)
-
-# ==========================================================================
-# 3. ATTACH HIGH-PERFORMANCE UNIFIED APIS CONTROLLERS
-# ==========================================================================
 from fastapi.responses import Response
 
 @app.get("/favicon.ico", include_in_schema=False)
@@ -188,7 +175,17 @@ app.include_router(supplier_payment_router)
 app.include_router(purchase_router)
 app.include_router(invoice_router)
 app.include_router(receivable_router)
+# OLD PAYMENT INCLUDE REMOVED
 app.include_router(payment_router)
+print("🔥 PAYMENT ROUTER FINAL ATTACHED")
+print("🔥 PAYMENT CHECK AFTER INCLUDE:", [r.path for r in payment_router.routes])
+print("🔥 PAYMENT ATTACH CHECK")
+for r in app.routes:
+    if hasattr(r, 'path') and r.path and 'payment' in r.path:
+        print("PAYMENT FOUND:", r.path, r.methods)
+
+
+
 app.include_router(customer_finance_router)
 app.include_router(finance_router)
 app.include_router(accounting_router)
@@ -200,13 +197,26 @@ app.include_router(permissions_router)
 app.include_router(rental_router)
 app.include_router(platform_router)
 app.include_router(ai_insight_router)
+app.include_router(ai_dashboard_router)
 app.include_router(ai_assistant_router)
 app.include_router(device_router)
 app.include_router(payment_gateway_router)
 app.include_router(social_center_router)
 
-app.include_router(dashboard_router)
-app.include_router(ui_dashboard_router)
+app.include_router(
+    dashboard_router,
+    prefix="/api/v4"
+)
+# ================================
+# UI DASHBOARD ROUTER MANUAL ATTACH
+# ================================
+for _ui_route in ui_dashboard_router.routes:
+    app.router.routes.append(_ui_route)
+
+print("🔥 UI DASHBOARD MANUAL ATTACHED:", [
+    r.path for r in ui_dashboard_router.routes
+])
+
 app.include_router(feedback_router)
 
 app.include_router(public_page_router)
@@ -215,37 +225,6 @@ from src.domains.website_settings.router import router as website_settings_route
 app.include_router(website_settings_router)
 
 # =====================================================
-# FORCE EXPAND _IncludedRouter (FastAPI 0.118+/Py3.14)
-# =====================================================
-from fastapi.routing import _IncludedRouter
-
-def _force_expand_routes(application):
-    changed = True
-    while changed:
-        changed = False
-        expanded = []
-
-        for route in application.router.routes:
-            if isinstance(route, _IncludedRouter):
-                router = route.original_router
-                ctx = route.include_context
-                prefix = ctx.prefix or ""
-
-                for child in router.routes:
-                    if hasattr(child, "path"):
-                        child.path = prefix + child.path
-                    expanded.append(child)
-
-                changed = True
-            else:
-                expanded.append(route)
-
-        application.router.routes = expanded
-
-_force_expand_routes(app)
-print("✅ IncludedRouter auto-expanded at startup")
-
-
 @app.get("/api/v4/docs", include_in_schema=False)
 async def custom_swagger_ui_portal_ingress():
     return get_swagger_ui_html(
