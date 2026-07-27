@@ -8,6 +8,7 @@ from .inventory import inventory_handler
 from .customer import customer_handler
 from .report import report_handler
 from .supplier import supplier_handler
+from src.telegram_bot.conversations.customer_add import customer_add_conversation
 
 
 def register_handlers(app):
@@ -42,4 +43,9 @@ def register_handlers(app):
 
     app.add_handler(
         CommandHandler("supplier", supplier_handler)
+    )
+
+
+    app.add_handler(
+        customer_add_conversation()
     )
