@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
-from src.telegram_bot.keyboards import ceo_main_menu
+from src.telegram_bot.keyboards import users_center_menu
 
 
 async def users_callback(
@@ -16,5 +16,5 @@ async def users_callback(
         "RBAC Engine Active ✅\n"
         "User Permissions Ready 🔐",
         parse_mode="Markdown",
-        reply_markup=ceo_main_menu()
+        reply_markup=users_center_menu()
     )

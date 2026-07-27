@@ -1,5 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
+from src.telegram_bot.keyboards import settings_menu
 
 
 async def settings_callback(
@@ -15,5 +16,6 @@ async def settings_callback(
         "🔐 Security\n"
         "👥 Users\n"
         "🏢 Business Profile Ready ✅",
-        parse_mode="Markdown"
+        parse_mode="Markdown",
+        reply_markup=settings_menu()
     )
