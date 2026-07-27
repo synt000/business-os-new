@@ -11,6 +11,7 @@ from telegram.ext import (
     ContextTypes,
 )
 from src.telegram_bot.handlers.registry import register_handlers
+from src.telegram_bot.callbacks.registry import register_callbacks
 from dotenv import load_dotenv
 import os
 import aiohttp
@@ -49,6 +50,7 @@ def get_ceo_access_token():
 telegram_app = Application.builder().token(TOKEN).build()
 
 register_handlers(telegram_app)
+register_callbacks(telegram_app)
 
 
 import requests
@@ -871,11 +873,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 
-telegram_app.add_handler(CommandHandler("ping", ping))
 
-telegram_app.add_handler(
-    CallbackQueryHandler(button_callback)
-)
+
+
 
 
 @router.on_event("startup")
