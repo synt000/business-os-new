@@ -585,7 +585,14 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                 keyboard = InlineKeyboardMarkup(user_buttons)
 
+                await query.message.reply_text(
+                    text,
+                    reply_markup=keyboard
+                )
+
                 db.close()
+                return
+
 
             except Exception as e:
                 text = f"❌ User Load Error\n{e}"
