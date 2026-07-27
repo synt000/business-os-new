@@ -4,6 +4,7 @@ from .start import start_handler
 from .dashboard import dashboard_handler
 from .finance import finance_handler
 from .inventory import inventory_handler
+from .customer import customer_handler
 
 
 def register_handlers(app):
@@ -22,4 +23,8 @@ def register_handlers(app):
 
     app.add_handler(
         CommandHandler("inventory", inventory_handler)
+    )
+
+    app.add_handler(
+        CommandHandler("customer", customer_handler)
     )
