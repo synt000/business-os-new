@@ -633,7 +633,6 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 text = f"❌ User Detail Error\n{e}"
 
 
-
         elif query.data == "add_user":
 
             text = (
