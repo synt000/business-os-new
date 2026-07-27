@@ -1,5 +1,6 @@
 from telegram import Update
 from telegram.ext import ContextTypes
+from src.telegram_bot.keyboards import inventory_menu
 
 
 async def inventory_callback(
@@ -12,8 +13,7 @@ async def inventory_callback(
 
     await query.message.reply_text(
         "📦 *Inventory Center*\n\n"
-        "Stock\n"
-        "Movements\n"
-        "Warehouse Analysis Ready ✅",
-        parse_mode="Markdown"
+        "Select Inventory Module:",
+        parse_mode="Markdown",
+        reply_markup=inventory_menu()
     )
