@@ -11,7 +11,6 @@ from telegram.ext import (
     ContextTypes,
 )
 from dotenv import load_dotenv
-from src.telegram_bot.keyboards import ceo_main_menu
 import os
 import aiohttp
 
@@ -641,6 +640,12 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                 db.close()
 
+                await query.message.reply_text(
+                    text,
+                    reply_markup=keyboard
+                )
+                return
+
             except Exception as e:
                 text = f"❌ User Detail Error\n{e}"
                 keyboard = None
@@ -770,7 +775,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 
 
-    keyboard = None
+    if keyboard is None:
+        keyboard = None
 
 
     if query.data == "manage_users":
