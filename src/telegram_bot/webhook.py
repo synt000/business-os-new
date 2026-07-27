@@ -1,6 +1,7 @@
 from functools import lru_cache
 from fastapi import APIRouter, Request
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from src.telegram_bot.keyboards.user_detail import user_detail_keyboard
 from src.models.saas_core import User
 from src.core.database import SessionLocal
 from telegram.ext import (
