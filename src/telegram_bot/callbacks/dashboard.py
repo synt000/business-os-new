@@ -2,48 +2,60 @@ from telegram import Update
 from telegram.ext import ContextTypes
 from src.telegram_bot.keyboards import dashboard_menu
 
-from dotenv import load_dotenv
+import asyncio
 import requests
 import os
 
-load_dotenv(".env")
+
+def get_dashboard_data():
+
+    email = os.getenv("CEO_EMAIL")
+    password = os.getenv("CEO_PASSWORD")
+
+    login = requests.post(
+        "http://127.0.0.1:8000/api/v4/auth/login",
+        json={
+            "email": email,
+            "password": password
+        },
+        timeout=5
+    )
+
+    login.raise_for_status()
+
+    token = login.json()["access_token"]
+
+    res = requests.get(
+        "http://127.0.0.1:8000/api/v4/dashboard/summary",
+        headers={
+            "Authorization": f"Bearer {token}"
+        },
+        timeout=5
+    )
+
+    res.raise_for_status()
+
+    return res.json()
 
 
 async def dashboard_callback(
     update: Update,
     context: ContextTypes.DEFAULT_TYPE
 ):
+
     query = update.callback_query
-    await query.answer()
 
     try:
-        email = os.getenv("CEO_EMAIL")
-        password = os.getenv("CEO_PASSWORD")
+        await query.answer("Loading Dashboard...")
 
-        login = requests.post(
-            "http://127.0.0.1:8000/api/v4/auth/login",
-            json={
-                "email": email,
-                "password": password
-            },
-            timeout=15
+    except Exception:
+        pass
+
+    try:
+
+        data = await asyncio.to_thread(
+            get_dashboard_data
         )
-
-        login.raise_for_status()
-
-        token = login.json()["access_token"]
-
-        res = requests.get(
-            "http://127.0.0.1:8000/api/v4/dashboard/summary",
-            headers={
-                "Authorization": f"Bearer {token}"
-            },
-            timeout=15
-        )
-
-        res.raise_for_status()
-
-        data = res.json()
 
         text = (
             "📊 *Dashboard*\n\n"
@@ -51,16 +63,18 @@ async def dashboard_callback(
             f"🧾 Orders: {data.get('orders',0)}\n"
             f"👥 Customers: {data.get('customers',0)}\n"
             f"🏭 Suppliers: {data.get('suppliers',0)}\n\n"
-            f"💰 Revenue: ${data.get('revenue',0)}\n"
-            f"💸 Expense: ${data.get('expense',0)}\n"
-            f"📈 Profit: ${data.get('profit',0)}"
+            f"💰 Revenue: {data.get('revenue',0)}\n"
+            f"💸 Expense: {data.get('expense',0)}\n"
+            f"📈 Profit: {data.get('profit',0)}"
         )
 
     except Exception as e:
+
         text = (
             "📊 Dashboard\n\n"
             f"❌ API Error: {e}"
         )
+
 
     await query.message.reply_text(
         text,
