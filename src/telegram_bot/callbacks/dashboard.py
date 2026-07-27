@@ -1,8 +1,12 @@
 from telegram import Update
 from telegram.ext import ContextTypes
 from src.telegram_bot.keyboards import dashboard_menu
+
+from dotenv import load_dotenv
 import requests
 import os
+
+load_dotenv(".env")
 
 
 async def dashboard_callback(
@@ -10,7 +14,6 @@ async def dashboard_callback(
     context: ContextTypes.DEFAULT_TYPE
 ):
     query = update.callback_query
-
     await query.answer()
 
     try:
@@ -23,8 +26,10 @@ async def dashboard_callback(
                 "email": email,
                 "password": password
             },
-            timeout=10
+            timeout=15
         )
+
+        login.raise_for_status()
 
         token = login.json()["access_token"]
 
@@ -33,8 +38,10 @@ async def dashboard_callback(
             headers={
                 "Authorization": f"Bearer {token}"
             },
-            timeout=10
+            timeout=15
         )
+
+        res.raise_for_status()
 
         data = res.json()
 
@@ -43,10 +50,10 @@ async def dashboard_callback(
             f"📦 Products: {data.get('products',0)}\n"
             f"🧾 Orders: {data.get('orders',0)}\n"
             f"👥 Customers: {data.get('customers',0)}\n"
-            f"🏭 Suppliers: {data.get('suppliers',0)}\n"
-            f"💰 Revenue: {data.get('revenue',0)}\n"
-            f"💸 Expense: {data.get('expense',0)}\n"
-            f"📈 Profit: {data.get('profit',0)}"
+            f"🏭 Suppliers: {data.get('suppliers',0)}\n\n"
+            f"💰 Revenue: ${data.get('revenue',0)}\n"
+            f"💸 Expense: ${data.get('expense',0)}\n"
+            f"📈 Profit: ${data.get('profit',0)}"
         )
 
     except Exception as e:
