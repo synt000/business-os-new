@@ -184,7 +184,6 @@ class SubscriptionPayment(Base):
 
 
 # Backward compatibility for activation system
-
 class ActivationKey(Base):
     __tablename__ = "activation_keys"
 
@@ -194,11 +193,38 @@ class ActivationKey(Base):
         default=generate_uuid
     )
 
-    key = Column(
+    key_code = Column(
         String,
         nullable=False,
         unique=True,
         index=True
+    )
+
+    plan_id = Column(
+        String,
+        ForeignKey("subscription_plans.id"),
+        nullable=False
+    )
+
+    duration_days = Column(
+        Integer,
+        nullable=False,
+        default=30
+    )
+
+    used = Column(
+        Boolean,
+        default=False
+    )
+
+    status = Column(
+        String,
+        default="ACTIVE"
+    )
+
+    used_at = Column(
+        DateTime,
+        nullable=True
     )
 
     tenant_id = Column(
@@ -207,20 +233,14 @@ class ActivationKey(Base):
         nullable=True
     )
 
-    plan_id = Column(
-        String,
-        ForeignKey("subscription_plans.id"),
-        nullable=True
-    )
-
-    status = Column(
-        String,
-        default="ACTIVE"
-    )
-
     created_at = Column(
         DateTime,
         default=datetime.utcnow
+    )
+
+    used_at = Column(
+        DateTime,
+        nullable=True
     )
 
 
@@ -277,36 +297,5 @@ except NameError:
             DateTime,
             default=datetime.utcnow
         )
-
-
-try:
-    ActivationKey
-except NameError:
-    class ActivationKey(Base):
-        __tablename__ = "activation_keys"
-
-        id = Column(
-            String,
-            primary_key=True,
-            default=generate_uuid
-        )
-
-        key = Column(
-            String,
-            unique=True,
-            nullable=False
-        )
-
-        active = Column(
-            Boolean,
-            default=True
-        )
-
-        created_at = Column(
-            DateTime,
-            default=datetime.utcnow
-        )
-
-
 
 

@@ -88,6 +88,7 @@ from src.domains.ai_insight.router import router as ai_insight_router
 from src.domains.ai_insight.dashboard_router import router as ai_dashboard_router
 from src.domains.ai_assistant.router import router as ai_assistant_router
 from src.domains.device.router import router as device_router
+from src.domains.license.router import router as license_router
 from src.domains.payment_gateway.router import router as payment_gateway_router
 
 from src.feedback.router import router as feedback_router
@@ -200,6 +201,7 @@ app.include_router(platform_router)
 app.include_router(ai_insight_router)
 app.include_router(ai_dashboard_router)
 app.include_router(ai_assistant_router)
+app.include_router(license_router)
 app.include_router(device_router)
 app.include_router(payment_gateway_router)
 app.include_router(social_center_router)
@@ -251,7 +253,28 @@ async def favicon():
 # Social Commerce Webhook
 app.include_router(social_webhook_router)
 
+
+# =====================================================
+# FASTAPI 0.118+ INCLUDED ROUTER EXPANSION FIX
+# =====================================================
+
+from fastapi.routing import _IncludedRouter
+
+expanded_routes = []
+
+for route in app.router.routes:
+    if isinstance(route, _IncludedRouter):
+        expanded_routes.extend(
+            route.original_router.routes
+        )
+    else:
+        expanded_routes.append(route)
+
+app.router.routes = expanded_routes
+
+print("🔥 INCLUDED ROUTERS EXPANDED")
+
 # Telegram CEO Bot Webhook
 app.include_router(telegram_router)
 
-
+# =====================================================

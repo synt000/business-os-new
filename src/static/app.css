@@ -721,3 +721,33 @@ margin-top:20px;
 margin-bottom:20px;
 }
 
+
+.ceo-btn{
+display:block;
+margin-top:15px;
+padding:15px;
+border-radius:30px;
+background:#22c55e;
+color:white;
+text-align:center;
+font-weight:bold;
+text-decoration:none;
+}
+
+.ceo-btn:hover{
+opacity:.9;
+}
+
+
+.bottom-nav a{
+    color:inherit;
+    text-decoration:none;
+}
+
+
+.action-card{
+    text-decoration:none;
+    color:inherit;
+    display:block;
+}
+
