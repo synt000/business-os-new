@@ -6,6 +6,7 @@ from .inventory import inventory_callback
 from .customer import customer_callback
 from .supplier import supplier_callback
 from .report import report_callback
+from .report_actions import sales_report_callback, inventory_report_callback, finance_report_callback
 from .settings import settings_callback
 from .users import users_callback
 from .security import security_callback
@@ -71,6 +72,15 @@ async def callback_router(update, context):
 
     elif data == "report":
         await report_callback(update, context)
+
+    elif data == "sales_report":
+        await sales_report_callback(update, context)
+
+    elif data == "inventory_report":
+        await inventory_report_callback(update, context)
+
+    elif data == "finance_report":
+        await finance_report_callback(update, context)
 
     else:
         await query.message.reply_text(
