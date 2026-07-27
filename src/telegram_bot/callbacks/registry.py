@@ -5,6 +5,7 @@ from .finance import finance_callback
 from .inventory import inventory_callback
 from .settings import settings_callback
 from .users import users_callback
+from .security import security_callback
 
 
 def register_callbacks(app):
@@ -49,6 +50,12 @@ async def callback_router(update, context):
 
     elif data == "manage_users":
         await users_callback(
+            update,
+            context
+        )
+
+    elif data == "security_center":
+        await security_callback(
             update,
             context
         )
