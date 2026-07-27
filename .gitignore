@@ -68,3 +68,4 @@ saas_module_report.txt
 
 # Local databases
 *.db.before*
+backups/
