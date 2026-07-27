@@ -3,6 +3,8 @@ from telegram.ext import CallbackQueryHandler
 from .dashboard import dashboard_callback
 from .finance import finance_callback
 from .inventory import inventory_callback
+from .customer import customer_callback
+from .supplier import supplier_callback
 from .settings import settings_callback
 from .users import users_callback
 from .security import security_callback
@@ -59,6 +61,12 @@ async def callback_router(update, context):
             update,
             context
         )
+
+    elif data == "customer":
+        await customer_callback(update, context)
+
+    elif data == "supplier":
+        await supplier_callback(update, context)
 
     else:
         await query.message.reply_text(
