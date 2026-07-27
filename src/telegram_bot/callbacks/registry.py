@@ -2,6 +2,7 @@ from telegram.ext import CallbackQueryHandler
 
 from .dashboard import dashboard_callback
 from .finance import finance_callback
+from .inventory import inventory_callback
 
 
 def register_callbacks(app):
@@ -28,6 +29,12 @@ async def callback_router(update, context):
 
     elif data == "finance":
         await finance_callback(
+            update,
+            context
+        )
+
+    elif data == "inventory":
+        await inventory_callback(
             update,
             context
         )
