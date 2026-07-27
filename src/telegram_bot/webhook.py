@@ -239,6 +239,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
+    keyboard = None
+
     print("🔥 CALLBACK DATA:", query.data, flush=True)
 
     try:
@@ -612,6 +614,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
                 if not user:
                     text = "❌ User Not Found"
+                    keyboard = None
 
                 else:
                     email = getattr(user, "email", "N/A")
@@ -627,11 +630,19 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                         "🔐 RBAC Connected"
                     )
 
+                    keyboard = InlineKeyboardMarkup([
+                        [InlineKeyboardButton("🔐 Change Role", callback_data=f"change_role_{user_id}")],
+                        [InlineKeyboardButton("🚫 Disable User", callback_data=f"disable_user_{user_id}")],
+                        [InlineKeyboardButton("🔑 Reset Password", callback_data=f"reset_password_{user_id}")],
+                        [InlineKeyboardButton("📜 Activity Logs", callback_data=f"activity_{user_id}")],
+                        [InlineKeyboardButton("⬅️ Back", callback_data="view_users")],
+                    ])
+
                 db.close()
 
             except Exception as e:
                 text = f"❌ User Detail Error\n{e}"
-
+                keyboard = None
 
         elif query.data == "add_user":
 
