@@ -20,6 +20,19 @@ from .finance_actions import finance_revenue_callback, finance_expense_callback,
 
 from .users_center import users_list_callback, rbac_roles_callback, permissions_callback
 
+from .customer_actions import (
+    customer_list_callback,
+    customer_add_callback,
+    customer_analysis_callback
+)
+
+from .supplier_actions import (
+    supplier_list_callback,
+    supplier_add_callback,
+    supplier_analysis_callback
+)
+
+
 
 def register_callbacks(app):
 
@@ -65,6 +78,15 @@ async def callback_router(update, context):
     elif data == "inventory_warehouse":
         await inventory_warehouse_callback(update, context)
 
+    elif data == "customer_list":
+        await customer_list_callback(update, context)
+
+    elif data == "customer_add":
+        await customer_add_callback(update, context)
+
+    elif data == "customer_analysis":
+        await customer_analysis_callback(update, context)
+
     elif data == "settings":
         await settings_callback(update, context)
 
@@ -90,6 +112,15 @@ async def callback_router(update, context):
 
     elif data == "supplier":
         await supplier_callback(update, context)
+
+    elif data == "supplier_list":
+        await supplier_list_callback(update, context)
+
+    elif data == "supplier_add":
+        await supplier_add_callback(update, context)
+
+    elif data == "supplier_analysis":
+        await supplier_analysis_callback(update, context)
 
     elif data == "report":
         await report_callback(update, context)

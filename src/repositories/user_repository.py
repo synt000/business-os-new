@@ -12,17 +12,13 @@ class UserRepository:
         db.refresh(user)
         return user
 
+
     @staticmethod
     def get_by_id(db: Session, user_id):
         return db.query(User).filter(
             User.id == user_id
         ).first()
 
-    @staticmethod
-    def get_by_username(db: Session, username: str):
-        return db.query(User).filter(
-            User.username == username
-        ).first()
 
     @staticmethod
     def get_by_email(db: Session, email: str):
@@ -30,14 +26,13 @@ class UserRepository:
             User.email == email
         ).first()
 
+
     @staticmethod
-    def username_exists(db: Session, username: str) -> bool:
-        return (
-            db.query(User)
-            .filter(User.username == username)
-            .first()
-            is not None
-        )
+    def get_all_by_tenant(db: Session, tenant_id):
+        return db.query(User).filter(
+            User.tenant_id == tenant_id
+        ).all()
+
 
     @staticmethod
     def email_exists(db: Session, email: str) -> bool:
