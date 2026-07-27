@@ -6,6 +6,7 @@ from .finance import finance_handler
 from .inventory import inventory_handler
 from .customer import customer_handler
 from .report import report_handler
+from .supplier import supplier_handler
 
 
 def register_handlers(app):
@@ -32,4 +33,8 @@ def register_handlers(app):
 
     app.add_handler(
         CommandHandler("report", report_handler)
+    )
+
+    app.add_handler(
+        CommandHandler("supplier", supplier_handler)
     )
