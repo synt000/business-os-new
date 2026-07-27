@@ -591,6 +591,40 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 text = f"❌ User Load Error\n{e}"
 
 
+
+        elif query.data.startswith("user_detail_"):
+
+            try:
+                db = SessionLocal()
+
+                user_id = query.data.replace("user_detail_", "")
+
+                user = db.query(User).filter(
+                    User.id == user_id
+                ).first()
+
+                if not user:
+                    text = "❌ User Not Found"
+
+                else:
+                    email = getattr(user, "email", "N/A")
+                    role = getattr(user, "role", "N/A")
+                    tenant = getattr(user, "tenant_id", "N/A")
+
+                    text = (
+                        "👤 *User Detail Center*\n\n"
+                        f"📧 Email: {email}\n"
+                        f"🔐 Role: {role}\n"
+                        f"🏢 Tenant: {tenant}\n"
+                        "🟢 Status: ACTIVE\n\n"
+                        "🔐 RBAC Connected"
+                    )
+
+                db.close()
+
+            except Exception as e:
+                text = f"❌ User Detail Error\n{e}"
+
         elif query.data == "add_user":
 
             text = (
