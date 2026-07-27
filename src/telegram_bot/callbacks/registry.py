@@ -14,6 +14,9 @@ from .report_actions import (
 from .settings import settings_callback
 from .users import users_callback
 from .security import security_callback
+from .finance_actions import finance_revenue_callback, finance_expense_callback, finance_profit_callback
+
+from .users_center import users_list_callback, rbac_roles_callback, permissions_callback
 
 
 def register_callbacks(app):
@@ -39,6 +42,15 @@ async def callback_router(update, context):
     elif data == "finance":
         await finance_callback(update, context)
 
+    elif data == "finance_revenue":
+        await finance_revenue_callback(update, context)
+
+    elif data == "finance_expense":
+        await finance_expense_callback(update, context)
+
+    elif data == "finance_profit":
+        await finance_profit_callback(update, context)
+
     elif data == "inventory":
         await inventory_callback(update, context)
 
@@ -51,7 +63,18 @@ async def callback_router(update, context):
     elif data == "security_center":
         await security_callback(update, context)
 
+
+    elif data == "users_list":
+        await users_list_callback(update, context)
+
+    elif data == "rbac_roles":
+        await rbac_roles_callback(update, context)
+
+    elif data == "permissions":
+        await permissions_callback(update, context)
+
     elif data == "customer":
+
         await customer_callback(update, context)
 
     elif data == "supplier":
@@ -73,3 +96,4 @@ async def callback_router(update, context):
         await query.message.reply_text(
             f"Callback: {data}"
         )
+
