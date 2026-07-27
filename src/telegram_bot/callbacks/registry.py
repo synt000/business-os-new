@@ -14,6 +14,8 @@ from .report_actions import (
 from .settings import settings_callback
 from .users import users_callback
 from .security import security_callback
+from .inventory_actions import inventory_stock_callback, inventory_movements_callback, inventory_warehouse_callback
+
 from .finance_actions import finance_revenue_callback, finance_expense_callback, finance_profit_callback
 
 from .users_center import users_list_callback, rbac_roles_callback, permissions_callback
@@ -53,6 +55,15 @@ async def callback_router(update, context):
 
     elif data == "inventory":
         await inventory_callback(update, context)
+
+    elif data == "inventory_stock":
+        await inventory_stock_callback(update, context)
+
+    elif data == "inventory_movements":
+        await inventory_movements_callback(update, context)
+
+    elif data == "inventory_warehouse":
+        await inventory_warehouse_callback(update, context)
 
     elif data == "settings":
         await settings_callback(update, context)
