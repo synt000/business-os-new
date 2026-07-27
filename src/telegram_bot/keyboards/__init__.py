@@ -3,6 +3,7 @@ from .finance import finance_menu
 from .inventory import inventory_menu
 from .customer import customer_menu
 from .supplier import supplier_menu
+from .report import report_menu
 from .user_detail import user_detail_keyboard
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     "inventory_menu",
     "customer_menu",
     "supplier_menu",
+    "report_menu",
     "user_detail_keyboard",
 ]
