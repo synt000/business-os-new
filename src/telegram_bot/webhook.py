@@ -632,6 +632,8 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
             except Exception as e:
                 text = f"❌ User Detail Error\n{e}"
 
+
+
         elif query.data == "add_user":
 
             text = (
@@ -640,6 +642,7 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "🔐 Role Assignment Ready\n"
                 "✅ Tenant Safe"
             )
+
 
         elif query.data == "permissions":
 
