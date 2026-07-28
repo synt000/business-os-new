@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>
+{{ product.name }} | {{ business.business_name }}
+</title>
+
+<style>
+
+body{
+background:#0f172a;
+color:white;
+font-family:Arial;
+margin:0;
+}
+
+.container{
+max-width:480px;
+margin:auto;
+padding:20px;
+}
+
+.card{
+background:rgba(255,255,255,.08);
+padding:20px;
+border-radius:25px;
+}
+
+.price{
+font-size:25px;
+font-weight:bold;
+color:#38bdf8;
+}
+
+.btn{
+display:block;
+margin-top:15px;
+padding:15px;
+border-radius:30px;
+text-align:center;
+text-decoration:none;
+color:white;
+background:#2563eb;
+}
+
+.telegram{
+background:#0088cc;
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="container">
+
+
+<div class="card">
+
+<h1>
+🛒 {{ product.name }}
+</h1>
+
+
+<p>
+SKU:
+{{ product.sku }}
+</p>
+
+
+<div class="price">
+
+{{ product.retail_price or product.price }} MMK
+
+</div>
+
+
+<p>
+
+Available from
+
+{{ business.business_name }}
+
+</p>
+
+
+</div>
+
+
+{% if business.telegram_url %}
+
+<a class="btn telegram"
+href="{{ business.telegram_url }}">
+
+Order Telegram
+
+</a>
+
+{% endif %}
+
+
+<a class="btn"
+href="/shop/{{ business.business_slug }}">
+
+Back To Shop
+
+</a>
+
+
+</div>
+
+
+</body>
+
+</html>

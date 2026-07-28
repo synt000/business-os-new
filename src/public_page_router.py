@@ -217,6 +217,62 @@ async def public_business_page(
 
 
 # ================================
+# PUBLIC PRODUCT DETAIL
+# ================================
+
+@router.get("/shop/{business_slug}/product/{product_id}", response_class=HTMLResponse)
+async def public_product_detail(
+    request: Request,
+    business_slug: str,
+    product_id: str,
+    db: Session = Depends(get_db)
+):
+
+    profile = (
+        db.query(BusinessProfile)
+        .filter(
+            BusinessProfile.business_slug == business_slug,
+            BusinessProfile.is_public == True
+        )
+        .first()
+    )
+
+    if not profile:
+        raise HTTPException(
+            status_code=404,
+            detail="BUSINESS_NOT_FOUND"
+        )
+
+
+    product = (
+        db.query(Product)
+        .filter(
+            Product.id == product_id,
+            Product.tenant_id == profile.tenant_id
+        )
+        .first()
+    )
+
+
+    if not product:
+        raise HTTPException(
+            status_code=404,
+            detail="PRODUCT_NOT_FOUND"
+        )
+
+
+    return templates.TemplateResponse(
+        request=request,
+        name="product_public.html",
+        context={
+            "business": profile,
+            "product": product
+        }
+    )
+
+
+
+# ================================
 # PUBLIC HOME HEALTH
 # ================================
 
