@@ -231,6 +231,21 @@ Viber
 </h3>
 
 
+<input
+id="productSearch"
+type="text"
+placeholder="🔎 Search product..."
+style="
+width:100%;
+padding:15px;
+border-radius:25px;
+border:none;
+margin-bottom:15px;
+font-size:16px;
+"
+/>
+
+
 {% if products %}
 
 <div style="
@@ -241,7 +256,9 @@ gap:15px;
 
 {% for product in products %}
 
-<div style="
+<div class="product-card"
+data-name="{{ product.name|lower }}"
+style="
 background:
 linear-gradient(
 135deg,
@@ -338,6 +355,47 @@ Login Business OS
 
 
 </div>
+
+
+<script>
+
+const search =
+document.getElementById("productSearch");
+
+
+if(search){
+
+search.addEventListener(
+"input",
+function(){
+
+let value =
+this.value.toLowerCase();
+
+
+document
+.querySelectorAll(".product-card")
+.forEach(card=>{
+
+let name =
+card.dataset.name;
+
+
+if(name.includes(value)){
+card.style.display="block";
+}
+else{
+card.style.display="none";
+}
+
+});
+
+
+});
+
+}
+
+</script>
 
 
 </body>
