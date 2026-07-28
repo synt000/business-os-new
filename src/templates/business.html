@@ -173,7 +173,7 @@ background:#1877f2;
 </h3>
 
 <p>
-{{ business.phone or "No Phone" }}
+{{ business.owner_phone or business.phone or "No Phone" }}
 </p>
 
 
@@ -210,6 +210,18 @@ Facebook Page
 
 {% endif %}
 
+
+
+
+
+{% if business.viber_number %}
+<a class="btn"
+href="viber://chat?number={{ business.viber_number }}">
+
+Viber
+
+</a>
+{% endif %}
 
 
 <a class="btn"

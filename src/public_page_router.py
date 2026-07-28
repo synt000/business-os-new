@@ -168,6 +168,7 @@ async def signup_page(
 # ================================
 @router.get("/shop/{business_slug}", response_class=HTMLResponse)
 async def public_business_page(
+    request: Request,
     business_slug: str,
     db: Session = Depends(get_db)
 ):
@@ -197,7 +198,7 @@ async def public_business_page(
 
 
     return templates.TemplateResponse(
-        request=None,
+        request=request,
         name="business.html",
         context={
             "business": profile
