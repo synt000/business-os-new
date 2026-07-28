@@ -1,5 +1,6 @@
 from src.domains.accounting.models import AccountLedger
-from src.domains.inventory.models import Inventory, StockMovement
+from src.domains.inventory.models import Inventory
+from src.domains.movement.models import StockMovement
 
 import uuid
 
@@ -24,7 +25,6 @@ from src.domains.accounting.models import (
 )
 
 from src.domains.product.models import Product
-from src.domains.inventory.models import StockMovement
 
 
 router = APIRouter(

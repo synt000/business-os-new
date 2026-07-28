@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from src.core.config import settings
 from src.core.database import get_db
 from src.models.saas_core import User, Tenant
-from src.domains.subscription.models import Subscription
+from src.domains.subscription.models import TenantSubscription
 
 # 1. 5-STAR UPGRADE: ENFORCE SECURE ARGON2 PASSWORD CRYPTOGRAPHY Context
 PWD_CONTEXT = CryptContext(schemes=["argon2"], deprecated="auto")
@@ -94,10 +94,10 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="ACCOUNT_SUSPENDED_OR_INACTIVE")
         
     subscription = (
-        db.query(Subscription)
+        db.query(TenantSubscription)
         .filter(
-            Subscription.tenant_id == active_user.tenant_id,
-            Subscription.status == "ACTIVE"
+            TenantSubscription.tenant_id == active_user.tenant_id,
+            TenantSubscription.status == "ACTIVE"
         )
         .first()
     )
@@ -108,8 +108,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
             detail="WORKSPACE_LOCKED: SUBSCRIPTION_EXPIRED"
         )
 
-    if subscription.end_date:
-        if subscription.end_date < datetime.utcnow():
+    if subscription.expire_date:
+        if subscription.expire_date < datetime.utcnow():
 
             subscription.status = "EXPIRED"
             db.commit()

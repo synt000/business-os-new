@@ -14,7 +14,8 @@ from src.domains.category.models import Category
 
 from src.domains.product.models import Product
 
-from src.domains.inventory.models import Inventory, StockMovement
+from src.domains.inventory.models import Inventory
+from src.domains.movement.models import StockMovement
 
 from src.domains.accounting.models import (
     AccountLedger,
@@ -30,3 +31,11 @@ from src.domains.subscription.models import (
     SubscriptionPlan,
     SubscriptionPayment
 )
+
+
+# Guest Workspace + Device Security Registry
+from src.models.guest_workspace import GuestWorkspace
+from src.models.device_session import DeviceSession
+
+# Welcome CMS Registry
+from src.domains.welcome.models import WelcomeSetting

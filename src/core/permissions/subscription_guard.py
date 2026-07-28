@@ -4,7 +4,7 @@ from datetime import datetime
 
 from src.core.database import get_db
 from src.core.security import get_current_user
-from src.models.saas_core import User
+from src.models.saas_core import User, Tenant
 from src.domains.subscription.models import Subscription
 
 
@@ -15,6 +15,41 @@ def require_active_subscription():
         db: Session = Depends(get_db)
     ):
 
+        tenant = (
+            db.query(Tenant)
+            .filter(
+                Tenant.id == current_user.tenant_id
+            )
+            .first()
+        )
+
+        if not tenant:
+            raise HTTPException(
+                status_code=404,
+                detail="TENANT_NOT_FOUND"
+            )
+
+
+        # FREE TRIAL MODE
+        if tenant.subscription_tier.value == "FREE_TRIAL":
+
+            if tenant.trial_expired:
+                raise HTTPException(
+                    status_code=402,
+                    detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED"
+                )
+
+            if not tenant.is_billing_active:
+                raise HTTPException(
+                    status_code=402,
+                    detail="WORKSPACE_LOCKED: BILLING_DISABLED"
+                )
+
+            return current_user
+
+
+        # PAID SUBSCRIPTION MODE
+
         subscription = (
             db.query(Subscription)
             .filter(
@@ -24,21 +59,26 @@ def require_active_subscription():
             .first()
         )
 
+
         if not subscription:
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+                status_code=403,
                 detail="ACTIVE_SUBSCRIPTION_REQUIRED"
             )
 
+
         if subscription.end_date < datetime.utcnow():
+
             subscription.status = "EXPIRED"
             db.commit()
 
             raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
+                status_code=402,
                 detail="SUBSCRIPTION_EXPIRED"
             )
 
+
         return current_user
+
 
     return checker

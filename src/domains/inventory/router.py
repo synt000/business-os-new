@@ -8,7 +8,7 @@ from src.domains.inventory.schemas import (
     LowStockAlertResponse
 )
 from src.models.saas_core import User
-from src.domains.inventory.models import StockMovement
+from src.domains.movement.models import StockMovement
 from src.domains.product.models import Product
 
 from src.core.security import get_current_user
@@ -47,6 +47,12 @@ async def adjust_stock(
             detail="PRODUCT_NOT_FOUND"
         )
 
+
+    if not product.inventory:
+        raise HTTPException(
+            status_code=400,
+            detail="INVENTORY_RECORD_NOT_FOUND"
+        )
 
     old_qty = product.inventory.quantity
     new_qty = old_qty + data.adjustment
@@ -138,7 +144,10 @@ async def low_stock_alerts(
             "status": "LOW_STOCK"
         }
         for p in products
-        if (p.inventory.quantity if p.inventory else 0) <= 10
+        if (
+            p.inventory
+            and p.inventory.quantity <= p.reorder_level
+        )
     ]
 
 
@@ -169,13 +178,19 @@ async def inventory_summary(
 
     low_stock_count = len([
         p for p in products
-        if (p.inventory.quantity if p.inventory else 0) <= 10
+        if (
+            p.inventory
+            and p.inventory.quantity <= p.reorder_level
+        )
     ])
 
 
     out_of_stock_count = len([
         p for p in products
-        if (p.inventory.quantity if p.inventory else 0) == 0
+        if (
+            p.inventory
+            and p.inventory.quantity == 0
+        )
     ])
 
 

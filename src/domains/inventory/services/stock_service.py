@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.domains.product.models import Product
-from src.domains.inventory.models import StockMovement
+from src.domains.movement.models import StockMovement
 
 
 def reduce_stock(

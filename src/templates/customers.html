@@ -1,109 +1,307 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Customers - Business OS</title>
+<title>
+Customers - Business OS
+</title>
 
-<link rel="stylesheet" href="/static/app.css">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+background:#020617;
+color:white;
+font-family:Arial;
+padding:15px;
+}
+
+.card{
+max-width:600px;
+margin:auto;
+background:#0f172a;
+padding:20px;
+border-radius:20px;
+}
+
+input{
+width:100%;
+padding:12px;
+margin:6px 0;
+border-radius:10px;
+border:none;
+background:#1e293b;
+color:white;
+}
+
+button{
+padding:12px;
+border:none;
+border-radius:10px;
+background:#2563eb;
+color:white;
+margin-top:8px;
+}
+
+.customer{
+background:#1e293b;
+padding:15px;
+border-radius:15px;
+margin-top:12px;
+}
+
+.delete{
+background:#dc2626;
+}
+
+.edit{
+background:#16a34a;
+}
+
+</style>
 
 </head>
 
+
 <body>
 
-<div class="container">
-
-<h1>👥 Customers</h1>
 
 <div class="card">
 
-<table width="100%">
+<h2>
+👥 Customers
+</h2>
 
-<thead>
-<tr>
-<th>Name</th>
-<th>Phone</th>
-<th>Email</th>
-</tr>
-</thead>
 
-<tbody id="customerList">
-</tbody>
+<input id="search"
+placeholder="🔍 Search Customer"
+onkeyup="searchCustomer()">
 
-</table>
+
+<h3>
+➕ Add Customer
+</h3>
+
+
+<input id="name"
+placeholder="Customer Name">
+
+
+<input id="phone"
+placeholder="Phone">
+
+
+<input id="email"
+placeholder="Email">
+
+
+<button onclick="addCustomer()">
+Save Customer
+</button>
+
+
+<hr>
+
+
+<div id="editBox" style="display:none">
+
+<h3>
+✏️ Edit Customer
+</h3>
+
+<input id="edit_id">
+
+<input id="edit_name"
+placeholder="Name">
+
+<input id="edit_phone"
+placeholder="Phone">
+
+<input id="edit_email"
+placeholder="Email">
+
+
+<button onclick="updateCustomer()">
+Update
+</button>
+
+
+<button onclick="closeEdit()">
+Cancel
+</button>
 
 </div>
 
 
-<a href="/dashboard">
-⬅ Dashboard
-</a>
+
+<div id="list">
+
+{% for c in customers %}
+
+<div class="customer">
+
+<h3>
+{{c.customer_name}}
+</h3>
+
+<p>
+📞 {{c.customer_phone}}
+</p>
+
+<p>
+✉️ {{c.customer_email}}
+</p>
+
+
+<button class="edit"
+onclick="editCustomer(
+'{{c.id}}',
+'{{c.customer_name}}',
+'{{c.customer_phone}}',
+'{{c.customer_email}}'
+)">
+Edit
+</button>
+
+
+<button class="delete"
+onclick="deleteCustomer('{{c.id}}')">
+Delete
+</button>
 
 
 </div>
+
+{% endfor %}
+
+</div>
+
+
+</div>
+
 
 
 <script>
 
-async function loadCustomers(){
-
-const token = localStorage.getItem("access_token");
+const API="/api/v4/customers";
 
 
-const res = await fetch(
-"/api/v4/business/customers",
-{
+async function addCustomer(){
+
+let data={
+name:document.getElementById("name").value,
+phone:document.getElementById("phone").value,
+email:document.getElementById("email").value
+};
+
+
+await fetch(API,{
+method:"POST",
 headers:{
-"Authorization":"Bearer "+token
-}
-}
-);
-
-
-if(!res.ok){
-
-console.log(await res.text());
-return;
-
-}
-
-
-const data = await res.json();
-
-
-const list =
-document.getElementById("customerList");
-
-
-data.customers.forEach(c=>{
-
-list.innerHTML += `
-
-<tr>
-
-<td>${c.name}</td>
-
-<td>${c.phone ?? ""}</td>
-
-<td>${c.email ?? ""}</td>
-
-</tr>
-
-`;
-
+"Content-Type":"application/json"
+},
+body:JSON.stringify(data)
 });
 
 
+location.reload();
+
 }
 
 
-loadCustomers();
+
+async function deleteCustomer(id){
+
+if(!confirm("Delete Customer?"))
+return;
+
+
+await fetch(API+"/"+id,{
+method:"DELETE"
+});
+
+
+location.reload();
+
+}
+
+
+
+function searchCustomer(){
+
+let value=document
+.getElementById("search")
+.value
+.toLowerCase();
+
+
+document
+.querySelectorAll(".customer")
+.forEach(c=>{
+
+c.style.display=
+c.innerText
+.toLowerCase()
+.includes(value)
+?"block"
+:"none";
+
+});
+
+}
+
+
+
+
+function editCustomer(id,name,phone,email){
+
+document.getElementById("editBox").style.display="block";
+
+document.getElementById("edit_id").value=id;
+document.getElementById("edit_name").value=name;
+document.getElementById("edit_phone").value=phone;
+document.getElementById("edit_email").value=email;
+
+}
+
+
+async function updateCustomer(){
+
+let id=document.getElementById("edit_id").value;
+
+
+await fetch(API+"/"+id,{
+method:"PUT",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+
+name:document.getElementById("edit_name").value,
+phone:document.getElementById("edit_phone").value,
+email:document.getElementById("edit_email").value
+
+})
+});
+
+
+location.reload();
+
+}
+
+
+function closeEdit(){
+
+document.getElementById("editBox").style.display="none";
+
+}
 
 
 </script>
 
 
 </body>
+
 </html>

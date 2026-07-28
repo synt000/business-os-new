@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from domains.movement.model import Movement
+from src.domains.movement.models import StockMovement as Movement
 from uuid import UUID
 
 class MovementRepository:

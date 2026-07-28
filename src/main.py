@@ -55,6 +55,7 @@ from src.auth.two_factor import router as two_factor_router
 from src.auth.session_router import router as session_router
 from src.auth.refresh_router import router as refresh_router
 from src.product.router import router as product_router
+from src.movement.router import router as movement_router
 from src.domains.social.router import router as social_webhook_router
 from src.domains.social_center.router import router as social_center_router
 from src.domains.dashboard.router import router as dashboard_router
@@ -62,9 +63,12 @@ from src.dashboard.router import router as ui_dashboard_router
 from src.domains.platform.router import router as platform_router
 from src.public_router import router as public_router
 from src.public_page_router import router as public_page_router
+from src.domains.welcome.admin_router import router as welcome_admin_router
 from src.business_settings_router import router as business_settings_router
 from src.domains.category.router import router as category_router
 from src.domains.tenant.router import router as tenant_router
+from src.domains.guest_workspace.router import router as guest_workspace_router
+from src.domains.welcome.router import router as welcome_router
 from src.domains.inventory.router import router as inventory_router
 from src.domains.order.router import router as order_router
 from src.domains.customer.router import router as customer_router
@@ -165,8 +169,11 @@ app.include_router(two_factor_router)
 app.include_router(session_router)
 app.include_router(refresh_router)
 app.include_router(product_router)
+app.include_router(movement_router)
 app.include_router(category_router)
 app.include_router(tenant_router)
+app.include_router(guest_workspace_router)
+app.include_router(welcome_router)
 app.include_router(subscription_router)
 app.include_router(trial_router)
 app.include_router(inventory_router)
@@ -223,6 +230,7 @@ print("🔥 UI DASHBOARD MANUAL ATTACHED:", [
 app.include_router(feedback_router)
 
 app.include_router(public_page_router)
+app.include_router(welcome_admin_router)
 
 from src.domains.website_settings.router import router as website_settings_router
 app.include_router(website_settings_router)
@@ -278,3 +286,8 @@ print("🔥 INCLUDED ROUTERS EXPANDED")
 app.include_router(telegram_router)
 
 # =====================================================
+
+print("===== FINAL ROUTES =====")
+for r in app.routes:
+    if hasattr(r, "path"):
+        print("ROUTE:", r.path)

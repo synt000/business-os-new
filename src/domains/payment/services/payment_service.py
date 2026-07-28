@@ -10,6 +10,10 @@ from src.models.saas_core import (
 
 from src.domains.accounting.models import AccountLedger
 
+from src.domains.accounting.services.journal_service import (
+    create_customer_payment_journal,
+)
+
 
 def create_payment(
     db: Session,
@@ -84,6 +88,17 @@ def create_payment(
         status="COMPLETED",
         invoice_id=invoice.id,
         tenant_id=tenant_id,
+    )
+
+    db.add(payment)
+    db.flush()
+
+
+    create_customer_payment_journal(
+        db=db,
+        tenant_id=tenant_id,
+        payment_id=payment.id,
+        payment_amount=data.amount,
     )
 
 

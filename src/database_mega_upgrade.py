@@ -6,7 +6,7 @@ from datetime import datetime
 # SaaS Subscription Engine Models
 from src.domains.subscription import models as subscription
 from src.models.refresh_token import RefreshToken
-from src.domains.inventory.models import StockMovement
+from src.domains.movement.models import StockMovement
 from src.models.saas_core import Invoice
 from src.models.saas_core import Payment
 from src.models.saas_core import Receivable

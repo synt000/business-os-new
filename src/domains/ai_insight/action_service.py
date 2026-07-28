@@ -15,7 +15,8 @@ from src.domains.accounting.services.journal_service import (
 )
 
 from src.domains.product.models import Product
-from src.domains.inventory.models import Inventory, StockMovement
+from src.domains.inventory.models import Inventory
+from src.domains.movement.models import StockMovement
 from src.domains.accounting.models import ProcurementLedger
 
 

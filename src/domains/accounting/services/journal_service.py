@@ -148,3 +148,41 @@ def create_supplier_payment_journal(
 
     return True
 
+
+
+def create_customer_payment_journal(
+    db: Session,
+    tenant_id: str,
+    payment_id: str,
+    payment_amount: float,
+):
+    """
+    Customer Payment Double Entry
+
+    DEBIT  CASH_ASSET
+    CREDIT CUSTOMER_RECEIVABLE
+    """
+
+    create_ledger_entry(
+        db=db,
+        tenant_id=tenant_id,
+        entry_type="DEBIT",
+        account_head="CASH_ASSET",
+        amount=payment_amount,
+        reference_id=payment_id,
+        description="Customer payment received",
+    )
+
+
+    create_ledger_entry(
+        db=db,
+        tenant_id=tenant_id,
+        entry_type="CREDIT",
+        account_head="CUSTOMER_RECEIVABLE",
+        amount=payment_amount,
+        reference_id=payment_id,
+        description="Receivable cleared",
+    )
+
+
+    return True

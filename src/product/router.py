@@ -30,7 +30,8 @@ from src.models.saas_core import (
 
 from src.domains.category.models import Category
 from src.domains.product.models import Product
-from src.domains.inventory.models import Inventory, StockMovement
+from src.domains.inventory.models import Inventory
+from src.domains.movement.models import StockMovement
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
 

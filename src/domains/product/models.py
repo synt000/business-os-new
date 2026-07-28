@@ -1,7 +1,7 @@
 from sqlalchemy import String, ForeignKey, Integer
 from sqlalchemy.orm import relationship, mapped_column
 
-from src.database import TenantModel
+from src.core.database import TenantModel
 
 from src.domains.accounting.models import ProcurementLedger
 
@@ -67,8 +67,21 @@ class Product(TenantModel):
         uselist=False
     )
 
+    stock_movements = relationship(
+        "StockMovement",
+        back_populates="product",
+        cascade="all, delete-orphan"
+    )
+
     # order_items relationship removed
     # Order domain owns OrderItem relationship
 
     # procurements relationship disabled temporarily
 # tenant relationship disabled (registry fix)
+
+
+# Stock movement relationship
+stock_movements = relationship(
+    "StockMovement",
+    back_populates="product"
+)

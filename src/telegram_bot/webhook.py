@@ -47,10 +47,20 @@ def get_ceo_access_token():
 
 
 
-telegram_app = Application.builder().token(TOKEN).build()
 
-register_handlers(telegram_app)
-register_callbacks(telegram_app)
+telegram_app = None
+
+if TOKEN:
+    telegram_app = Application.builder().token(TOKEN).build()
+else:
+    print("⚠️ TELEGRAM_BOT_TOKEN missing - Telegram Bot disabled")
+
+
+
+if telegram_app:
+    register_handlers(telegram_app)
+    register_callbacks(telegram_app)
+
 
 
 import requests
