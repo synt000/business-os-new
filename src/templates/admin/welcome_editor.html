@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>
+Welcome CMS V4 Builder
+</title>
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style>
+
+body{
+background:#020617;
+color:white;
+font-family:Arial;
+padding:20px;
+}
+
+.card{
+max-width:520px;
+margin:auto;
+background:#0f172a;
+padding:20px;
+border-radius:20px;
+}
+
+input,textarea,select{
+
+width:100%;
+margin:8px 0;
+padding:12px;
+border-radius:10px;
+border:none;
+background:#1e293b;
+color:white;
+
+}
+
+button{
+
+width:100%;
+padding:15px;
+margin-top:10px;
+background:#2563eb;
+border:none;
+border-radius:12px;
+color:white;
+font-size:18px;
+
+}
+
+label{
+
+color:#38bdf8;
+
+}
+
+.section-box{
+
+background:#111827;
+padding:15px;
+border-radius:15px;
+margin-top:15px;
+
+}
+
+.delete{
+
+background:#dc2626;
+
+}
+
+.add{
+
+background:#16a34a;
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<div class="card">
+
+
+<h2>
+🔥 Welcome CMS V4 Builder
+</h2>
+
+
+<form method="post"
+action="/admin/welcome/update">
+
+
+<input
+name="language"
+value="mm"
+hidden>
+
+
+<label>
+Title
+</label>
+
+<input
+name="title"
+value="{{ welcome.title }}">
+
+
+
+<label>
+Subtitle
+</label>
+
+<input
+name="subtitle"
+value="{{ welcome.subtitle }}">
+
+
+
+<label>
+Hero Message
+</label>
+
+<textarea
+name="hero_message">{{ welcome.hero_message }}</textarea>
+
+
+
+<label>
+Logo URL
+</label>
+
+<input
+name="logo_url"
+value="{{ welcome.logo_url or '' }}">
+
+
+
+<label>
+Hero Image URL
+</label>
+
+<input
+name="hero_image_url"
+value="{{ welcome.hero_image_url or '' }}">
+
+
+
+<label>
+Theme Color
+</label>
+
+<input
+name="theme_color"
+value="{{ welcome.theme_color }}">
+
+
+
+<label>
+Live Banner
+</label>
+
+<input
+name="live_banner"
+value="{{ welcome.live_banner }}">
+
+
+
+<label>
+FAQ
+</label>
+
+<textarea
+name="faq_content">{{ welcome.faq_content }}</textarea>
+
+
+
+<label>
+Features JSON
+</label>
+
+<textarea
+name="features_json">{{ welcome.features_json }}</textarea>
+
+
+
+<label>
+Button Text
+</label>
+
+<input
+name="button_text"
+value="{{ welcome.button_text }}">
+
+
+
+<label>
+SEO Title
+</label>
+
+<input
+name="seo_title"
+value="{{ welcome.seo_title or '' }}">
+
+
+
+<label>
+SEO Description
+</label>
+
+<textarea
+name="seo_description">{{ welcome.seo_description or '' }}</textarea>
+
+
+
+<h3>
+🔥 Sections Builder
+</h3>
+
+
+<div id="builder">
+
+
+</div>
+
+
+<button
+type="button"
+class="add"
+onclick="addSection()">
+
++ Add Section
+
+</button>
+
+
+
+<textarea
+id="sections_json"
+name="sections_json"
+hidden>
+</textarea>
+
+
+
+<button>
+
+💾 Save CMS V4
+
+</button>
+
+
+</form>
+
+
+</div>
+
+
+
+<script>
+
+
+let sections =
+{{ welcome.sections_json | tojson }};
+
+
+
+function render(){
+
+let box=document.getElementById("builder");
+
+box.innerHTML="";
+
+
+sections.forEach((s,i)=>{
+
+
+box.innerHTML += `
+
+<div class="section-box">
+
+
+<label>
+Type
+</label>
+
+
+<select onchange="sections[${i}].type=this.value">
+
+<option ${s.type=="info"?"selected":""}>
+info
+</option>
+
+<option ${s.type=="feature"?"selected":""}>
+feature
+</option>
+
+<option ${s.type=="cta"?"selected":""}>
+cta
+</option>
+
+<option ${s.type=="image"?"selected":""}>
+image
+</option>
+
+<option ${s.type=="hero"?"selected":""}>
+hero
+</option>
+
+<option ${s.type=="stats"?"selected":""}>
+stats
+</option>
+
+<option ${s.type=="pricing"?"selected":""}>
+pricing
+</option>
+
+<option ${s.type=="testimonial"?"selected":""}>
+testimonial
+</option>
+
+<option ${s.type=="faq"?"selected":""}>
+faq
+</option>
+
+<option ${s.type=="contact"?"selected":""}>
+contact
+</option>
+
+</select>
+
+
+
+<label>
+Title
+</label>
+
+
+<input
+value="${s.title||''}"
+oninput="sections[${i}].title=this.value">
+
+
+
+<label>
+Content
+</label>
+
+
+<textarea
+oninput="sections[${i}].content=this.value">${s.content||''}</textarea>
+
+
+
+<button
+type="button"
+class="delete"
+onclick="removeSection(${i})">
+
+Delete
+
+</button>
+
+
+</div>
+
+`;
+
+});
+
+
+document.getElementById("sections_json").value=
+JSON.stringify(sections);
+
+
+}
+
+
+
+function addSection(){
+
+sections.push({
+
+"type":"info",
+
+"title":"New Section",
+
+"content":""
+
+});
+
+
+render();
+
+}
+
+
+
+function removeSection(i){
+
+sections.splice(i,1);
+
+render();
+
+}
+
+
+render();
+
+
+</script>
+
+
+
+
+<hr style="margin:25px 0;border-color:#334155;">
+
+<h3>📦 Export / Import CMS</h3>
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:15px;">
+
+<button type="button" onclick="exportCMS()">
+⬇ Export JSON
+</button>
+
+<button type="button" onclick="importCMS()">
+⬆ Import JSON
+</button>
+
+</div>
+
+<script>
+
+function exportCMS(){
+
+const data={
+sections:sections
+};
+
+const blob=new Blob(
+[
+JSON.stringify(data,null,2)
+],
+{
+type:"application/json"
+}
+);
+
+const a=document.createElement("a");
+
+a.href=URL.createObjectURL(blob);
+
+a.download="welcome_sections.json";
+
+a.click();
+
+}
+
+function importCMS(){
+
+const input=document.createElement("input");
+
+input.type="file";
+
+input.accept=".json";
+
+input.onchange=e=>{
+
+const file=e.target.files[0];
+
+if(!file)return;
+
+const reader=new FileReader();
+
+reader.onload=()=>{
+
+try{
+
+const data=JSON.parse(reader.result);
+
+if(data.sections){
+
+sections=data.sections;
+
+renderSections();
+
+alert("CMS Imported");
+
+}
+
+}catch(err){
+
+alert("Invalid JSON");
+
+}
+
+};
+
+reader.readAsText(file);
+
+};
+
+input.click();
+
+}
+
+</script>
+
+
+
+
+<hr style="margin:25px 0;border-color:#334155;">
+
+<h3>🖱 Visual Builder V11</h3>
+
+<style>
+.builder-item{
+background:#1e293b;
+padding:12px;
+border-radius:12px;
+margin-top:10px;
+cursor:move;
+}
+.builder-item h4{
+margin:0 0 8px;
+}
+.builder-item input,
+.builder-item textarea{
+width:100%;
+margin-top:6px;
+}
+</style>
+
+<div id="visualBuilder"></div>
+
+<script>
+
+function renderVisualBuilder(){
+
+const box=document.getElementById("visualBuilder");
+
+if(!box)return;
+
+box.innerHTML="";
+
+sections.forEach((sec,i)=>{
+
+box.innerHTML+=`
+<div class="builder-item"
+draggable="true"
+ondragstart="dragStart(event,${i})"
+ondragover="event.preventDefault()"
+ondrop="dropItem(event,${i})">
+
+<h4>${sec.type}</h4>
+
+<input
+value="${sec.title||''}"
+oninput="sections[${i}].title=this.value;renderSections();">
+
+<textarea
+rows="3"
+oninput="sections[${i}].content=this.value;renderSections();">${sec.content||''}</textarea>
+
+</div>
+`;
+
+});
+
+syncJSON();
+
+}
+
+let dragIndex=null;
+
+function dragStart(e,i){
+
+dragIndex=i;
+
+}
+
+function dropItem(e,target){
+
+if(dragIndex===null)return;
+
+const item=sections.splice(dragIndex,1)[0];
+
+sections.splice(target,0,item);
+
+dragIndex=null;
+
+renderSections();
+
+renderVisualBuilder();
+
+}
+
+const oldRender=renderSections;
+
+renderSections=function(){
+
+oldRender();
+
+renderVisualBuilder();
+
+};
+
+window.addEventListener("load",renderVisualBuilder);
+
+</script>
+
+
+
+
+<hr style="margin:25px 0;border-color:#334155;">
+
+<h3>🕒 Auto Save V12</h3>
+
+<div id="autosaveStatus"
+style="
+margin-top:10px;
+padding:10px;
+border-radius:10px;
+background:#1e293b;
+color:#22c55e;
+">
+Ready
+</div>
+
+<script>
+
+function collectCMS(){
+
+return {
+
+title:document.querySelector('[name="title"]')?.value||"",
+
+subtitle:document.querySelector('[name="subtitle"]')?.value||"",
+
+hero_message:document.querySelector('[name="hero_message"]')?.value||"",
+
+faq_content:document.querySelector('[name="faq_content"]')?.value||"",
+
+button_text:document.querySelector('[name="button_text"]')?.value||"",
+
+live_banner:document.querySelector('[name="live_banner"]')?.value||"",
+
+theme_color:document.querySelector('[name="theme_color"]')?.value||"",
+
+logo_url:document.querySelector('[name="logo_url"]')?.value||"",
+
+hero_image_url:document.querySelector('[name="hero_image_url"]')?.value||"",
+
+seo_title:document.querySelector('[name="seo_title"]')?.value||"",
+
+seo_description:document.querySelector('[name="seo_description"]')?.value||"",
+
+sections:sections
+
+};
+
+}
+
+function autoSaveCMS(){
+
+localStorage.setItem(
+
+"business_os_cms_draft",
+
+JSON.stringify(collectCMS())
+
+);
+
+const el=document.getElementById("autosaveStatus");
+
+if(el){
+
+el.innerHTML="✅ Draft Saved "+new Date().toLocaleTimeString();
+
+}
+
+}
+
+setInterval(autoSaveCMS,5000);
+
+window.addEventListener("beforeunload",autoSaveCMS);
+
+window.addEventListener("load",()=>{
+
+const draft=localStorage.getItem("business_os_cms_draft");
+
+if(!draft)return;
+
+try{
+
+const data=JSON.parse(draft);
+
+if(data.sections){
+
+sections=data.sections;
+
+if(typeof renderSections==="function") renderSections();
+
+if(typeof renderVisualBuilder==="function") renderVisualBuilder();
+
+}
+
+}catch(e){}
+
+});
+
+</script>
+
+
+
+
+<hr style="margin:25px 0;border-color:#334155;">
+
+<h3>🕘 Version History V13</h3>
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+<button type="button" onclick="saveVersion()">
+💾 Save Version
+</button>
+
+<button type="button" onclick="showVersions()">
+📜 History
+</button>
+
+</div>
+
+<div id="versionHistory"
+style="
+margin-top:15px;
+background:#1e293b;
+padding:15px;
+border-radius:12px;
+display:none;
+">
+</div>
+
+<script>
+
+function saveVersion(){
+
+let versions=JSON.parse(
+localStorage.getItem("business_os_versions")||"[]"
+);
+
+versions.unshift({
+time:new Date().toISOString(),
+data:collectCMS()
+});
+
+versions=versions.slice(0,20);
+
+localStorage.setItem(
+"business_os_versions",
+JSON.stringify(versions)
+);
+
+alert("Version Saved");
+
+}
+
+function restoreVersion(index){
+
+let versions=JSON.parse(
+localStorage.getItem("business_os_versions")||"[]"
+);
+
+if(!versions[index]) return;
+
+const d=versions[index].data;
+
+sections=d.sections||[];
+
+if(typeof renderSections==="function") renderSections();
+if(typeof renderVisualBuilder==="function") renderVisualBuilder();
+
+alert("Version Restored");
+
+}
+
+function showVersions(){
+
+const box=document.getElementById("versionHistory");
+
+box.style.display="block";
+
+let versions=JSON.parse(
+localStorage.getItem("business_os_versions")||"[]"
+);
+
+box.innerHTML="";
+
+versions.forEach((v,i)=>{
+
+box.innerHTML+=`
+<div style="margin-bottom:10px;">
+<b>${v.time}</b>
+<br>
+<button onclick="restoreVersion(${i})">
+↩ Restore
+</button>
+</div>
+`;
+
+});
+
+}
+
+</script>
+
+
+
+
+<hr style="margin:25px 0;border-color:#334155;">
+
+<h3>🚀 Publish Manager V14</h3>
+
+<div style="display:flex;gap:10px;flex-wrap:wrap;">
+
+<button type="button" onclick="publishCMS()">
+🌍 Publish
+</button>
+
+<button type="button" onclick="unpublishCMS()">
+🔒 Unpublish
+</button>
+
+<span id="publishStatus"
+style="
+padding:10px;
+background:#1e293b;
+border-radius:10px;
+">
+Draft
+</span>
+
+</div>
+
+<script>
+
+function publishCMS(){
+
+localStorage.setItem(
+"business_os_publish_status",
+"published"
+);
+
+document.getElementById("publishStatus").innerHTML=
+"🟢 Published";
+
+}
+
+function unpublishCMS(){
+
+localStorage.setItem(
+"business_os_publish_status",
+"draft"
+);
+
+document.getElementById("publishStatus").innerHTML=
+"🟡 Draft";
+
+}
+
+window.addEventListener("load",()=>{
+
+const st=localStorage.getItem(
+"business_os_publish_status"
+)||"draft";
+
+document.getElementById("publishStatus").innerHTML=
+st==="published"
+? "🟢 Published"
+: "🟡 Draft";
+
+});
+
+</script>
+
+
+</body>
+
+</html>
