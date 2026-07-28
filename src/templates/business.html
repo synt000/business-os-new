@@ -224,6 +224,51 @@ Viber
 {% endif %}
 
 
+<div class="card">
+
+<h3>
+🛍 Products
+</h3>
+
+{% if products %}
+
+{% for product in products %}
+
+<div style="
+background:rgba(255,255,255,.06);
+padding:15px;
+border-radius:18px;
+margin-top:12px;
+">
+
+<h4>
+{{ product.name }}
+</h4>
+
+<p>
+SKU: {{ product.sku }}
+</p>
+
+<strong>
+{{ product.retail_price or product.price }} MMK
+</strong>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<p>
+No products available.
+</p>
+
+{% endif %}
+
+</div>
+
+
+
 <a class="btn"
 href="/login">
 

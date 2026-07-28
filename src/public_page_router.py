@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.models.business_profile import BusinessProfile
+from src.domains.product.models import Product
 from src.domains.welcome.service import WelcomeService
 
 
@@ -197,11 +198,20 @@ async def public_business_page(
         )
 
 
+    products = (
+        db.query(Product)
+        .filter(
+            Product.tenant_id == profile.tenant_id
+        )
+        .all()
+    )
+
     return templates.TemplateResponse(
         request=request,
         name="business.html",
         context={
-            "business": profile
+            "business": profile,
+            "products": products
         }
     )
 
