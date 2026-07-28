@@ -1,391 +1,3644 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Business OS Myanmar - One Platform. Every Business.</title>
+<title>
+Business OS Enterprise | Complete SaaS ERP Platform
+</title>
 
-<meta name="theme-color" content="#2563eb">
+<meta name="description"
+content="Business OS Enterprise is a modern SaaS ERP platform for inventory, sales, accounting, CRM, finance, analytics and AI business intelligence.">
 
-<link rel="manifest" href="/static/pwa/manifest.json">
+<meta name="keywords"
+content="ERP, SaaS, Inventory Management, POS, Accounting Software, CRM, Business OS">
+
+<meta name="author"
+content="Business OS Enterprise">
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
 <style>
 
 *{
-box-sizing:border-box;
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+html{
+    scroll-behavior:smooth;
 }
 
 body{
-margin:0;
-font-family:Arial,sans-serif;
-background:#020617;
-color:white;
+
+    background:
+        radial-gradient(circle at top,#162447 0%,#0f172a 45%,#020617 100%);
+
+    color:white;
+    overflow-x:hidden;
 }
 
-.container{
-max-width:520px;
-margin:auto;
-padding:25px;
-}
+/* --------------------------- */
+/* Navigation */
+/* --------------------------- */
 
-.hero{
-text-align:center;
-padding:45px 10px 25px;
+nav{
+
+    position:fixed;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:70px;
+
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+
+    padding:0 22px;
+
+    background:rgba(15,23,42,.75);
+
+    backdrop-filter:blur(18px);
+
+    border-bottom:1px solid rgba(255,255,255,.08);
+
+    z-index:999;
 }
 
 .logo{
-font-size:52px;
-display:flex;
-justify-content:center;
-align-items:center;
+
+    font-size:24px;
+    font-weight:800;
+
+    color:#38bdf8;
+
+    letter-spacing:.5px;
 }
 
-.logo-img{
-width:90px;
-height:90px;
-object-fit:contain;
+.logo span{
+
+    color:#22c55e;
+}
+
+.nav-buttons{
+
+    display:flex;
+    gap:10px;
+}
+
+.nav-btn{
+
+    text-decoration:none;
+
+    color:white;
+
+    padding:10px 18px;
+
+    border-radius:12px;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    transition:.3s;
+
+    border:1px solid rgba(255,255,255,.15);
+
+    background:rgba(255,255,255,.05);
+}
+
+.nav-btn:hover{
+
+    background:#2563eb;
+}
+
+/* --------------------------- */
+/* Hero */
+/* --------------------------- */
+
+.hero{
+
+    min-height:100vh;
+
+    display:flex;
+
+    justify-content:center;
+    align-items:center;
+
+    padding:120px 22px 80px;
+}
+
+.hero-card{
+
+    width:100%;
+    max-width:1100px;
+
+    border-radius:30px;
+
+    padding:45px;
+
+    background:rgba(255,255,255,.06);
+
+    backdrop-filter:blur(24px);
+
+    border:1px solid rgba(255,255,255,.08);
+
+    box-shadow:
+        0 20px 60px rgba(0,0,0,.45);
+}
+
+.badge{
+
+    display:inline-block;
+
+    padding:8px 16px;
+
+    border-radius:999px;
+
+    background:#1d4ed8;
+
+    font-size:13px;
+
+    font-weight:700;
+
+    margin-bottom:24px;
 }
 
 .hero h1{
-font-size:38px;
-margin:10px 0;
+
+    font-size:56px;
+
+    line-height:1.15;
+
+    font-weight:800;
+
+    margin-bottom:22px;
 }
 
-.hero span{
-color:#38bdf8;
+.hero h1 span{
+
+    color:#38bdf8;
 }
 
-.tagline{
-font-size:18px;
-font-weight:bold;
+.hero p{
+
+    color:#cbd5e1;
+
+    font-size:19px;
+
+    line-height:1.8;
+
+    max-width:720px;
+
+    margin-bottom:36px;
 }
 
-.subtitle{
-margin-top:15px;
-color:#cbd5e1;
-line-height:1.6;
+.hero-actions{
+
+    display:flex;
+    gap:16px;
+    flex-wrap:wrap;
 }
 
+.btn{
 
-.cta{
-display:block;
-margin-top:30px;
-padding:16px;
-border-radius:30px;
-text-align:center;
-background:#2563eb;
-color:white;
-text-decoration:none;
-font-weight:bold;
+    text-decoration:none;
+
+    padding:15px 26px;
+
+    border-radius:16px;
+
+    font-weight:700;
+
+    transition:.3s;
 }
 
+.btn-primary{
 
-.section-title{
-margin-top:45px;
-text-align:center;
-font-size:24px;
+    background:#2563eb;
+    color:white;
 }
 
+.btn-primary:hover{
 
-.grid{
+    transform:translateY(-3px);
 
-display:grid;
-grid-template-columns:repeat(1,1fr);
-gap:18px;
-margin-top:25px;
+    background:#1d4ed8;
+}
+
+.btn-outline{
+
+    border:1px solid rgba(255,255,255,.2);
+
+    color:white;
+
+    background:rgba(255,255,255,.04);
+}
+
+.btn-outline:hover{
+
+    background:rgba(255,255,255,.12);
+}
+
+/* floating glow */
+
+.glow{
+
+    position:absolute;
+
+    width:280px;
+    height:280px;
+
+    background:#2563eb55;
+
+    filter:blur(90px);
+
+    border-radius:50%;
+
+    top:120px;
+    right:-80px;
+
+    z-index:-1;
+}
+
+/* Mobile */
+
+@media(max-width:768px){
+
+.hero-card{
+
+padding:28px;
+
+border-radius:22px;
 
 }
 
+.hero h1{
 
-.card{
-
-background:rgba(255,255,255,.08);
-border:1px solid rgba(255,255,255,.15);
-border-radius:24px;
-padding:25px;
-text-align:center;
+font-size:36px;
 
 }
 
+.hero p{
 
-.icon{
-font-size:45px;
+font-size:16px;
+
 }
 
-
-.name{
+.logo{
 
 font-size:20px;
-font-weight:bold;
-margin-top:10px;
 
 }
 
+nav{
 
-.desc{
-
-color:#cbd5e1;
-font-size:14px;
-margin-top:8px;
+padding:0 16px;
 
 }
 
-
-.features{
-
-margin-top:40px;
-background:rgba(255,255,255,.05);
-padding:25px;
-border-radius:25px;
-
-}
-
-
-.features div{
-
-padding:8px 0;
-color:#cbd5e1;
-
-}
-
-
-.telegram{
-
-background:#0088cc;
-
-}
-
-
-footer{
-
-margin-top:40px;
-text-align:center;
-color:#94a3b8;
-font-size:12px;
-
-}
-
-
-
-
-.contact-owner{
-margin-top:45px;
-text-align:center;
-background:rgba(255,255,255,.05);
-padding:25px;
-border-radius:25px;
-}
-
-.contact-icons{
-display:grid;
-grid-template-columns:repeat(4,1fr);
-gap:15px;
-margin-top:20px;
-}
-
-.contact-icons a{
-text-decoration:none;
-color:white;
-font-size:30px;
-}
-
-.contact-icons span{
-display:block;
-font-size:12px;
-margin-top:8px;
-color:#cbd5e1;
 }
 
 </style>
 
 </head>
 
-
 <body>
 
-<div class="container">
+<div class="glow"></div>
 
+<nav>
+
+<div class="logo">
+Business OS <span>Enterprise</span>
+</div>
+
+<div class="nav-buttons">
+
+<a href="/login" class="nav-btn">
+Login
+</a>
+
+<a href="/signup" class="nav-btn">
+Start Free
+</a>
+
+</div>
+
+</nav>
 
 <section class="hero">
 
-<div class="logo">
-<img class="logo-img" src="/static/images/brand/business-os-logo.png" alt="Business OS">
+<div class="hero-card">
+
+<div class="badge">
+🚀 Enterprise SaaS Platform
 </div>
 
 <h1>
-<span>Business OS</span>
+
+Run Your Entire Business With
+
+<span>Business OS Enterprise</span>
+
 </h1>
 
-<div class="tagline">
-One Platform. Every Business.
-</div>
+<p>
 
+One powerful platform to manage Sales, Inventory,
+Accounting, Customers, Suppliers, Payments,
+Invoices, Reports, AI Insights and Business Growth —
+built for modern businesses of every size.
 
-<div class="subtitle">
+</p>
 
-Myanmar's All-in-One Business Platform.
+<div class="hero-actions">
 
-Manage Sales, Inventory, Customers and Daily Operations in One Place.
+<a href="/signup" class="btn btn-primary">
 
-</div>
+Start Free Trial
 
-
-<a class="cta" href="/choose-business">
-🆓 Start 30-Day Free Trial
 </a>
 
+<a href="#features" class="btn btn-outline">
+
+Explore Features
+
+</a>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ========================= -->
+<!-- FEATURES -->
+<!-- ========================= -->
+
+<section id="features" class="section">
+
+    <h2 class="section-title">
+        Everything You Need
+    </h2>
+
+    <div class="feature-grid">
+
+        <div class="feature-card">
+            <div class="feature-icon">📦</div>
+            <h3>Inventory</h3>
+            <p>
+                Track stock, movements, warehouses
+                and low-stock alerts.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">💳</div>
+            <h3>POS & Sales</h3>
+            <p>
+                Fast checkout,
+                customer invoices
+                and payment tracking.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📊</div>
+            <h3>Accounting</h3>
+            <p>
+                Double-entry accounting,
+                journals,
+                ledgers
+                and reports.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🤖</div>
+            <h3>AI Assistant</h3>
+            <p>
+                Business insights,
+                recommendations
+                and executive dashboard.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🏢</div>
+            <h3>Multi Business</h3>
+            <p>
+                Manage multiple companies
+                from one account.
+            </p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">📈</div>
+            <h3>Analytics</h3>
+            <p>
+                Real-time KPI,
+                charts,
+                revenue
+                and profit tracking.
+            </p>
+        </div>
+
+    </div>
+
+</section>
+
+<!-- ========================= -->
+<!-- CTA -->
+<!-- ========================= -->
+
+<section class="cta">
+
+    <h2>
+        Grow Your Business
+        With Business OS Enterprise
+    </h2>
+
+    <p>
+        Modern ERP platform built for
+        retailers,
+        wholesalers,
+        restaurants,
+        services,
+        manufacturers
+        and enterprises.
+    </p>
+
+    <a href="/signup" class="btn-primary">
+        Create Free Workspace
+    </a>
 
 </section>
 
 
 
+<!-- ========================= -->
+<!-- ENTERPRISE MODULES -->
+<!-- ========================= -->
+
+<section class="section">
+
 <h2 class="section-title">
-Built For Myanmar Businesses
+Powerful Business Modules
 </h2>
 
+<p class="section-desc">
+Business OS Enterprise connects every part
+of your business into one intelligent system.
+</p>
 
 
-<div class="grid">
+<div class="module-grid">
 
 
-<div class="card">
+<div class="module-card">
 
-<div class="icon">
+<div class="module-icon">
 🛒
 </div>
 
-<div class="name">
-Online Shop
-</div>
+<h3>
+Sales Engine
+</h3>
 
-<div class="desc">
-Products, Orders, Customers and Inventory Management
-</div>
-
-</div>
-
-
-
-<div class="card">
-
-<div class="icon">
-🎲
-</div>
-
-<div class="name">
-2D Seller
-</div>
-
-<div class="desc">
-Daily Records, Commission and Sales Tracking
-</div>
+<p>
+Manage orders, invoices, payments and
+customer transactions easily.
+</p>
 
 </div>
 
 
 
-<div class="card">
+<div class="module-card">
 
-<div class="icon">
-🏪
+<div class="module-icon">
+📦
 </div>
 
-<div class="name">
-Mini Mart
-</div>
+<h3>
+Inventory Engine
+</h3>
 
-<div class="desc">
-Stock Control, Purchase and Profit Overview
-</div>
-
-</div>
-
-
-</div>
-
-
-
-<div class="features">
-
-<h2>
-Why Business OS?
-</h2>
-
-<div>✓ Sales Management</div>
-<div>✓ Inventory Control</div>
-<div>✓ Customer Management</div>
-<div>✓ Business Reports</div>
-<div>✓ Multi Business Platform</div>
+<p>
+Real-time stock control,
+movement tracking and warehouse management.
+</p>
 
 </div>
 
 
 
-<a class="cta telegram" href="https://t.me/yourusername">
-✈️ Contact Telegram
-</a>
+<div class="module-card">
+
+<div class="module-icon">
+💰
+</div>
+
+<h3>
+Finance Engine
+</h3>
+
+<p>
+Double-entry accounting,
+ledger tracking and financial reports.
+</p>
+
+</div>
 
 
 
+<div class="module-card">
+
+<div class="module-icon">
+👥
+</div>
+
+<h3>
+Customer Management
+</h3>
+
+<p>
+Build customer relationships and
+track complete history.
+</p>
+
+</div>
 
 
 
-<section class="contact-owner">
+<div class="module-card">
 
-<h2>
-Contact Business OS Owner
-</h2>
+<div class="module-icon">
+🏭
+</div>
 
-<div class="contact-icons">
+<h3>
+Enterprise Control
+</h3>
 
-<a href="mailto:sawyannaing054540@gmail.com">
-📧
-<span>Email</span>
-</a>
+<p>
+Designed for growing businesses,
+teams and multiple branches.
+</p>
 
-<a href="https://t.me/Leekyitarlarkomaykoloe">
-✈️
-<span>Telegram</span>
-</a>
+</div>
 
-<a href="viber://chat?number=+959686563395">
-💬
-<span>Viber</span>
-</a>
 
-<a href="tel:09686563395">
-☎️
-<span>Phone</span>
-</a>
+
+<div class="module-card">
+
+<div class="module-icon">
+🤖
+</div>
+
+<h3>
+AI Business Intelligence
+</h3>
+
+<p>
+Smart insights to understand
+your business performance.
+</p>
+
+</div>
+
 
 </div>
 
 </section>
 
 
-<footer>
 
-© 2026 Business OS Myanmar
+<!-- ========================= -->
+<!-- BUSINESS WORKFLOW -->
+<!-- ========================= -->
+
+
+<section class="workflow">
+
+
+<h2 class="section-title">
+
+From Operation To Growth
+
+</h2>
+
+
+<div class="workflow-box">
+
+
+<div class="step">
+
+<span>
+01
+</span>
+
+<h3>
+Create
+</h3>
+
+<p>
+Setup your business workspace.
+</p>
+
+</div>
+
+
+
+<div class="step">
+
+<span>
+02
+</span>
+
+<h3>
+Manage
+</h3>
+
+<p>
+Control products,
+customers and operations.
+</p>
+
+</div>
+
+
+
+<div class="step">
+
+<span>
+03
+</span>
+
+<h3>
+Analyze
+</h3>
+
+<p>
+Monitor performance
+with intelligent dashboards.
+</p>
+
+</div>
+
+
+
+<div class="step">
+
+<span>
+04
+</span>
+
+<h3>
+Grow
+</h3>
+
+<p>
+Make better decisions
+and scale faster.
+</p>
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<style>
+
+
+.section{
+
+padding:80px 22px;
+
+max-width:1200px;
+
+margin:auto;
+
+}
+
+
+.section-title{
+
+text-align:center;
+
+font-size:38px;
+
+font-weight:800;
+
+margin-bottom:15px;
+
+}
+
+
+
+.section-desc{
+
+text-align:center;
+
+color:#94a3b8;
+
+max-width:700px;
+
+margin:0 auto 40px;
+
+font-size:17px;
+
+}
+
+
+
+.module-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+
+gap:22px;
+
+}
+
+
+
+.module-card{
+
+background:
+rgba(255,255,255,.06);
+
+border:1px solid rgba(255,255,255,.1);
+
+border-radius:24px;
+
+padding:28px;
+
+transition:.3s;
+
+}
+
+
+
+.module-card:hover{
+
+transform:translateY(-8px);
+
+background:
+rgba(37,99,235,.15);
+
+}
+
+
+
+.module-icon{
+
+font-size:38px;
+
+margin-bottom:18px;
+
+}
+
+
+
+.module-card h3{
+
+font-size:22px;
+
+margin-bottom:12px;
+
+}
+
+
+
+.module-card p{
+
+color:#cbd5e1;
+
+line-height:1.7;
+
+}
+
+
+
+.workflow{
+
+padding:80px 22px;
+
+background:
+rgba(255,255,255,.03);
+
+}
+
+
+
+.workflow-box{
+
+max-width:1100px;
+
+margin:auto;
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(220px,1fr));
+
+gap:20px;
+
+}
+
+
+
+.step{
+
+background:
+rgba(15,23,42,.7);
+
+border-radius:22px;
+
+padding:30px;
+
+border:1px solid rgba(255,255,255,.08);
+
+}
+
+
+
+.step span{
+
+display:inline-flex;
+
+width:45px;
+
+height:45px;
+
+align-items:center;
+
+justify-content:center;
+
+border-radius:50%;
+
+background:#2563eb;
+
+font-weight:800;
+
+margin-bottom:20px;
+
+}
+
+
+
+.step p{
+
+color:#94a3b8;
+
+margin-top:10px;
+
+}
+
+
+
+@media(max-width:600px){
+
+.section-title{
+
+font-size:30px;
+
+}
+
+}
+
+</style>
+
+
+
+<!-- ================================
+ BUSINESS OS ENTERPRISE
+ PREMIUM FEATURE SECTION
+================================ -->
+
+<section class="enterprise-features">
+
+<h2 class="section-title">
+Business OS Enterprise Platform
+</h2>
+
+<p class="section-desc">
+A complete operating system for modern businesses.
+Manage operations, finance, inventory and customers
+from one intelligent platform.
+</p>
+
+
+<div class="feature-grid">
+
+
+<div class="feature-card">
+
+<div class="feature-icon">
+📦
+</div>
+
+<h3>
+Smart Inventory
+</h3>
+
+<p>
+Track products, stock movements,
+low stock alerts and warehouse operations
+in real time.
+</p>
+
+</div>
+
+
+
+<div class="feature-card">
+
+<div class="feature-icon">
+🛒
+</div>
+
+<h3>
+Sales & Orders
+</h3>
+
+<p>
+Manage orders, invoices,
+payments and customer transactions
+with a simple workflow.
+</p>
+
+</div>
+
+
+
+<div class="feature-card">
+
+<div class="feature-icon">
+💰
+</div>
+
+<h3>
+Finance System
+</h3>
+
+<p>
+Monitor revenue, expenses,
+cash flow and accounting activities
+with accurate records.
+</p>
+
+</div>
+
+
+
+<div class="feature-card">
+
+<div class="feature-icon">
+👥
+</div>
+
+<h3>
+Customer Management
+</h3>
+
+<p>
+Build stronger relationships
+with customer profiles and business insights.
+</p>
+
+</div>
+
+
+
+<div class="feature-card">
+
+<div class="feature-icon">
+🤖
+</div>
+
+<h3>
+AI Business Assistant
+</h3>
+
+<p>
+Get smarter business insights
+and operational recommendations.
+</p>
+
+</div>
+
+
+
+<div class="feature-card">
+
+<div class="feature-icon">
+📊
+</div>
+
+<h3>
+Business Analytics
+</h3>
+
+<p>
+Understand your business performance
+through powerful dashboards.
+</p>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+<style>
+
+.enterprise-features{
+
+padding:80px 20px;
+
+max-width:1100px;
+
+margin:auto;
+
+}
+
+
+.section-desc{
+
+text-align:center;
+
+max-width:700px;
+
+margin:20px auto 50px;
+
+color:#94a3b8;
+
+font-size:18px;
+
+line-height:1.7;
+
+}
+
+
+
+.feature-grid{
+
+display:grid;
+
+grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+
+gap:25px;
+
+}
+
+
+
+.feature-card{
+
+background:
+linear-gradient(
+145deg,
+rgba(30,41,59,.95),
+rgba(15,23,42,.95)
+);
+
+border:1px solid rgba(148,163,184,.15);
+
+border-radius:24px;
+
+padding:30px;
+
+transition:.3s;
+
+}
+
+
+
+.feature-card:hover{
+
+transform:translateY(-8px);
+
+border-color:#2563eb;
+
+box-shadow:
+0 20px 40px rgba(0,0,0,.35);
+
+}
+
+
+
+.feature-icon{
+
+font-size:40px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.feature-card h3{
+
+font-size:22px;
+
+color:white;
+
+margin-bottom:12px;
+
+}
+
+
+
+.feature-card p{
+
+color:#94a3b8;
+
+line-height:1.6;
+
+}
+
+
+
+@media(max-width:600px){
+
+.enterprise-features{
+
+padding:50px 15px;
+
+}
+
+
+.feature-card{
+
+padding:22px;
+
+}
+
+}
+
+</style>
+
+
+
+<!-- ================================
+ ENTERPRISE MODULE SHOWCASE
+================================ -->
+
+<section class="modules-section">
+
+<h2 class="section-title">
+Everything Your Business Needs
+</h2>
+
+<p class="section-desc">
+Business OS Enterprise connects your
+daily operations into one powerful platform.
+</p>
+
+
+<div class="modules-grid">
+
+
+<div class="module-box">
+
+<div class="module-emoji">
+📦
+</div>
+
+<h3>
+Inventory Management
+</h3>
+
+<p>
+Control products, stock levels,
+inventory movements and warehouse
+operations in real time.
+</p>
+
+</div>
+
+
+
+<div class="module-box">
+
+<div class="module-emoji">
+🛒
+</div>
+
+<h3>
+Sales & Order Engine
+</h3>
+
+<p>
+Manage orders, invoices,
+payments and customer sales workflow
+with speed and accuracy.
+</p>
+
+</div>
+
+
+
+<div class="module-box">
+
+<div class="module-emoji">
+💰
+</div>
+
+<h3>
+Finance & Accounting
+</h3>
+
+<p>
+Track revenue, expenses,
+cash flow and accounting records
+with confidence.
+</p>
+
+</div>
+
+
+
+<div class="module-box">
+
+<div class="module-emoji">
+👥
+</div>
+
+<h3>
+Customer CRM
+</h3>
+
+<p>
+Maintain customer profiles,
+purchase history and business
+relationships.
+</p>
+
+</div>
+
+
+
+<div class="module-box">
+
+<div class="module-emoji">
+🤖
+</div>
+
+<h3>
+AI Business Assistant
+</h3>
+
+<p>
+Receive intelligent insights,
+performance analysis and growth
+recommendations.
+</p>
+
+</div>
+
+
+
+<div class="module-box">
+
+<div class="module-emoji">
+📊
+</div>
+
+<h3>
+Analytics Dashboard
+</h3>
+
+<p>
+Monitor KPIs, business health,
+reports and growth indicators.
+</p>
+
+</div>
+
+
+</div>
+
+</section>
+
+
+
+<style>
+
+.modules-section{
+
+padding:80px 22px;
+
+max-width:1200px;
+
+margin:auto;
+
+}
+
+
+
+.modules-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(260px,1fr));
+
+gap:24px;
+
+}
+
+
+
+.module-box{
+
+background:
+rgba(255,255,255,.06);
+
+border:
+
+1px solid rgba(255,255,255,.12);
+
+border-radius:26px;
+
+padding:30px;
+
+transition:.3s;
+
+}
+
+
+
+.module-box:hover{
+
+transform:translateY(-8px);
+
+background:
+rgba(37,99,235,.18);
+
+}
+
+
+
+.module-emoji{
+
+font-size:42px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.module-box h3{
+
+font-size:22px;
+
+margin-bottom:14px;
+
+}
+
+
+
+.module-box p{
+
+color:#cbd5e1;
+
+line-height:1.7;
+
+}
+
+
+</style>
+
+
+
+
+<!-- ================================
+ DASHBOARD PREVIEW SECTION
+================================ -->
+
+<section class="dashboard-preview">
+
+
+<h2 class="section-title">
+
+
+
+Powerful Business Dashboard
+</h2>
+
+
+<p class="section-desc">
+See your entire business performance
+from one intelligent dashboard.
+</p>
+
+
+
+<div class="dashboard-mock">
+
+
+<div class="mock-header">
+
+<div>
+Business OS Enterprise
+</div>
+
+<span>
+LIVE
+</span>
+
+</div>
+
+
+
+<div class="mock-stats">
+
+
+<div class="mock-card">
+
+<h4>
+Revenue
+</h4>
+
+<strong>
+$25,840
+</strong>
+
+<small>
+↑ 12.5% Growth
+</small>
+
+</div>
+
+
+
+<div class="mock-card">
+
+<h4>
+Profit
+</h4>
+
+<strong>
+$8,420
+</strong>
+
+<small>
+Healthy
+</small>
+
+</div>
+
+
+
+<div class="mock-card">
+
+<h4>
+Orders
+</h4>
+
+<strong>
+248
+</strong>
+
+<small>
+This Month
+</small>
+
+</div>
+
+
+
+<div class="mock-card">
+
+<h4>
+Customers
+</h4>
+
+<strong>
+1,240
+</strong>
+
+<small>
+Active Users
+</small>
+
+</div>
+
+
+</div>
+
+
+
+
+<div class="chart-box">
+
+<div class="chart-title">
+Business Performance
+</div>
+
+
+<div class="bars">
+
+<span style="height:35%"></span>
+<span style="height:55%"></span>
+<span style="height:45%"></span>
+<span style="height:75%"></span>
+<span style="height:90%"></span>
+
+</div>
+
+
+</div>
+
+
+
+<div class="dashboard-footer">
+
+🤖 AI Insights:
+Business performance is improving.
+Review sales trends and optimize inventory.
+
+</div>
+
+
+</div>
+
+
+</section>
+
+
+
+<style>
+
+
+.dashboard-preview{
+
+padding:90px 20px;
+
+max-width:1100px;
+
+margin:auto;
+
+}
+
+
+
+.dashboard-mock{
+
+background:
+linear-gradient(
+145deg,
+#111827,
+#020617
+);
+
+border-radius:32px;
+
+padding:25px;
+
+border:1px solid rgba(255,255,255,.12);
+
+box-shadow:
+0 30px 70px rgba(0,0,0,.45);
+
+}
+
+
+
+.mock-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+font-weight:700;
+
+font-size:18px;
+
+margin-bottom:25px;
+
+}
+
+
+
+.mock-header span{
+
+background:#16a34a;
+
+padding:6px 14px;
+
+border-radius:20px;
+
+font-size:12px;
+
+}
+
+
+
+.mock-stats{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(180px,1fr));
+
+gap:15px;
+
+}
+
+
+
+.mock-card{
+
+background:
+rgba(255,255,255,.07);
+
+padding:20px;
+
+border-radius:20px;
+
+}
+
+
+
+.mock-card h4{
+
+color:#94a3b8;
+
+margin-bottom:12px;
+
+}
+
+
+
+.mock-card strong{
+
+display:block;
+
+font-size:28px;
+
+}
+
+
+
+.mock-card small{
+
+color:#22c55e;
+
+}
+
+
+
+.chart-box{
+
+margin-top:25px;
+
+background:
+rgba(255,255,255,.05);
+
+padding:25px;
+
+border-radius:24px;
+
+}
+
+
+
+.chart-title{
+
+margin-bottom:20px;
+
+font-weight:700;
+
+}
+
+
+
+.bars{
+
+height:180px;
+
+display:flex;
+
+align-items:end;
+
+gap:18px;
+
+}
+
+
+
+.bars span{
+
+flex:1;
+
+background:#2563eb;
+
+border-radius:12px 12px 0 0;
+
+}
+
+
+
+.dashboard-footer{
+
+margin-top:25px;
+
+padding:20px;
+
+background:
+rgba(37,99,235,.15);
+
+border-radius:20px;
+
+color:#cbd5e1;
+
+line-height:1.6;
+
+}
+
+
+
+</style>
+
+
+
+
+<!-- ================================
+ ENTERPRISE TRUST SECTION
+================================ -->
+
+
+<section class="trust-section">
+
+
+<h2 class="section-title">
+Built For Modern Businesses
+</h2>
+
+
+<p class="section-desc">
+Secure, scalable and intelligent platform
+designed for businesses of every size.
+</p>
+
+
+
+<div class="trust-grid">
+
+
+
+<div class="trust-card">
+
+<div class="trust-icon">
+🔐
+</div>
+
+<h3>
+Secure Cloud Platform
+</h3>
+
+<p>
+Your business data is protected with
+modern security architecture and
+enterprise-grade systems.
+</p>
+
+</div>
+
+
+
+
+<div class="trust-card">
+
+<div class="trust-icon">
+🏢
+</div>
+
+<h3>
+Multi Business Management
+</h3>
+
+<p>
+Manage multiple businesses,
+branches and operations from
+one powerful workspace.
+</p>
+
+</div>
+
+
+
+
+<div class="trust-card">
+
+<div class="trust-icon">
+👤
+</div>
+
+<h3>
+Role Based Access
+</h3>
+
+<p>
+Control team permissions and
+keep every operation organized
+with smart access management.
+</p>
+
+</div>
+
+
+
+
+<div class="trust-card">
+
+<div class="trust-icon">
+☁️
+</div>
+
+<h3>
+Cloud Ready
+</h3>
+
+<p>
+Access your business system
+anywhere with a modern cloud
+ERP experience.
+</p>
+
+</div>
+
+
+
+</div>
+
+
+</section>
+
+
+
+<!-- ================================
+ INDUSTRY SECTION
+================================ -->
+
+
+<section class="industry-section">
+
+
+<h2 class="section-title">
+For Every Industry
+</h2>
+
+
+<p class="section-desc">
+Business OS Enterprise adapts to
+different business models.
+</p>
+
+
+
+<div class="industry-list">
+
+
+<span>🛍 Retail</span>
+
+<span>📦 Wholesale</span>
+
+<span>🍽 Restaurant</span>
+
+<span>🛠 Services</span>
+
+<span>🏭 Manufacturing</span>
+
+<span>🏢 Enterprise</span>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+<!-- ================================
+ FINAL CTA
+================================ -->
+
+
+<section class="final-cta">
+
+
+<h2>
+Ready To Transform Your Business?
+</h2>
+
+
+<p>
+Create your Business OS Enterprise
+workspace and start managing
+your business smarter.
+</p>
+
+
+<a href="/signup" class="cta-button">
+Start Free Workspace
+</a>
+
+
+
+</section>
+
+
+
+<style>
+
+
+.trust-section{
+
+padding:90px 20px;
+
+max-width:1100px;
+
+margin:auto;
+
+}
+
+
+
+.trust-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+
+gap:24px;
+
+}
+
+
+
+.trust-card{
+
+background:
+rgba(255,255,255,.06);
+
+border:1px solid rgba(255,255,255,.12);
+
+border-radius:26px;
+
+padding:30px;
+
+}
+
+
+
+.trust-icon{
+
+font-size:40px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.trust-card h3{
+
+font-size:22px;
+
+margin-bottom:12px;
+
+}
+
+
+
+.trust-card p{
+
+color:#94a3b8;
+
+line-height:1.7;
+
+}
+
+
+
+.industry-section{
+
+padding:70px 20px;
+
+text-align:center;
+
+}
+
+
+
+.industry-list{
+
+display:flex;
+
+flex-wrap:wrap;
+
+justify-content:center;
+
+gap:15px;
+
+}
+
+
+
+.industry-list span{
+
+background:
+rgba(37,99,235,.15);
+
+border:1px solid rgba(255,255,255,.12);
+
+padding:14px 22px;
+
+border-radius:30px;
+
+color:#e2e8f0;
+
+}
+
+
+
+.final-cta{
+
+margin:40px 20px 80px;
+
+padding:60px 25px;
+
+text-align:center;
+
+border-radius:32px;
+
+background:
+linear-gradient(
+135deg,
+#2563eb,
+#1e40af
+);
+
+}
+
+
+
+.final-cta h2{
+
+font-size:34px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.final-cta p{
+
+font-size:18px;
+
+color:#dbeafe;
+
+margin-bottom:30px;
+
+}
+
+
+
+.cta-button{
+
+display:inline-block;
+
+background:white;
+
+color:#1e40af;
+
+padding:15px 35px;
+
+border-radius:30px;
+
+font-weight:800;
+
+text-decoration:none;
+
+}
+
+
+
+@media(max-width:600px){
+
+.final-cta h2{
+
+font-size:28px;
+
+}
+
+}
+
+</style>
+
+
+
+
+<!-- ================================
+ FINAL FOOTER
+================================ -->
+
+
+<footer class="enterprise-footer">
+
+
+<div class="footer-brand">
+
+<h2>
+Business OS Enterprise
+</h2>
+
+<p>
+One intelligent platform to manage
+your entire business operations.
+</p>
+
+</div>
+
+
+
+<div class="footer-grid">
+
+
+
+<div class="footer-column">
+
+<h3>
+Platform
+</h3>
+
+<a href="#">
+Inventory
+</a>
+
+<a href="#">
+Sales
+</a>
+
+<a href="#">
+Finance
+</a>
+
+<a href="#">
+AI Dashboard
+</a>
+
+</div>
+
+
+
+
+<div class="footer-column">
+
+<h3>
+Solutions
+</h3>
+
+<a href="#">
+Retail
+</a>
+
+<a href="#">
+Wholesale
+</a>
+
+<a href="#">
+Restaurant
+</a>
+
+<a href="#">
+Enterprise
+</a>
+
+</div>
+
+
+
+
+<div class="footer-column">
+
+<h3>
+Resources
+</h3>
+
+<a href="#">
+Documentation
+</a>
+
+<a href="#">
+Support
+</a>
+
+<a href="#">
+FAQ
+</a>
+
+<a href="#">
+Security
+</a>
+
+</div>
+
+
+
+</div>
+
+
+
+<div class="footer-bottom">
+
+© 2026 Business OS Enterprise.
+All rights reserved.
+
+</div>
+
+
 
 </footer>
 
 
-</div>
+
+<style>
 
 
-<script>
+.enterprise-footer{
 
-if ("serviceWorker" in navigator){
+padding:70px 25px 35px;
 
-navigator.serviceWorker.register("/static/pwa/sw.js");
+background:
+#020617;
+
+border-top:
+
+1px solid rgba(255,255,255,.1);
 
 }
 
-</script>
 
 
-</body>
+.footer-brand{
 
-</html>
+max-width:500px;
+
+margin-bottom:45px;
+
+}
+
+
+
+.footer-brand h2{
+
+font-size:30px;
+
+margin-bottom:15px;
+
+}
+
+
+
+.footer-brand p{
+
+color:#94a3b8;
+
+line-height:1.7;
+
+}
+
+
+
+.footer-grid{
+
+display:grid;
+
+grid-template-columns:
+
+repeat(auto-fit,minmax(180px,1fr));
+
+gap:35px;
+
+}
+
+
+
+.footer-column{
+
+display:flex;
+
+flex-direction:column;
+
+gap:12px;
+
+}
+
+
+
+.footer-column h3{
+
+color:white;
+
+margin-bottom:10px;
+
+}
+
+
+
+.footer-column a{
+
+color:#94a3b8;
+
+text-decoration:none;
+
+}
+
+
+
+.footer-column a:hover{
+
+color:#60a5fa;
+
+}
+
+
+
+.footer-bottom{
+
+margin-top:50px;
+
+padding-top:25px;
+
+border-top:
+
+1px solid rgba(255,255,255,.1);
+
+color:#64748b;
+
+text-align:center;
+
+font-size:14px;
+
+}
+
+
+
+
+@media(max-width:600px){
+
+.enterprise-footer{
+
+padding:50px 20px 30px;
+
+}
+
+
+.footer-brand h2{
+
+font-size:24px;
+
+}
+
+
+}
+
+
+</style>
+
+
+
+
+
+<style>
+
+
+.dashboard-preview{
+
+padding:90px 20px;
+
+max-width:1100px;
+
+margin:auto;
+
+}
+
+
+
+.dashboard-mock{
+
+background:
+linear-gradient(
+145deg,
+#111827,
+#020617
+);
+
+border-radius:32px;
+
+padding:25px;
+
+border:1px solid rgba(255,255,255,.12);
+
+box-shadow:
+0 30px 70px rgba(0,0,0,.45);
+
+}
+
+
+
+.mock-header{
+
+display:flex;
+
+justify-content:space-between;
+
+align-items:center;
+
+font-weight:700;
+
+font-size:18px;
+
+margin-bottom:25px;
+
+}
+
+
+
+.mock-header span{
+
+background:#16a34a;
+
+padding:6px 14px;
+
+border-radius:20px;
+
+font-size:12px;
+
+}
+
+
+
+.mock-stats{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(180px,1fr));
+
+gap:15px;
+
+}
+
+
+
+.mock-card{
+
+background:
+rgba(255,255,255,.07);
+
+padding:20px;
+
+border-radius:20px;
+
+}
+
+
+
+.mock-card h4{
+
+color:#94a3b8;
+
+margin-bottom:12px;
+
+}
+
+
+
+.mock-card strong{
+
+display:block;
+
+font-size:28px;
+
+}
+
+
+
+.mock-card small{
+
+color:#22c55e;
+
+}
+
+
+
+.chart-box{
+
+margin-top:25px;
+
+background:
+rgba(255,255,255,.05);
+
+padding:25px;
+
+border-radius:24px;
+
+}
+
+
+
+.chart-title{
+
+margin-bottom:20px;
+
+font-weight:700;
+
+}
+
+
+
+.bars{
+
+height:180px;
+
+display:flex;
+
+align-items:end;
+
+gap:18px;
+
+}
+
+
+
+.bars span{
+
+flex:1;
+
+background:#2563eb;
+
+border-radius:12px 12px 0 0;
+
+}
+
+
+
+.dashboard-footer{
+
+margin-top:25px;
+
+padding:20px;
+
+background:
+rgba(37,99,235,.15);
+
+border-radius:20px;
+
+color:#cbd5e1;
+
+line-height:1.6;
+
+}
+
+
+
+</style>
+
+
+
+
+<!-- ================================
+ ENTERPRISE TRUST SECTION
+================================ -->
+
+
+<section class="industry-section">
+
+
+<h2 class="section-title">
+For Every Industry
+</h2>
+
+
+<p class="section-desc">
+Business OS Enterprise adapts to
+different business models.
+</p>
+
+
+
+<div class="industry-list">
+
+
+<span>🛍 Retail</span>
+
+<span>📦 Wholesale</span>
+
+<span>🍽 Restaurant</span>
+
+<span>🛠 Services</span>
+
+<span>🏭 Manufacturing</span>
+
+<span>🏢 Enterprise</span>
+
+
+</div>
+
+
+
+</section>
+
+
+
+
+<!-- ================================
+ FINAL CTA
+================================ -->
+
+
+<section class="final-cta">
+
+
+<h2>
+Ready To Transform Your Business?
+</h2>
+
+
+<p>
+Create your Business OS Enterprise
+workspace and start managing
+your business smarter.
+</p>
+
+
+<a href="/signup" class="cta-button">
+Start Free Workspace
+</a>
+
+
+
+</section>
+
+
+
+<style>
+
+
+.trust-section{
+
+padding:90px 20px;
+
+max-width:1100px;
+
+margin:auto;
+
+}
+
+
+
+.trust-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(250px,1fr));
+
+gap:24px;
+
+}
+
+
+
+.trust-card{
+
+background:
+rgba(255,255,255,.06);
+
+border:1px solid rgba(255,255,255,.12);
+
+border-radius:26px;
+
+padding:30px;
+
+}
+
+
+
+.trust-icon{
+
+font-size:40px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.trust-card h3{
+
+font-size:22px;
+
+margin-bottom:12px;
+
+}
+
+
+
+.trust-card p{
+
+color:#94a3b8;
+
+line-height:1.7;
+
+}
+
+
+
+.industry-section{
+
+padding:70px 20px;
+
+text-align:center;
+
+}
+
+
+
+.industry-list{
+
+display:flex;
+
+flex-wrap:wrap;
+
+justify-content:center;
+
+gap:15px;
+
+}
+
+
+
+.industry-list span{
+
+background:
+rgba(37,99,235,.15);
+
+border:1px solid rgba(255,255,255,.12);
+
+padding:14px 22px;
+
+border-radius:30px;
+
+color:#e2e8f0;
+
+}
+
+
+
+.final-cta{
+
+margin:40px 20px 80px;
+
+padding:60px 25px;
+
+text-align:center;
+
+border-radius:32px;
+
+background:
+linear-gradient(
+135deg,
+#2563eb,
+#1e40af
+);
+
+}
+
+
+
+.final-cta h2{
+
+font-size:34px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.final-cta p{
+
+font-size:18px;
+
+color:#dbeafe;
+
+margin-bottom:30px;
+
+}
+
+
+
+.cta-button{
+
+display:inline-block;
+
+background:white;
+
+color:#1e40af;
+
+padding:15px 35px;
+
+border-radius:30px;
+
+font-weight:800;
+
+text-decoration:none;
+
+}
+
+
+
+@media(max-width:600px){
+
+.final-cta h2{
+
+font-size:28px;
+
+}
+
+}
+
+</style>
+
+
+
+
+<!-- ================================
+ FINAL FOOTER
+================================ -->
+
+
+<footer class="enterprise-footer">
+
+
+<div class="footer-brand">
+
+<h2>
+Business OS Enterprise
+</h2>
+
+<p>
+One intelligent platform to manage
+your entire business operations.
+</p>
+
+</div>
+
+
+
+<div class="footer-grid">
+
+
+
+<div class="footer-column">
+
+<h3>
+Platform
+</h3>
+
+<a href="#">
+Inventory
+</a>
+
+<a href="#">
+Sales
+</a>
+
+<a href="#">
+Finance
+</a>
+
+<a href="#">
+AI Dashboard
+</a>
+
+</div>
+
+
+
+
+<div class="footer-column">
+
+<h3>
+Solutions
+</h3>
+
+<a href="#">
+Retail
+</a>
+
+<a href="#">
+Wholesale
+</a>
+
+<a href="#">
+Restaurant
+</a>
+
+<a href="#">
+Enterprise
+</a>
+
+</div>
+
+
+
+
+<div class="footer-column">
+
+<h3>
+Resources
+</h3>
+
+<a href="#">
+Documentation
+</a>
+
+<a href="#">
+Support
+</a>
+
+<a href="#">
+FAQ
+</a>
+
+<a href="#">
+Security
+</a>
+
+</div>
+
+
+
+</div>
+
+
+
+<div class="footer-bottom">
+
+© 2026 Business OS Enterprise.
+All rights reserved.
+
+</div>
+
+
+
+</footer>
+
+
+
+<style>
+
+
+.enterprise-footer{
+
+padding:70px 25px 35px;
+
+background:
+#020617;
+
+border-top:
+
+1px solid rgba(255,255,255,.1);
+
+}
+
+
+
+.footer-brand{
+
+max-width:500px;
+
+margin-bottom:45px;
+
+}
+
+
+
+.footer-brand h2{
+
+font-size:30px;
+
+margin-bottom:15px;
+
+}
+
+
+
+.footer-brand p{
+
+color:#94a3b8;
+
+line-height:1.7;
+
+}
+
+
+
+.footer-grid{
+
+display:grid;
+
+grid-template-columns:
+
+repeat(auto-fit,minmax(180px,1fr));
+
+gap:35px;
+
+}
+
+
+
+.footer-column{
+
+display:flex;
+
+flex-direction:column;
+
+gap:12px;
+
+}
+
+
+
+.footer-column h3{
+
+color:white;
+
+margin-bottom:10px;
+
+}
+
+
+
+.footer-column a{
+
+color:#94a3b8;
+
+text-decoration:none;
+
+}
+
+
+
+.footer-column a:hover{
+
+color:#60a5fa;
+
+}
+
+
+
+.footer-bottom{
+
+margin-top:50px;
+
+padding-top:25px;
+
+border-top:
+
+1px solid rgba(255,255,255,.1);
+
+color:#64748b;
+
+text-align:center;
+
+font-size:14px;
+
+}
+
+
+
+
+@media(max-width:600px){
+
+.enterprise-footer{
+
+padding:50px 20px 30px;
+
+}
+
+
+.footer-brand h2{
+
+font-size:24px;
+
+}
+
+
+}
+
+
+</style>
+
+
+
+
+<!-- ================================
+ PUBLIC BUSINESS SHOWCASE
+================================ -->
+
+<section class="business-showcase">
+
+
+<h2 class="section-title">
+Discover Businesses Powered By Business OS
+</h2>
+
+
+<p class="section-desc">
+Explore businesses using our intelligent
+business management platform.
+</p>
+
+
+
+<div class="business-grid">
+
+
+{% if businesses %}
+
+{% for business in businesses %}
+
+
+<div class="business-card">
+
+
+{% if business.logo_url %}
+
+<img
+src="{{ business.logo_url }}"
+class="business-logo"
+alt="{{ business.business_name }}"
+>
+
+{% else %}
+
+<div class="business-logo-placeholder">
+🏢
+</div>
+
+{% endif %}
+
+
+<h3>
+{{ business.business_name or business.company_name }}
+</h3>
+
+
+<span class="business-type">
+{{ business.business_type_code or "Business Enterprise" }}
+</span>
+
+
+<p>
+{{ business.description or "Modern business powered by Business OS Enterprise." }}
+</p>
+
+
+<a 
+href="/shop/{{ business.business_slug }}"
+class="business-link">
+Visit Store →
+</a>
+
+
+</div>
+
+
+{% endfor %}
+
+
+{% else %}
+
+
+<div class="empty-business">
+
+No public businesses available yet.
+
+</div>
+
+
+{% endif %}
+
+
+
+</div>
+
+
+</section>
+
+
+
+<style>
+
+
+.business-showcase{
+
+padding:90px 20px;
+
+max-width:1100px;
+
+margin:auto;
+
+}
+
+
+
+.business-grid{
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(260px,1fr));
+
+gap:28px;
+
+}
+
+
+
+.business-card{
+
+background:
+
+linear-gradient(
+145deg,
+rgba(30,41,59,.95),
+rgba(15,23,42,.95)
+);
+
+border:
+
+1px solid rgba(148,163,184,.18);
+
+padding:30px;
+
+border-radius:28px;
+
+transition:.35s;
+
+box-shadow:
+
+0 15px 35px rgba(0,0,0,.25);
+
+}
+
+
+
+.business-card:hover{
+
+transform:translateY(-10px);
+
+border-color:#3b82f6;
+
+box-shadow:
+
+0 25px 55px rgba(37,99,235,.25);
+
+}
+
+
+
+.business-logo{
+
+width:90px;
+
+height:90px;
+
+object-fit:cover;
+
+border-radius:22px;
+
+margin-bottom:20px;
+
+box-shadow:
+
+0 10px 25px rgba(0,0,0,.35);
+
+}
+
+
+
+.business-logo-placeholder{
+
+width:90px;
+
+height:90px;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:45px;
+
+background:#1e293b;
+
+border-radius:22px;
+
+margin-bottom:20px;
+
+}
+
+
+
+.business-type{
+
+display:inline-block;
+
+padding:7px 15px;
+
+border-radius:999px;
+
+background:
+
+linear-gradient(
+135deg,
+#2563eb,
+#7c3aed
+);
+
+color:white;
+
+font-size:13px;
+
+font-weight:700;
+
+margin:10px 0;
+
+}
+
+
+
+.business-card h3{
+
+font-size:22px;
+
+margin-bottom:10px;
+
+}
+
+
+
+.business-card p{
+
+color:#94a3b8;
+
+margin-bottom:20px;
+
+}
+
+
+
+.business-card a{
+
+display:inline-block;
+
+padding:10px 22px;
+
+border-radius:25px;
+
+background:#2563eb;
+
+color:white;
+
+text-decoration:none;
+
+font-weight:700;
+
+}
+
+
+
+.empty-business{
+
+text-align:center;
+
+color:#94a3b8;
+
+padding:40px;
+
+}
+
+
+
+</style>
+
+
+
+
+
+
+<style>
+
+.public-businesses{
+
+padding:80px 20px;
+background:#020617;
+
+}
+
+
+.business-grid{
+
+max-width:1100px;
+margin:auto;
+
+display:grid;
+
+grid-template-columns:
+repeat(auto-fit,minmax(260px,1fr));
+
+gap:25px;
+
+}
+
+
+.business-card{
+
+background:
+linear-gradient(
+145deg,
+rgba(30,41,59,.95),
+rgba(15,23,42,.95)
+);
+
+border:
+
+1px solid rgba(148,163,184,.15);
+
+border-radius:24px;
+
+padding:28px;
+
+text-align:center;
+
+transition:.3s;
+
+}
+
+
+.business-card:hover{
+
+transform:translateY(-8px);
+
+box-shadow:
+0 20px 50px rgba(0,0,0,.4);
+
+border-color:#2563eb;
+
+}
+
+
+.business-logo{
+
+width:90px;
+
+height:90px;
+
+object-fit:cover;
+
+border-radius:20px;
+
+margin-bottom:20px;
+
+}
+
+
+.business-logo-placeholder{
+
+width:90px;
+
+height:90px;
+
+margin:auto;
+
+display:flex;
+
+align-items:center;
+
+justify-content:center;
+
+font-size:45px;
+
+background:#1e293b;
+
+border-radius:20px;
+
+margin-bottom:20px;
+
+}
+
+
+.business-card h3{
+
+color:white;
+
+font-size:22px;
+
+margin-bottom:10px;
+
+}
+
+
+.business-type{
+
+display:inline-block;
+
+padding:6px 14px;
+
+border-radius:20px;
+
+background:#2563eb;
+
+color:white;
+
+font-size:13px;
+
+font-weight:700;
+
+}
+
+
+.business-card p{
+
+color:#94a3b8;
+
+line-height:1.6;
+
+margin:18px 0;
+
+}
+
+
+.business-link{
+
+display:inline-block;
+
+padding:12px 22px;
+
+border-radius:12px;
+
+background:#2563eb;
+
+color:white;
+
+text-decoration:none;
+
+font-weight:700;
+
+}
+
+
+.business-link:hover{
+
+background:#1d4ed8;
+
+}
+
+
+</style>
 

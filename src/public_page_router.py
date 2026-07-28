@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.models.business_profile import BusinessProfile
+from src.domains.welcome.service import WelcomeService
 
 
 BLOCKED_PUBLIC_PATHS = {
@@ -61,11 +62,21 @@ templates = Jinja2Templates(
 # ================================
 @router.get("/welcome", response_class=HTMLResponse)
 async def welcome_page(
-    request: Request
+    request: Request,
+    db: Session = Depends(get_db)
 ):
+
+    welcome = WelcomeService.get_welcome(
+        db,
+        "mm"
+    )
+
     return templates.TemplateResponse(
         request=request,
-        name="welcome.html"
+        name="welcome.html",
+        context={
+            "welcome": welcome
+        }
     )
 
 
