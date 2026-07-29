@@ -14,6 +14,7 @@ BUSINESS_DASHBOARD_WIDGETS = {
         "top_products",
         "inventory",
         "profit",
+        "security_center",
         "packing_pending",
         "parcel_tracking",
         "ad_roi",

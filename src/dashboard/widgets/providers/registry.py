@@ -10,6 +10,7 @@ from src.dashboard.widgets.providers.profit import profit_widget
 from src.dashboard.widgets.providers.ad_roi import ad_roi_widget
 from src.dashboard.widgets.providers.customer import customer_widget
 from src.dashboard.widgets.providers.receivable import receivable_widget
+from src.dashboard.widgets.providers.security import security_widget
 
 from src.dashboard.widgets.providers.retail_wholesale import (
     total_sales_widget,
@@ -78,6 +79,7 @@ WIDGET_PROVIDERS = {
     "ad_roi": ad_roi_widget,
     "customer": customer_widget,
     "receivable": receivable_widget,
+    "security_center": security_widget,
 
     # TWO_D_SELLER
     "two_d_result": two_d_result_widget,
