@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.security.security_query import get_security_overview
+from src.models.security_event import SecurityEvent
 
 
 class SecurityCenterService:
@@ -38,3 +39,36 @@ class SecurityCenterService:
                 []
             )
         }
+
+    @staticmethod
+    def get_events(
+        db: Session,
+        tenant_id: str
+    ):
+        events = (
+            db.query(SecurityEvent)
+            .filter(
+                SecurityEvent.tenant_id == tenant_id
+            )
+            .order_by(
+                SecurityEvent.created_at.desc()
+            )
+            .limit(50)
+            .all()
+        )
+
+        return [
+            {
+                "event": event.event_type,
+                "risk": event.risk_level,
+                "score": event.risk_score,
+                "login_session_id": event.login_session_id,
+                "device_session_id": event.device_session_id,
+                "time": (
+                    event.created_at.isoformat()
+                    if event.created_at
+                    else None
+                )
+            }
+            for event in events
+        ]

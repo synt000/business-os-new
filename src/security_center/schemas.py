@@ -18,3 +18,7 @@ class SecurityOverviewResponse(BaseModel):
     high_risk_logins: int = 0
     blocked_devices: int = 0
     latest_events: List[SecurityEventItem] = []
+
+
+class SecurityEventsResponse(BaseModel):
+    events: List[SecurityEventItem] = []
