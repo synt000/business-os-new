@@ -172,6 +172,10 @@ async def authenticate_via_pure_json_payload(
         )
 
     register_success_login(db, user)
+
+    device_session_id = None
+    is_new = False
+
         
 
     # Identity Security v5.8 Device Registration

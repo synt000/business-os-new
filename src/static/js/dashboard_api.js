@@ -59,6 +59,8 @@ headers:{
 );
 
 console.log("STATUS =", res.status);
+console.log("TOKEN CHECK =", token);
+console.log("URL CHECK =", "/api/v4/dashboard/summary");
 
 if(!res.ok){
 
@@ -109,6 +111,55 @@ console.log("SUMMARY DATA =", data);
 const d = data.dashboard || data;
 
 console.log("D =", d);
+
+// ================================
+// SECURITY CENTER WIDGET
+// ================================
+
+try{
+
+    const security = d.widgets?.security_center || {};
+
+    console.log(
+        "SECURITY CENTER =",
+        security
+    );
+
+
+    if(document.getElementById("security_today_devices")){
+        document.getElementById("security_today_devices").innerText =
+            security.today_new_devices || 0;
+    }
+
+
+    if(document.getElementById("security_medium_risk")){
+        document.getElementById("security_medium_risk").innerText =
+            security.medium_risk_logins || 0;
+    }
+
+
+    if(document.getElementById("security_high_risk")){
+        document.getElementById("security_high_risk").innerText =
+            security.high_risk_logins || 0;
+    }
+
+
+    if(document.getElementById("security_blocked")){
+        document.getElementById("security_blocked").innerText =
+            security.blocked_devices || 0;
+    }
+
+}
+catch(e){
+
+    console.error(
+        "Security widget load failed:",
+        e
+    );
+
+}
+
+
 
 
 // FINANCE KPI BINDING
