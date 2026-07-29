@@ -96,3 +96,6 @@ login.sh
 save_auth.sh
 save_token.sh
 
+
+# Temporary scripts
+tools/tmp/
