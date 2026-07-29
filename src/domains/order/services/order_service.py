@@ -131,7 +131,6 @@ def create_order(
         inventory_cost=inventory_cost,
     )
 
-    db.commit()
-    db.refresh(order)
+    db.flush()
 
     return order
