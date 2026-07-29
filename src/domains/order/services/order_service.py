@@ -41,8 +41,6 @@ def create_order(
             else item.product_id
         )
 
-        print("DEBUG ITEM TYPE:", type(item))
-        print("DEBUG ITEM:", item)
 
         product_id = (
             item['product_id']
@@ -50,8 +48,6 @@ def create_order(
             else item.product_id
         )
 
-        print("DEBUG PRODUCT ID:", product_id)
-        print("DEBUG TENANT:", tenant_id)
 
         product = (
             db.query(Product)
@@ -60,21 +56,6 @@ def create_order(
                 Product.tenant_id == tenant_id
             )
             .first()
-        )
-        print("DEBUG FOUND PRODUCT:", product)
-
-        print(
-            "DEBUG SAME ID COUNT:",
-            db.query(Product)
-            .filter(Product.id == str(product_id))
-            .count()
-        )
-
-        print(
-            "DEBUG TENANT COUNT:",
-            db.query(Product)
-            .filter(Product.tenant_id == tenant_id)
-            .count()
         )
 
         if not product:
