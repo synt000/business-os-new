@@ -9,7 +9,7 @@ class InventoryService:
         stock = 0.0
         for m in movements:
             if m.movement_type == "IN":
-                stock += m.quantity
+                stock += m.quantity_change_change
             elif m.movement_type == "OUT":
-                stock -= m.quantity
+                stock -= m.quantity_change_change
         return stock
