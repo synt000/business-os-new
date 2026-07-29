@@ -235,7 +235,6 @@ def create_payment(
         )
 
 
-    db.add(payment)
     if ledger:
         db.add(ledger)
 
