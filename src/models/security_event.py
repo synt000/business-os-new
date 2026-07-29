@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import Column, String, DateTime, Text, Index
 
@@ -58,6 +58,28 @@ class SecurityEvent(Base):
         nullable=True
     )
 
+    login_session_id = Column(
+        String,
+        nullable=True,
+        index=True
+    )
+
+    device_session_id = Column(
+        String,
+        nullable=True,
+        index=True
+    )
+
+    risk_score = Column(
+        String,
+        nullable=True
+    )
+
+    risk_level = Column(
+        String,
+        default="LOW"
+    )
+
     description = Column(
         Text,
         nullable=True
@@ -65,7 +87,7 @@ class SecurityEvent(Base):
 
     created_at = Column(
         DateTime,
-        default=datetime.utcnow,
+        default=datetime.now(timezone.utc),
         index=True
     )
 

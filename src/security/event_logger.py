@@ -25,6 +25,10 @@ def log_security_event(
     tenant_id: str | None = None,
     request: Request | None = None,
     device_info: dict | str | None = None,
+    login_session_id: str | None = None,
+    device_session_id: str | None = None,
+    risk_score: str | None = None,
+    risk_level: str = "LOW",
     description: str | None = None,
     severity: str = "INFO",
 ):
@@ -62,6 +66,11 @@ def log_security_event(
         user_agent=user_agent,
 
         device_info=device_info,
+
+        login_session_id=login_session_id,
+        device_session_id=device_session_id,
+        risk_score=risk_score,
+        risk_level=risk_level,
 
         description=description,
     )
