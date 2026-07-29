@@ -223,7 +223,11 @@ async def update_order_status(
 
     if (
         data.status == "CANCELLED"
-        and old_status != "CANCELLED"
+        and old_status in [
+            "CONFIRMED",
+            "PACKING",
+            "SHIPPED"
+        ]
     ):
 
         for item in order.items:
