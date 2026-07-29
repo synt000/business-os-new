@@ -64,7 +64,26 @@ def create_payment(
 ):
 
     # ==============================
-    # DUPLICATE PAYMENT CHECK
+    # IDEMPOTENCY REQUEST CHECK
+    # ==============================
+
+    if getattr(data, "payment_request_id", None):
+
+        existing_request = (
+            db.query(Payment)
+            .filter(
+                Payment.payment_request_id == data.payment_request_id,
+                Payment.tenant_id == tenant_id,
+            )
+            .first()
+        )
+
+        if existing_request:
+            return existing_request
+
+
+    # ==============================
+    # DUPLICATE PAYMENT NUMBER CHECK
     # ==============================
 
     existing_payment = (
