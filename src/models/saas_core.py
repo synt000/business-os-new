@@ -718,6 +718,11 @@ class Payment(Base):
             "payment_number",
             name="uq_payment_number_tenant",
         ),
+        UniqueConstraint(
+            "tenant_id",
+            "payment_request_id",
+            name="uq_payment_request_id_tenant",
+        ),
     )
 
     id = Column(
@@ -730,6 +735,12 @@ class Payment(Base):
     payment_number = Column(
         String,
         nullable=False,
+        index=True
+    )
+
+    payment_request_id = Column(
+        String,
+        nullable=True,
         index=True
     )
 
