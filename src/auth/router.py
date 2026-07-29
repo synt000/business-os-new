@@ -22,6 +22,7 @@ from src.security.login_guard import (
 from src.security.event_logger import log_security_event
 from src.auth.device_service import register_device
 from src.security.session_manager import create_login_session
+from src.models.login_session import LoginSession
 from src.security.refresh_manager import create_refresh_session
 
 
@@ -248,51 +249,7 @@ async def authenticate_via_pure_json_payload(
             )
 
 
-        if is_new:
-
-            latest_session = (
-                db.query(LoginSession)
-                .filter(LoginSession.user_id == user.id)
-                .order_by(LoginSession.created_at.desc())
-                .first()
-            )
-
-            log_security_event(
-                db,
-                event_type="NEW_DEVICE_LOGIN",
-                user_id=user.id,
-                tenant_id=user.tenant_id,
-                request=request,
-                device_info={
-                    "fingerprint": payload.device_fingerprint,
-                    "platform": payload.platform,
-                    "browser": payload.browser,
-                    "screen": (
-                        f"{payload.screen_width}x{payload.screen_height}"
-                    ),
-                    "timezone": payload.timezone_name,
-                },
-                login_session_id=(
-                    latest_session.id
-                    if latest_session
-                    else None
-                ),
-                device_session_id=device_session_id,
-                risk_score="50",
-                risk_level="MEDIUM",
-                description="New device successful login detected",
-            )
-
-
-    tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
-
-    if tenant and tenant.trial_expired:
-        raise HTTPException(
-            status_code=402,
-            detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED"
-        )
-
-    create_login_session(
+    login_session = create_login_session(
         db=db,
         user=user,
         ip_address=request.client.host if request.client else "UNKNOWN",
@@ -307,6 +264,41 @@ async def authenticate_via_pure_json_payload(
         login_type="PASSWORD",
         is_new_device=is_new,
     )
+
+
+    if is_new:
+
+        log_security_event(
+            db,
+            event_type="NEW_DEVICE_LOGIN",
+            user_id=user.id,
+            tenant_id=user.tenant_id,
+            request=request,
+            device_info={
+                "fingerprint": payload.device_fingerprint,
+                "platform": payload.platform,
+                "browser": payload.browser,
+                "screen": (
+                    f"{payload.screen_width}x{payload.screen_height}"
+                ),
+                "timezone": payload.timezone_name,
+            },
+            login_session_id=login_session.id,
+            device_session_id=device_session_id,
+            risk_score="50",
+            risk_level="MEDIUM",
+            description="New device successful login detected",
+        )
+
+
+    tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
+
+    if tenant and tenant.trial_expired:
+        raise HTTPException(
+            status_code=402,
+            detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED"
+        )
+
 
     token_claims = {
         "user_id": user.id,
