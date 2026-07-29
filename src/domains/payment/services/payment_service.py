@@ -79,6 +79,27 @@ def create_payment(
         )
 
         if existing_request:
+
+            # ==============================
+            # IDEMPOTENCY STATE HANDLING
+            # ==============================
+
+            if existing_request.status == "COMPLETED":
+                return existing_request
+
+
+            if existing_request.status == "PENDING":
+                raise Exception(
+                    "PAYMENT_REQUEST_ALREADY_PROCESSING"
+                )
+
+
+            if existing_request.status == "FAILED":
+                raise Exception(
+                    "PAYMENT_REQUEST_FAILED_RETRY_WITH_NEW_ID"
+                )
+
+
             return existing_request
 
 
