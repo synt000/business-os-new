@@ -1,114 +1,1504 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Business OS Social Center</title>
+
+<title>Social Center</title>
 
 <style>
+
 body{
-background:#111827;
-color:white;
-font-family:Arial;
-padding:20px;
+    margin:0;
+    background:#0f172a;
+    color:white;
+    font-family:Arial,sans-serif;
 }
+
+.container{
+    max-width:480px;
+    margin:auto;
+    padding:15px;
+}
+
+.header{
+    font-size:22px;
+    font-weight:bold;
+    margin-bottom:15px;
+}
+
+.layout{
+    display:flex;
+    gap:10px;
+}
+
+.customers{
+    width:35%;
+}
+
+.chat{
+    width:65%;
+}
+
 .card{
-background:#1f2937;
-padding:20px;
-margin-bottom:20px;
-border-radius:12px;
+    background:#1e293b;
+    padding:12px;
+    border-radius:12px;
+    margin-bottom:10px;
+    cursor:pointer;
 }
-.lead{
-padding:12px;
-margin-top:10px;
-background:#374151;
-border-radius:8px;
+
+.card:hover{
+    background:#334155;
 }
+
+
+.name{
+    font-weight:bold;
+}
+
+.platform{
+    font-size:12px;
+    color:#94a3b8;
+}
+
+.message{
+    margin-top:8px;
+}
+
+
+.chat-box{
+    background:#020617;
+    height:420px;
+    border-radius:15px;
+    padding:10px;
+    overflow-y:auto;
+}
+
+
+.incoming{
+    background:#334155;
+    padding:10px;
+    border-radius:12px;
+    margin:8px 0;
+    text-align:left;
+}
+
+
+.reply{
+    background:#2563eb;
+    padding:10px;
+    border-radius:12px;
+    margin:8px 0;
+    text-align:right;
+}
+
+
+.input-area{
+    display:flex;
+    gap:5px;
+    margin-top:10px;
+}
+
+
+input{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    border:none;
+}
+
+
+button{
+    background:#22c55e;
+    border:none;
+    padding:12px;
+    border-radius:10px;
+    color:white;
+}
+
+
+.empty{
+    text-align:center;
+    color:#94a3b8;
+}
+
 </style>
+
 </head>
 
 <body>
 
-<h1>💬 Social Center</h1>
+<div class="container">
 
-<div class="card">
-<h2>📊 Summary</h2>
-<div id="summary">
+<div class="header">
+💬 Social Center
+</div>
+
+
+<div class="layout">
+
+<div class="customers">
+
+<h3>
+Customers
+<span id="unreadCount"
+style="
+background:#ef4444;
+color:white;
+padding:4px 8px;
+border-radius:20px;
+font-size:12px;
+margin-left:8px;
+">
+0
+</span>
+</h3>
+
+<input
+id="customerSearch"
+class="search-box"
+placeholder="🔍 Search customer..."
+onkeyup="filterCustomers()">
+
+<div id="customers">
 Loading...
 </div>
+
 </div>
 
-<div class="card">
-<h2>👥 Leads</h2>
-<div id="lead-list">
-Loading...
+
+<div class="chat">
+
+<h3 id="chat-title">
+Select customer
+</h3>
+
+<div id="customerProfile"
+style="
+display:none;
+background:#0f172a;
+border:1px solid #334155;
+padding:12px;
+border-radius:12px;
+margin-bottom:10px;
+font-size:14px;
+">
+
+<div style="display:none">
+👤 <span id="profileName">-</span>
 </div>
+<div>📱 Platform: <span id="profilePlatform">-</span></div>
+<div>🆔 Customer ID: <span id="profileId">-</span></div>
+<div>📩 Messages: <span id="profileCount">-</span></div>
+<div>🔔 Status: <span id="profileStatus">-</span></div>
+<div>🏷 Tags: <span id="profileTags">-</span></div>
+
+<div>🕒 Last Seen: <span id="profileLastSeen">-</span></div>
+
+<div>💬 Total Conversations: <span id="profileTotal">-</span></div>
+
 </div>
 
-<script src="/static/app.js"></script>
+
+<div id="conversation"
+class="chat-box">
+
+Select customer conversation
+
+</div>
+
+
+
+<div id="typingIndicator"
+style="
+display:none;
+font-size:12px;
+color:#94a3b8;
+padding:5px;
+">
+Customer is typing...
+</div>
+
+<div class="input-area">
+
+
+<button onclick="openEmoji()">
+😊
+</button>
+
+<button onclick="openAttachment()">
+📎
+</button>
+
+<input
+type="file"
+id="attachmentInput"
+style="display:none"
+onchange="uploadAttachment(this)"
+>
+
+<div id="pendingAttachments"
+style="
+display:none;
+padding:8px;
+margin:6px 0;
+background:#1e293b;
+border-radius:12px;
+font-size:13px;
+color:white;
+">
+</div>
+
+<input id="replyText"
+placeholder="Type reply..."
+oninput="typingStart()">
+
+<button onclick="sendReply()">
+Send
+</button>
+
+</div>
+
+
+</div>
+
+</div>
+
+</div>
+
 
 <script>
 
-async function loadSummary(){
+const token =
+localStorage.getItem("access_token")
+||
+localStorage.getItem("token")
+||
+prompt("Paste ERP Token");
 
-    const r=await apiFetch("/social/summary");
 
-    if(!r.ok)return;
+let selectedCustomer=null;
+let selectedMessage=null;
+let lastMessageIds=[];
 
-    const data=await r.json();
+let pendingAttachments=[];
 
-    document.getElementById("summary").innerHTML=
-`
-Inbox : ${data.total_messages ?? 0}<br>
-Leads : ${data.total_leads ?? 0}
-`;
+let customersData=[];
+let lastChatLength = 0;
+
+
+async function api(url,options={}){
+
+options.headers={
+"Authorization":"Bearer "+localStorage.getItem("access_token"),
+"Content-Type":"application/json",
+...(options.headers||{})
+};
+
+return fetch(url,options);
 
 }
 
-async function loadLeads(){
 
-    const r=await apiFetch("/social/leads");
+async function loadCustomers(){
 
-    if(!r.ok){
 
-        document.getElementById("lead-list").innerHTML=
-        "No Leads";
 
-        return;
-    }
+try {
 
-    const data=await r.json();
+const res =
+await api(
+"/api/v4/social/messages"
+);
 
-    let html="";
+console.log("REPLY ATTACHMENT STATUS:", res.status);
 
-    data.forEach(x=>{
+const data =
+await res.json();
 
-        html+=`
-<div class="lead">
+console.log("REPLY ATTACHMENT RESPONSE:", data);
 
-<b>${x.customer_name}</b><br>
+console.log("SOCIAL DATA:", data);
 
-Platform :
-${x.platform}<br>
+if(!Array.isArray(data)){
+    console.log(
+        "Invalid messages response",
+        data
+    );
+    return;
+}
 
-Status :
-${x.status}
+
+
+
+
+
+
+const ids =
+data.map(x=>x.id);
+
+lastMessageIds = ids;
+
+customersData=data;
+
+
+const box =
+document.getElementById("customers");
+
+box.innerHTML="";
+
+if(data.length===0){
+
+box.innerHTML += `
+<div class="card">
+<div class="name">
+TEMP TEST CUSTOMER
+</div>
+
+<div class="platform">
+facebook
+</div>
+
+<div class="message">
+Temporary Render Block Working
+</div>
+
+<div class="badge-status unread-badge">
+TEST
+</div>
 
 </div>
 `;
 
-    });
+}
 
-    document.getElementById("lead-list").innerHTML=html;
+lastConversationLength =
+data.length;
+
+
+console.log("RENDER COUNT:", data.length);
+
+data.forEach(msg=>{
+
+console.log("RENDER ITEM:", msg);
+
+box.innerHTML +=`
+
+<div class="card"
+onclick="openConversation(
+'${msg.customer_id}',
+'${msg.customer_name}',
+'${msg.id}'
+)">
+
+<div class="name">
+${msg.customer_name}
+</div>
+
+<div class="platform">
+${msg.platform}
+</div>
+
+<div class="message">
+${msg.message}
+</div>
+
+<div class="badge-status ${
+msg.status==="unread"
+?
+"unread-badge"
+:
+"replied-badge"
+}">
+${msg.status}
+</div>
+
+</div>
+
+`;
+
+});
+
+}catch(e){
+
+console.log("SOCIAL LOAD ERROR:", e);
 
 }
 
-window.addEventListener("DOMContentLoaded", async () => {
-    await loadSummary();
-    await loadLeads();
+}
+
+async function openConversation(
+customerId,
+customerName,
+messageId
+){
+
+selectedCustomer=customerId;
+selectedMessage=messageId;
+
+
+document.getElementById(
+"chat-title"
+).innerHTML=
+customerName;
+
+
+const res =
+await api(
+"/api/v4/social/conversations/"
++
+customerId
+);
+
+
+const data =
+await res.json();
+
+document.getElementById(
+"customerProfile"
+).style.display="block";
+
+document.getElementById(
+"profileName"
+).innerText=customerName;
+
+document.getElementById(
+"profileId"
+).innerText=customerId;
+
+const profileRes =
+await api(
+"/api/v4/social/customer/"
++
+customerId
+);
+
+
+const profile =
+await profileRes.json();
+
+
+document.getElementById(
+"profilePlatform"
+).innerText =
+profile.platform;
+
+
+document.getElementById(
+"profileCount"
+).innerText =
+profile.total_messages;
+
+
+document.getElementById(
+"profileStatus"
+).innerText =
+"Active";
+
+
+
+
+
+document.getElementById(
+"profileTags"
+).innerHTML =
+profile.tags.map(tag=>{
+
+let color="#64748b";
+
+if(tag==="VIP"){
+color="#a855f7";
+}
+
+if(tag==="New Lead"){
+color="#eab308";
+}
+
+if(tag==="Customer"){
+color="#3b82f6";
+}
+
+if(tag==="Hot Lead"){
+color="#ef4444";
+}
+
+return `
+<span style="
+background:${color};
+color:white;
+padding:3px 8px;
+border-radius:20px;
+font-size:12px;
+margin-right:5px;
+">
+${tag}
+</span>
+`;
+
+}).join("");
+
+
+document.getElementById(
+"profileLastSeen"
+).innerText =
+new Date(
+profile.last_seen
+).toLocaleString();
+
+
+document.getElementById(
+"profileTotal"
+).innerText =
+profile.total_messages;
+
+document.getElementById(
+"profileCount"
+).innerText=data.messages.length;
+
+document.getElementById(
+"profileStatus"
+).innerText="Active";
+
+
+customersData=data;
+
+
+const box =
+document.getElementById(
+"conversation"
+);
+
+
+box.innerHTML="";
+
+
+data.messages.forEach(item=>{
+
+
+
+if(item.type==="incoming"){
+
+box.innerHTML +=`
+
+<div class="chat-message incoming">
+
+<div class="chat-user">
+${item.customer_name || "Customer"}
+</div>
+
+<div>
+${item.text}
+</div>
+
+${item.attachments && item.attachments.length ? `
+
+<div style="margin-top:8px">
+
+${
+item.attachments.map(att=>{
+
+return (
+(att.type || "").startsWith("image/")
+
+?
+
+`<img
+src="${att.url}?v=${Date.now()}"
+onclick="window.open('${att.url}','_blank')"
+style="
+max-width:220px;
+max-height:220px;
+border-radius:12px;
+border:1px solid #334155;
+cursor:pointer;
+display:block;
+margin-top:6px;
+">`
+
+:
+
+`<div style="
+margin-top:8px;
+padding:10px;
+background:#1e293b;
+border-radius:12px;
+">
+
+${
+(att.type || "").startsWith("image/")
+?
+`
+<img
+src="${att.url}"
+style="
+max-width:220px;
+max-height:220px;
+border-radius:12px;
+display:block;
+margin-bottom:8px;
+cursor:pointer;
+"
+onclick="window.open('${att.url}','_blank')"
+/>
+`
+:
+""
+}
+
+${
+(att.type || "").startsWith("audio/")
+?
+`
+<audio
+controls
+style="
+width:220px;
+margin-bottom:8px;
+">
+<source src="${att.url}" type="${att.type}">
+</audio>
+`
+:
+""
+}
+
+<div style="
+color:#e2e8f0;
+margin-bottom:6px;
+">
+📎 ${att.name || "Attachment"}
+</div>
+
+<div style="
+color:#94a3b8;
+font-size:12px;
+margin-bottom:8px;
+">
+${att.type || "file"}
+</div>
+
+<a
+href="${att.url}"
+target="_blank"
+style="
+color:#60a5fa;
+text-decoration:none;
+margin-right:12px;
+">
+👁 Open
+</a>
+
+<a
+href="${att.url}"
+download
+style="
+color:#22c55e;
+text-decoration:none;
+">
+⬇ Download
+</a>
+
+</div>`
+
+)
+
+}).join("")
+}
+
+</div>
+
+` : ""}
+
+${item.url ? `
+
+<div style="margin-top:8px">
+
+${
+(item.type || "").startsWith("image/")
+
+?
+
+`<img
+src="${item.url}?v=${Date.now()}"
+onclick="window.open('${item.url}','_blank')"
+style="
+max-width:220px;
+max-height:220px;
+border-radius:12px;
+border:1px solid #334155;
+cursor:pointer;
+display:block;
+">`
+
+:
+
+`<a
+href="${item.url}"
+target="_blank"
+style="
+color:#60a5fa;
+text-decoration:none;
+display:block;
+">
+📎 ${item.name || "Attachment"}
+</a>`
+
+}
+
+</div>
+
+` : ""}
+
+<div class="chat-time">
+${new Date(item.time).toLocaleString()}
+</div>
+
+</div>
+
+`;
+
+}
+
+
+if(item.type==="reply"){
+
+box.innerHTML +=`
+
+<div class="chat-message reply">
+
+<div class="chat-user">
+You
+</div>
+
+<div>
+${item.text}
+</div>
+
+${item.url ? `
+<div style="margin-top:8px">
+
+${
+(item.type || "").startsWith("image/")
+
+?
+
+`<img
+src="${item.url}?v=${Date.now()}"
+onclick="window.open('${item.url}','_blank')"
+style="
+max-width:220px;
+max-height:220px;
+border-radius:12px;
+border:1px solid #334155;
+cursor:pointer;
+display:block;
+">`
+
+:
+
+`<a
+href="${item.url}"
+target="_blank"
+style="
+color:#60a5fa;
+text-decoration:none;
+display:block;
+">
+📎 ${item.name || "Attachment"}
+</a>`
+
+}
+
+</div>
+` : ""}
+
+<div class="chat-time">
+${new Date(item.time).toLocaleString()}
+</div>
+
+</div>
+
+`;
+
+}
+
+
+
+
 });
+
+
+if(data.messages.length > lastChatLength){
+
+    box.scrollTop =
+    box.scrollHeight;
+
+    lastChatLength =
+    data.messages.length;
+
+}
+
+
+}
+
+
+
+async function sendReply(){
+
+const input =
+document.getElementById(
+"replyText"
+);
+
+const text =
+input.value.trim();
+
+
+if(!text || !selectedMessage){
+return;
+}
+
+
+try{
+
+const replyRes = await api(
+"/api/v4/social/messages/"
++
+selectedMessage
++
+"/reply",
+{
+method:"POST",
+body:JSON.stringify({
+reply_text:text
+})
+}
+);
+
+
+const replyResult = await replyRes.json();
+
+console.log(
+"REPLY RESPONSE:",
+replyResult
+);
+
+console.log(
+"REPLY RESPONSE:",
+JSON.stringify(replyResult)
+);
+
+console.log("REPLY RESULT:", replyResult);
+
+console.log("REPLY API RESULT:", replyResult);
+
+window.lastReplyId =
+replyResult.reply_id ||
+replyResult.data?.reply_id ||
+replyResult.id ||
+replyResult.message_id;
+
+console.log("FINAL LAST REPLY ID:", window.lastReplyId);
+
+console.log(
+"FINAL REPLY ID:",
+window.lastReplyId
+);
+
+const token =
+localStorage.getItem(
+"access_token"
+);
+
+for(const item of pendingAttachments){
+
+const form = new FormData();
+
+form.append(
+"file",
+item.file
+);
+
+console.log(
+"UPLOADING ATTACHMENT",
+item.name,
+window.lastReplyId
+);
+
+await fetch(
+"/api/v4/social/replies/"
++
+window.lastReplyId
++
+"/attachment",
+{
+method:"POST",
+headers:{
+"Authorization":"Bearer "+token
+},
+body:form
+}
+);
+
+}
+
+pendingAttachments=[];
+
+input.value="";
+
+
+await openConversation(
+selectedCustomer,
+document.getElementById("chat-title").innerText,
+selectedMessage
+);
+
+
+}catch(e){
+
+console.log(
+"Send reply error",
+e
+);
+
+}
+
+}
+
+
+
+document
+.getElementById("replyText")
+.addEventListener(
+"keydown",
+function(e){
+
+if(e.key==="Enter"){
+
+sendReply();
+
+}
+
+});
+
+
+
+function filterCustomers(){
+
+const q =
+document.getElementById(
+"customerSearch"
+).value.toLowerCase();
+
+
+document.querySelectorAll(
+"#customers .card"
+).forEach(card=>{
+
+if(card.innerText.toLowerCase().includes(q)){
+    card.style.display="block";
+}else{
+    card.style.display="none";
+}
+
+});
+
+}
+
+
+
+
+async function loadUnreadCount(){
+
+const res =
+await api(
+"/api/v4/social/messages/unread"
+);
+
+const data =
+await res.json();
+
+
+document.getElementById(
+"unreadCount"
+).innerText =
+data.length;
+
+}
+
+
+loadCustomers();
+loadUnreadCount();
+
+
+
+setInterval(()=>{
+    loadCustomers();
+    loadUnreadCount();
+},5000);
+
+
+
+
 
 </script>
 
+
 </body>
+
 </html>
+
+
+<style>
+
+.chat-box{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding:10px;
+}
+
+.chat-message{
+    max-width:85%;
+    padding:12px;
+    border-radius:14px;
+    font-size:14px;
+}
+
+.incoming{
+    background:#1e293b;
+    align-self:flex-start;
+}
+
+.reply{
+    background:#2563eb;
+    color:white;
+    align-self:flex-end;
+}
+
+.chat-time{
+    font-size:11px;
+    opacity:.6;
+    margin-top:4px;
+}
+
+.reply-area{
+    display:flex;
+    gap:8px;
+    margin-top:15px;
+}
+
+.reply-area input{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    border:1px solid #334155;
+    background:#0f172a;
+    color:white;
+}
+
+.reply-area button{
+    padding:12px 18px;
+    border-radius:10px;
+    background:#22c55e;
+    border:none;
+    color:white;
+}
+
+</style>
+
+
+<style>
+
+.chat-box{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:12px;
+    max-height:420px;
+    overflow-y:auto;
+}
+
+
+.chat-message{
+    max-width:80%;
+    padding:12px 14px;
+    border-radius:18px;
+    font-size:14px;
+    line-height:1.4;
+    word-wrap:break-word;
+}
+
+
+.chat-message.incoming{
+
+    align-self:flex-start;
+    background:#1e293b;
+    color:#e2e8f0;
+
+    border-bottom-left-radius:4px;
+
+}
+
+
+.chat-message.reply{
+
+    align-self:flex-end;
+    background:#2563eb;
+    color:white;
+
+    border-bottom-right-radius:4px;
+
+}
+
+
+.chat-time{
+
+    margin-top:6px;
+    font-size:11px;
+    opacity:.65;
+
+}
+
+
+.input-area{
+
+    display:flex;
+    gap:8px;
+    margin-top:12px;
+
+}
+
+
+.input-area input{
+
+    flex:1;
+    background:#0f172a;
+    color:white;
+    border:1px solid #334155;
+    border-radius:12px;
+    padding:12px;
+
+}
+
+
+.input-area button{
+
+    background:#22c55e;
+    color:white;
+    border:none;
+    border-radius:12px;
+    padding:0 18px;
+    font-weight:bold;
+
+}
+
+</style>
+
+
+<style>
+
+.chat-box{
+    display:flex;
+    flex-direction:column;
+    gap:12px;
+    padding:12px;
+    max-height:420px;
+    overflow-y:auto;
+}
+
+.chat-message{
+    max-width:80%;
+    padding:12px 14px;
+    border-radius:18px;
+    font-size:14px;
+    line-height:1.5;
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+
+.incoming{
+    align-self:flex-start;
+    background:#1e293b;
+    color:#e2e8f0;
+    border-bottom-left-radius:4px;
+}
+
+.reply{
+    align-self:flex-end;
+    background:#2563eb;
+    color:white;
+    border-bottom-right-radius:4px;
+}
+
+.chat-time{
+    margin-top:6px;
+    font-size:11px;
+    opacity:.65;
+}
+
+
+.customer-card{
+    cursor:pointer;
+    transition:.2s;
+}
+
+.customer-card:hover{
+    transform:scale(1.02);
+}
+
+
+.status-badge{
+    padding:4px 10px;
+    border-radius:20px;
+    font-size:11px;
+    display:inline-block;
+}
+
+.status-unread{
+    background:#dc2626;
+    color:white;
+}
+
+.status-replied{
+    background:#16a34a;
+    color:white;
+}
+
+
+.input-area{
+    display:flex;
+    gap:8px;
+    position:sticky;
+    bottom:0;
+}
+
+
+#replyText{
+    flex:1;
+    border-radius:20px;
+    padding:12px 16px;
+}
+
+
+.input-area button{
+    border-radius:20px;
+    padding:12px 20px;
+}
+
+</style>
+
+
+<style>
+
+.chat-user{
+    font-size:12px;
+    font-weight:bold;
+    margin-bottom:5px;
+    opacity:.8;
+}
+
+.chat-message.reply .chat-user{
+    color:#dbeafe;
+}
+
+.chat-message.incoming .chat-user{
+    color:#94a3b8;
+}
+
+</style>
+
+
+
+
+
+<script>
+
+function openEmoji(){
+
+const input =
+document.getElementById("replyText");
+
+if(input){
+    input.value += "😊";
+}
+
+}
+
+
+function openAttachment(){
+
+let input = document.getElementById(
+"attachmentInput"
+);
+
+if(!input){
+
+input = document.createElement("input");
+
+input.type="file";
+
+input.id="attachmentInput";
+
+input.style.display="none";
+
+input.onchange = uploadAttachment;
+
+document.body.appendChild(input);
+
+}
+
+input.click();
+
+}
+
+
+
+
+
+function renderPendingAttachments(){
+
+const box =
+document.getElementById(
+"pendingAttachments"
+);
+
+if(!box){
+return;
+}
+
+if(
+pendingAttachments.length===0
+){
+
+box.style.display="none";
+box.innerHTML="";
+return;
+
+}
+
+box.style.display="block";
+
+box.innerHTML="";
+
+pendingAttachments.forEach(
+(item,index)=>{
+
+const div =
+document.createElement("div");
+
+div.style.cssText=`
+display:flex;
+justify-content:space-between;
+align-items:center;
+padding:6px;
+margin-bottom:5px;
+background:#334155;
+border-radius:8px;
+`;
+
+div.innerHTML=`
+<span>
+📎 ${item.name}
+</span>
+
+<button
+onclick="removePendingAttachment(${index})"
+style="
+background:#dc2626;
+color:white;
+border:none;
+border-radius:6px;
+padding:3px 8px;
+">
+×
+</button>
+`;
+
+box.appendChild(div);
+
+});
+
+}
+
+
+function removePendingAttachment(index){
+
+pendingAttachments.splice(index,1);
+
+renderPendingAttachments();
+
+}
+
+
+async function uploadAttachment(input){
+
+const file = input.files[0];
+
+if(!file){
+return;
+}
+
+pendingAttachments.push({
+    file:file,
+    name:file.name,
+    type:file.type
+});
+
+renderPendingAttachments();
+
+
+console.log(
+"Pending attachments:",
+pendingAttachments
+);
+
+
+alert(
+"📎 Added: " + file.name
+);
+
+
+input.value="";
+
+}
+
+
+</script>
+
+
+<script>
+
+let typingTimer;
+
+
+function typingStart(){
+
+const box =
+document.getElementById(
+"typingIndicator"
+);
+
+
+if(!box){
+return;
+}
+
+
+box.style.display="block";
+
+
+clearTimeout(
+typingTimer
+);
+
+
+typingTimer=setTimeout(()=>{
+
+box.style.display="none";
+
+},1500);
+
+
+}
+
+</script>

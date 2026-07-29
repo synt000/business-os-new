@@ -1083,9 +1083,58 @@ class SocialMessage(Base):
 
     reply_text = Column(String)
 
+    attachment_url = Column(String)
+
+    attachment_name = Column(String)
+
     tenant_id = Column(String, nullable=False)
 
     created_at = Column(DateTime, default=datetime.utcnow)
+
+
+class SocialMessageReply(Base):
+
+    __tablename__ = "social_message_replies"
+
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid
+    )
+
+
+    message_id = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+
+    tenant_id = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+
+    reply_text = Column(
+        String,
+        nullable=False
+    )
+
+
+    replied_by = Column(
+        String,
+        nullable=True
+    )
+
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
 
 
 class Employee(Base):
@@ -1200,6 +1249,69 @@ class SocialLead(Base):
     tenant_id = Column(
         String,
         ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+
+
+class SocialReplyAttachment(Base):
+
+    __tablename__ = "social_reply_attachments"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid
+    )
+
+    reply_id = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+    file_url = Column(String)
+
+    file_name = Column(String)
+
+    file_type = Column(String)
+
+    tenant_id = Column(
+        String,
+        nullable=False,
+        index=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+
+class SocialMessageAttachment(Base):
+    __tablename__ = "social_message_attachments"
+
+    id = Column(String, primary_key=True)
+
+    message_id = Column(
+        String,
+        nullable=False
+    )
+
+    file_url = Column(String)
+
+    file_name = Column(String)
+
+    file_type = Column(String)
+
+    tenant_id = Column(
+        String,
         nullable=False
     )
 

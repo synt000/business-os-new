@@ -116,28 +116,32 @@ class SecurityInfrastructureMiddleware(
         # RATE LIMIT
         # ----------------------------------
 
-        now = time.time()
+        bypass_rate_limit = (
+            request.url.path.startswith('/static/')
+            or request.url.path.startswith('/api/v4/social/')
+        )
 
+        if not bypass_rate_limit:
 
-        rate_vault[client_ip] = [
-            t for t in rate_vault[client_ip]
-            if now - t < 60
-        ]
+            now = time.time()
 
+            rate_vault[client_ip] = [
+                t for t in rate_vault[client_ip]
+                if now - t < 60
+            ]
 
-        if len(rate_vault[client_ip]) >= settings.RATE_LIMIT_PER_MINUTE:
+            if len(rate_vault[client_ip]) >= settings.RATE_LIMIT_PER_MINUTE:
 
-            return JSONResponse(
-                status_code=429,
-                content={
-                    "status":"BLOCKED",
-                    "detail":"RATE_LIMIT_EXCEEDED",
-                    "request_id":request_id
-                }
-            )
+                return JSONResponse(
+                    status_code=429,
+                    content={
+                        'status':'BLOCKED',
+                        'detail':'RATE_LIMIT_EXCEEDED',
+                        'request_id':request_id
+                    }
+                )
 
-
-        rate_vault[client_ip].append(now)
+            rate_vault[client_ip].append(now)
 
 
 

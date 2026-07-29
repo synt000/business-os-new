@@ -751,3 +751,25 @@ opacity:.9;
     display:block;
 }
 
+
+.attachment-box{
+margin-top:8px;
+padding:8px;
+background:#1e293b;
+border-radius:10px;
+}
+
+.attachment-box a{
+color:#38bdf8;
+text-decoration:none;
+}
+
+
+.chat-message img{
+display:block;
+max-width:220px;
+margin-top:8px;
+border-radius:12px;
+border:1px solid #334155;
+}
+

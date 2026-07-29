@@ -4,7 +4,9 @@ from src.models.saas_core import (
     BusinessProfile,
     SocialAccount,
     SocialMessage,
-    SocialLead
+    SocialLead,
+    SocialMessageReply,
+    SocialReplyAttachment
 )
 
 print("=== SOCIAL CENTER INIT ===")

@@ -58,6 +58,8 @@ from src.product.router import router as product_router
 from src.movement.router import router as movement_router
 from src.domains.social.router import router as social_webhook_router
 from src.domains.social_center.router import router as social_center_router
+from src.domains.social_center.ui_router import router as social_center_ui_router
+from src.domains.social_center.ui_router import router as social_ui_router
 from src.domains.dashboard.router import router as dashboard_router
 from src.dashboard.router import router as ui_dashboard_router
 from src.domains.platform.router import router as platform_router
@@ -212,6 +214,7 @@ app.include_router(license_router)
 app.include_router(device_router)
 app.include_router(payment_gateway_router)
 app.include_router(social_center_router)
+app.include_router(social_center_ui_router)
 
 app.include_router(
     dashboard_router,
@@ -291,3 +294,11 @@ print("===== FINAL ROUTES =====")
 for r in app.routes:
     if hasattr(r, "path"):
         print("ROUTE:", r.path)
+
+# ==============================
+# Social Center Router
+# ==============================
+from src.domains.social_center.router import router as social_router
+
+app.include_router(social_router)
+
