@@ -250,6 +250,13 @@ async def authenticate_via_pure_json_payload(
 
         if is_new:
 
+            latest_session = (
+                db.query(LoginSession)
+                .filter(LoginSession.user_id == user.id)
+                .order_by(LoginSession.created_at.desc())
+                .first()
+            )
+
             log_security_event(
                 db,
                 event_type="NEW_DEVICE_LOGIN",
@@ -265,6 +272,14 @@ async def authenticate_via_pure_json_payload(
                     ),
                     "timezone": payload.timezone_name,
                 },
+                login_session_id=(
+                    latest_session.id
+                    if latest_session
+                    else None
+                ),
+                device_session_id=device_session_id,
+                risk_score="50",
+                risk_level="MEDIUM",
                 description="New device successful login detected",
             )
 
