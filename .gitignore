@@ -36,3 +36,14 @@ tools/tmp/
 .vscode/
 .idea/
 
+
+# Cleanup archive
+_archive/
+
+# Local backups
+*.backup
+*.bak
+*.db
+*.log
+*.pdf
+*.tar.gz
