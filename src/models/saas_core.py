@@ -1,7 +1,7 @@
 import enum
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum, Text, Index
+from sqlalchemy import UniqueConstraint, Column, String, Integer, Float, Boolean, DateTime, ForeignKey, Enum, Text, Index
 from sqlalchemy.orm import relationship
 from src.core.database import Base
 from src.domains.inventory import models as inventory_models
@@ -73,6 +73,14 @@ class User(Base):
 
 class Order(Base):
     __tablename__ = "orders"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id",
+            "order_number",
+            name="uq_order_number_tenant",
+        ),
+    )
 
     id = Column(String, primary_key=True, default=generate_uuid, index=True)
     order_number = Column(String, nullable=False, index=True)
@@ -632,6 +640,14 @@ class WorkspaceInvitation(Base):
 class Invoice(Base):
     __tablename__ = "invoices"
 
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id",
+            "invoice_number",
+            name="uq_invoice_number_tenant",
+        ),
+    )
+
     id = Column(
         String,
         primary_key=True,
@@ -695,6 +711,14 @@ class Invoice(Base):
 
 class Payment(Base):
     __tablename__ = "payments"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id",
+            "payment_number",
+            name="uq_payment_number_tenant",
+        ),
+    )
 
     id = Column(
         String,
