@@ -15,6 +15,8 @@ from src.domains.device.service import (
     unblock_device_session
 )
 
+from src.security.security_query import get_security_overview
+
 
 router = APIRouter(
     prefix="/api/v4/security",
@@ -107,6 +109,18 @@ def register_device(
 # Identity Security v5.8
 # Device Session Management API
 # =====================================================
+
+
+@router.get("/overview")
+def security_overview(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    return get_security_overview(
+        db,
+        current_user.tenant_id
+    )
+
 
 
 @router.get(
