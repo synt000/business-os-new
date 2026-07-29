@@ -1,10 +1,11 @@
-cat > src/domains/device/service.py <<'PY'
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from sqlalchemy.orm import Session
 
 from src.domains.device.models import TenantDevice
+from src.models.device_session import DeviceSession
+from src.security.event_logger import log_security_event
 
 
 MAX_DEVICES_PER_USER = 1
@@ -49,7 +50,7 @@ def register_device(
     )
 
     if existing:
-        existing.last_seen = datetime.utcnow()
+        existing.last_seen = datetime.now(timezone.utc)
         existing.is_active = True
 
         db.commit()
@@ -110,3 +111,89 @@ def deactivate_device(
     db.commit()
 
     return True
+
+
+# =====================================================
+# Identity Security v5.8
+# DeviceSession Management
+# =====================================================
+
+
+def list_device_sessions(
+    db: Session,
+    tenant_id: str
+):
+    return (
+        db.query(DeviceSession)
+        .filter(
+            DeviceSession.workspace_id == tenant_id
+        )
+        .order_by(
+            DeviceSession.id.desc()
+        )
+        .all()
+    )
+
+
+def block_device_session(
+    db: Session,
+    tenant_id: str,
+    device_id: str
+):
+    device = (
+        db.query(DeviceSession)
+        .filter(
+            DeviceSession.id == device_id,
+            DeviceSession.workspace_id == tenant_id
+        )
+        .first()
+    )
+
+    if not device:
+        return None
+
+    device.is_blocked = True
+
+    log_security_event(
+        db,
+        event_type="DEVICE_BLOCKED_BY_ADMIN",
+        user_id=None,
+        tenant_id=tenant_id,
+        device_info={
+            "device_id": device.id,
+            "fingerprint": device.device_fingerprint,
+            "browser": device.browser,
+            "platform": device.platform,
+        },
+        description="Device blocked by administrator"
+    )
+
+    db.commit()
+    db.refresh(device)
+
+    return device
+
+
+def unblock_device_session(
+    db: Session,
+    tenant_id: str,
+    device_id: str
+):
+    device = (
+        db.query(DeviceSession)
+        .filter(
+            DeviceSession.id == device_id,
+            DeviceSession.workspace_id == tenant_id
+        )
+        .first()
+    )
+
+    if not device:
+        return None
+
+    device.is_blocked = False
+
+    db.commit()
+    db.refresh(device)
+
+    return device
