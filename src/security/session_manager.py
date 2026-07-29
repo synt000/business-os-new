@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timezone
 import uuid
 
 from sqlalchemy.orm import Session
@@ -13,6 +13,7 @@ def create_login_session(
     user_agent: str = "UNKNOWN",
     device_name: str = "UNKNOWN",
     refresh_jti: str | None = None,
+    device_session_id: str | None = None,
 ):
     session = LoginSession(
         tenant_id=user.tenant_id,
@@ -22,8 +23,9 @@ def create_login_session(
         user_agent=user_agent,
         device_name=device_name,
         refresh_jti=refresh_jti,
-        login_at=datetime.utcnow(),
-        last_seen=datetime.utcnow(),
+        device_session_id=device_session_id,
+        login_at=datetime.now(timezone.utc),
+        last_seen=datetime.now(timezone.utc),
         is_active=True,
     )
 
@@ -40,7 +42,7 @@ def update_last_seen(db: Session, session_id: int):
     ).first()
 
     if session:
-        session.last_seen = datetime.utcnow()
+        session.last_seen = datetime.now(timezone.utc)
         db.commit()
 
 
@@ -51,7 +53,7 @@ def logout_session(db: Session, session_id: int):
 
     if session:
         session.is_active = False
-        session.logout_at = datetime.utcnow()
+        session.logout_at = datetime.now(timezone.utc)
         db.commit()
 
 
@@ -63,6 +65,6 @@ def logout_all_sessions(db: Session, user_id: str):
 
     for s in sessions:
         s.is_active = False
-        s.logout_at = datetime.utcnow()
+        s.logout_at = datetime.now(timezone.utc)
 
     db.commit()

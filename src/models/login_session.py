@@ -1,7 +1,7 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
-from sqlalchemy import Column, String, DateTime, Boolean
+from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey
 
 from src.core.database import Base
 
@@ -56,6 +56,16 @@ class LoginSession(Base):
         index=True
     )
 
+    device_session_id = Column(
+        String,
+        ForeignKey(
+            "device_sessions.id",
+            ondelete="SET NULL"
+        ),
+        nullable=True,
+        index=True
+    )
+
     login_at = Column(
         DateTime,
         nullable=True
@@ -81,11 +91,11 @@ class LoginSession(Base):
 
     created_at = Column(
         DateTime,
-        default=datetime.utcnow
+        default=datetime.now(timezone.utc)
     )
 
 
     last_used_at = Column(
         DateTime,
-        default=datetime.utcnow
+        default=datetime.now(timezone.utc)
     )

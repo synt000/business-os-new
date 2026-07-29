@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlalchemy import (
     Column,
@@ -17,6 +17,7 @@ def generate_uuid():
 
 
 class DeviceSession(Base):
+
     __tablename__ = "device_sessions"
 
     id = Column(
@@ -28,7 +29,10 @@ class DeviceSession(Base):
 
     workspace_id = Column(
         String,
-        ForeignKey("guest_workspaces.id", ondelete="CASCADE"),
+        ForeignKey(
+            "tenants.id",
+            ondelete="CASCADE"
+        ),
         nullable=False,
         index=True,
     )
@@ -65,7 +69,7 @@ class DeviceSession(Base):
         nullable=True,
     )
 
-    timezone = Column(
+    timezone_name = Column(
         String,
         nullable=True,
     )
@@ -86,13 +90,13 @@ class DeviceSession(Base):
     )
 
     first_seen = Column(
-        DateTime,
-        default=datetime.utcnow,
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
     )
 
     last_seen = Column(
-        DateTime,
-        default=datetime.utcnow,
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
     )
 
     is_blocked = Column(
@@ -101,6 +105,6 @@ class DeviceSession(Base):
     )
 
     created_at = Column(
-        DateTime,
-        default=datetime.utcnow,
+        DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
     )

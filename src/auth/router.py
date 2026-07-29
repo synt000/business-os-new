@@ -20,6 +20,7 @@ from src.security.login_guard import (
 )
 
 from src.security.event_logger import log_security_event
+from src.auth.device_service import register_device
 from src.security.session_manager import create_login_session
 from src.security.refresh_manager import create_refresh_session
 
@@ -42,6 +43,16 @@ router = APIRouter(prefix="/api/v4/auth", tags=["Identity & Access Management"])
 class JSONLoginInboundPayload(BaseModel):
     email: EmailStr
     password: str
+
+    # Identity Security v5.8 Device Fingerprint
+    device_fingerprint: str | None = None
+    device_name: str | None = None
+    platform: str | None = None
+    browser: str | None = None
+    screen_width: str | None = None
+    screen_height: str | None = None
+    timezone_name: str | None = None
+    language: str | None = None
 
 class TokenResponseOutboundPayload(BaseModel):
     access_token: str
@@ -88,6 +99,8 @@ async def authenticate_via_oauth2_form_flow(
         )
 
     register_success_login(db, user)
+
+    device_session_id = None
 
     create_login_session(
         db=db,
@@ -159,6 +172,103 @@ async def authenticate_via_pure_json_payload(
 
     register_success_login(db, user)
         
+
+    # Identity Security v5.8 Device Registration
+    if payload.device_fingerprint:
+
+        device, is_new = register_device(
+            db,
+            workspace_id=user.tenant_id,
+            device_fingerprint=payload.device_fingerprint,
+            device_name=payload.device_name,
+            platform=payload.platform,
+            browser=payload.browser,
+            screen_width=payload.screen_width,
+            screen_height=payload.screen_height,
+            timezone_name=payload.timezone_name,
+            language=payload.language,
+            ip_address=request.client.host if request.client else "UNKNOWN",
+            user_agent=request.headers.get(
+                "user-agent",
+                "UNKNOWN"
+            ),
+        )
+
+        device_session_id = device.id
+
+        log_security_event(
+            db,
+            event_type=(
+                "DEVICE_REGISTERED"
+                if is_new
+                else "DEVICE_UPDATED"
+            ),
+            user_id=user.id,
+            tenant_id=user.tenant_id,
+            request=request,
+            device_info={
+                "fingerprint": payload.device_fingerprint,
+                "platform": payload.platform,
+                "browser": payload.browser,
+                "screen": (
+                    f"{payload.screen_width}x{payload.screen_height}"
+                ),
+                "timezone": payload.timezone_name,
+            },
+            description="Identity device registration flow",
+        )
+
+
+        device_info = {
+            "fingerprint": payload.device_fingerprint,
+            "platform": payload.platform,
+            "browser": payload.browser,
+            "screen": (
+                f"{payload.screen_width}x{payload.screen_height}"
+            ),
+            "timezone": payload.timezone_name,
+        }
+
+
+        if device.is_blocked:
+
+            log_security_event(
+                db,
+                event_type="DEVICE_BLOCKED",
+                user_id=user.id,
+                tenant_id=user.tenant_id,
+                request=request,
+                device_info=device_info,
+                description="Blocked device login rejected",
+            )
+
+            raise HTTPException(
+                status_code=403,
+                detail="DEVICE_BLOCKED"
+            )
+
+
+        if is_new:
+
+            log_security_event(
+                db,
+                event_type="NEW_DEVICE_LOGIN",
+                user_id=user.id,
+                tenant_id=user.tenant_id,
+                request=request,
+                device_info={
+                    "fingerprint": payload.device_fingerprint,
+                    "platform": payload.platform,
+                    "browser": payload.browser,
+                    "screen": (
+                        f"{payload.screen_width}x{payload.screen_height}"
+                    ),
+                    "timezone": payload.timezone_name,
+                },
+                description="New device successful login detected",
+            )
+
+
     tenant = db.query(Tenant).filter(Tenant.id == user.tenant_id).first()
 
     if tenant and tenant.trial_expired:
@@ -166,6 +276,18 @@ async def authenticate_via_pure_json_payload(
             status_code=402,
             detail="WORKSPACE_LOCKED: FREE_TRIAL_EXPIRED"
         )
+
+    create_login_session(
+        db=db,
+        user=user,
+        ip_address=request.client.host if request.client else "UNKNOWN",
+        user_agent=request.headers.get(
+            "user-agent",
+            "UNKNOWN"
+        ),
+        device_name=payload.device_name or "UNKNOWN",
+        device_session_id=device_session_id,
+    )
 
     token_claims = {
         "user_id": user.id,
@@ -307,8 +429,8 @@ async def register_business_owner(
             id=str(uuid.uuid4()),
             tenant_id=tenant.id,
             plan_id=trial_plan.id,
-            start_date=datetime.utcnow(),
-            end_date=datetime.utcnow() + timedelta(days=30),
+            start_date=datetime.now(timezone.utc),
+            end_date=datetime.now(timezone.utc) + timedelta(days=30),
             status="ACTIVE",
             is_trial=True
         )

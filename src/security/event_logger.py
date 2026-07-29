@@ -1,4 +1,5 @@
 from fastapi import Request
+import json
 from sqlalchemy.orm import Session
 
 from src.models.security_event import SecurityEvent
@@ -23,8 +24,9 @@ def log_security_event(
     user_id: str | None = None,
     tenant_id: str | None = None,
     request: Request | None = None,
+    device_info: dict | str | None = None,
     description: str | None = None,
-    severity: str = "INFO"
+    severity: str = "INFO",
 ):
 
     ip_address = None
@@ -41,6 +43,10 @@ def log_security_event(
         )
 
 
+    if isinstance(device_info, dict):
+        device_info = json.dumps(device_info)
+
+
     event = SecurityEvent(
 
         user_id=user_id,
@@ -55,7 +61,9 @@ def log_security_event(
 
         user_agent=user_agent,
 
-        description=description
+        device_info=device_info,
+
+        description=description,
     )
 
 
