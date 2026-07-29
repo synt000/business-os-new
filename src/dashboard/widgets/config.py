@@ -72,5 +72,6 @@ BUSINESS_DASHBOARD_WIDGETS = {
         "retail_pos",
         "bulk_price",
         "stock_in_grn",
+        "security_center",
     ],
 }

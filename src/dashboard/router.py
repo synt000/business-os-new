@@ -83,10 +83,39 @@ async def dashboard_summary(
     db: Session = Depends(get_db)
 ):
 
-    return DashboardService.get_summary(
+    summary = DashboardService.get_summary(
         db,
         current_user.tenant_id
     )
+
+    business_type = None
+
+    if current_user.tenant:
+        if current_user.tenant.business_type_id:
+
+            bt = (
+                db.query(BusinessType)
+                .filter(
+                    BusinessType.id ==
+                    current_user.tenant.business_type_id
+                )
+                .first()
+            )
+
+            if bt:
+                business_type = bt.code
+
+
+    widgets = resolve_widget_data(
+        business_type,
+        db,
+        current_user.tenant_id
+    )
+
+    summary["business_type"] = business_type
+    summary["widgets"] = widgets
+
+    return summary
 
 
 @router.get("/api/v4/dashboard/widgets")
