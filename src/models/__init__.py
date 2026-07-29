@@ -39,3 +39,11 @@ from src.models.device_session import DeviceSession
 
 # Welcome CMS Registry
 from src.domains.welcome.models import WelcomeSetting
+
+# Payment Webhook Registry
+from src.domains.payment.webhook.event import WebhookEvent
+
+
+
+# Payment Webhook Registry
+from src.domains.payment.webhook.event import WebhookEvent

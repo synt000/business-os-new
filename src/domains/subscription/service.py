@@ -111,12 +111,24 @@ def create_subscription_payment(db, tenant_id, plan_id, method, transaction_ref=
             raise Exception("DUPLICATE_TRANSACTION_REFERENCE")
 
 
+    subscription = (
+        db.query(Subscription)
+        .filter(
+            Subscription.tenant_id == tenant_id,
+            Subscription.plan_id == plan_id,
+            Subscription.status == "ACTIVE"
+        )
+        .first()
+    )
+
+    if not subscription:
+        raise Exception("SUBSCRIPTION_NOT_FOUND")
+
     payment = SubscriptionPayment(
         id=str(uuid.uuid4()),
         tenant_id=tenant_id,
         plan_id=plan_id,
-        subscription_id="PENDING",
-        method=method,
+        subscription_id=subscription.id,
         amount=plan.price,
         transaction_ref=transaction_ref,
         status="PENDING"
@@ -148,12 +160,38 @@ def confirm_subscription_payment(db, payment_id):
         return payment
 
 
-    subscription = create_subscription(
-        db,
-        payment.tenant_id,
-        payment.plan_id,
-        False
+    subscription = (
+        db.query(Subscription)
+        .filter(
+            Subscription.id == payment.subscription_id
+        )
+        .first()
     )
+
+    if not subscription:
+        subscription = create_subscription(
+            db,
+            payment.tenant_id,
+            payment.plan_id,
+            False
+        )
+
+    plan = (
+        db.query(SubscriptionPlan)
+        .filter(
+            SubscriptionPlan.id == payment.plan_id
+        )
+        .first()
+    )
+
+    if plan:
+        subscription.start_date = datetime.utcnow()
+        subscription.expire_date = (
+            datetime.utcnow()
+            + timedelta(days=plan.duration_days)
+        )
+
+    subscription.status = "ACTIVE"
 
     payment.subscription_id = subscription.id
     payment.status = "PAID"
@@ -161,7 +199,7 @@ def confirm_subscription_payment(db, payment_id):
     cash_ledger = AccountLedger(
         entry_type="DEBIT",
         account_head="CASH_ASSET",
-        amount=payment.amount,
+        amount=float(payment.amount),
         reference_id=payment.id,
         description=f"Cash received for subscription {payment.plan_id}",
         tenant_id=payment.tenant_id
@@ -170,7 +208,7 @@ def confirm_subscription_payment(db, payment_id):
     revenue_ledger = AccountLedger(
         entry_type="CREDIT",
         account_head="SUBSCRIPTION_REVENUE",
-        amount=payment.amount,
+        amount=float(payment.amount),
         reference_id=payment.id,
         description=f"Subscription revenue {payment.plan_id}",
         tenant_id=payment.tenant_id
@@ -182,9 +220,9 @@ def confirm_subscription_payment(db, payment_id):
     invoice = Invoice(
         id=str(uuid.uuid4()),
         invoice_number=f"SUB-{datetime.utcnow().strftime('%Y%m%d%H%M%S')}",
-        amount=payment.amount,
+        amount=float(payment.amount),
         status="PAID",
-        order_id=subscription.id,
+        subscription_id=subscription.id,
         tenant_id=payment.tenant_id
     )
 

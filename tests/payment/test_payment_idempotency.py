@@ -3,7 +3,12 @@ import pytest
 from src.models.saas_core import Payment
 
 
-def test_first_payment_request(db_session, tenant_id, payment_data):
+def test_first_payment_request(
+    db_session,
+    tenant_id,
+    payment_data,
+    invoice_id,
+):
 
     payment_data.payment_request_id = "PAY-REQUEST-8899"
 
@@ -14,7 +19,7 @@ def test_first_payment_request(db_session, tenant_id, payment_data):
         amount=100,
         payment_method="CARD",
         status="PENDING",
-        invoice_id=payment_data.invoice_id,
+        invoice_id=invoice_id,
     )
 
     db_session.add(payment)
@@ -37,6 +42,7 @@ def test_first_payment_request(db_session, tenant_id, payment_data):
 def test_completed_request_returns_existing(
     db_session,
     tenant_id,
+    invoice_id,
 ):
 
     existing = Payment(
@@ -46,7 +52,7 @@ def test_completed_request_returns_existing(
         amount=100,
         payment_method="CARD",
         status="COMPLETED",
-        invoice_id="invoice-test",
+        invoice_id=invoice_id,
     )
 
     db_session.add(existing)
@@ -72,6 +78,7 @@ def test_completed_request_returns_existing(
 def test_pending_request_blocks_retry(
     db_session,
     tenant_id,
+    invoice_id,
 ):
 
     existing = Payment(
@@ -81,7 +88,7 @@ def test_pending_request_blocks_retry(
         amount=100,
         payment_method="CARD",
         status="PENDING",
-        invoice_id="invoice-test",
+        invoice_id=invoice_id,
     )
 
     db_session.add(existing)
@@ -105,6 +112,7 @@ def test_pending_request_blocks_retry(
 def test_failed_request_requires_new_id(
     db_session,
     tenant_id,
+    invoice_id,
 ):
 
     failed = Payment(
@@ -114,7 +122,7 @@ def test_failed_request_requires_new_id(
         amount=100,
         payment_method="CARD",
         status="FAILED",
-        invoice_id="invoice-test",
+        invoice_id=invoice_id,
     )
 
     db_session.add(failed)

@@ -1,72 +1,38 @@
+# Environment
+.env
+.env.*
+*.token
+.token
+.auth.json
+.access_token
+
+# Python
 __pycache__/
-*.pyc
+*.py[cod]
+*.pyo
 
-*.backup*
-*.bak
-*.tmp
-
+# Database
 *.db
+*.sqlite
 *.sqlite3
 
+# Backups
+*.backup
 *.tar.gz
-
-.env
-
-dashboard_part*_backup.html
-
-*.log
-.env
-
-# Generated PDF reports
-*.pdf
-
-# JWT / temporary credentials
-token.txt
-*.token
-
-# Local test files
-check_*.py
-fix_*.py
-dashboard_upgrade.txt
-
-# Alembic temporary backups
-alembic/backups/
-alembic/old_broken/
-old_246.py
-
-# Backup files
-*_before_*
 *_backup*
-backup_*
-*.sql
+backup*/
 
-# Local scripts
-login.sh
-.access_token
-.access_token
-.auth.json
+# Logs
+*.log
 
-# Temporary migration snapshots
-*.before*
-*.backup*
-*.empty
+# Cache
+.pytest_cache/
+.mypy_cache/
 
-# Local audit scripts
-inspect_*.py
-inspect_*.sh
-patch_*.py
-patch_*.sh
-force_*.py
-cleanup_*.py
-check_*.sh
-save_*.sh
+# Tools
+tools/tmp/
 
-# Local reports
-*_report.txt
-dependency_report.txt
-saas_module_report.txt
+# IDE
+.vscode/
+.idea/
 
-# Local databases
-*.db.before*
-backups/
-snapshots/

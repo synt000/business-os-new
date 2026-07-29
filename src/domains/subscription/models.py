@@ -113,7 +113,7 @@ class TenantSubscription(Base):
     business_type_id = Column(
         String,
         ForeignKey("business_types.id"),
-        nullable=False
+        nullable=True
     )
 
     plan_id = Column(
@@ -135,6 +135,12 @@ class TenantSubscription(Base):
     expire_date = Column(
         DateTime,
         nullable=True
+    )
+
+    is_trial = Column(
+        Boolean,
+        default=False,
+        nullable=False
     )
 
 
@@ -164,12 +170,25 @@ class SubscriptionPayment(Base):
     subscription_id = Column(
         String,
         ForeignKey("tenant_subscriptions.id"),
-        nullable=False
+        nullable=True
     )
 
     amount = Column(
+        Float,
+        default=0.0
+    )
+
+    plan_id = Column(
         String,
-        default="0"
+        ForeignKey("subscription_plans.id"),
+        nullable=False
+    )
+
+    transaction_ref = Column(
+        String,
+        nullable=True,
+        unique=True,
+        index=True
     )
 
     status = Column(

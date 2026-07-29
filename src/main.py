@@ -80,6 +80,7 @@ from src.domains.purchase.router import router as purchase_router
 from src.domains.invoice.router import router as invoice_router
 from src.domains.receivable.router import router as receivable_router
 from src.domains.payment.router import router as payment_router
+from src.domains.payment.webhook.router import router as payment_webhook_router
 from src.domains.customer_finance.router import router as customer_finance_router
 from src.domains.finance.router import router as finance_router
 from src.domains.accounting.router import router as accounting_router
@@ -188,6 +189,7 @@ app.include_router(invoice_router)
 app.include_router(receivable_router)
 # OLD PAYMENT INCLUDE REMOVED
 app.include_router(payment_router)
+app.include_router(payment_webhook_router)
 print("🔥 PAYMENT ROUTER FINAL ATTACHED")
 print("🔥 PAYMENT CHECK AFTER INCLUDE:", [r.path for r in payment_router.routes])
 print("🔥 PAYMENT ATTACH CHECK")
