@@ -77,6 +77,32 @@ class LoginSession(Base):
     )
 
 
+    risk_score = Column(
+        String,
+        nullable=True
+    )
+
+
+    risk_level = Column(
+        String,
+        nullable=True,
+        default="LOW"
+    )
+
+
+    login_type = Column(
+        String,
+        nullable=True,
+        default="PASSWORD"
+    )
+
+
+    is_new_device = Column(
+        Boolean,
+        default=False
+    )
+
+
     ip_address = Column(
         String,
         nullable=True
