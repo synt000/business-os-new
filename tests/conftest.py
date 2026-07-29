@@ -1,0 +1,131 @@
+import pytest
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+
+from src.core.config import settings
+from src.models.saas_core import Invoice, Tenant, Customer, Order
+
+
+engine = create_engine(
+    settings.DATABASE_URL
+)
+
+TestingSession = sessionmaker(
+    autocommit=False,
+    autoflush=False,
+    bind=engine,
+)
+
+
+@pytest.fixture
+def db_session():
+
+    connection = engine.connect()
+
+    transaction = connection.begin()
+
+    session = TestingSession(
+        bind=connection
+    )
+
+    try:
+        yield session
+
+    finally:
+        session.close()
+        transaction.rollback()
+        connection.close()
+
+
+@pytest.fixture
+def tenant_id(db_session):
+
+    tenant = (
+        db_session.query(Tenant)
+        .filter(
+            Tenant.id == "test-tenant"
+        )
+        .first()
+    )
+
+    if tenant:
+        return tenant.id
+
+    tenant = Tenant(
+        id="test-tenant",
+        company_name="Test Company",
+        owner_email="test@example.com",
+    )
+
+    db_session.add(tenant)
+    db_session.commit()
+
+    return tenant.id
+
+
+@pytest.fixture
+def payment_data():
+
+    class PaymentData:
+        payment_request_id = None
+        payment_number = "TEST-PAY"
+        invoice_id = "invoice-test"
+        amount = 100
+
+    return PaymentData()
+
+
+@pytest.fixture
+def invoice_id(db_session, tenant_id):
+
+    invoice = (
+        db_session.query(Invoice)
+        .filter(
+            Invoice.id == "invoice-test"
+        )
+        .first()
+    )
+
+    if invoice:
+        return invoice.id
+
+
+    customer = Customer(
+        id="customer-test",
+        customer_name="Test Customer",
+        tenant_id=tenant_id,
+    )
+
+    db_session.add(customer)
+    db_session.flush()
+
+
+    order = Order(
+        id="order-test",
+        order_number="ORDER-TEST-001",
+        platform_channel="TEST",
+        customer_name="Test Customer",
+        customer_id=customer.id,
+        total_amount=1000,
+        order_status="CONFIRMED",
+        tenant_id=tenant_id,
+    )
+
+    db_session.add(order)
+    db_session.flush()
+
+
+    invoice = Invoice(
+        id="invoice-test",
+        invoice_number="INV-TEST-001",
+        tenant_id=tenant_id,
+        amount=1000,
+        status="UNPAID",
+        order_id=order.id,
+    )
+
+    db_session.add(invoice)
+    db_session.commit()
+
+    return invoice.id

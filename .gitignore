@@ -47,3 +47,52 @@ _archive/
 *.log
 *.pdf
 *.tar.gz
+
+# Archive folder
+_archive/
+
+# Backup / temporary files
+*.backup
+*.bak
+*.before*
+*.tmp
+*.old
+
+# Database / logs / generated docs
+*.db
+*.log
+*.pdf
+
+# Snapshots
+snapshots/
+
+# Reports
+*_report.txt
+
+# Old before snapshots
+*_before_*
+*_before*
+*before_*
+
+# Old debug snapshots
+snapshots/
+
+# Reports
+*_report.txt
+*_audit.txt
+
+
+# User uploads
+src/static/uploads/
+
+# Temporary files
+test.txt
+token.txt
+
+# Debug scripts
+force_*.py
+social_script_*.js
+login.sh
+save_auth.sh
+save_token.sh
+

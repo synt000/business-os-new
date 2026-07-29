@@ -1,0 +1,48 @@
+completed_rentals = (
+    db.query(Rental)
+    .filter(
+        Rental.tenant_id == tenant_id,
+        Rental.rental_status == "COMPLETED"
+    )
+    .count()
+)
+
+
+total_customers = (
+    db.query(RentalCustomer)
+    .filter(
+        RentalCustomer.tenant_id == tenant_id
+    )
+    .count()
+)
+
+
+damage_fee = (
+    db.query(
+        func.coalesce(
+            func.sum(RentalReturn.damage_amount),
+            0
+        )
+    )
+    .filter(
+        RentalReturn.tenant_id == tenant_id
+    )
+    .scalar()
+)
+
+
+maintenance_cost = (
+    db.query(
+        func.coalesce(
+            func.sum(RentalMaintenance.repair_cost),
+            0
+        )
+    )
+    .filter(
+        RentalMaintenance.tenant_id == tenant_id
+    )
+    .scalar()
+)
+
+
+net_profit = total_revenue - maintenance_cost
