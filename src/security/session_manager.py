@@ -14,6 +14,10 @@ def create_login_session(
     device_name: str = "UNKNOWN",
     refresh_jti: str | None = None,
     device_session_id: str | None = None,
+    risk_score: str | None = None,
+    risk_level: str = "LOW",
+    login_type: str = "PASSWORD",
+    is_new_device: bool = False,
 ):
     session = LoginSession(
         tenant_id=user.tenant_id,
@@ -24,6 +28,10 @@ def create_login_session(
         device_name=device_name,
         refresh_jti=refresh_jti,
         device_session_id=device_session_id,
+        risk_score=risk_score,
+        risk_level=risk_level,
+        login_type=login_type,
+        is_new_device=is_new_device,
         login_at=datetime.now(timezone.utc),
         last_seen=datetime.now(timezone.utc),
         is_active=True,

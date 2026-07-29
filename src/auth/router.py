@@ -287,6 +287,10 @@ async def authenticate_via_pure_json_payload(
         ),
         device_name=payload.device_name or "UNKNOWN",
         device_session_id=device_session_id,
+        risk_score="50" if is_new else "10",
+        risk_level="MEDIUM" if is_new else "LOW",
+        login_type="PASSWORD",
+        is_new_device=is_new,
     )
 
     token_claims = {
