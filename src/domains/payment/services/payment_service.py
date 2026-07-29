@@ -15,6 +15,48 @@ from src.domains.accounting.services.journal_service import (
 )
 
 
+
+def sync_invoice_payment_state(
+    db: Session,
+    invoice: Invoice,
+    tenant_id: str,
+):
+    """
+    Sync Invoice and Order status after payment.
+    """
+
+    paid_total = (
+        db.query(func.sum(Payment.amount))
+        .filter(
+            Payment.invoice_id == invoice.id,
+            Payment.status == "COMPLETED",
+            Payment.tenant_id == tenant_id,
+        )
+        .scalar()
+        or 0
+    )
+
+
+    if paid_total >= invoice.amount:
+        invoice.status = "PAID"
+
+        if invoice.order:
+            invoice.order.order_status = "COMPLETED"
+
+    elif paid_total > 0:
+        invoice.status = "PARTIAL"
+
+        if invoice.order:
+            invoice.order.order_status = "PROCESSING"
+
+    else:
+        invoice.status = "UNPAID"
+
+        if invoice.order:
+            invoice.order.order_status = "CONFIRMED"
+
+
+
 def create_payment(
     db: Session,
     tenant_id: str,
@@ -202,6 +244,13 @@ def create_payment(
             db.flush()
 
         wallet.credit_amount += extra_credit
+
+
+    sync_invoice_payment_state(
+        db,
+        invoice,
+        tenant_id,
+    )
 
 
     # ==============================
