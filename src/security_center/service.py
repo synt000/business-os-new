@@ -75,7 +75,11 @@ class SecurityCenterService:
         ]
 
 
-from src.domains.device.service import list_device_sessions
+from src.domains.device.service import (
+    list_device_sessions,
+    block_device_session,
+    trust_device_session
+)
 
 
 
@@ -358,4 +362,39 @@ def _get_risk(
 
 
 SecurityCenterService.get_risk = staticmethod(_get_risk)
+
+
+# =====================================================
+# Phase 5.9.6
+# Device Management Wrappers
+# =====================================================
+
+@staticmethod
+def _block_device(
+    db: Session,
+    tenant_id: str,
+    device_id: str,
+):
+    return block_device_session(
+        db=db,
+        tenant_id=tenant_id,
+        device_id=device_id,
+    )
+
+
+@staticmethod
+def _trust_device(
+    db: Session,
+    tenant_id: str,
+    device_id: str,
+):
+    return trust_device_session(
+        db=db,
+        tenant_id=tenant_id,
+        device_id=device_id,
+    )
+
+
+SecurityCenterService.block_device = staticmethod(_block_device)
+SecurityCenterService.trust_device = staticmethod(_trust_device)
 

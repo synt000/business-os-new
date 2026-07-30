@@ -197,3 +197,43 @@ def unblock_device_session(
     db.refresh(device)
 
     return device
+
+
+def trust_device_session(
+    db: Session,
+    tenant_id: str,
+    device_id: str
+):
+    device = (
+        db.query(DeviceSession)
+        .filter(
+            DeviceSession.id == device_id,
+            DeviceSession.workspace_id == tenant_id
+        )
+        .first()
+    )
+
+    if not device:
+        return None
+
+    device.is_blocked = False
+
+    log_security_event(
+        db,
+        event_type="DEVICE_TRUSTED",
+        user_id=None,
+        tenant_id=tenant_id,
+        device_session_id=device.id,
+        device_info={
+            "device_id": device.id,
+            "fingerprint": device.device_fingerprint,
+            "browser": device.browser,
+            "platform": device.platform,
+        },
+        description="Device trusted by administrator",
+    )
+
+    db.commit()
+    db.refresh(device)
+
+    return device
