@@ -44,3 +44,19 @@ def security_center_events(
     )
 
 
+
+
+@router.get(
+    "/devices"
+)
+def security_center_devices(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    return {
+        "devices": SecurityCenterService.get_devices(
+            db=db,
+            tenant_id=current_user.tenant_id
+        )
+    }
