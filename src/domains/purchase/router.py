@@ -25,6 +25,7 @@ from src.domains.accounting.models import (
 )
 
 from src.domains.product.models import Product
+from src.domains.audit.service import AuditService
 
 
 router = APIRouter(
@@ -180,6 +181,8 @@ def receive_purchase_stock(
             "message": "INVALID_STATUS"
         }
 
+    old_status = po.status
+
     items = (
         db.query(PurchaseItem)
         .filter(
@@ -188,7 +191,10 @@ def receive_purchase_stock(
         .all()
     )
 
+    total_received = 0
+
     for item in items:
+        total_received += item.quantity
 
         inventory = (
             db.query(Inventory)
@@ -228,6 +234,21 @@ def receive_purchase_stock(
         db.add(movement)
 
     po.status = "RECEIVED"
+
+    AuditService.create_audit_log(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        action="RECEIVE",
+        table_name="purchase_orders",
+        record_id=str(po.id),
+        changes=(
+            f"status_before={old_status}, "
+            f"status_after=RECEIVED, "
+            f"items_count={len(items)}, "
+            f"received_stock={total_received}"
+        ),
+        user_id=current_user.id,
+    )
 
     db.commit()
 
