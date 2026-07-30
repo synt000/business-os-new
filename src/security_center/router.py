@@ -76,3 +76,17 @@ def security_center_sessions(
         )
     }
 
+
+
+@router.get(
+    "/risk"
+)
+def security_center_risk(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    return SecurityCenterService.get_risk(
+        db=db,
+        tenant_id=current_user.tenant_id
+    )
