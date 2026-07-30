@@ -4,6 +4,7 @@ from src.models.saas_core import Order, OrderItem
 from src.domains.product.models import Product
 from src.domains.inventory.services.stock_service import reduce_stock
 from src.domains.accounting.services.accounting_service import create_sale_journal
+from src.domains.audit.service import AuditService
 
 
 def create_order(
@@ -113,5 +114,16 @@ def create_order(
     )
 
     db.flush()
+
+
+    AuditService.create_audit_log(
+        db=db,
+        tenant_id=tenant_id,
+        action="CREATE",
+        table_name="orders",
+        record_id=str(order.id),
+        changes="{}",
+    )
+
 
     return order
