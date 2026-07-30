@@ -2,7 +2,7 @@ from fastapi import Response
 from starlette.types import ASGIApp, Scope, Receive, Send
 import json
 
-from src.config import settings
+from src.core.config import settings
 from src.core.security import verify_access_token
 
 

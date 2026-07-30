@@ -96,6 +96,7 @@ from src.domains.ai_insight.dashboard_router import router as ai_dashboard_route
 from src.domains.ai_assistant.router import router as ai_assistant_router
 from src.domains.device.router import router as device_router
 from src.security_center.router import router as security_center_router
+from src.domains.audit.router import router as audit_router
 from src.domains.license.router import router as license_router
 from src.domains.payment_gateway.router import router as payment_gateway_router
 
@@ -216,6 +217,7 @@ app.include_router(ai_assistant_router)
 app.include_router(license_router)
 app.include_router(device_router)
 app.include_router(security_center_router)
+app.include_router(audit_router)
 app.include_router(payment_gateway_router)
 app.include_router(social_center_router)
 app.include_router(social_center_ui_router)
