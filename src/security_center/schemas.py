@@ -22,3 +22,22 @@ class SecurityOverviewResponse(BaseModel):
 
 class SecurityEventsResponse(BaseModel):
     events: List[SecurityEventItem] = []
+
+
+class SecurityDeviceItem(BaseModel):
+    id: str
+    device_name: Optional[str] = None
+    platform: Optional[str] = None
+    browser: Optional[str] = None
+    screen_width: Optional[str] = None
+    screen_height: Optional[str] = None
+    timezone_name: Optional[str] = None
+    language: Optional[str] = None
+    ip_address: Optional[str] = None
+    first_seen: Optional[str] = None
+    last_seen: Optional[str] = None
+    is_blocked: bool = False
+
+
+class SecurityDevicesResponse(BaseModel):
+    devices: List[SecurityDeviceItem] = []
