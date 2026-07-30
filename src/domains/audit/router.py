@@ -20,15 +20,8 @@ router = APIRouter(
 
 @router.get("/logs")
 def get_audit_logs(
-    page: int = Query(
-        1,
-        ge=1
-    ),
-    limit: int = Query(
-        20,
-        ge=1,
-        le=100
-    ),
+    page: int = Query(1, ge=1),
+    limit: int = Query(20, ge=1, le=100),
     action: str | None = None,
     table_name: str | None = None,
     user_id: str | None = None,
@@ -47,15 +40,25 @@ def get_audit_logs(
     )
 
 
-from src.domains.audit.service import get_audit_summary
-
-
 @router.get("/summary")
 def audit_summary(
     current_user = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return get_audit_summary(
+
+    return AuditService.get_audit_summary(
         db=db,
-        tenant_id=current_user.tenant_id
+        tenant_id=current_user.tenant_id,
+    )
+
+
+@router.get("/activity")
+def audit_activity(
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+
+    return AuditService.get_activity_metrics(
+        db=db,
+        tenant_id=current_user.tenant_id,
     )

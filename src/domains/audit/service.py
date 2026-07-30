@@ -1,3 +1,5 @@
+from datetime import datetime, timezone
+
 from sqlalchemy.orm import Session
 
 from src.domains.audit.models import AuditLog
@@ -15,6 +17,7 @@ class AuditService:
         table_name: str | None = None,
         user_id: str | None = None,
     ):
+
         query = (
             db.query(AuditLog)
             .filter(
@@ -79,71 +82,100 @@ class AuditService:
         }
 
 
-# =====================================================
-# Phase 6.0.2
-# Audit Summary Analytics
-# =====================================================
+    @staticmethod
+    def get_audit_summary(
+        db: Session,
+        tenant_id: str,
+    ):
 
-from datetime import datetime, timezone
-from sqlalchemy import func
+        now = datetime.now(timezone.utc)
 
-
-def get_audit_summary(
-    db,
-    tenant_id: str
-):
-    now = datetime.now(timezone.utc)
-
-    today_start = now.replace(
-        hour=0,
-        minute=0,
-        second=0,
-        microsecond=0
-    )
-
-    base = (
-        db.query(AuditLog)
-        .filter(
-            AuditLog.tenant_id == tenant_id
+        today_start = now.replace(
+            hour=0,
+            minute=0,
+            second=0,
+            microsecond=0
         )
-    )
 
-    total_events = (
-        base.count()
-    )
-
-    today_events = (
-        base.filter(
-            AuditLog.created_at >= today_start
+        base = (
+            db.query(AuditLog)
+            .filter(
+                AuditLog.tenant_id == tenant_id
+            )
         )
-        .count()
-    )
 
-    admin_actions = (
-        base.filter(
-            AuditLog.action.ilike("%admin%")
+        return {
+            "total_events": base.count(),
+
+            "today_events": (
+                base.filter(
+                    AuditLog.created_at >= today_start
+                )
+                .count()
+            ),
+
+            "admin_actions": (
+                base.filter(
+                    AuditLog.action.ilike("%admin%")
+                )
+                .count()
+            ),
+
+            "business_changes": (
+                base.filter(
+                    AuditLog.table_name.isnot(None)
+                )
+                .count()
+            ),
+        }
+
+
+    @staticmethod
+    def get_activity_metrics(
+        db: Session,
+        tenant_id: str,
+    ):
+
+        base = (
+            db.query(AuditLog)
+            .filter(
+                AuditLog.tenant_id == tenant_id
+            )
         )
-        .count()
-    )
 
-    device_actions = (
-        base.filter(
-            AuditLog.table_name.ilike("%device%")
-        )
-        .count()
-    )
+        return {
+            "product_activity": (
+                base.filter(
+                    AuditLog.table_name.ilike("%product%")
+                )
+                .count()
+            ),
 
-    security_actions = (
-        base.filter(
-            AuditLog.table_name.ilike("%security%")
-        )
-        .count()
-    )
+            "order_activity": (
+                base.filter(
+                    AuditLog.table_name.ilike("%order%")
+                )
+                .count()
+            ),
 
-    return {
-        "total_events": total_events,
-        "today_events": today_events,
-        "admin_actions": admin_actions,
-        "device_actions": device_actions,
-        "security_actions": security_actions,
-    }
+            "invoice_activity": (
+                base.filter(
+                    AuditLog.table_name.ilike("%invoice%")
+                )
+                .count()
+            ),
+
+            "payment_activity": (
+                base.filter(
+                    AuditLog.table_name.ilike("%payment%")
+                )
+                .count()
+            ),
+
+            "admin_activity": (
+                base.filter(
+                    AuditLog.action.ilike("%admin%")
+                )
+                .count()
+            ),
+        }
