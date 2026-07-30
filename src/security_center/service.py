@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 
 from src.security.security_query import get_security_overview
 from src.models.security_event import SecurityEvent
+from src.models.login_session import LoginSession
 
 
 class SecurityCenterService:
@@ -115,3 +116,52 @@ class _SecurityCenterDevicesMixin:
 SecurityCenterService.get_devices = staticmethod(
     _SecurityCenterDevicesMixin.get_devices
 )
+
+class _SecurityCenterSessionsMixin:
+
+    @staticmethod
+    def get_sessions(
+        db: Session,
+        tenant_id: str
+    ):
+        sessions = (
+            db.query(LoginSession)
+            .filter(
+                LoginSession.tenant_id == tenant_id
+            )
+            .order_by(
+                LoginSession.login_at.desc()
+            )
+            .limit(50)
+            .all()
+        )
+
+        return [
+            {
+                "id": s.id,
+                "device_name": s.device_name,
+                "ip_address": s.ip_address,
+                "risk_level": s.risk_level,
+                "risk_score": s.risk_score,
+                "login_type": s.login_type,
+                "is_new_device": s.is_new_device,
+                "login_at": (
+                    s.login_at.isoformat()
+                    if s.login_at
+                    else None
+                ),
+                "last_seen": (
+                    s.last_seen.isoformat()
+                    if s.last_seen
+                    else None
+                ),
+                "is_active": s.is_active,
+            }
+            for s in sessions
+        ]
+
+
+SecurityCenterService.get_sessions = staticmethod(
+    _SecurityCenterSessionsMixin.get_sessions
+)
+

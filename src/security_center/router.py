@@ -60,3 +60,19 @@ def security_center_devices(
             tenant_id=current_user.tenant_id
         )
     }
+
+@router.get(
+    "/sessions"
+)
+def security_center_sessions(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    return {
+        "sessions": SecurityCenterService.get_sessions(
+            db=db,
+            tenant_id=current_user.tenant_id
+        )
+    }
+
