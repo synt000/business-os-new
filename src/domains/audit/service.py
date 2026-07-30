@@ -8,6 +8,29 @@ from src.domains.audit.models import AuditLog
 class AuditService:
 
     @staticmethod
+    def create_audit_log(
+        db: Session,
+        tenant_id: str,
+        action: str,
+        table_name: str,
+        record_id: str,
+        changes: str | None = None,
+        user_id: str | None = None,
+    ):
+        audit = AuditLog(
+            tenant_id=tenant_id,
+            action=action,
+            table_name=table_name,
+            record_id=record_id,
+            changes=changes,
+            user_id=user_id,
+        )
+
+        db.add(audit)
+
+        return audit
+
+    @staticmethod
     def get_audit_logs(
         db: Session,
         tenant_id: str,
