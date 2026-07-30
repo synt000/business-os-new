@@ -45,3 +45,17 @@ def get_audit_logs(
         table_name=table_name,
         user_id=user_id,
     )
+
+
+from src.domains.audit.service import get_audit_summary
+
+
+@router.get("/summary")
+def audit_summary(
+    current_user = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return get_audit_summary(
+        db=db,
+        tenant_id=current_user.tenant_id
+    )
