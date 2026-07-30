@@ -10,6 +10,7 @@ from src.domains.inventory.schemas import (
 from src.models.saas_core import User
 from src.domains.movement.models import StockMovement
 from src.domains.product.models import Product
+from src.domains.audit.service import AuditService
 
 from src.core.security import get_current_user
 from src.domains.trial.guard import require_active_subscription
@@ -82,6 +83,16 @@ async def adjust_stock(
 
 
     db.add(movement)
+
+    AuditService.create_audit_log(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        action="ADJUST",
+        table_name="inventory",
+        record_id=str(product.id),
+        changes=f"old={old_qty}, adjustment={data.adjustment}, new={new_qty}, reason={data.reason}",
+        user_id=current_user.id,
+    )
 
     db.commit()
 
