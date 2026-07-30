@@ -6,6 +6,7 @@ from src.models.saas_core import (
 )
 
 from src.domains.accounting.models import AccountLedger
+from src.domains.audit.service import AuditService
 
 
 def create_invoice(
@@ -26,7 +27,6 @@ def create_invoice(
     if not order:
         raise Exception("ORDER_NOT_FOUND")
 
-
     invoice = Invoice(
         invoice_number=data.invoice_number,
         amount=order.total_amount,
@@ -38,7 +38,6 @@ def create_invoice(
     db.add(invoice)
     db.flush()
 
-
     ledger = AccountLedger(
         entry_type="INCOME",
         account_head="SALES",
@@ -49,6 +48,20 @@ def create_invoice(
     )
 
     db.add(ledger)
+
+    AuditService.create_audit_log(
+        db=db,
+        tenant_id=tenant_id,
+        action="CREATE",
+        table_name="invoices",
+        record_id=str(invoice.id),
+        changes=(
+            f"invoice_number={invoice.invoice_number}, "
+            f"amount={order.total_amount}, "
+            f"status={invoice.status}, "
+            f"ledger_reference={ledger.reference_id}"
+        ),
+    )
 
     db.commit()
     db.refresh(invoice)
