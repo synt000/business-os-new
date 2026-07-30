@@ -211,6 +211,7 @@ async def create_isolated_product_item(
         purchase_price=int(payload.purchase_price),
         retail_price=int(payload.retail_price),
         stock_qty=payload.stock_qty,
+        user_id=current_user.id,
     )
 
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)

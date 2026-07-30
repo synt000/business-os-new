@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from src.domains.product.models import Product
 from src.domains.inventory.models import Inventory
 from src.domains.movement.models import StockMovement
+from src.domains.audit.service import AuditService
 
 
 class ProductWriteService:
@@ -18,6 +19,7 @@ class ProductWriteService:
         purchase_price: int,
         retail_price: int,
         stock_qty: int,
+        user_id: str | None = None,
     ):
         product = Product(
             tenant_id=tenant_id,
@@ -51,5 +53,14 @@ class ProductWriteService:
         )
 
         self.db.add(movement)
+
+        AuditService.create_audit_log(
+            db=self.db,
+            tenant_id=tenant_id,
+            action="CREATE",
+            table_name="products",
+            record_id=str(product.id),
+            user_id=user_id,
+        )
 
         return product
