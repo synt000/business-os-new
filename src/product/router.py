@@ -32,6 +32,7 @@ from src.domains.category.models import Category
 from src.domains.product.models import Product
 from src.domains.inventory.models import Inventory
 from src.domains.movement.models import StockMovement
+from src.product.services.product_write_service import ProductWriteService
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
 
@@ -200,39 +201,17 @@ async def create_isolated_product_item(
             detail="CONFLICT: SKU_ALREADY_EXISTS_IN_THIS_WORKSPACE"
         )
 
-    new_product = Product(
+    product_service = ProductWriteService(db)
+
+    new_product = product_service.create_product_transaction(
         tenant_id=current_user.tenant_id,
         name=payload.name,
         sku=payload.sku,
         barcode=payload.barcode,
-        price=int(payload.retail_price),
         purchase_price=int(payload.purchase_price),
-        retail_price=int(payload.retail_price)
+        retail_price=int(payload.retail_price),
+        stock_qty=payload.stock_qty,
     )
-
-    db.add(new_product)
-    db.flush()
-
-    new_inventory = Inventory(
-        tenant_id=current_user.tenant_id,
-        product_id=new_product.id,
-        quantity=payload.stock_qty
-    )
-
-    db.add(new_inventory)
-
-    # Initial stock ledger entry
-    initial_movement = StockMovement(
-        tenant_id=current_user.tenant_id,
-        product_id=new_product.id,
-        movement_type="IN",
-        quantity_change=payload.stock_qty,
-        before_quantity=0,
-        after_quantity=payload.stock_qty,
-        reason="Initial product stock"
-    )
-
-    db.add(initial_movement)
 
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "PRODUCTS", f"Ingested SKU {payload.sku}: {payload.name} with {payload.stock_qty} units", request)
     db.commit()
