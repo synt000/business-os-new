@@ -9,6 +9,7 @@ from src.models.saas_core import (
 )
 
 from src.domains.accounting.models import AccountLedger
+from src.domains.audit.service import AuditService
 
 from src.domains.accounting.services.journal_service import (
     create_customer_payment_journal,
@@ -326,6 +327,17 @@ def create_payment(
 
     if ledger:
         db.add(ledger)
+
+
+    AuditService.create_audit_log(
+        db=db,
+        tenant_id=tenant_id,
+        action="PAYMENT_COMPLETED",
+        table_name="payments",
+        record_id=str(payment.id),
+        changes="{}",
+    )
+
 
     db.commit()
     db.refresh(payment)
