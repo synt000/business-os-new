@@ -26,12 +26,36 @@ from src.domains.accounting.models import (
 
 from src.domains.product.models import Product
 from src.domains.audit.service import AuditService
+from src.domains.purchase.services.purchase_service import create_purchase
+from src.domains.purchase.schemas import PurchaseCreate
 
 
 router = APIRouter(
     prefix="/purchases",
     tags=["Purchases"]
 )
+
+
+@router.post("/")
+def create_purchase_api(
+    data: PurchaseCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    try:
+        return create_purchase(
+            db,
+            current_user.tenant_id,
+            data
+        )
+
+    except Exception as e:
+        db.rollback()
+
+        raise HTTPException(
+            status_code=400,
+            detail=str(e)
+        )
 
 
 @router.get("/orders")
@@ -142,6 +166,18 @@ def approve_purchase(
 
     db.add(account)
 
+    supplier_payable = SupplierPayable(
+        id=str(uuid.uuid4()),
+        purchase_order_id=po.id,
+        supplier_id=po.supplier_id,
+        total_amount=po.total_amount,
+        paid_amount=0,
+        balance_amount=po.total_amount,
+        status="OPEN",
+        tenant_id=current_user.tenant_id
+    )
+
+    db.add(supplier_payable)
 
     db.commit()
 

@@ -7,10 +7,9 @@ from src.domains.accounting.services.journal_service import (
     create_purchase_journal,
 )
 
-from src.models.saas_core import (
-    Supplier,
-    SupplierPayable,
-)
+from src.models.saas_core import Supplier
+
+from src.domains.purchase.models import SupplierPayable
 
 from src.domains.product.models import Product
 
