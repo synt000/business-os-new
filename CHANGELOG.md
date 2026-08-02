@@ -18,3 +18,19 @@ All notable changes to this project will be documented in this file.
 - Procurement Data Availability Gap recorded.
 
 Commit: 637ec2b
+
+## PHASE 5.4 - Security Event Risk Enrichment
+
+### Added
+- Added login_session_id binding to SecurityEvent.
+- Added device_session_id binding to SecurityEvent.
+- Added risk_score storage.
+- Added risk_level storage.
+
+### Evidence
+- NEW_DEVICE_LOGIN verification passed.
+- LoginSession → SecurityEvent trace verified.
+- Security event enrichment migration completed.
+
+Commit:
+0a94ea2
