@@ -166,6 +166,21 @@ def approve_purchase(
 
     db.add(account)
 
+    existing_payable = (
+        db.query(SupplierPayable)
+        .filter(
+            SupplierPayable.purchase_order_id == po.id,
+            SupplierPayable.tenant_id == current_user.tenant_id
+        )
+        .first()
+    )
+
+    if existing_payable:
+        raise HTTPException(
+            status_code=400,
+            detail="SUPPLIER_PAYABLE_ALREADY_EXISTS"
+        )
+
     supplier_payable = SupplierPayable(
         id=str(uuid.uuid4()),
         purchase_order_id=po.id,
@@ -209,6 +224,12 @@ def receive_purchase_stock(
         return {
             "status": "FAILED",
             "message": "PURCHASE_NOT_FOUND"
+        }
+
+    if po.status == "RECEIVED":
+        return {
+            "status": "FAILED",
+            "message": "PURCHASE_ALREADY_RECEIVED"
         }
 
     if po.status not in ["APPROVED", "CONFIRMED"]:
