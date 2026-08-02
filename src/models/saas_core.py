@@ -484,6 +484,60 @@ class Customer(Base):
         back_populates="customer"
     )
 
+    identities = relationship(
+        "CustomerIdentity",
+        back_populates="customer",
+        cascade="all, delete-orphan"
+    )
+
+
+class CustomerIdentity(Base):
+    __tablename__ = "customer_identities"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "tenant_id",
+            "provider",
+            "external_user_id",
+            name="uq_customer_identity_provider_user",
+        ),
+    )
+
+    id = Column(String, primary_key=True, default=generate_uuid, index=True)
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    provider = Column(String, nullable=False, index=True)
+    external_user_id = Column(String, nullable=False, index=True)
+    external_chat_id = Column(String, nullable=True)
+
+    created_at = Column(DateTime, default=datetime.utcnow)
+
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow
+    )
+
+    customer = relationship(
+        "Customer",
+        back_populates="identities"
+    )
+
+    tenant = relationship("Tenant")
+
 
 class CustomerCreditWallet(Base):
     __tablename__ = "customer_credit_wallets"
