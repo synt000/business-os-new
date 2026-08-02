@@ -279,6 +279,18 @@ def receive_purchase_stock(
 
             after = inventory.quantity
 
+            product = (
+                db.query(Product)
+                .filter(
+                    Product.id == item.product_id,
+                    Product.tenant_id == current_user.tenant_id
+                )
+                .first()
+            )
+
+            if product:
+                product.purchase_price = item.unit_cost
+
             movement = StockMovement(
                 product_id=item.product_id,
                 movement_type="PURCHASE_RECEIVE",
