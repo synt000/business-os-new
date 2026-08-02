@@ -101,3 +101,6 @@ save_token.sh
 tools/tmp/
 tmp/
 tmp/
+
+# Local authentication tokens
+tokens/
