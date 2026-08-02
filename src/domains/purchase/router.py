@@ -240,78 +240,84 @@ def receive_purchase_stock(
 
     old_status = po.status
 
-    items = (
-        db.query(PurchaseItem)
-        .filter(
-            PurchaseItem.purchase_order_id == po.id
-        )
-        .all()
-    )
-
-    total_received = 0
-
-    for item in items:
-        total_received += item.quantity
-
-        inventory = (
-            db.query(Inventory)
+    try:
+        items = (
+            db.query(PurchaseItem)
             .filter(
-                Inventory.product_id == item.product_id,
-                Inventory.tenant_id == current_user.tenant_id
+                PurchaseItem.purchase_order_id == po.id
             )
-            .first()
+            .all()
         )
 
-        if not inventory:
-            inventory = Inventory(
+        total_received = 0
+
+        for item in items:
+            total_received += item.quantity
+
+            inventory = (
+                db.query(Inventory)
+                .filter(
+                    Inventory.product_id == item.product_id,
+                    Inventory.tenant_id == current_user.tenant_id
+                )
+                .first()
+            )
+
+            if not inventory:
+                inventory = Inventory(
+                    product_id=item.product_id,
+                    quantity=0,
+                    tenant_id=current_user.tenant_id
+                )
+
+                db.add(inventory)
+                db.flush()
+
+            before = inventory.quantity
+
+            inventory.quantity += item.quantity
+
+            after = inventory.quantity
+
+            movement = StockMovement(
                 product_id=item.product_id,
-                quantity=0,
+                movement_type="PURCHASE_RECEIVE",
+                quantity_change=item.quantity,
+                before_quantity=before,
+                after_quantity=after,
+                reason=f"Purchase {po.purchase_number}",
                 tenant_id=current_user.tenant_id
             )
 
-            db.add(inventory)
-            db.flush()
+            db.add(movement)
 
-        before = inventory.quantity
 
-        inventory.quantity += item.quantity
+        po.status = "RECEIVED"
 
-        after = inventory.quantity
-
-        movement = StockMovement(
-            product_id=item.product_id,
-            movement_type="PURCHASE_RECEIVE",
-            quantity_change=item.quantity,
-            before_quantity=before,
-            after_quantity=after,
-            reason=f"Purchase {po.purchase_number}",
-            tenant_id=current_user.tenant_id
+        AuditService.create_audit_log(
+            db=db,
+            tenant_id=current_user.tenant_id,
+            action="RECEIVE",
+            table_name="purchase_orders",
+            record_id=str(po.id),
+            changes=(
+                f"status_before={old_status}, "
+                f"status_after=RECEIVED, "
+                f"items_count={len(items)}, "
+                f"received_stock={total_received}"
+            ),
+            user_id=current_user.id,
         )
 
-        db.add(movement)
+        db.commit()
 
-    po.status = "RECEIVED"
+        return {
+            "status": "SUCCESS",
+            "message": "STOCK_RECEIVED",
+            "purchase_number": po.purchase_number
+        }
 
-    AuditService.create_audit_log(
-        db=db,
-        tenant_id=current_user.tenant_id,
-        action="RECEIVE",
-        table_name="purchase_orders",
-        record_id=str(po.id),
-        changes=(
-            f"status_before={old_status}, "
-            f"status_after=RECEIVED, "
-            f"items_count={len(items)}, "
-            f"received_stock={total_received}"
-        ),
-        user_id=current_user.id,
-    )
-
-    db.commit()
-
-    return {
-        "status": "SUCCESS",
-        "message": "STOCK_RECEIVED",
-        "purchase_number": po.purchase_number
-    }
+    except Exception:
+        db.rollback()
+        raise
 
