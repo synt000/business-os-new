@@ -428,7 +428,7 @@ def get_financial_kpi_summary(
     )
 
 
-    supplier_payable = (
+    payable = (
         db.query(
             func.coalesce(
                 func.sum(SupplierPayable.balance_amount),
@@ -442,7 +442,7 @@ def get_financial_kpi_summary(
     )
 
 
-    customer_receivable = (
+    receivable = (
         db.query(
             func.coalesce(
                 func.sum(Invoice.amount),
@@ -460,18 +460,19 @@ def get_financial_kpi_summary(
     revenue = (
         db.query(
             func.coalesce(
-                func.sum(Invoice.amount),
+                func.sum(AccountLedger.amount),
                 0
             )
         )
         .filter(
-            Invoice.tenant_id == tenant_id
+            AccountLedger.tenant_id == tenant_id,
+            AccountLedger.account_head == "SALES_REVENUE"
         )
         .scalar()
     )
 
 
-    purchase_cost = (
+    cogs = (
         db.query(
             func.coalesce(
                 func.sum(AccountLedger.amount),
@@ -480,27 +481,28 @@ def get_financial_kpi_summary(
         )
         .filter(
             AccountLedger.tenant_id == tenant_id,
-            AccountLedger.account_head == "INVENTORY_ASSET"
+            AccountLedger.account_head == "COGS_EXPENSE"
         )
         .scalar()
     )
 
 
-    estimated_profit = (
-        revenue - purchase_cost
-    )
+    gross_profit = revenue - cogs
+
+
+    gross_margin = 0
+
+    if revenue > 0:
+        gross_margin = (gross_profit / revenue) * 100
 
 
     health = 50
 
-
-    if estimated_profit > 0:
+    if gross_profit > 0:
         health += 30
 
-
-    if supplier_payable < revenue:
+    if payable < revenue:
         health += 20
-
 
     if health > 100:
         health = 100
@@ -508,14 +510,28 @@ def get_financial_kpi_summary(
 
     return {
         "cash_balance": cash_balance,
-        "supplier_payable": supplier_payable,
-        "customer_receivable": customer_receivable,
+
+        "receivable": receivable,
+        "customer_receivable": receivable,
+
+        "payable": payable,
+        "supplier_payable": payable,
+
         "revenue": revenue,
-        "purchase_cost": purchase_cost,
-        "estimated_profit": estimated_profit,
+
+        "cogs": cogs,
+        "purchase_cost": cogs,
+
+        "gross_profit": gross_profit,
+        "estimated_profit": gross_profit,
+
+        "gross_margin": round(
+            gross_margin,
+            2
+        ),
+
         "finance_health": health
     }
-
 
 
 def get_finance_insight(
@@ -527,16 +543,24 @@ def get_finance_insight(
     Synced with Dashboard Summary
     """
 
-    from src.services.dashboard_service import DashboardService
-
-    summary = DashboardService.get_summary(
+    finance = get_financial_kpi(
         db,
         tenant_id
     )
 
-    revenue = float(summary.get("revenue", 0) or 0)
-    expense = float(summary.get("expense", 0) or 0)
-    profit = float(summary.get("profit", 0) or 0)
+    revenue = float(
+        finance.get("revenue", 0) or 0
+    )
+
+    cogs = float(
+        finance.get("cogs", 0) or 0
+    )
+
+    expense = cogs
+
+    profit = float(
+        finance.get("gross_profit", 0) or 0
+    )
 
     if revenue > 0:
         health = round((profit / revenue) * 100)
@@ -548,11 +572,11 @@ def get_finance_insight(
 
     return {
         "cash_balance": float(
-            summary.get("total_payment",0) or 0
+            finance.get("cash_balance",0) or 0
         ),
         "supplier_payable": 0,
         "customer_receivable": float(
-            summary.get("receivable_balance",0) or 0
+            finance.get("customer_receivable",0) or 0
         ),
         "revenue": revenue,
         "purchase_cost": expense,
@@ -572,14 +596,18 @@ def get_finance_insight(
             else "Warning",
 
         "risk":
-            "No expense data detected"
-            if expense == 0
-            else "Expense monitoring required",
+            "No COGS data detected"
+            if cogs == 0
+            else (
+                "COGS monitoring required"
+                if cogs > profit
+                else "Margin healthy"
+            ),
 
         "ai_action":
             "Increase marketing to grow sales."
             if profit > 0
-            else "Reduce expenses immediately."
+            else "Review COGS and improve margin."
     }
 
 
