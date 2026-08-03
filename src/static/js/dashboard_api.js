@@ -108,7 +108,88 @@ const data = await res.json();
 
 console.log("SUMMARY DATA =", data);
 
+
 const d = data.dashboard || data;
+
+
+// ================================
+// RECENT ACTIVITY STREAM BINDING
+// PHASE 6.0.9
+// ================================
+
+try {
+
+    const activityBox = document.getElementById("recentActivityList");
+
+    if(activityBox && Array.isArray(d.activity)){
+
+        if(d.activity.length === 0){
+
+            activityBox.innerHTML = `
+                <div class="empty-state">
+                    No recent activity
+                </div>
+            `;
+
+        } else {
+
+            activityBox.innerHTML = d.activity.map(function(item){
+
+                let icon = "📝";
+
+                if(item.type === "stock"){
+                    icon = "📦";
+                }
+
+                let time = "";
+
+                if(item.time){
+                    time = new Date(item.time)
+                    .toLocaleString();
+                }
+
+                return `
+                <div class="activity-item">
+
+                    <div class="activity-icon">
+                        ${icon}
+                    </div>
+
+                    <div class="activity-info">
+
+                        <div class="activity-title">
+                            ${item.title || "ACTIVITY"}
+                        </div>
+
+                        <div class="activity-time">
+                            ${item.module || ""}
+                            ${time ? " • " + time : ""}
+                        </div>
+
+                    </div>
+
+                    <div class="activity-status">
+                        ${item.severity || "INFO"}
+                    </div>
+
+                </div>
+                `;
+
+            }).join("");
+
+        }
+
+    }
+
+} catch(e){
+
+    console.error(
+        "ACTIVITY BIND ERROR",
+        e
+    );
+
+}
+
 
 console.log("D =", d);
 
