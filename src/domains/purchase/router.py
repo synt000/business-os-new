@@ -192,6 +192,21 @@ def approve_purchase(
         purchase_amount=po.total_amount,
     )
 
+    AuditService.create_audit_log(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        action="APPROVE",
+        table_name="purchase_orders",
+        record_id=str(po.id),
+        changes=(
+            f"status_before={po.status}, "
+            f"status_after=APPROVED, "
+            f"payable_created=true, "
+            f"ledger_created=true"
+        ),
+        user_id=current_user.id,
+    )
+
     db.commit()
 
 
