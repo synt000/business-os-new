@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Reports Center</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial,sans-serif;
+    background:#080b14;
+    color:white;
+}
+
+.app{
+    max-width:480px;
+    margin:auto;
+    min-height:100vh;
+    padding:20px;
+}
+
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.title{
+    font-size:24px;
+    font-weight:800;
+}
+
+.back{
+    background:#1e293b;
+    padding:10px 15px;
+    border-radius:12px;
+    text-decoration:none;
+    color:white;
+}
+
+
+.grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:15px;
+}
+
+
+.card{
+
+    background:
+    linear-gradient(
+    145deg,
+    rgba(0,229,255,0.15),
+    rgba(255,255,255,0.05)
+    );
+
+    border:1px solid rgba(255,255,255,0.1);
+
+    border-radius:20px;
+
+    padding:20px;
+
+    min-height:130px;
+
+}
+
+
+.icon{
+    font-size:32px;
+    margin-bottom:15px;
+}
+
+
+.name{
+    font-size:16px;
+    font-weight:700;
+}
+
+
+.desc{
+    font-size:12px;
+    color:#94a3b8;
+    margin-top:8px;
+}
+
+
+</style>
+
+</head>
+
+
+<body>
+
+<div class="app">
+
+
+<div class="header">
+
+<div class="title">
+📊 Reports Center
+</div>
+
+<a class="back" href="/dashboard">
+← Back
+</a>
+
+</div>
+
+
+
+<div class="grid">
+
+
+<div class="card">
+<div class="icon">📈</div>
+<div class="name">Sales Report</div>
+<div id="sales-data" class="desc">Loading...</div>
+<div class="desc">
+Revenue and sales performance
+</div>
+</div>
+
+
+
+<div class="card">
+<div class="icon">💰</div>
+<div class="name">Profit & Loss</div>
+<div id="profit-data" class="desc">Loading...</div>
+<div class="desc">
+Business financial summary
+</div>
+</div>
+
+
+
+<div class="card">
+<div class="icon">📦</div>
+<div class="name">Inventory Report</div>
+<div id="inventory-data" class="desc">Loading...</div>
+<div class="desc">
+Stock overview
+</div>
+</div>
+
+
+
+<div class="card">
+<div class="icon">🔄</div>
+<div class="name">Stock Movement</div>
+<div id="movement-data" class="desc">Loading...</div>
+<div class="desc">
+Stock IN / OUT history
+</div>
+</div>
+
+
+
+<div class="card">
+<div class="icon">👥</div>
+<div class="name">Customer Report</div>
+<div class="desc">
+Customer activity
+</div>
+</div>
+
+
+
+<div class="card">
+<div class="icon">📄</div>
+<div class="name">Export PDF</div>
+<div class="desc">
+Download report PDF
+</div>
+</div>
+
+
+
+<div class="card">
+<div class="icon">📊</div>
+<div class="name">Export Excel</div>
+<div class="desc">
+Download spreadsheet
+</div>
+</div>
+
+
+
+</div>
+
+
+</div>
+
+
+<script>
+
+async function loadReports(){
+
+const token = localStorage.getItem("access_token");
+
+const headers = {
+"Authorization":"Bearer "+token
+};
+
+
+try{
+
+let sales = await fetch(
+"/api/v4/business/reports/sales",
+{headers}
+);
+
+let s = await sales.json();
+
+document.getElementById("sales-data").innerHTML =
+"Orders: "+s.completed_orders+
+"<br>Sales: "+s.total_sales;
+
+
+let profit = await fetch(
+"/api/v4/business/reports/profit-loss",
+{headers}
+);
+
+let p = await profit.json();
+
+document.getElementById("profit-data").innerHTML =
+"Revenue: "+p.revenue+
+"<br>Profit: "+p.gross_profit;
+
+
+let inventory = await fetch(
+"/api/v4/business/inventory-summary",
+{headers}
+);
+
+let i = await inventory.json();
+
+document.getElementById("inventory-data").innerHTML =
+"Products: "+i.total_products+
+"<br>Units: "+i.total_units;
+
+
+let movements = await fetch(
+"/api/v4/business/stock-movements",
+{headers}
+);
+
+let m = await movements.json();
+
+document.getElementById("movement-data").innerHTML =
+"Records: "+m.length;
+
+
+}catch(e){
+
+console.log(e);
+
+}
+
+}
+
+
+loadReports();
+
+</script>
+
+</body>
+
+</html>

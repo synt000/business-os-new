@@ -286,6 +286,15 @@ async def suppliers_ui(request: Request):
 
 
 
+
+@router.get("/reports/ui", response_class=HTMLResponse)
+async def reports_ui(request: Request):
+    return templates.TemplateResponse(
+        request=request,
+        name="reports.html"
+    )
+
+
 @router.get("/accounting/ui", response_class=HTMLResponse)
 async def accounting_ui(request: Request):
     return templates.TemplateResponse(
