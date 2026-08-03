@@ -3,13 +3,9 @@ import uuid
 
 from sqlalchemy.orm import Session
 
-from src.domains.accounting.services.journal_service import (
-    create_purchase_journal,
-)
 
 from src.models.saas_core import Supplier
 
-from src.domains.purchase.models import SupplierPayable
 
 from src.domains.product.models import Product
 
@@ -97,33 +93,11 @@ def create_purchase(
     purchase.total_amount = total
 
 
-    # UPDATE SUPPLIER CURRENT BALANCE
-    supplier.current_balance += total
 
 
     # SUPPLIER PAYABLE CREATE
-    payable = SupplierPayable(
-        id=str(uuid.uuid4()),
-        purchase_order_id=purchase.id,
-        supplier_id=supplier.id,
-        total_amount=total,
-        paid_amount=0,
-        balance_amount=total,
-        status="OPEN",
-        tenant_id=tenant_id,
-    )
-
-    db.add(payable)
-
 
     # ACCOUNTING JOURNAL POSTING
-    create_purchase_journal(
-        db=db,
-        tenant_id=tenant_id,
-        purchase_id=purchase.id,
-        purchase_amount=total,
-    )
-
 
     db.commit()
     db.refresh(purchase)

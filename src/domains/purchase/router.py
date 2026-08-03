@@ -1,4 +1,7 @@
-from src.domains.accounting.models import AccountLedger
+from src.domains.accounting.services.journal_service import (
+    create_purchase_journal,
+)
+
 from src.domains.inventory.models import Inventory
 from src.domains.movement.models import StockMovement
 
@@ -154,17 +157,12 @@ def approve_purchase(
     db.add(ledger)
 
 
-    account = AccountLedger(
-        id=str(uuid.uuid4()),
-        entry_type="PAYABLE",
-        account_head="SUPPLIER_PAYABLE",
-        amount=po.total_amount,
-        reference_id=po.id,
-        description="Purchase Approval",
-        tenant_id=current_user.tenant_id
+    create_purchase_journal(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        purchase_id=po.id,
+        purchase_amount=po.total_amount,
     )
-
-    db.add(account)
 
     existing_payable = (
         db.query(SupplierPayable)
