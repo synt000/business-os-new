@@ -82,6 +82,9 @@ async def create_new_order(
             invoice_data,
         )
 
+        db.commit()
+        db.refresh(order)
+
         return order
 
     except Exception as e:

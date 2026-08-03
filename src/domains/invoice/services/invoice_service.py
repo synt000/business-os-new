@@ -5,7 +5,6 @@ from src.models.saas_core import (
     Order,
 )
 
-from src.domains.accounting.models import AccountLedger
 from src.domains.audit.service import AuditService
 
 
@@ -38,17 +37,6 @@ def create_invoice(
     db.add(invoice)
     db.flush()
 
-    ledger = AccountLedger(
-        entry_type="INCOME",
-        account_head="SALES",
-        amount=order.total_amount,
-        reference_id=invoice.id,
-        description=f"Invoice {invoice.invoice_number}",
-        tenant_id=tenant_id,
-    )
-
-    db.add(ledger)
-
     AuditService.create_audit_log(
         db=db,
         tenant_id=tenant_id,
@@ -59,11 +47,10 @@ def create_invoice(
             f"invoice_number={invoice.invoice_number}, "
             f"amount={order.total_amount}, "
             f"status={invoice.status}, "
-            f"ledger_reference={ledger.reference_id}"
+            f"invoice_created=true"
         ),
     )
 
-    db.commit()
-    db.refresh(invoice)
+    db.flush()
 
     return invoice
