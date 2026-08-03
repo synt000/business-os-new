@@ -13,6 +13,7 @@ from src.models.saas_core import (
     Supplier,
 )
 from src.domains.accounting.models import AccountLedger
+from src.domains.audit.service import AuditService
 
 
 def create_supplier_payment(
@@ -88,6 +89,20 @@ def create_supplier_payment(
     else:
         payable.status = "PARTIAL"
 
+
+    AuditService.create_audit_log(
+        db=db,
+        tenant_id=tenant_id,
+        action="PAYMENT",
+        table_name="supplier_payments",
+        record_id=str(payment.id),
+        changes=(
+            f"payable_id={payable.id}, "
+            f"amount={data.amount}, "
+            f"payment_method={data.payment_method}, "
+            f"balance_after={payable.balance_amount}"
+        ),
+    )
 
     db.commit()
     db.refresh(payment)
