@@ -60,6 +60,12 @@ class ProductWriteService:
             action="CREATE",
             table_name="products",
             record_id=str(product.id),
+            changes=(
+                f"name={product.name}, "
+                f"sku={product.sku}, "
+                f"price={product.price}, "
+                f"purchase_price={product.purchase_price}"
+            ),
             user_id=user_id,
         )
 
