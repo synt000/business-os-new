@@ -373,6 +373,29 @@ async def delete_isolated_product_item(
             detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE"
         )
 
+    history_exists = db.query(StockMovement).filter(
+        StockMovement.product_id == product_id,
+        StockMovement.tenant_id == current_user.tenant_id
+    ).first()
+
+    if history_exists:
+        log_security_audit_action(
+            db,
+            current_user.id,
+            current_user.tenant_id,
+            "DELETE_BLOCKED",
+            "PRODUCTS",
+            f"reason=PRODUCT_HAS_TRANSACTION_HISTORY product_id={product_id}",
+            request
+        )
+
+        db.commit()
+
+        raise HTTPException(
+            status_code=400,
+            detail="PRODUCT_HAS_TRANSACTION_HISTORY"
+        )
+
     log_security_audit_action(
         db,
         current_user.id,
