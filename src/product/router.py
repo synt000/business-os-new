@@ -264,22 +264,38 @@ async def update_isolated_product_item(
 
     if not target_product:
         raise HTTPException(status_code=404, detail="PRODUCT_NOT_FOUND_IN_THIS_WORKSPACE")
+    before_state = {
+        "name": target_product.name,
+        "sku": target_product.sku,
+        "purchase_price": target_product.purchase_price,
+        "retail_price": target_product.retail_price,
+    }
+
     update_data = payload.dict(exclude_unset=True)
+
     for key, value in update_data.items():
         setattr(target_product, key, value)
 
+    after_state = {
+        "name": target_product.name,
+        "sku": target_product.sku,
+        "purchase_price": target_product.purchase_price,
+        "retail_price": target_product.retail_price,
+    }
+
+    audit_entry = AuditLog(
+        action="UPDATE",
+        table_name="PRODUCTS",
+        record_id=product_id,
+        changes=f"before={before_state}; after={after_state}",
+        user_id=current_user.id,
+        tenant_id=current_user.tenant_id
+    )
+
+    db.add(audit_entry)
+
     db.commit()
     db.refresh(target_product)
-
-    log_security_audit_action(
-        db,
-        current_user.id,
-        current_user.tenant_id,
-        "UPDATE",
-        "PRODUCTS",
-        f"Modified item fields for product ID {product_id}",
-        request
-    )
 
     return {
         "status": "PRODUCT_SUCCESSFULLY_UPDATED",
