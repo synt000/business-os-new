@@ -77,7 +77,10 @@ document.getElementById("loginBtn").onclick=function(){
     const password =
     document.getElementById("password").value;
 
-    login(email,password);
+    console.log("BUTTON CLICKED", email);
+login(email,password).catch(err=>{
+    console.error("LOGIN ERROR:", err);
+});
 
 };
 </script>
@@ -85,7 +88,7 @@ document.getElementById("loginBtn").onclick=function(){
 
 
 
-<script src="/static/app.js?v=6"></script>
+<script src="/static/app.js?v=7"></script>
 
 </body>
 
