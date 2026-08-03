@@ -58,10 +58,14 @@ if (!r.ok) { alert(JSON.stringify(d)); return; }
 }
 
 async function stockIn() {
+    if(!products.length){
+        alert("No product loaded");
+        return;
+    }
     const p = products[document.getElementById("product").selectedIndex];
     const qty = Number(document.getElementById("qty").value);
 
-    const r = await fetch("/movements/", {
+    const r = await fetch("/api/v4/movements/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
