@@ -5,6 +5,9 @@ from src.application.channel.contracts import (
     ChannelResolutionResult,
 )
 
+from src.core.context.tenant_context import TenantContext
+from src.domains.social_center.models import SocialChannel
+
 
 class ChannelResolver:
     """
@@ -26,15 +29,35 @@ class ChannelResolver:
         request: ChannelResolutionRequest,
     ) -> ChannelResolutionResult:
         """
-        Resolve external channel to tenant context.
+        Resolve external channel identity
+        into tenant runtime context.
 
-        Implementation intentionally pending.
-
-        Phase 4.17:
-        Contract boundary only.
+        Phase 4.18:
+        SocialChannel lookup implementation.
         """
 
+        channel = (
+            db.query(SocialChannel)
+            .filter(
+                SocialChannel.platform == request.provider,
+                SocialChannel.external_id == request.external_channel_id,
+                SocialChannel.is_active == True,
+            )
+            .first()
+        )
+
+        if not channel:
+            return ChannelResolutionResult(
+                resolved=False,
+                message="Channel not found"
+            )
+
+        tenant_context = TenantContext(
+            tenant_id=channel.tenant_id
+        )
+
         return ChannelResolutionResult(
-            resolved=False,
-            message="Channel resolver implementation pending"
+            tenant_context=tenant_context,
+            resolved=True,
+            message="Channel resolved"
         )
