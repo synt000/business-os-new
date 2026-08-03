@@ -624,26 +624,6 @@ def create_ai_purchase_order(
     db.add(item)
 
 
-    payable = SupplierPayable(
-
-        purchase_order_id=purchase.id,
-
-        supplier_id=supplier.id,
-
-        total_amount=total_cost,
-
-        paid_amount=0,
-
-        balance_amount=total_cost,
-
-        status="OPEN",
-
-        tenant_id=tenant_id
-
-    )
-
-
-    db.add(payable)
 
 
     db.commit()
