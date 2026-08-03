@@ -16,6 +16,7 @@ async function login(email,password){
     );
 
     const data = await res.json();
+    console.log("LOGIN RESPONSE:", data);
 
     if(data.access_token){
         localStorage.setItem(
@@ -172,6 +173,7 @@ async function loadWorkspaceMenu(){
     if(!res.ok) return;
 
     const data = await res.json();
+    console.log("LOGIN RESPONSE:", data);
 
     const box=document.getElementById("dynamicMenu");
 
