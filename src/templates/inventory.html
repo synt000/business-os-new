@@ -31,7 +31,6 @@ const token = localStorage.getItem("access_token");
 let products = [];
 
 async function loadInventory() {
-    alert("LOAD START");
     const r = await fetch("/api/v4/business/products", {
         headers: {
             Authorization: "Bearer " + token
@@ -62,7 +61,6 @@ async function stockIn() {
 
     
     if(!products.length){
-        alert("No product loaded");
         return;
     }
     const p = products[document.getElementById("product").selectedIndex];
