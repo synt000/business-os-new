@@ -15,6 +15,9 @@ from src.domains.accounting.models import AccountLedger
 
 from src.domains.product.models import Product
 from src.domains.inventory.models import Inventory
+from src.domains.audit.models import AuditLog
+from src.domains.movement.models import StockMovement
+from src.models.security_event import SecurityEvent
 
 
 class DashboardService:
@@ -131,6 +134,11 @@ class DashboardService:
             tenant_id
         )
 
+        activity = DashboardService.get_recent_activity(
+            db,
+            tenant_id
+        )
+
         return {
             # Existing API fields
             "products": products,
@@ -168,6 +176,9 @@ class DashboardService:
             "low_stock": today["low_stock"],
             "social_leads": today["social_leads"],
             "notifications": today["notifications"],
+
+            # Activity Stream
+            "activity": activity,
 
             # Revenue Trend Chart
             "sales_chart": chart,
@@ -455,3 +466,70 @@ class DashboardService:
             "trends": trends
         }
 
+
+
+    @staticmethod
+    def get_recent_activity(
+        db: Session,
+        tenant_id: str
+    ):
+        activities = []
+
+        audit_rows = (
+            db.query(AuditLog)
+            .filter(
+                AuditLog.tenant_id == tenant_id
+            )
+            .order_by(
+                AuditLog.created_at.desc()
+            )
+            .limit(10)
+            .all()
+        )
+
+        for log in audit_rows:
+            activities.append({
+                "type": "audit",
+                "title": log.action,
+                "module": log.table_name,
+                "record_id": log.record_id,
+                "time": (
+                    log.created_at.isoformat()
+                    if log.created_at
+                    else None
+                ),
+                "severity": "INFO"
+            })
+
+        movement_rows = (
+            db.query(StockMovement)
+            .filter(
+                StockMovement.tenant_id == tenant_id
+            )
+            .order_by(
+                StockMovement.created_at.desc()
+            )
+            .limit(10)
+            .all()
+        )
+
+        for movement in movement_rows:
+            activities.append({
+                "type": "stock",
+                "title": movement.movement_type,
+                "module": "inventory",
+                "record_id": movement.product_id,
+                "time": (
+                    movement.created_at.isoformat()
+                    if movement.created_at
+                    else None
+                ),
+                "severity": "INFO"
+            })
+
+        activities.sort(
+            key=lambda x: x["time"] or "",
+            reverse=True
+        )
+
+        return activities[:10]
