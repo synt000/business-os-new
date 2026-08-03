@@ -157,13 +157,6 @@ def approve_purchase(
     db.add(ledger)
 
 
-    create_purchase_journal(
-        db=db,
-        tenant_id=current_user.tenant_id,
-        purchase_id=po.id,
-        purchase_amount=po.total_amount,
-    )
-
     existing_payable = (
         db.query(SupplierPayable)
         .filter(
@@ -191,6 +184,13 @@ def approve_purchase(
     )
 
     db.add(supplier_payable)
+
+    create_purchase_journal(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        purchase_id=po.id,
+        purchase_amount=po.total_amount,
+    )
 
     db.commit()
 
