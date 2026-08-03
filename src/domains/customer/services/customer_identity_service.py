@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.models.saas_core import Customer, CustomerIdentity
+from src.domains.customer.contracts.identity_contract import IdentityContext
 
 
 class CustomerIdentityService:
@@ -28,10 +29,16 @@ class CustomerIdentityService:
         db: Session,
         tenant_id: str,
         customer_id: str,
-        provider: str,
-        external_user_id: str,
+        context: IdentityContext | None = None,
+        provider: str | None = None,
+        external_user_id: str | None = None,
         external_chat_id: str | None = None,
     ):
+        if context:
+            provider = context.provider
+            external_user_id = context.external_user_id
+            external_chat_id = context.external_chat_id
+
         existing = CustomerIdentityService.lookup(
             db,
             tenant_id,
