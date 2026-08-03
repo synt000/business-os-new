@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from enum import Enum
 
 from src.domains.customer.contracts.identity_contract import IdentityContext
+from src.core.context.tenant_context import TenantContext
 
 
 class ResolutionStatus(str, Enum):
@@ -9,11 +10,6 @@ class ResolutionStatus(str, Enum):
     NOT_FOUND = "NOT_FOUND"
     BIND_REQUIRED = "BIND_REQUIRED"
     REJECTED = "REJECTED"
-
-
-@dataclass
-class TenantContext:
-    tenant_id: str
 
 
 @dataclass
