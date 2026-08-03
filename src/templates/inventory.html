@@ -68,7 +68,7 @@ async function stockIn() {
     const p = products[document.getElementById("product").selectedIndex];
     const qty = Number(document.getElementById("qty").value);
 
-    const r = await fetch("/movements/", {
+    const r = await fetch("/api/v4/movements/", {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
