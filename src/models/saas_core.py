@@ -490,6 +490,12 @@ class Customer(Base):
         cascade="all, delete-orphan"
     )
 
+    addresses = relationship(
+        "CustomerAddress",
+        back_populates="customer",
+        cascade="all, delete-orphan"
+    )
+
 
 class CustomerIdentity(Base):
     __tablename__ = "customer_identities"
@@ -537,6 +543,71 @@ class CustomerIdentity(Base):
     )
 
     tenant = relationship("Tenant")
+
+
+
+class CustomerAddress(Base):
+    __tablename__ = "customer_addresses"
+
+    id = Column(
+        String,
+        primary_key=True,
+        default=generate_uuid,
+        index=True
+    )
+
+    tenant_id = Column(
+        String,
+        ForeignKey("tenants.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    customer_id = Column(
+        String,
+        ForeignKey("customers.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    address_type = Column(
+        String,
+        nullable=False
+    )
+
+    line1 = Column(
+        String,
+        nullable=False
+    )
+
+    city = Column(
+        String,
+        nullable=True
+    )
+
+    township = Column(
+        String,
+        nullable=True
+    )
+
+    phone = Column(
+        String,
+        nullable=True
+    )
+
+    created_at = Column(
+        DateTime,
+        default=datetime.utcnow
+    )
+
+    customer = relationship(
+        "Customer",
+        back_populates="addresses"
+    )
+
+    tenant = relationship(
+        "Tenant"
+    )
 
 
 class CustomerCreditWallet(Base):

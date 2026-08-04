@@ -3,8 +3,17 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
-from .schemas import CustomerCreate, CustomerResponse
+from src.models.saas_core import Customer
+from .schemas import (
+    CustomerCreate,
+    CustomerResponse,
+    AddressCreate,
+    AddressResponse,
+)
 from .service import CustomerService
+
+from .contracts.address_contract import AddressContext
+from .services.address_service import CustomerAddressService
 
 
 router = APIRouter(
@@ -193,3 +202,91 @@ def customer_revenue(
         tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
     )
 
+
+
+@router.post(
+    "/{customer_id}/addresses",
+    response_model=AddressResponse,
+)
+def create_customer_address(
+    customer_id: str,
+    payload: AddressCreate,
+    db: Session = Depends(get_db),
+):
+    context = AddressContext(
+        customer_id=customer_id,
+        address_type=payload.address_type,
+        line1=payload.line1,
+        city=payload.city,
+        township=payload.township,
+        phone=payload.phone,
+    )
+
+    customer = (
+        db.query(Customer)
+        .filter(
+            Customer.id == customer_id
+        )
+        .first()
+    )
+
+    if not customer:
+        return None
+
+    return CustomerAddressService.create_address(
+        db,
+        tenant_id=customer.tenant_id,
+        context=context,
+    )
+
+
+@router.get(
+    "/{customer_id}/addresses",
+    response_model=list[AddressResponse],
+)
+def get_customer_addresses(
+    customer_id: str,
+    db: Session = Depends(get_db),
+):
+    customer = (
+        db.query(Customer)
+        .filter(
+            Customer.id == customer_id
+        )
+        .first()
+    )
+
+    if not customer:
+        return []
+
+    return CustomerAddressService.get_customer_addresses(
+        db,
+        customer_id=customer_id,
+        tenant_id=customer.tenant_id,
+    )
+
+
+@router.delete(
+    "/{customer_id}/addresses/{address_id}",
+)
+def delete_customer_address(
+    customer_id: str,
+    address_id: str,
+    db: Session = Depends(get_db),
+):
+    customer = (
+        db.query(Customer)
+        .filter(
+            Customer.id == customer_id
+        )
+        .first()
+    )
+
+    if not customer:
+        return None
+
+    return CustomerAddressService.delete_address(
+        db,
+        address_id=address_id,
+        tenant_id=customer.tenant_id,
+    )
