@@ -4,6 +4,9 @@ from sqlalchemy.orm import relationship, mapped_column
 from src.core.database import TenantModel
 
 from src.domains.accounting.models import ProcurementLedger
+from src.domains.category.models import Category
+from src.domains.inventory.models import Inventory
+from src.domains.movement.models import StockMovement
 
 
 class Product(TenantModel):

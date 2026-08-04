@@ -1,6 +1,6 @@
 from sqlalchemy import String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.database import TenantModel
+from src.core.database import TenantModel
 
 
 class Category(TenantModel):
