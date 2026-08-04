@@ -294,39 +294,6 @@ def create_payment(
     )
 
 
-    # ==============================
-    # ACCOUNT LEDGER
-    # ==============================
-
-    # ==============================
-    # LEDGER DUPLICATE PROTECTION
-    # ==============================
-
-    existing_ledger = (
-        db.query(AccountLedger)
-        .filter(
-            AccountLedger.reference_id == data.payment_number,
-            AccountLedger.account_head == "SALES_PAYMENT",
-            AccountLedger.tenant_id == tenant_id,
-        )
-        .first()
-    )
-
-    ledger = None
-
-    if not existing_ledger:
-        ledger = AccountLedger(
-            entry_type="INCOME",
-            account_head="SALES_PAYMENT",
-            amount=data.amount,
-            reference_id=data.payment_number,
-            description=f"Payment received {data.payment_number}",
-            tenant_id=tenant_id,
-        )
-
-
-    if ledger:
-        db.add(ledger)
 
 
     AuditService.create_audit_log(

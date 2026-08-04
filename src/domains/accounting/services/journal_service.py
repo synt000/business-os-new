@@ -186,3 +186,39 @@ def create_customer_payment_journal(
 
 
     return True
+
+
+def create_invoice_journal(
+    db: Session,
+    tenant_id: str,
+    invoice_id: str,
+    invoice_amount: float,
+):
+    """
+    Invoice Creation Double Entry
+
+    DEBIT  CUSTOMER_RECEIVABLE
+    CREDIT SALES_REVENUE
+    """
+
+    create_ledger_entry(
+        db=db,
+        tenant_id=tenant_id,
+        entry_type="DEBIT",
+        account_head="CUSTOMER_RECEIVABLE",
+        amount=invoice_amount,
+        reference_id=invoice_id,
+        description="Invoice receivable created",
+    )
+
+    create_ledger_entry(
+        db=db,
+        tenant_id=tenant_id,
+        entry_type="CREDIT",
+        account_head="SALES_REVENUE",
+        amount=invoice_amount,
+        reference_id=invoice_id,
+        description="Invoice revenue created",
+    )
+
+    return True

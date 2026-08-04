@@ -6,6 +6,9 @@ from src.models.saas_core import (
 )
 
 from src.domains.audit.service import AuditService
+from src.domains.accounting.services.journal_service import (
+    create_invoice_journal
+)
 
 
 def create_invoice(
@@ -36,6 +39,13 @@ def create_invoice(
 
     db.add(invoice)
     db.flush()
+
+    create_invoice_journal(
+        db=db,
+        tenant_id=tenant_id,
+        invoice_id=str(invoice.id),
+        invoice_amount=order.total_amount,
+    )
 
     AuditService.create_audit_log(
         db=db,
