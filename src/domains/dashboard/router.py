@@ -214,13 +214,12 @@ def saas_revenue(
 
 @router.get("/renewals")
 def owner_renewal_dashboard(
-
+    current_user: User = Depends(require_owner_role),
     db: Session = Depends(get_db)
-
 ):
-
     return get_owner_renewal_summary(
-        db
+        db,
+        current_user.tenant_id
     )
 
 

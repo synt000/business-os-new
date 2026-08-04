@@ -815,6 +815,7 @@ def get_saas_revenue_summary(db):
     expired_users = (
         db.query(Subscription)
         .filter(
+            Subscription.tenant_id == tenant_id,
             Subscription.status == "EXPIRED"
         )
         .count()
@@ -932,7 +933,7 @@ def get_saas_revenue_summary(
 # OWNER RENEWAL CONTROL CENTER
 # ======================================
 
-def get_owner_renewal_summary(db: Session):
+def get_owner_renewal_summary(db: Session, tenant_id: str):
 
     from src.domains.subscription.models import Subscription
     from datetime import datetime, timedelta
@@ -944,6 +945,7 @@ def get_owner_renewal_summary(db: Session):
     expiring_7_days = (
         db.query(Subscription)
         .filter(
+            Subscription.tenant_id == tenant_id,
             Subscription.status == "ACTIVE",
             Subscription.end_date <= now + timedelta(days=7),
             Subscription.end_date >= now
@@ -955,6 +957,7 @@ def get_owner_renewal_summary(db: Session):
     expiring_30_days = (
         db.query(Subscription)
         .filter(
+            Subscription.tenant_id == tenant_id,
             Subscription.status == "ACTIVE",
             Subscription.end_date <= now + timedelta(days=30),
             Subscription.end_date >= now
@@ -966,6 +969,7 @@ def get_owner_renewal_summary(db: Session):
     expired = (
         db.query(Subscription)
         .filter(
+            Subscription.tenant_id == tenant_id,
             Subscription.status == "EXPIRED"
         )
         .count()
