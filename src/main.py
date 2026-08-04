@@ -222,10 +222,18 @@ app.include_router(payment_gateway_router)
 app.include_router(social_center_router)
 app.include_router(social_center_ui_router)
 
-app.include_router(
-    dashboard_router,
-    prefix="/api/v4"
-)
+
+# ==========================================
+# PHASE 6.1-E OWNER DASHBOARD MANUAL ATTACH
+# ==========================================
+from fastapi.routing import APIRoute
+
+for _owner_route in dashboard_router.routes:
+    if isinstance(_owner_route, APIRoute):
+        _owner_route.path = "/api/v4" + _owner_route.path
+
+    app.router.routes.append(_owner_route)
+
 # ================================
 # UI DASHBOARD ROUTER MANUAL ATTACH
 # ================================
@@ -271,25 +279,15 @@ async def favicon():
 app.include_router(social_webhook_router)
 
 
+## =====================================================
+## FASTAPI 0.118+ INCLUDED ROUTER EXPANSION FIX
+## =====================================================
+#
+#
 # =====================================================
-# FASTAPI 0.118+ INCLUDED ROUTER EXPANSION FIX
+# INCLUDED ROUTER EXPANSION DISABLED
 # =====================================================
 
-from fastapi.routing import _IncludedRouter
-
-expanded_routes = []
-
-for route in app.router.routes:
-    if isinstance(route, _IncludedRouter):
-        expanded_routes.extend(
-            route.original_router.routes
-        )
-    else:
-        expanded_routes.append(route)
-
-app.router.routes = expanded_routes
-
-print("🔥 INCLUDED ROUTERS EXPANDED")
 
 # Telegram CEO Bot Webhook
 app.include_router(telegram_router)
