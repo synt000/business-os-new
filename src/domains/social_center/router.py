@@ -8,6 +8,14 @@ from src.domains.social_center.service import (
     SocialCenterService,
 )
 
+from src.application.channel.contracts import (
+    ChannelResolutionRequest,
+)
+
+from src.application.channel.resolver import (
+    ChannelResolver,
+)
+
 
 router = APIRouter(
     prefix="/api/v4/social",
@@ -67,6 +75,11 @@ async def receive_webhook(
             .get("id")
         )
 
+        recipient_id = (
+            messaging
+            .get("recipient", {})
+            .get("id")
+        )
 
         message_text = (
             messaging
@@ -76,6 +89,22 @@ async def receive_webhook(
 
 
         if sender_id and message_text:
+
+            resolution = ChannelResolver.resolve(
+                db=db,
+                request=ChannelResolutionRequest(
+                    provider="facebook",
+                    external_channel_id=recipient_id or "",
+                ),
+            )
+
+            if not resolution.resolved:
+                return {
+                    "status": "received",
+                    "message": "CHANNEL_NOT_RESOLVED",
+                }
+
+            tenant_context = resolution.tenant_context
 
             channel = (
                 db.query(
@@ -93,7 +122,21 @@ async def receive_webhook(
                             "SocialChannel"
                         ]
                     ).SocialChannel.platform
-                    == "facebook"
+                    == "facebook",
+                    __import__(
+                        "src.domains.social_center.models",
+                        fromlist=[
+                            "SocialChannel"
+                        ]
+                    ).SocialChannel.external_id
+                    == recipient_id,
+                    __import__(
+                        "src.domains.social_center.models",
+                        fromlist=[
+                            "SocialChannel"
+                        ]
+                    ).SocialChannel.tenant_id
+                    == tenant_context.tenant_id,
                 )
                 .first()
             )
@@ -134,61 +177,6 @@ def messages(
         db,
         current_user.tenant_id
     )
-
-
-
-@router.post("/facebook/webhook")
-def facebook_webhook(
-    payload: dict,
-    db: Session = Depends(get_db)
-):
-
-    from src.domains.social_center.service import SocialCenterService
-    from src.domains.social_center.models import SocialChannel
-
-    sender_id = payload.get("sender_id")
-    customer_name = payload.get(
-        "customer_name",
-        "Facebook User"
-    )
-    message = payload.get("message")
-
-    if not sender_id or not message:
-        return {
-            "status": "ignored",
-            "reason": "missing data"
-        }
-
-
-    channel = (
-        db.query(SocialChannel)
-        .filter(
-            SocialChannel.platform == "facebook"
-        )
-        .first()
-    )
-
-
-    if not channel:
-        return {
-            "status": "failed",
-            "reason": "facebook channel not found"
-        }
-
-
-    SocialCenterService.save_message(
-        db=db,
-        tenant_id=channel.tenant_id,
-        platform="facebook",
-        customer_name=customer_name,
-        customer_id=sender_id,
-        message=message
-    )
-
-
-    return {
-        "status": "received"
-    }
 
 
 
