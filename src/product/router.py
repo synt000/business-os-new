@@ -34,6 +34,7 @@ from src.domains.inventory.models import Inventory
 from src.domains.movement.models import StockMovement
 from src.product.services.product_write_service import ProductWriteService
 from src.domains.invoice.schemas import InvoiceCreate
+from src.models.saas_core import Invoice, Payment, Receivable
 from src.domains.invoice.services.invoice_service import create_invoice
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
@@ -1143,6 +1144,28 @@ async def pay_order(
 
     order.order_status = "PAID"
 
+    # ==========================================
+    # PHASE 6.1 PAYMENT -> INVOICE SYNC
+    # ==========================================
+
+    invoice = db.query(Invoice).filter(
+        Invoice.order_id == order.id,
+        Invoice.tenant_id == current_user.tenant_id
+    ).first()
+
+    if invoice:
+        invoice.status = "PAID"
+
+        receivable = db.query(Receivable).filter(
+            Receivable.invoice_id == invoice.id,
+            Receivable.tenant_id == current_user.tenant_id
+        ).first()
+
+        if receivable:
+            receivable.paid_amount = receivable.total_amount
+            receivable.balance_amount = 0
+            receivable.status = "PAID"
+
     db.commit()
     db.refresh(order)
 
@@ -1285,7 +1308,6 @@ async def dashboard_kpi(
         .count()
     )
 
-    from src.models.saas_core import Invoice, Payment
 
     revenue = (
         db.query(func.sum(Payment.amount))
