@@ -33,6 +33,8 @@ from src.domains.product.models import Product
 from src.domains.inventory.models import Inventory
 from src.domains.movement.models import StockMovement
 from src.product.services.product_write_service import ProductWriteService
+from src.domains.invoice.schemas import InvoiceCreate
+from src.domains.invoice.services.invoice_service import create_invoice
 
 router = APIRouter(prefix="/api/v4/business", tags=["Omnichannel Business Engine"])
 
@@ -498,6 +500,17 @@ async def ingest_isolated_omnichannel_order(payload: OrderCreateInboundSchema, r
     record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "SALES_REVENUE", computed_total_pool, new_order.id, f"Recognized revenue earned from order {order_num}")
     record_double_entry_accounting(db, current_user.tenant_id, "DEBIT", "COGS_EXPENSE", computed_cogs_pool, new_order.id, f"Cost of goods sold recorded for invoice {order_num}")
     record_double_entry_accounting(db, current_user.tenant_id, "CREDIT", "INVENTORY_ASSET", computed_cogs_pool, new_order.id, f"Asset inventory reduction mapped from sales checkout {order_num}")
+
+    invoice_data = InvoiceCreate(
+        order_id=new_order.id,
+        invoice_number=f"INV-{new_order.order_number}"
+    )
+
+    create_invoice(
+        db,
+        current_user.tenant_id,
+        invoice_data,
+    )
     
     log_security_audit_action(db, current_user.id, current_user.tenant_id, "CREATE", "ORDERS", f"Processed invoice {order_num} and triggered automated accounting matrixes", request)
     try:
