@@ -76,6 +76,7 @@ from src.domains.order.router import router as order_router
 from src.domains.customer.router import router as customer_router
 from src.domains.supplier.router import router as supplier_router
 from src.domains.supplier_payment.router import router as supplier_payment_router
+from src.domains.customer_payment.router import router as customer_payment_router
 from src.domains.purchase.router import router as purchase_router
 from src.domains.invoice.router import router as invoice_router
 from src.domains.receivable.router import router as receivable_router
@@ -94,6 +95,7 @@ from src.domains.rental.router import router as rental_router
 from src.domains.ai_insight.router import router as ai_insight_router
 from src.domains.ai_insight.dashboard_router import router as ai_dashboard_router
 from src.domains.ai_assistant.router import router as ai_assistant_router
+from src.domains.analytics.router import router as analytics_router
 from src.domains.device.router import router as device_router
 from src.security_center.router import router as security_center_router
 from src.domains.audit.router import router as audit_router
@@ -102,7 +104,7 @@ from src.domains.payment_gateway.router import router as payment_gateway_router
 
 from src.feedback.router import router as feedback_router
 
-print(f"📡 [DevOps Telemetry] Loaded Cryptographic Secret Prefix: {settings.SECRET_KEY[:10]}")
+print("📡 [DevOps Telemetry] Cryptographic Secret Loaded")
 
 app = FastAPI(
     title="Business OS - မြန်မာလုပ်ငန်းသုံး စနစ်တော်ကြီး (v5.5)",
@@ -146,29 +148,8 @@ if os.path.exists(static_directory_path):
 # ==========================================================================
 # 2. AUTOMATED BACKWARD COMPATIBILITY: FRONTEND HTML INLINE PAGES DIRECTORS
 # ==========================================================================
-from fastapi.responses import Response
-
-@app.get("/favicon.ico", include_in_schema=False)
-async def favicon():
-    return Response(status_code=204)
 
 app.include_router(auth_router)
-
-print("🔥 AUTH AFTER INCLUDE")
-print("AUTH ROUTER:", type(auth_router))
-print("AUTH ROUTES:", len(auth_router.routes))
-
-for r in app.router.routes:
-    print(
-        "APP ROUTE CHECK:",
-        type(r),
-        getattr(r,"path",None)
-    )
-
-print("🔥 AUTH ATTACHED CHECK")
-for r in app.routes:
-    if hasattr(r,"path") and r.path and "auth" in r.path:
-        print(r.path, r.methods)
 
 app.include_router(two_factor_router)
 app.include_router(session_router)
@@ -182,25 +163,22 @@ app.include_router(welcome_router)
 app.include_router(subscription_router)
 app.include_router(trial_router)
 app.include_router(inventory_router)
-app.include_router(order_router)
+
+# ORDER ROUTER FASTAPI 0.139 COMPATIBILITY FIX
+for _order_route in order_router.routes:
+    app.router.routes.append(_order_route)
+
+
 app.include_router(customer_router)
 app.include_router(supplier_router)
 app.include_router(supplier_payment_router)
+app.include_router(customer_payment_router)
 app.include_router(purchase_router)
 app.include_router(invoice_router)
 app.include_router(receivable_router)
 # OLD PAYMENT INCLUDE REMOVED
 app.include_router(payment_router)
 app.include_router(payment_webhook_router)
-print("🔥 PAYMENT ROUTER FINAL ATTACHED")
-print("🔥 PAYMENT CHECK AFTER INCLUDE:", [r.path for r in payment_router.routes])
-print("🔥 PAYMENT ATTACH CHECK")
-for r in app.routes:
-    if hasattr(r, 'path') and r.path and 'payment' in r.path:
-        print("PAYMENT FOUND:", r.path, r.methods)
-
-
-
 app.include_router(customer_finance_router)
 app.include_router(finance_router)
 app.include_router(accounting_router)
@@ -214,6 +192,9 @@ app.include_router(platform_router)
 app.include_router(ai_insight_router)
 app.include_router(ai_dashboard_router)
 app.include_router(ai_assistant_router)
+
+app.include_router(analytics_router)
+
 app.include_router(license_router)
 app.include_router(device_router)
 app.include_router(security_center_router)
@@ -240,9 +221,7 @@ for _owner_route in dashboard_router.routes:
 for _ui_route in ui_dashboard_router.routes:
     app.router.routes.append(_ui_route)
 
-print("🔥 UI DASHBOARD MANUAL ATTACHED:", [
-    r.path for r in ui_dashboard_router.routes
-])
+
 
 app.include_router(feedback_router)
 
@@ -294,15 +273,9 @@ app.include_router(telegram_router)
 
 # =====================================================
 
-print("===== FINAL ROUTES =====")
-for r in app.routes:
-    if hasattr(r, "path"):
-        print("ROUTE:", r.path)
 
 # ==============================
 # Social Center Router
 # ==============================
-from src.domains.social_center.router import router as social_router
 
-app.include_router(social_router)
 
