@@ -19,6 +19,9 @@ class ProductWriteService:
         purchase_price: int,
         retail_price: int,
         stock_qty: int,
+        description: str | None = None,
+        brand: str | None = None,
+        image_url: str | None = None,
         user_id: str | None = None,
     ):
         product = Product(
@@ -29,6 +32,9 @@ class ProductWriteService:
             price=retail_price,
             purchase_price=purchase_price,
             retail_price=retail_price,
+            description=description,
+            brand=brand,
+            image_url=image_url,
         )
 
         self.db.add(product)

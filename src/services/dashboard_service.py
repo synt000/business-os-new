@@ -74,7 +74,8 @@ class DashboardService:
                 AccountLedger.account_head.in_([
                     "PURCHASE_EXPENSE",
                     "OPERATING_EXPENSE",
-                    "EXPENSE"
+                    "EXPENSE",
+                    "COGS_EXPENSE"
                 ])
             )
             .scalar()

@@ -15,6 +15,10 @@ from src.domains.accounting.services.journal_service import (
     create_customer_payment_journal,
 )
 
+from src.domains.accounting.services.payment_account_resolver import (
+    resolve_payment_account,
+)
+
 
 
 def sync_invoice_payment_state(
@@ -177,11 +181,18 @@ def create_payment(
     db.flush()
 
 
+    payment_account = resolve_payment_account(
+        db,
+        tenant_id,
+        data.payment_method,
+    )
+
     create_customer_payment_journal(
         db=db,
         tenant_id=tenant_id,
         payment_id=payment.id,
         payment_amount=data.amount,
+        payment_account=payment_account,
     )
 
 

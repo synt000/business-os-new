@@ -410,3 +410,29 @@ def get_social_summary(
         "unread": unread,
         "replied": replied
     }
+
+
+    @staticmethod
+    def create_channel(
+        db: Session,
+        tenant_id: str,
+        data
+    ):
+        import uuid
+
+        channel = SocialChannel(
+            id=str(uuid.uuid4()),
+            tenant_id=tenant_id,
+            platform=data.platform,
+            channel_name=data.channel_name,
+            external_id=data.external_id,
+            access_token=data.access_token,
+            webhook_token=data.webhook_token,
+            is_active=True
+        )
+
+        db.add(channel)
+        db.commit()
+        db.refresh(channel)
+
+        return channel

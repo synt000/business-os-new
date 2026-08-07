@@ -1,6 +1,7 @@
 from sqlalchemy.orm import Session
 
 from src.domains.accounting.services.ledger_service import create_ledger_entry
+from src.domains.accounting.services.account_resolver import resolve_account
 
 
 def create_sale_journal(
@@ -30,7 +31,7 @@ def create_sale_journal(
         db=db,
         tenant_id=tenant_id,
         entry_type="CREDIT",
-        account_head="SALES_REVENUE",
+        account_head=resolve_account("SALE_REVENUE"),
         amount=sale_amount,
         reference_id=order_id,
         description="Sales Revenue",
@@ -52,7 +53,7 @@ def create_sale_journal(
         db=db,
         tenant_id=tenant_id,
         entry_type="DEBIT",
-        account_head="COGS_EXPENSE",
+        account_head=resolve_account("COGS_POSTING"),
         amount=inventory_cost,
         reference_id=order_id,
         description="Inventory Cost",
@@ -118,6 +119,7 @@ def create_supplier_payment_journal(
     tenant_id: str,
     payment_id: str,
     payment_amount: float,
+    payment_account: str = "CASH_ASSET",
 ):
     """
     Supplier Payment Journal
@@ -140,7 +142,7 @@ def create_supplier_payment_journal(
         db=db,
         tenant_id=tenant_id,
         entry_type="CREDIT",
-        account_head="CASH_ASSET",
+        account_head=payment_account,
         amount=payment_amount,
         reference_id=payment_id,
         description="Cash payment to supplier",
@@ -155,6 +157,7 @@ def create_customer_payment_journal(
     tenant_id: str,
     payment_id: str,
     payment_amount: float,
+    payment_account: str = "CASH_ASSET",
 ):
     """
     Customer Payment Double Entry
@@ -167,7 +170,7 @@ def create_customer_payment_journal(
         db=db,
         tenant_id=tenant_id,
         entry_type="DEBIT",
-        account_head="CASH_ASSET",
+        account_head=payment_account,
         amount=payment_amount,
         reference_id=payment_id,
         description="Customer payment received",
@@ -215,7 +218,7 @@ def create_invoice_journal(
         db=db,
         tenant_id=tenant_id,
         entry_type="CREDIT",
-        account_head="SALES_REVENUE",
+        account_head=resolve_account("SALE_REVENUE"),
         amount=invoice_amount,
         reference_id=invoice_id,
         description="Invoice revenue created",

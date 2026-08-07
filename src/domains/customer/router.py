@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
+from src.core.security import get_current_user
 from src.models.saas_core import Customer
 from .schemas import (
     CustomerCreate,
@@ -27,12 +28,13 @@ router = APIRouter(
     response_model=list[CustomerResponse]
 )
 def list_customers(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
 
     return CustomerService.list(
         db,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
+        tenant_id=current_user.tenant_id
     )
 
 
@@ -42,12 +44,13 @@ def list_customers(
 )
 def create_customer(
     payload: CustomerCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
 
     return CustomerService.create(
         db,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d",
+        tenant_id=current_user.tenant_id,
         payload=payload
     )
 
@@ -58,11 +61,12 @@ def create_customer(
 )
 def customer_ui(
     request: Request,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     customers = CustomerService.list(
         db,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
+        tenant_id=current_user.tenant_id
     )
 
     return templates.TemplateResponse(
@@ -80,12 +84,13 @@ def customer_ui(
 )
 def get_customer(
     customer_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     return CustomerService.get(
         db,
         customer_id=customer_id,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
+        tenant_id=current_user.tenant_id
     )
 
 
@@ -96,12 +101,13 @@ def get_customer(
 def update_customer(
     customer_id: str,
     payload: CustomerCreate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     return CustomerService.update(
         db,
         customer_id=customer_id,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d",
+        tenant_id=current_user.tenant_id,
         payload=payload
     )
 
@@ -111,12 +117,13 @@ def update_customer(
 )
 def delete_customer(
     customer_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
     return CustomerService.delete(
         db,
         customer_id=customer_id,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
+        tenant_id=current_user.tenant_id
     )
 
 
@@ -138,13 +145,14 @@ templates = Jinja2Templates(
 def customer_profile_ui(
     request: Request,
     customer_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
 
     customer = CustomerService.get(
         db,
         customer_id,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
+        tenant_id=current_user.tenant_id
     )
 
     return templates.TemplateResponse(
@@ -161,13 +169,14 @@ def customer_profile_ui(
 )
 def customer_analytics(
     customer_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
 
     return CustomerService.analytics(
         db,
         customer_id,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
+        tenant_id=current_user.tenant_id
     )
 
 
@@ -177,13 +186,14 @@ def customer_analytics(
 )
 def customer_orders(
     customer_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
 
     return CustomerService.orders(
         db,
         customer_id,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
+        tenant_id=current_user.tenant_id
     )
 
 
@@ -193,13 +203,14 @@ def customer_orders(
 )
 def customer_revenue(
     customer_id: str,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
 ):
 
     return CustomerService.revenue(
         db,
         customer_id,
-        tenant_id="0d3a21e3-7356-440f-bdb8-e5598516935d"
+        tenant_id=current_user.tenant_id
     )
 
 

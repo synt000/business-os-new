@@ -42,19 +42,6 @@ class TenantPartnership(Base):
     shared_sku_footprint = Column(Text, nullable=True) # JSON Array of shared product SKUs
     created_at = Column(DateTime, default=datetime.utcnow)
 
-# 3. IDEA 3: AI Predictive Restock Analytics Data Matrices
-class PredictiveAnalytic(Base):
-    __tablename__ = "predictive_analytics"
-    
-    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    tenant_id = Column(String(36), index=True, nullable=False)
-    product_id = Column(String(36), nullable=False)
-    current_stock_level = Column(Integer, nullable=False)
-    predicted_sales_next_month = Column(Float, nullable=False)
-    recommended_restock_qty = Column(Integer, nullable=False)
-    confidence_score = Column(Float, default=0.95) # 95% mathematical accuracy baseline
-    calculated_at = Column(DateTime, default=datetime.utcnow)
-
 # 4. IDEA 4: Franchise & Multi-Branch Enterprise Corporate Networks
 class FranchiseNetwork(Base):
     __tablename__ = "franchise_networks"

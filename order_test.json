@@ -1,0 +1,13 @@
+{
+  "order_number": "TEST-ORDER-20260806-004",
+  "customer_name": "Payment Gateway Test",
+  "customer_id": "3b7450ff-1c47-46da-9c8a-2dba5095a9a9",
+  "platform_channel": "SYSTEM",
+  "items": [
+    {
+      "product_id": "299abec5-999a-41ec-bca0-4f08f4946a8c",
+      "quantity": 1,
+      "price": 10000
+    }
+  ]
+}

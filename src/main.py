@@ -81,6 +81,7 @@ from src.domains.purchase.router import router as purchase_router
 from src.domains.invoice.router import router as invoice_router
 from src.domains.receivable.router import router as receivable_router
 from src.domains.payment.router import router as payment_router
+from src.domains.bank_reconciliation.router import router as bank_reconciliation_router
 from src.domains.payment.webhook.router import router as payment_webhook_router
 from src.domains.customer_finance.router import router as customer_finance_router
 from src.domains.finance.router import router as finance_router
@@ -178,6 +179,8 @@ app.include_router(invoice_router)
 app.include_router(receivable_router)
 # OLD PAYMENT INCLUDE REMOVED
 app.include_router(payment_router)
+for _bank_route in bank_reconciliation_router.routes:
+    app.router.routes.append(_bank_route)
 app.include_router(payment_webhook_router)
 app.include_router(customer_finance_router)
 app.include_router(finance_router)

@@ -6,8 +6,13 @@ from src.models.saas_core import (
 )
 
 from src.domains.audit.service import AuditService
+
 from src.domains.accounting.services.journal_service import (
-    create_invoice_journal
+    create_invoice_journal,
+)
+
+from src.domains.receivable.services.receivable_service import (
+    create_receivable,
 )
 
 
@@ -29,6 +34,7 @@ def create_invoice(
     if not order:
         raise Exception("ORDER_NOT_FOUND")
 
+
     invoice = Invoice(
         invoice_number=data.invoice_number,
         amount=order.total_amount,
@@ -40,12 +46,22 @@ def create_invoice(
     db.add(invoice)
     db.flush()
 
+
+    create_receivable(
+        db=db,
+        tenant_id=tenant_id,
+        invoice=invoice,
+        customer_id=order.customer_id,
+    )
+
+
     create_invoice_journal(
         db=db,
         tenant_id=tenant_id,
         invoice_id=str(invoice.id),
         invoice_amount=order.total_amount,
     )
+
 
     AuditService.create_audit_log(
         db=db,
@@ -57,10 +73,12 @@ def create_invoice(
             f"invoice_number={invoice.invoice_number}, "
             f"amount={order.total_amount}, "
             f"status={invoice.status}, "
-            f"invoice_created=true"
+            f"receivable_created=true"
         ),
     )
 
-    db.flush()
+
+    db.commit()
+    db.refresh(invoice)
 
     return invoice

@@ -1027,7 +1027,7 @@ async function loadRevenueExpense(){
         const token = localStorage.getItem("access_token");
 
         const res = await fetch(
-            "/api/v4/owner/revenue-expense",
+            "/api/v4/dashboard/summary",
             {
                 headers:{
                     "Authorization":"Bearer " + token
@@ -1266,7 +1266,7 @@ const token = localStorage.getItem("access_token");
 
 
 const res = await fetch(
-"/api/v4/owner/revenue-expense",
+"/api/v4/dashboard/summary",
 {
 headers:{
 "Authorization":"Bearer "+token

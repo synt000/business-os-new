@@ -63,3 +63,11 @@ class SocialLeadResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class SocialChannelCreate(BaseModel):
+    platform: str
+    channel_name: str | None = None
+    external_id: str | None = None
+    access_token: str | None = None
+    webhook_token: str | None = None

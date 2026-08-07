@@ -41,6 +41,8 @@ LEGACY_IGNORE_TABLES = {
     "franchise_networks",
     "predictive_analytics",
     "subscriptions",
+    "phone_verifications",
+    "device_sessions_backup_identity_v58",
 }
 
 

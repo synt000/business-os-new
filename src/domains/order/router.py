@@ -1,10 +1,22 @@
+from src.domains.payment.models import (
+    PaymentMethod,
+    TenantPaymentMethod,
+)
+from src.domains.payment.services.payment_config_service import get_available_payment_methods
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import get_current_user
 from src.domains.trial.guard import require_active_subscription
-from src.models.saas_core import User, Order
+from src.models.saas_core import (
+    User,
+    Order,
+    OrderItem,
+    Invoice,
+    Receivable,
+    Customer,
+)
 from src.domains.product.models import Product
 from src.domains.inventory.services.stock_service import restore_stock
 
@@ -262,4 +274,167 @@ async def update_order_status(
     return {
         "id": order.id,
         "status": order.order_status
+    }
+
+
+@router.put("/{order_id}/payment")
+async def pay_order(
+    order_id: str,
+    payment_method: str,
+    current_user: User = Depends(require_active_subscription),
+    db: Session = Depends(get_db),
+):
+    print("=== PAY ORDER LIVE ENTRY ===")
+    print("ORDER_ID =", order_id)
+    print("PAYMENT_METHOD RAW =", repr(payment_method))
+    print("USER TENANT =", repr(current_user.tenant_id))
+
+
+
+    print("RAW PAYMENT:", repr(payment_method))
+    payment_method = payment_method.strip().upper()
+    print("PAYMENT DEBUG:", repr(payment_method))
+    print("PAYMENT ALLOWED CHECK:", payment_method in ["CASH","KBZPAY","WAVEPAY","KBZ_BANK","CB_BANK","CB_ATM","WAVE_MONEY","BANK"])
+
+    order = (
+        db.query(Order)
+        .filter(
+            Order.id == order_id,
+            Order.tenant_id == current_user.tenant_id
+        )
+        .first()
+    )
+
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="ORDER_NOT_FOUND"
+        )
+
+    print("DEBUG PAYMENT VALUE =", repr(payment_method), "TYPE=", type(payment_method))
+
+    print("=== TENANT DEBUG ===")
+    print("CURRENT USER TENANT =", repr(current_user.tenant_id))
+    print("====================")
+
+    print("===== PAYMENT TENANT CHECK =====")
+    print("CURRENT USER ID =", repr(current_user.id))
+    print("CURRENT TENANT ID =", repr(current_user.tenant_id))
+    print("================================")
+
+    allowed_methods = [
+        row.code
+        for row in (
+            db.query(PaymentMethod.code)
+            .join(
+                TenantPaymentMethod,
+                TenantPaymentMethod.payment_method_id == PaymentMethod.id
+            )
+            .filter(
+                TenantPaymentMethod.tenant_id == current_user.tenant_id,
+                TenantPaymentMethod.enabled == True,
+                PaymentMethod.active == True
+            )
+            .all()
+        )
+    ]
+
+    print("========== PAYMENT TRACE ==========")
+    print("TENANT =", repr(current_user.tenant_id))
+    print("PAYMENT VALUE =", repr(payment_method))
+    print("PAYMENT TYPE =", type(payment_method))
+    print("ALLOWED =", [repr(x) for x in allowed_methods])
+    print("COMPARE RESULT =", payment_method in allowed_methods)
+    print("===================================")
+
+    if payment_method not in allowed_methods:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "error": "INVALID_PAYMENT_METHOD",
+                "received": repr(payment_method),
+                "received_length": len(payment_method),
+                "allowed": [repr(x) for x in allowed_methods],
+                "tenant": repr(current_user.tenant_id)
+            }
+        )
+
+    order.order_status = "PAID"
+
+    invoice = (
+        db.query(Invoice)
+        .filter(
+            Invoice.order_id == order.id,
+            Invoice.tenant_id == current_user.tenant_id
+        )
+        .first()
+    )
+
+    if invoice:
+        invoice.status = "PAID"
+
+        receivable = (
+            db.query(Receivable)
+            .filter(
+                Receivable.invoice_id == invoice.id,
+                Receivable.tenant_id == current_user.tenant_id
+            )
+            .first()
+        )
+
+        if receivable:
+            receivable.paid_amount = receivable.total_amount
+            receivable.balance_amount = 0
+            receivable.status = "PAID"
+
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "status": "PAYMENT_SUCCESS",
+        "order_id": order.id,
+        "order_number": order.order_number,
+        "payment_method": payment_method,
+        "order_status": order.order_status
+    }
+
+
+
+@router.put("/{order_id}/complete")
+async def complete_order(
+    order_id: str,
+    current_user: User = Depends(require_active_subscription),
+    db: Session = Depends(get_db),
+):
+    order = (
+        db.query(Order)
+        .filter(
+            Order.id == order_id,
+            Order.tenant_id == current_user.tenant_id
+        )
+        .first()
+    )
+
+    if not order:
+        raise HTTPException(
+            status_code=404,
+            detail="ORDER_NOT_FOUND"
+        )
+
+    if order.order_status != "PAID":
+        raise HTTPException(
+            status_code=400,
+            detail="ONLY_PAID_ORDER_CAN_BE_COMPLETED"
+        )
+
+    order.order_status = "COMPLETED"
+
+    db.commit()
+    db.refresh(order)
+
+    return {
+        "status": "ORDER_COMPLETED",
+        "order_id": order.id,
+        "order_number": order.order_number,
+        "order_status": order.order_status
     }

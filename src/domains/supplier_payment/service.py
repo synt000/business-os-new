@@ -6,6 +6,10 @@ from src.domains.accounting.services.journal_service import (
     create_supplier_payment_journal,
 )
 
+from src.domains.accounting.services.payment_account_resolver import (
+    resolve_payment_account,
+)
+
 from src.domains.purchase.models import SupplierPayment
 
 from src.domains.purchase.models import SupplierPayable
@@ -54,11 +58,18 @@ def create_supplier_payment(
     db.add(payment)
 
 
+    payment_account = resolve_payment_account(
+        db,
+        tenant_id,
+        data.payment_method,
+    )
+
     create_supplier_payment_journal(
         db=db,
         tenant_id=tenant_id,
         payment_id=payment.id,
         payment_amount=data.amount,
+        payment_account=payment_account,
     )
 
     payable.paid_amount += data.amount

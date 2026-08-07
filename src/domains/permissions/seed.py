@@ -21,6 +21,7 @@ PERMISSIONS = [
     "customers.view",
 
     "reports.view",
+    "payment_config.manage",
 ]
 
 
@@ -33,6 +34,7 @@ ROLES = {
         "inventory.manage",
         "orders.manage",
         "reports.view",
+        "payment_config.manage",
     ],
 
     "ADMIN": [

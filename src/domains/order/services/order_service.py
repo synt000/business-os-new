@@ -3,8 +3,8 @@ from sqlalchemy.orm import Session
 from src.models.saas_core import Order, OrderItem
 from src.domains.product.models import Product
 from src.domains.inventory.services.stock_service import reduce_stock
-from src.domains.accounting.services.accounting_service import create_sale_journal
 from src.domains.audit.service import AuditService
+from src.domains.accounting.services.accounting_service import create_sale_journal
 
 
 def create_order(
@@ -105,6 +105,7 @@ def create_order(
             qty = item['quantity'] if isinstance(item, dict) else item.quantity
             inventory_cost += product.purchase_price * qty
 
+
     create_sale_journal(
         db=db,
         tenant_id=tenant_id,
@@ -112,6 +113,7 @@ def create_order(
         sale_amount=total,
         inventory_cost=inventory_cost,
     )
+
 
     db.flush()
 

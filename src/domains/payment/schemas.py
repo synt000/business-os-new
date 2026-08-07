@@ -18,3 +18,16 @@ class PaymentResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class PaymentMethodConfigResponse(BaseModel):
+    code: str
+    name: str
+    category: str
+    ledger_account: str
+    enabled: bool
+    is_default: bool
+
+
+class PaymentConfigUpdateRequest(BaseModel):
+    payment_code: str

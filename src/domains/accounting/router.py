@@ -277,7 +277,8 @@ def balance_sheet(
 
         if head in [
             "CASH_ASSET",
-            "INVENTORY_ASSET"
+            "INVENTORY_ASSET",
+            "CUSTOMER_RECEIVABLE"
         ]:
 
             assets.setdefault(head,0)
@@ -295,7 +296,7 @@ def balance_sheet(
 
             liabilities.setdefault(head,0)
 
-            if entry == "CREDIT":
+            if entry in ["CREDIT", "PAYABLE"]:
                 liabilities[head] += amount
             else:
                 liabilities[head] -= amount

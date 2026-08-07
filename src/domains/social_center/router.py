@@ -8,6 +8,10 @@ from src.domains.social_center.service import (
     SocialCenterService,
 )
 
+from src.domains.social_center.schemas import (
+    SocialChannelCreate,
+)
+
 from src.application.channel.contracts import (
     ChannelResolutionRequest,
 )
@@ -33,6 +37,20 @@ def channels(
         db,
         current_user.tenant_id
     )
+
+
+@router.post("/channels")
+def create_channel(
+    data: SocialChannelCreate,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    return SocialCenterService.create_channel(
+        db,
+        current_user.tenant_id,
+        data
+    )
+
 
 
 @router.get("/facebook/webhook")

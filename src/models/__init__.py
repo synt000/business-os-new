@@ -47,3 +47,15 @@ from src.domains.payment.webhook.event import WebhookEvent
 
 # Payment Webhook Registry
 from src.domains.payment.webhook.event import WebhookEvent
+
+# Payment Method Configuration Registry
+from src.domains.payment.models import (
+    PaymentMethod,
+    TenantPaymentMethod,
+)
+
+
+# Bank Reconciliation Registry
+from src.domains.bank_reconciliation.models import (
+    BankTransaction,
+)

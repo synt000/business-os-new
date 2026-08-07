@@ -1,12 +1,12 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from src.core.database import get_db
-from src.database_mega_upgrade import PredictiveAnalytic
+from src.domains.analytics.models import PredictiveAnalytic
 from src.domains.inventory.models import Inventory
 from src.domains.movement.models import StockMovement
 from datetime import datetime
 
-router = APIRouter(prefix="/analytics", tags=["AI Predictive Analytics Engine"])
+router = APIRouter(prefix="/api/v4/analytics", tags=["AI Predictive Analytics Engine"])
 
 @router.post("/forecast/{tenant_id}/{product_id}")
 def generate_product_forecast(tenant_id: str, product_id: str, db: Session = Depends(get_db)):
@@ -30,7 +30,7 @@ def generate_product_forecast(tenant_id: str, product_id: str, db: Session = Dep
     ).all()
     
     # Compute baseline movement mathematical velocity
-    total_sales_units = sum([m.quantity for m in past_movements])
+    total_sales_units = sum([abs(m.quantity_change) for m in past_movements])
     num_transactions = len(past_movements)
     
     # Accurate forecast logic simulation (Defaulting buffer if history is shallow)

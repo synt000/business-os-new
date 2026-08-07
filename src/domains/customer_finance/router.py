@@ -275,7 +275,7 @@ from src.domains.customer_finance.services.credit_history_service import (
 
 
 @router.get("/{customer_id}/credit-history")
-def customer_credit_history(
+def customer_credit_history_v2(
     customer_id: str,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)

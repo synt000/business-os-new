@@ -17,6 +17,21 @@ class Product(TenantModel):
         nullable=False
     )
 
+    description = mapped_column(
+        String,
+        nullable=True
+    )
+
+    brand = mapped_column(
+        String,
+        nullable=True
+    )
+
+    image_url = mapped_column(
+        String,
+        nullable=True
+    )
+
     sku = mapped_column(
         String,
         unique=True,
@@ -82,9 +97,3 @@ class Product(TenantModel):
     # procurements relationship disabled temporarily
 # tenant relationship disabled (registry fix)
 
-
-# Stock movement relationship
-stock_movements = relationship(
-    "StockMovement",
-    back_populates="product"
-)
