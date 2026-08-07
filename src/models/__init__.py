@@ -59,3 +59,9 @@ from src.domains.payment.models import (
 from src.domains.bank_reconciliation.models import (
     BankTransaction,
 )
+
+# Social Commerce Publishing Registry
+from src.domains.social_post.models import SocialPost
+
+# Social Publishing Registry
+from src.domains.social_post.models import SocialPost
