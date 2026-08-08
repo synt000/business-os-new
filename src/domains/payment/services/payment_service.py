@@ -46,19 +46,13 @@ def sync_invoice_payment_state(
         invoice.status = "PAID"
 
         if invoice.order:
-            invoice.order.order_status = "COMPLETED"
+            invoice.order.order_status = "PAID"
 
     elif paid_total > 0:
         invoice.status = "PARTIAL"
 
-        if invoice.order:
-            invoice.order.order_status = "PROCESSING"
-
     else:
         invoice.status = "UNPAID"
-
-        if invoice.order:
-            invoice.order.order_status = "CONFIRMED"
 
 
 

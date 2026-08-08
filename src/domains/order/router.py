@@ -235,6 +235,22 @@ async def update_order_status(
 
     old_status = order.order_status
 
+    allowed_transitions = {
+        "PENDING": {"CONFIRMED", "CANCELLED"},
+        "CONFIRMED": {"PACKING", "CANCELLED"},
+        "PACKING": {"SHIPPED", "CANCELLED"},
+        "SHIPPED": {"COMPLETED", "CANCELLED"},
+        "PAID": {"COMPLETED"},
+        "COMPLETED": set(),
+        "CANCELLED": set(),
+    }
+
+    if data.status not in allowed_transitions.get(old_status, set()):
+        raise HTTPException(
+            status_code=400,
+            detail="INVALID_STATUS_TRANSITION"
+        )
+
 
     if (
         data.status == "CANCELLED"
