@@ -33,7 +33,7 @@ class TelegramPublisherAdapter(
                 "message": "telegram channel config missing",
             }
 
-        chat_id = channel_config.get("chat_id")
+        chat_id = channel_config.get("external_id")
 
         if not chat_id:
             return {

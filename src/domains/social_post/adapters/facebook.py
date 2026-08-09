@@ -10,7 +10,8 @@ class FacebookPublisherAdapter(
     def publish(
         self,
         content: str,
-        media_url: str | None = None
+        media_url: str | None = None,
+        channel_config: dict | None = None,
     ):
         # Future:
         # Facebook Graph API call here
