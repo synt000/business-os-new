@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from src.domains.social_post.channel_models import SocialChannel
+from src.domains.social_center.models import SocialChannel
 
 
 class SocialChannelService:
