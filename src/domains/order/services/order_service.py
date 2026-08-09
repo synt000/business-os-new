@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 
-from src.models.saas_core import Order, OrderItem
+from src.models.saas_core import Order, OrderItem, Customer
 from src.domains.product.models import Product
 from src.domains.inventory.services.stock_service import reduce_stock
 from src.domains.audit.service import AuditService
@@ -19,6 +19,19 @@ def create_order(
 
     total = 0
 
+    if customer_id is not None:
+        customer = (
+            db.query(Customer)
+            .filter(
+                Customer.id == str(customer_id),
+                Customer.tenant_id == tenant_id
+            )
+            .first()
+        )
+
+        if not customer:
+            raise Exception("CUSTOMER_NOT_FOUND")
+
     order = Order(
         order_number=order_number,
         platform_channel="SYSTEM",
@@ -33,7 +46,6 @@ def create_order(
     db.add(order)
     db.flush()
 
-
     for item in items:
 
         product_id = (
@@ -41,14 +53,6 @@ def create_order(
             if isinstance(item, dict)
             else item.product_id
         )
-
-
-        product_id = (
-            item['product_id']
-            if isinstance(item, dict)
-            else item.product_id
-        )
-
 
         product = (
             db.query(Product)
@@ -62,7 +66,6 @@ def create_order(
         if not product:
             raise Exception("PRODUCT_NOT_FOUND")
 
-
         reduce_stock(
             db,
             product,
@@ -70,10 +73,8 @@ def create_order(
             "Customer Order"
         )
 
-
         line_total = item.quantity * item.price
         total += line_total
-
 
         order_item = OrderItem(
             order_id=order.id,
@@ -84,13 +85,16 @@ def create_order(
 
         db.add(order_item)
 
-
     order.total_amount = total
 
     inventory_cost = 0
 
     for item in items:
-        product_id = item['product_id'] if isinstance(item, dict) else item.product_id
+        product_id = (
+            item['product_id']
+            if isinstance(item, dict)
+            else item.product_id
+        )
 
         product = (
             db.query(Product)
@@ -102,9 +106,12 @@ def create_order(
         )
 
         if product:
-            qty = item['quantity'] if isinstance(item, dict) else item.quantity
+            qty = (
+                item['quantity']
+                if isinstance(item, dict)
+                else item.quantity
+            )
             inventory_cost += product.purchase_price * qty
-
 
     create_sale_journal(
         db=db,
@@ -114,9 +121,7 @@ def create_order(
         inventory_cost=inventory_cost,
     )
 
-
     db.flush()
-
 
     AuditService.create_audit_log(
         db=db,
@@ -126,6 +131,5 @@ def create_order(
         record_id=str(order.id),
         changes="{}",
     )
-
 
     return order

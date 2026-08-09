@@ -1,5 +1,7 @@
+from datetime import datetime
 from .service import get_ai_decision_engine, get_ai_growth_plan, get_smart_restock, get_sales_forecast, get_ceo_report, get_top_product_intelligence, get_customer_intelligence, get_ai_dashboard
 from src.domains.dashboard.services.cashflow_service import get_cashflow_dashboard
+from src.domains.dashboard.services.seller_analytics_service import get_revenue_summary, get_daily_revenue, get_order_summary, get_daily_order_summary, get_customer_count
 
 from fastapi import APIRouter, Depends, Request
 from fastapi.responses import HTMLResponse
@@ -67,6 +69,73 @@ def dashboard_menus(
         db,
         current_user.tenant_id
     )
+
+
+@router.get("/seller/revenue")
+def seller_revenue_analytics(
+    current_user: User = Depends(require_active_subscription),
+    db: Session = Depends(get_db),
+):
+    now = datetime.utcnow()
+
+    start_at = datetime(now.year, now.month, now.day)
+
+    summary = get_revenue_summary(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        start_at=start_at,
+        end_at=now,
+    )
+
+    daily_revenue = get_daily_revenue(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        start_at=start_at,
+        end_at=now,
+    )
+
+    return {
+        "status": "SUCCESS",
+        **summary,
+        "daily_revenue": daily_revenue,
+    }
+
+
+@router.get("/seller/orders")
+def seller_order_analytics(
+    current_user: User = Depends(require_active_subscription),
+    db: Session = Depends(get_db),
+):
+    now = datetime.utcnow()
+    start_at = datetime(now.year, now.month, now.day)
+
+    summary = get_order_summary(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        start_at=start_at,
+        end_at=now,
+    )
+
+    daily_orders = get_daily_order_summary(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        start_at=start_at,
+        end_at=now,
+    )
+
+    customer_count = get_customer_count(
+        db=db,
+        tenant_id=current_user.tenant_id,
+        start_at=start_at,
+        end_at=now,
+    )
+
+    return {
+        "status": "SUCCESS",
+        **summary,
+        "customer_count": customer_count,
+        "daily_orders": daily_orders,
+    }
 
 
 @router.get("/ceo-summary")

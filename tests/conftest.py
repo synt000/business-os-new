@@ -4,11 +4,63 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from src.core.config import settings
-from src.models.saas_core import Invoice, Tenant, Customer, Order
+from src.models.saas_core import (
+    Invoice,
+    Tenant,
+    Customer,
+    Order,
+    Payment,
+    Receivable,
+    OrderItem,
+    CustomerIdentity,
+)
+from src.domains.product.models import Product
+from src.domains.inventory.models import Inventory
+from src.domains.movement.models import StockMovement
+from src.domains.audit.models import AuditLog
+from src.domains.accounting.models import AccountLedger
+from src.domains.payment.webhook.event import WebhookEvent
+from src.domains.subscription.models import (
+    SubscriptionPlan,
+    TenantSubscription,
+    SubscriptionPayment,
+)
+from src.core.database import Base
 
+
+import os
+
+TEST_DATABASE_URL = os.getenv(
+    "TEST_DATABASE_URL",
+    "sqlite:///./test_business.db",
+)
 
 engine = create_engine(
-    settings.DATABASE_URL
+    TEST_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+)
+
+Base.metadata.create_all(
+    bind=engine,
+    tables=[
+        Tenant.__table__,
+        Customer.__table__,
+        Order.__table__,
+        Invoice.__table__,
+        Payment.__table__,
+        Receivable.__table__,
+        OrderItem.__table__,
+        Product.__table__,
+        Inventory.__table__,
+        StockMovement.__table__,
+        AuditLog.__table__,
+        AccountLedger.__table__,
+        CustomerIdentity.__table__,
+        WebhookEvent.__table__,
+        SubscriptionPlan.__table__,
+        TenantSubscription.__table__,
+        SubscriptionPayment.__table__,
+    ],
 )
 
 TestingSession = sessionmaker(

@@ -10,7 +10,7 @@ from sqlalchemy import (
 )
 
 from src.core.database import Base
-from src.models.saas_core import generate_uuid
+import uuid
 
 
 class SocialPost(Base):
@@ -20,7 +20,7 @@ class SocialPost(Base):
     id = Column(
         String,
         primary_key=True,
-        default=generate_uuid,
+        default=lambda: str(uuid.uuid4()),
         index=True
     )
 
@@ -34,11 +34,32 @@ class SocialPost(Base):
         index=True
     )
 
+    campaign_id = Column(
+        String,
+        ForeignKey(
+            "campaigns.id",
+            ondelete="CASCADE"
+        ),
+        nullable=True,
+        index=True
+    )
+
     platform = Column(
         String,
         nullable=False,
         index=True
     )
+
+    channel_id = Column(
+        String,
+        ForeignKey(
+            "social_channels.id",
+            ondelete="CASCADE"
+        ),
+        nullable=True,
+        index=True
+    )
+
 
     content = Column(
         Text,

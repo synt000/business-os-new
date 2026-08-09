@@ -7,6 +7,9 @@ from src.telegram_bot.webhook import router as telegram_router
 # import src.domains.accounting.models
 
 import os
+from dotenv import load_dotenv
+
+load_dotenv('.env')
 
 # ==========================================================================
 # ATOMIC ZERO-TOUCH DATABASE MAPPER COMPILATION SHIELD
@@ -58,6 +61,14 @@ from src.product.router import router as product_router
 from src.movement.router import router as movement_router
 from src.domains.social.router import router as social_webhook_router
 from src.domains.social_center.router import router as social_center_router
+from src.domains.social_post.router import router as social_post_router
+from src.domains.campaign.router import router as campaign_router
+from src.domains.campaign.services.scheduler_service import (
+    start_scheduler,
+    scheduler,
+)
+from src.domains.campaign.execution_models import CampaignExecutionLog
+from src.core.database import SessionLocal
 from src.domains.social_center.ui_router import router as social_center_ui_router
 from src.domains.social_center.ui_router import router as social_ui_router
 from src.domains.dashboard.router import router as dashboard_router
@@ -116,12 +127,49 @@ app = FastAPI(
     openapi_url="/api/v4/openapi.json"
 )
 
+
+@app.on_event("startup")
+def startup_scheduler():
+    start_scheduler()
+
 @app.get("/health")
 def system_health():
+    scheduler_jobs = scheduler.get_jobs() if scheduler.running else []
+
+    db = SessionLocal()
+    try:
+        pending_retries = (
+            db.query(CampaignExecutionLog)
+            .filter(
+                CampaignExecutionLog.status == "failed",
+                CampaignExecutionLog.retry_count < CampaignExecutionLog.max_retries,
+            )
+            .count()
+        )
+
+        permanent_failures = (
+            db.query(CampaignExecutionLog)
+            .filter(
+                CampaignExecutionLog.status == "failed_permanent",
+            )
+            .count()
+        )
+    finally:
+        db.close()
+
     return {
         "status": "ok",
         "service": "business-os",
-        "version": "5.5.0-Enterprise"
+        "version": "5.5.0-Enterprise",
+        "scheduler": {
+            "running": scheduler.running,
+            "jobs": len(scheduler_jobs),
+            "job_ids": [job.id for job in scheduler_jobs],
+        },
+        "campaign_execution": {
+            "pending_retries": pending_retries,
+            "permanent_failures": permanent_failures,
+        },
     }
 
 from fastapi.responses import JSONResponse
@@ -205,6 +253,8 @@ app.include_router(audit_router)
 app.include_router(payment_gateway_router)
 app.include_router(social_center_router)
 app.include_router(social_center_ui_router)
+app.include_router(social_post_router)
+app.include_router(campaign_router)
 
 
 # ==========================================
@@ -280,5 +330,3 @@ app.include_router(telegram_router)
 # ==============================
 # Social Center Router
 # ==============================
-
-

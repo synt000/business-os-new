@@ -65,3 +65,10 @@ from src.domains.social_post.models import SocialPost
 
 # Social Publishing Registry
 from src.domains.social_post.models import SocialPost
+
+from src.domains.social_post.publish_log_models import SocialPublishLog
+
+from src.domains.campaign.models import (
+    Campaign,
+    CampaignChannel
+)
