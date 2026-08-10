@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from src.core.database import get_db
 from src.core.security import verify_password, get_password_hash, create_access_token, create_refresh_token
-from src.models.saas_core import User, Tenant, BusinessType
+from src.models.saas_core import User, Tenant, BusinessType, WorkspaceInvitation
 from src.models.business_profile import BusinessProfile
 from src.domains.business_type.services.feature_assign_service import assign_features_to_tenant
 from src.domains.business_type.services.slug_service import generate_business_slug
@@ -464,3 +464,158 @@ async def register_business_owner(
 
 
 # ==========================================================================
+
+# ==========================================================================
+# WORKSPACE INVITATION ACCEPTANCE
+# ==========================================================================
+
+class WorkspaceInviteAcceptPayload(BaseModel):
+    token: str
+    password: str
+    full_name: str | None = None
+
+
+@router.get("/invite/accept")
+async def validate_workspace_invitation(
+    token: str,
+    db: Session = Depends(get_db)
+):
+    invitation = (
+        db.query(WorkspaceInvitation)
+        .filter(
+            WorkspaceInvitation.invitation_token == token
+        )
+        .first()
+    )
+
+    if not invitation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="INVALID_INVITATION_TOKEN"
+        )
+
+    if invitation.is_accepted:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="INVITATION_ALREADY_ACCEPTED"
+        )
+
+    if invitation.expires_at < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="INVITATION_EXPIRED"
+        )
+
+    existing_user = (
+        db.query(User)
+        .filter(User.email == invitation.invite_email)
+        .first()
+    )
+
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="INVITED_EMAIL_ALREADY_REGISTERED"
+        )
+
+    return {
+        "status": "INVITATION_VALID",
+        "invite_email": invitation.invite_email,
+        "target_role": invitation.target_role,
+        "expires_at": invitation.expires_at.isoformat(),
+        "invitation_id": invitation.id
+    }
+
+
+@router.post("/invite/complete")
+async def complete_workspace_invitation(
+    payload: WorkspaceInviteAcceptPayload,
+    request: Request,
+    db: Session = Depends(get_db)
+):
+    invitation = (
+        db.query(WorkspaceInvitation)
+        .filter(
+            WorkspaceInvitation.invitation_token == payload.token
+        )
+        .first()
+    )
+
+    if not invitation:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="INVALID_INVITATION_TOKEN"
+        )
+
+    if invitation.is_accepted:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="INVITATION_ALREADY_ACCEPTED"
+        )
+
+    if invitation.expires_at < datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="INVITATION_EXPIRED"
+        )
+
+    existing_user = (
+        db.query(User)
+        .filter(User.email == invitation.invite_email)
+        .first()
+    )
+
+    if existing_user:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="INVITED_EMAIL_ALREADY_REGISTERED"
+        )
+
+    if not payload.password or len(payload.password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="PASSWORD_MUST_BE_AT_LEAST_8_CHARACTERS"
+        )
+
+    allowed_roles = {
+        "OWNER",
+        "ADMIN",
+        "MANAGER",
+        "STAFF",
+        "MEMBER",
+    }
+
+    target_role = (invitation.target_role or "MEMBER").upper()
+
+    if target_role not in allowed_roles:
+        target_role = "MEMBER"
+
+    new_user = User(
+        email=invitation.invite_email,
+        hashed_password=get_password_hash(payload.password),
+        full_name=payload.full_name,
+        role=target_role,
+        is_active=True,
+        tenant_id=invitation.tenant_id,
+    )
+
+    db.add(new_user)
+    invitation.is_accepted = True
+
+    try:
+        db.commit()
+        db.refresh(new_user)
+    except Exception:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="INVITATION_ACCOUNT_CREATION_FAILED"
+        )
+
+    return {
+        "status": "INVITATION_ACCEPTED_SUCCESSFULLY",
+        "user_id": new_user.id,
+        "workspace_id": new_user.tenant_id,
+        "email": new_user.email,
+        "role": new_user.role,
+    }

@@ -10,6 +10,7 @@ from src.core.database import get_db
 from src.core.config import settings
 from src.core.security import get_current_user
 from src.core.permissions.subscription_guard import require_active_subscription
+from src.core.permissions.guard import require_permission
 from src.domains.audit.models import AuditLog
 
 from src.domains.accounting.models import (
@@ -595,9 +596,7 @@ async def fetch_isolated_crm_customers(current_user: User = Depends(require_acti
     clients = db.query(Customer).filter(Customer.tenant_id == current_user.tenant_id).all()
     return {"customers": [{"id": c.id, "name": c.customer_name, "email": c.customer_email, "phone": c.customer_phone, "total_spent_usd": c.total_spent} for c in clients]}
 @router.post("/workspace/invite-user", status_code=status.HTTP_201_CREATED)
-async def create_secure_workspace_invitation(payload: WorkspaceInviteInboundSchema, request: Request, current_user: User = Depends(require_active_subscription()), db: Session = Depends(get_db)):
-    if current_user.role != "ADMIN": 
-        raise HTTPException(status_code=403, detail="ROLE_RESTRICTED: ONLY_WORKSPACE_ADMINS_CAN_INVITE_USERS")
+async def create_secure_workspace_invitation(payload: WorkspaceInviteInboundSchema, request: Request, current_user: User = Depends(require_permission("users.manage")), db: Session = Depends(get_db)):
     import secrets
     secure_token = secrets.token_urlsafe(32)
     expiry_time = datetime.utcnow() + timedelta(days=2)

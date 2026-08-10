@@ -198,12 +198,18 @@ if os.path.exists(static_directory_path):
 # 2. AUTOMATED BACKWARD COMPATIBILITY: FRONTEND HTML INLINE PAGES DIRECTORS
 # ==========================================================================
 
-app.include_router(auth_router)
+# AUTH ROUTER FASTAPI COMPATIBILITY FIX
+# Manually attach routes because include_router() is currently
+# producing _IncludedRouter placeholders in this project.
+for _auth_route in auth_router.routes:
+    app.router.routes.append(_auth_route)
 
 app.include_router(two_factor_router)
 app.include_router(session_router)
 app.include_router(refresh_router)
-app.include_router(product_router)
+# PRODUCT ROUTER FASTAPI 0.139 COMPATIBILITY FIX
+for _product_route in product_router.routes:
+    app.router.routes.append(_product_route)
 app.include_router(movement_router)
 app.include_router(category_router)
 app.include_router(tenant_router)
